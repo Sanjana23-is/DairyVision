@@ -1,0 +1,14 @@
+feature,mean_abs_shap
+weight,0.8084138
+age,0.32595637
+age_weight_ratio,0.11343455
+feed_thi_interaction,0.03238959
+feed,0.023651889
+feed_weight_ratio,0.013648968
+temperature,0.010000338
+temp_humidity,0.009417529
+humidity,0.0075897044
+thi,0.0060273344
+health_status,0.00086384127
+feed_per_weight,0.0
+thi_squared,0.0

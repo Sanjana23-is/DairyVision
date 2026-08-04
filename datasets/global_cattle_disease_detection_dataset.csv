@@ -1,0 +1,3001 @@
+Cattle_ID,Age_Months,Weight_kg,Breed,Disease_Status,Body_Condition
+COW00000,21,627.0,Brown Swiss,Foot and Mouth,3.8
+COW00001,95,492.0,Guernsey,Healthy,3.1
+COW00002,82,481.7,Ayrshire,Healthy,3.8
+COW00003,59,586.8,Guernsey,Healthy,4.0
+COW00004,58,629.1,Jersey,Healthy,3.0
+COW00005,104,553.2,Holstein,Bloat,2.6
+COW00006,21,447.1,Guernsey,Healthy,3.0
+COW00007,87,441.2,Brown Swiss,Healthy,4.0
+COW00008,33,435.8,Ayrshire,Healthy,4.0
+COW00009,22,408.6,Brown Swiss,Foot and Mouth,4.2
+COW00010,68,558.8,Brown Swiss,Healthy,2.4
+COW00011,117,640.0,Jersey,Healthy,4.5
+COW00012,91,548.9,Holstein,Healthy,4.1
+COW00013,94,369.2,Ayrshire,Healthy,2.1
+COW00014,89,534.7,Ayrshire,Foot and Mouth,3.0
+COW00015,96,537.0,Holstein,Healthy,3.4
+COW00016,67,717.7,Guernsey,Healthy,3.1
+COW00017,25,433.4,Jersey,Healthy,2.4
+COW00018,102,518.7,Brown Swiss,Healthy,2.6
+COW00019,60,686.5,Ayrshire,Healthy,2.1
+COW00020,66,586.0,Ayrshire,Foot and Mouth,2.3
+COW00021,52,595.1,Holstein,Healthy,2.8
+COW00022,31,559.2,Jersey,Healthy,4.5
+COW00023,112,576.4,Ayrshire,Healthy,3.6
+COW00024,96,612.2,Ayrshire,Mastitis,3.3
+COW00025,81,485.2,Holstein,Healthy,4.0
+COW00026,55,620.2,Ayrshire,Healthy,3.6
+COW00027,100,440.2,Brown Swiss,Healthy,2.4
+COW00028,70,576.3,Brown Swiss,Healthy,2.7
+COW00029,59,564.3,Holstein,Ketosis,2.7
+COW00030,60,500.7,Guernsey,Healthy,3.8
+COW00031,36,548.2,Guernsey,Healthy,3.4
+COW00032,21,500.2,Guernsey,Healthy,3.2
+COW00033,71,464.3,Guernsey,Healthy,3.7
+COW00034,107,521.7,Ayrshire,Healthy,4.9
+COW00035,18,461.7,Ayrshire,Healthy,2.9
+COW00036,104,575.8,Guernsey,Healthy,3.6
+COW00037,101,458.0,Ayrshire,Foot and Mouth,3.4
+COW00038,41,607.0,Guernsey,Foot and Mouth,4.1
+COW00039,80,455.5,Guernsey,Healthy,4.2
+COW00040,29,504.7,Brown Swiss,Ketosis,4.2
+COW00041,93,500.0,Guernsey,Ketosis,2.6
+COW00042,87,656.0,Holstein,Healthy,3.3
+COW00043,50,576.4,Brown Swiss,Healthy,4.4
+COW00044,19,533.1,Brown Swiss,Healthy,3.1
+COW00045,116,589.9,Ayrshire,Healthy,5.0
+COW00046,60,381.4,Holstein,Healthy,3.1
+COW00047,108,546.5,Guernsey,Healthy,3.5
+COW00048,85,709.8,Holstein,Ketosis,3.4
+COW00049,96,560.6,Ayrshire,Healthy,3.3
+COW00050,94,555.4,Ayrshire,Mastitis,4.5
+COW00051,33,593.9,Jersey,Healthy,2.5
+COW00052,51,621.6,Ayrshire,Healthy,3.7
+COW00053,62,390.2,Brown Swiss,Foot and Mouth,3.9
+COW00054,65,415.4,Ayrshire,Healthy,4.6
+COW00055,16,566.8,Guernsey,Healthy,3.8
+COW00056,71,492.8,Holstein,Healthy,4.9
+COW00057,28,655.0,Jersey,Mastitis,4.6
+COW00058,92,524.8,Brown Swiss,Healthy,3.0
+COW00059,85,395.2,Jersey,Healthy,4.6
+COW00060,111,448.6,Holstein,Healthy,4.9
+COW00061,92,330.0,Ayrshire,Healthy,2.8
+COW00062,51,531.3,Ayrshire,Healthy,3.8
+COW00063,116,534.9,Brown Swiss,Healthy,2.8
+COW00064,56,516.0,Jersey,Healthy,3.9
+COW00065,47,636.3,Holstein,Healthy,2.3
+COW00066,109,645.9,Ayrshire,Healthy,4.2
+COW00067,52,536.4,Jersey,Mastitis,3.3
+COW00068,20,379.2,Holstein,Healthy,3.8
+COW00069,62,599.4,Jersey,Healthy,2.1
+COW00070,97,594.4,Brown Swiss,Healthy,4.1
+COW00071,32,574.8,Guernsey,Ketosis,3.5
+COW00072,61,628.5,Jersey,Healthy,3.9
+COW00073,26,456.8,Ayrshire,Healthy,2.9
+COW00074,86,710.7,Guernsey,Healthy,2.4
+COW00075,63,473.2,Ayrshire,Healthy,3.3
+COW00076,47,609.9,Jersey,Healthy,4.8
+COW00077,36,415.0,Guernsey,Healthy,2.7
+COW00078,72,475.6,Jersey,Healthy,4.0
+COW00079,84,671.3,Guernsey,Healthy,2.1
+COW00080,113,529.1,Guernsey,Mastitis,4.2
+COW00081,59,617.2,Jersey,Mastitis,2.7
+COW00082,29,569.0,Ayrshire,Healthy,3.4
+COW00083,101,541.6,Ayrshire,Bloat,3.1
+COW00084,80,659.1,Ayrshire,Mastitis,2.3
+COW00085,87,531.1,Jersey,Foot and Mouth,3.0
+COW00086,22,407.5,Guernsey,Mastitis,3.1
+COW00087,45,485.7,Holstein,Healthy,3.6
+COW00088,94,594.1,Holstein,Healthy,4.9
+COW00089,101,581.6,Ayrshire,Healthy,3.4
+COW00090,59,424.6,Holstein,Healthy,4.7
+COW00091,98,492.1,Ayrshire,Healthy,3.4
+COW00092,102,503.5,Brown Swiss,Healthy,2.3
+COW00093,53,520.8,Jersey,Healthy,2.7
+COW00094,108,439.9,Holstein,Bloat,3.2
+COW00095,43,499.7,Guernsey,Mastitis,3.0
+COW00096,37,491.7,Guernsey,Healthy,4.6
+COW00097,85,611.7,Brown Swiss,Healthy,4.0
+COW00098,80,614.7,Ayrshire,Healthy,3.7
+COW00099,27,538.3,Jersey,Bloat,3.5
+COW00100,101,518.6,Brown Swiss,Mastitis,3.2
+COW00101,33,561.2,Jersey,Healthy,3.8
+COW00102,98,484.7,Brown Swiss,Healthy,2.4
+COW00103,12,458.3,Holstein,Healthy,2.5
+COW00104,98,474.8,Brown Swiss,Mastitis,2.9
+COW00105,96,499.2,Brown Swiss,Ketosis,2.5
+COW00106,96,456.9,Brown Swiss,Healthy,4.0
+COW00107,83,563.0,Brown Swiss,Healthy,2.1
+COW00108,62,608.4,Guernsey,Healthy,2.5
+COW00109,88,423.0,Brown Swiss,Healthy,4.7
+COW00110,41,552.0,Jersey,Ketosis,5.0
+COW00111,96,532.4,Jersey,Mastitis,3.5
+COW00112,72,577.3,Guernsey,Healthy,3.5
+COW00113,61,549.0,Ayrshire,Healthy,4.3
+COW00114,66,433.7,Guernsey,Healthy,2.1
+COW00115,73,449.0,Guernsey,Healthy,3.3
+COW00116,16,552.4,Ayrshire,Healthy,2.3
+COW00117,27,632.3,Ayrshire,Foot and Mouth,3.2
+COW00118,38,372.9,Brown Swiss,Mastitis,5.0
+COW00119,24,577.7,Holstein,Healthy,4.3
+COW00120,59,645.2,Guernsey,Mastitis,5.0
+COW00121,84,537.8,Guernsey,Mastitis,4.2
+COW00122,82,594.0,Jersey,Healthy,3.8
+COW00123,62,493.8,Ayrshire,Healthy,4.3
+COW00124,104,540.5,Ayrshire,Healthy,4.0
+COW00125,73,420.3,Jersey,Foot and Mouth,3.4
+COW00126,20,362.5,Brown Swiss,Healthy,2.9
+COW00127,94,625.4,Holstein,Healthy,3.6
+COW00128,74,471.2,Holstein,Healthy,2.8
+COW00129,80,513.6,Jersey,Healthy,3.5
+COW00130,73,439.1,Jersey,Healthy,2.4
+COW00131,71,437.2,Jersey,Mastitis,3.7
+COW00132,21,536.1,Holstein,Healthy,2.7
+COW00133,72,491.6,Brown Swiss,Healthy,2.9
+COW00134,97,580.2,Guernsey,Ketosis,3.5
+COW00135,44,586.2,Jersey,Healthy,2.5
+COW00136,77,575.7,Brown Swiss,Healthy,4.9
+COW00137,15,569.1,Jersey,Healthy,3.3
+COW00138,49,676.2,Guernsey,Healthy,3.1
+COW00139,59,464.6,Guernsey,Healthy,2.1
+COW00140,118,545.6,Ayrshire,Mastitis,4.5
+COW00141,35,640.6,Holstein,Healthy,3.9
+COW00142,41,651.2,Ayrshire,Healthy,3.2
+COW00143,56,436.3,Jersey,Healthy,2.7
+COW00144,119,525.0,Holstein,Foot and Mouth,4.2
+COW00145,104,658.6,Guernsey,Healthy,4.8
+COW00146,15,590.6,Holstein,Mastitis,3.1
+COW00147,37,565.6,Holstein,Healthy,2.4
+COW00148,100,532.6,Ayrshire,Healthy,2.3
+COW00149,18,519.3,Jersey,Healthy,2.0
+COW00150,104,573.1,Brown Swiss,Healthy,4.2
+COW00151,42,529.8,Jersey,Healthy,4.9
+COW00152,111,546.6,Holstein,Mastitis,5.0
+COW00153,43,556.3,Holstein,Healthy,4.4
+COW00154,58,495.8,Holstein,Healthy,2.5
+COW00155,83,592.6,Brown Swiss,Healthy,4.9
+COW00156,25,783.1,Brown Swiss,Healthy,3.0
+COW00157,72,407.8,Holstein,Healthy,3.0
+COW00158,66,575.9,Jersey,Healthy,4.1
+COW00159,96,489.2,Jersey,Healthy,2.1
+COW00160,119,596.2,Brown Swiss,Healthy,4.5
+COW00161,83,553.7,Ayrshire,Healthy,5.0
+COW00162,56,610.9,Guernsey,Healthy,4.3
+COW00163,55,644.0,Ayrshire,Healthy,4.3
+COW00164,57,565.4,Holstein,Healthy,3.2
+COW00165,99,640.6,Jersey,Bloat,2.2
+COW00166,46,362.5,Guernsey,Healthy,4.4
+COW00167,30,677.2,Jersey,Foot and Mouth,3.8
+COW00168,48,580.0,Ayrshire,Healthy,4.7
+COW00169,14,636.2,Brown Swiss,Healthy,2.3
+COW00170,23,452.4,Jersey,Healthy,2.9
+COW00171,21,483.5,Ayrshire,Healthy,3.1
+COW00172,95,561.7,Brown Swiss,Mastitis,4.0
+COW00173,90,548.6,Ayrshire,Foot and Mouth,4.4
+COW00174,87,572.6,Brown Swiss,Healthy,4.9
+COW00175,61,636.8,Holstein,Healthy,2.9
+COW00176,89,408.8,Guernsey,Healthy,3.5
+COW00177,29,627.9,Holstein,Healthy,2.1
+COW00178,109,550.7,Guernsey,Mastitis,2.8
+COW00179,66,533.7,Brown Swiss,Healthy,3.1
+COW00180,113,432.3,Guernsey,Healthy,3.8
+COW00181,28,590.2,Ayrshire,Bloat,3.4
+COW00182,65,356.9,Brown Swiss,Ketosis,3.1
+COW00183,87,601.9,Ayrshire,Healthy,3.9
+COW00184,65,430.6,Holstein,Healthy,4.5
+COW00185,60,554.3,Holstein,Foot and Mouth,2.7
+COW00186,29,540.5,Ayrshire,Healthy,3.0
+COW00187,53,643.6,Brown Swiss,Healthy,4.1
+COW00188,37,535.7,Brown Swiss,Healthy,4.3
+COW00189,44,494.5,Holstein,Bloat,4.5
+COW00190,85,509.5,Jersey,Bloat,2.6
+COW00191,80,651.8,Guernsey,Mastitis,3.6
+COW00192,77,592.9,Ayrshire,Healthy,4.7
+COW00193,51,519.1,Ayrshire,Healthy,3.2
+COW00194,115,531.1,Brown Swiss,Healthy,3.3
+COW00195,21,424.6,Brown Swiss,Bloat,5.0
+COW00196,48,581.1,Holstein,Healthy,2.3
+COW00197,24,409.2,Holstein,Healthy,4.1
+COW00198,48,610.1,Brown Swiss,Mastitis,4.6
+COW00199,115,560.3,Brown Swiss,Healthy,2.5
+COW00200,51,741.0,Holstein,Foot and Mouth,4.1
+COW00201,110,462.0,Brown Swiss,Healthy,3.4
+COW00202,65,541.8,Guernsey,Foot and Mouth,4.6
+COW00203,87,693.9,Ayrshire,Healthy,4.7
+COW00204,61,645.3,Ayrshire,Healthy,4.6
+COW00205,40,494.3,Jersey,Healthy,2.2
+COW00206,94,567.9,Jersey,Healthy,4.3
+COW00207,116,550.2,Ayrshire,Healthy,4.8
+COW00208,40,572.6,Guernsey,Healthy,3.9
+COW00209,96,494.1,Jersey,Healthy,3.8
+COW00210,40,542.9,Guernsey,Mastitis,2.1
+COW00211,89,422.2,Holstein,Healthy,4.6
+COW00212,97,560.8,Brown Swiss,Mastitis,2.1
+COW00213,60,586.0,Jersey,Mastitis,2.9
+COW00214,91,531.8,Ayrshire,Healthy,4.8
+COW00215,41,420.8,Holstein,Mastitis,4.8
+COW00216,20,629.1,Ayrshire,Healthy,5.0
+COW00217,22,579.2,Jersey,Healthy,3.4
+COW00218,60,491.9,Holstein,Healthy,2.5
+COW00219,109,527.6,Guernsey,Foot and Mouth,3.5
+COW00220,25,429.9,Guernsey,Healthy,2.3
+COW00221,61,468.0,Holstein,Healthy,4.6
+COW00222,88,507.0,Holstein,Ketosis,3.7
+COW00223,33,648.3,Holstein,Healthy,3.2
+COW00224,89,498.8,Brown Swiss,Bloat,2.2
+COW00225,45,601.2,Holstein,Mastitis,3.2
+COW00226,99,506.9,Guernsey,Bloat,4.6
+COW00227,74,569.8,Holstein,Bloat,4.1
+COW00228,71,538.7,Guernsey,Ketosis,2.2
+COW00229,31,619.8,Ayrshire,Healthy,2.5
+COW00230,62,507.2,Guernsey,Mastitis,3.2
+COW00231,104,424.2,Ayrshire,Foot and Mouth,2.3
+COW00232,14,439.4,Ayrshire,Healthy,4.8
+COW00233,93,507.4,Holstein,Healthy,4.0
+COW00234,65,450.1,Jersey,Ketosis,2.3
+COW00235,89,582.8,Guernsey,Healthy,4.4
+COW00236,83,512.7,Jersey,Healthy,3.1
+COW00237,58,740.0,Guernsey,Healthy,2.7
+COW00238,45,411.0,Guernsey,Healthy,3.7
+COW00239,79,566.3,Ayrshire,Mastitis,2.0
+COW00240,27,459.8,Jersey,Healthy,3.4
+COW00241,75,510.5,Jersey,Mastitis,4.5
+COW00242,22,561.3,Holstein,Foot and Mouth,4.8
+COW00243,82,364.0,Jersey,Healthy,3.0
+COW00244,79,568.9,Jersey,Mastitis,3.9
+COW00245,21,702.2,Brown Swiss,Healthy,2.7
+COW00246,93,513.7,Brown Swiss,Foot and Mouth,3.7
+COW00247,56,570.8,Ayrshire,Ketosis,2.8
+COW00248,96,632.0,Guernsey,Healthy,3.7
+COW00249,16,536.9,Guernsey,Mastitis,2.5
+COW00250,31,503.5,Holstein,Healthy,4.8
+COW00251,65,367.9,Brown Swiss,Healthy,4.7
+COW00252,32,601.3,Guernsey,Mastitis,3.0
+COW00253,47,540.9,Jersey,Healthy,4.3
+COW00254,83,469.0,Brown Swiss,Healthy,2.3
+COW00255,27,560.1,Guernsey,Healthy,4.2
+COW00256,85,503.3,Guernsey,Healthy,2.8
+COW00257,23,507.7,Ayrshire,Foot and Mouth,2.4
+COW00258,30,598.5,Brown Swiss,Healthy,4.0
+COW00259,75,442.9,Jersey,Healthy,3.4
+COW00260,97,633.8,Jersey,Healthy,3.6
+COW00261,30,438.2,Guernsey,Foot and Mouth,3.6
+COW00262,44,497.0,Brown Swiss,Healthy,2.2
+COW00263,111,703.8,Brown Swiss,Healthy,2.2
+COW00264,118,640.2,Holstein,Healthy,3.8
+COW00265,74,557.8,Brown Swiss,Healthy,3.9
+COW00266,60,474.8,Jersey,Ketosis,2.1
+COW00267,49,507.7,Brown Swiss,Healthy,3.1
+COW00268,78,555.9,Ayrshire,Healthy,3.8
+COW00269,75,553.0,Guernsey,Mastitis,4.0
+COW00270,43,542.7,Brown Swiss,Healthy,4.5
+COW00271,14,547.5,Ayrshire,Healthy,3.3
+COW00272,28,532.8,Ayrshire,Healthy,3.6
+COW00273,115,434.6,Brown Swiss,Healthy,3.7
+COW00274,57,508.7,Guernsey,Mastitis,2.9
+COW00275,64,623.2,Jersey,Foot and Mouth,2.2
+COW00276,62,440.5,Ayrshire,Bloat,2.0
+COW00277,96,534.8,Jersey,Bloat,4.5
+COW00278,19,484.4,Jersey,Healthy,2.6
+COW00279,20,558.9,Holstein,Healthy,3.9
+COW00280,41,518.9,Ayrshire,Healthy,3.7
+COW00281,64,668.2,Jersey,Ketosis,3.2
+COW00282,84,590.5,Ayrshire,Mastitis,4.5
+COW00283,64,445.1,Holstein,Healthy,4.1
+COW00284,59,603.7,Brown Swiss,Mastitis,2.1
+COW00285,113,488.0,Brown Swiss,Mastitis,4.3
+COW00286,29,503.8,Brown Swiss,Bloat,3.5
+COW00287,73,575.1,Holstein,Mastitis,3.0
+COW00288,70,510.7,Holstein,Healthy,4.2
+COW00289,63,621.4,Jersey,Healthy,4.1
+COW00290,99,488.0,Brown Swiss,Healthy,2.9
+COW00291,40,500.5,Guernsey,Healthy,4.9
+COW00292,115,497.5,Brown Swiss,Bloat,3.9
+COW00293,47,504.7,Jersey,Healthy,3.8
+COW00294,70,637.9,Jersey,Healthy,2.2
+COW00295,68,600.3,Guernsey,Healthy,2.8
+COW00296,103,686.8,Brown Swiss,Healthy,3.3
+COW00297,59,731.4,Ayrshire,Healthy,3.9
+COW00298,42,467.5,Brown Swiss,Healthy,3.5
+COW00299,14,555.6,Brown Swiss,Foot and Mouth,4.3
+COW00300,51,455.9,Holstein,Healthy,2.8
+COW00301,101,487.8,Holstein,Healthy,4.1
+COW00302,13,499.6,Ayrshire,Healthy,4.4
+COW00303,108,465.4,Jersey,Healthy,4.3
+COW00304,70,465.8,Brown Swiss,Mastitis,4.3
+COW00305,27,538.5,Brown Swiss,Bloat,4.7
+COW00306,44,452.7,Holstein,Healthy,2.3
+COW00307,71,617.4,Brown Swiss,Ketosis,4.1
+COW00308,46,476.6,Jersey,Mastitis,4.9
+COW00309,23,774.8,Holstein,Healthy,3.7
+COW00310,83,513.9,Brown Swiss,Healthy,2.7
+COW00311,84,555.8,Brown Swiss,Healthy,5.0
+COW00312,24,446.4,Holstein,Foot and Mouth,2.5
+COW00313,42,686.5,Brown Swiss,Healthy,3.0
+COW00314,38,639.6,Guernsey,Healthy,2.5
+COW00315,83,573.8,Jersey,Mastitis,3.4
+COW00316,90,442.3,Ayrshire,Foot and Mouth,3.3
+COW00317,90,566.9,Guernsey,Mastitis,3.5
+COW00318,113,460.3,Guernsey,Mastitis,4.8
+COW00319,95,667.0,Holstein,Healthy,3.4
+COW00320,46,614.7,Guernsey,Foot and Mouth,3.5
+COW00321,23,557.6,Jersey,Healthy,4.7
+COW00322,78,355.1,Guernsey,Healthy,4.5
+COW00323,110,471.3,Ayrshire,Ketosis,2.7
+COW00324,117,605.0,Jersey,Healthy,2.0
+COW00325,36,647.0,Jersey,Healthy,3.9
+COW00326,37,638.7,Holstein,Healthy,4.5
+COW00327,16,422.6,Guernsey,Healthy,3.7
+COW00328,27,574.1,Guernsey,Healthy,2.6
+COW00329,71,631.2,Brown Swiss,Healthy,4.2
+COW00330,71,417.3,Holstein,Mastitis,4.0
+COW00331,52,549.4,Jersey,Mastitis,3.7
+COW00332,45,571.9,Brown Swiss,Healthy,4.6
+COW00333,101,525.9,Ayrshire,Healthy,4.4
+COW00334,61,401.8,Holstein,Foot and Mouth,4.0
+COW00335,99,523.9,Jersey,Healthy,4.0
+COW00336,116,523.8,Guernsey,Healthy,4.0
+COW00337,46,538.2,Jersey,Healthy,3.6
+COW00338,33,504.9,Ayrshire,Healthy,3.4
+COW00339,114,514.6,Ayrshire,Healthy,4.1
+COW00340,80,546.8,Jersey,Mastitis,3.8
+COW00341,43,585.4,Guernsey,Ketosis,3.5
+COW00342,79,525.6,Guernsey,Healthy,2.4
+COW00343,67,517.2,Guernsey,Healthy,4.1
+COW00344,109,557.4,Holstein,Healthy,3.9
+COW00345,39,396.3,Holstein,Healthy,3.0
+COW00346,119,588.2,Jersey,Mastitis,3.1
+COW00347,113,550.0,Holstein,Healthy,2.7
+COW00348,31,553.2,Jersey,Bloat,4.9
+COW00349,29,626.9,Guernsey,Healthy,4.6
+COW00350,69,393.8,Brown Swiss,Healthy,3.7
+COW00351,16,392.1,Jersey,Healthy,3.2
+COW00352,44,571.9,Holstein,Healthy,4.2
+COW00353,58,549.4,Jersey,Foot and Mouth,3.6
+COW00354,116,563.6,Brown Swiss,Mastitis,4.9
+COW00355,119,513.0,Guernsey,Healthy,2.2
+COW00356,28,603.1,Jersey,Healthy,2.1
+COW00357,108,624.6,Jersey,Mastitis,3.7
+COW00358,21,588.7,Brown Swiss,Mastitis,2.6
+COW00359,92,529.1,Holstein,Healthy,3.8
+COW00360,103,381.4,Jersey,Healthy,4.3
+COW00361,108,611.5,Holstein,Healthy,2.4
+COW00362,36,647.7,Brown Swiss,Healthy,3.3
+COW00363,108,601.6,Brown Swiss,Healthy,4.1
+COW00364,24,479.6,Brown Swiss,Healthy,4.5
+COW00365,68,603.9,Guernsey,Healthy,3.5
+COW00366,62,618.8,Jersey,Healthy,2.6
+COW00367,46,674.7,Ayrshire,Healthy,3.8
+COW00368,14,479.9,Ayrshire,Bloat,3.4
+COW00369,95,531.9,Holstein,Healthy,4.3
+COW00370,48,609.8,Ayrshire,Healthy,3.7
+COW00371,83,554.6,Holstein,Healthy,2.8
+COW00372,56,460.6,Jersey,Healthy,4.3
+COW00373,52,583.2,Brown Swiss,Foot and Mouth,3.6
+COW00374,107,596.3,Holstein,Healthy,2.5
+COW00375,22,557.0,Jersey,Healthy,3.7
+COW00376,91,567.6,Holstein,Bloat,4.8
+COW00377,92,529.3,Brown Swiss,Foot and Mouth,4.1
+COW00378,53,668.3,Ayrshire,Foot and Mouth,2.9
+COW00379,40,477.9,Ayrshire,Healthy,4.1
+COW00380,12,503.0,Jersey,Healthy,2.8
+COW00381,113,550.9,Brown Swiss,Mastitis,3.6
+COW00382,114,620.3,Brown Swiss,Healthy,3.6
+COW00383,38,430.2,Brown Swiss,Mastitis,2.7
+COW00384,15,445.2,Guernsey,Mastitis,3.0
+COW00385,25,387.0,Ayrshire,Healthy,4.8
+COW00386,19,552.6,Brown Swiss,Healthy,2.8
+COW00387,101,460.5,Holstein,Healthy,4.4
+COW00388,108,519.2,Ayrshire,Healthy,4.0
+COW00389,28,602.9,Ayrshire,Mastitis,3.6
+COW00390,92,498.7,Jersey,Mastitis,2.4
+COW00391,31,568.5,Brown Swiss,Healthy,2.6
+COW00392,51,526.1,Ayrshire,Mastitis,2.5
+COW00393,76,603.8,Brown Swiss,Healthy,3.8
+COW00394,89,588.0,Brown Swiss,Mastitis,4.9
+COW00395,106,494.6,Ayrshire,Healthy,4.6
+COW00396,16,536.5,Ayrshire,Mastitis,2.1
+COW00397,33,633.5,Brown Swiss,Mastitis,2.8
+COW00398,42,581.5,Holstein,Healthy,2.5
+COW00399,45,438.2,Brown Swiss,Healthy,4.9
+COW00400,119,602.4,Guernsey,Foot and Mouth,2.7
+COW00401,95,463.2,Jersey,Healthy,2.6
+COW00402,46,663.0,Brown Swiss,Mastitis,3.9
+COW00403,116,631.9,Guernsey,Ketosis,3.7
+COW00404,65,573.2,Holstein,Foot and Mouth,2.7
+COW00405,66,562.6,Brown Swiss,Healthy,4.0
+COW00406,58,533.3,Guernsey,Healthy,2.3
+COW00407,27,604.3,Jersey,Ketosis,2.1
+COW00408,112,520.3,Brown Swiss,Healthy,2.2
+COW00409,13,568.8,Guernsey,Healthy,3.1
+COW00410,30,619.8,Holstein,Healthy,4.9
+COW00411,36,505.1,Guernsey,Mastitis,3.6
+COW00412,42,500.7,Jersey,Healthy,4.3
+COW00413,26,454.5,Jersey,Healthy,3.0
+COW00414,13,464.8,Guernsey,Healthy,4.2
+COW00415,85,403.7,Holstein,Mastitis,4.9
+COW00416,116,608.4,Holstein,Healthy,3.1
+COW00417,25,694.7,Brown Swiss,Foot and Mouth,5.0
+COW00418,44,664.0,Ayrshire,Mastitis,3.9
+COW00419,66,419.9,Holstein,Ketosis,4.2
+COW00420,112,608.0,Guernsey,Bloat,2.8
+COW00421,86,663.8,Holstein,Healthy,3.9
+COW00422,94,513.5,Brown Swiss,Mastitis,3.5
+COW00423,74,558.1,Brown Swiss,Healthy,4.9
+COW00424,57,389.4,Brown Swiss,Ketosis,4.7
+COW00425,33,571.3,Holstein,Healthy,3.2
+COW00426,105,464.9,Guernsey,Mastitis,4.8
+COW00427,98,566.0,Jersey,Foot and Mouth,4.7
+COW00428,14,425.1,Guernsey,Healthy,3.8
+COW00429,89,593.4,Guernsey,Foot and Mouth,2.2
+COW00430,21,632.0,Brown Swiss,Healthy,2.5
+COW00431,91,487.3,Jersey,Healthy,2.2
+COW00432,101,459.0,Guernsey,Healthy,2.3
+COW00433,26,377.5,Ayrshire,Healthy,4.9
+COW00434,58,528.7,Ayrshire,Healthy,2.6
+COW00435,25,503.5,Ayrshire,Bloat,4.1
+COW00436,73,425.9,Jersey,Healthy,3.9
+COW00437,112,586.2,Brown Swiss,Healthy,3.9
+COW00438,20,514.0,Jersey,Foot and Mouth,2.6
+COW00439,54,463.9,Ayrshire,Mastitis,3.7
+COW00440,117,505.6,Ayrshire,Healthy,3.9
+COW00441,44,635.7,Ayrshire,Bloat,3.7
+COW00442,26,598.2,Holstein,Healthy,2.6
+COW00443,64,539.6,Jersey,Healthy,4.2
+COW00444,66,599.5,Guernsey,Healthy,2.2
+COW00445,83,457.1,Guernsey,Mastitis,3.8
+COW00446,45,552.6,Jersey,Healthy,3.3
+COW00447,115,561.8,Holstein,Healthy,2.8
+COW00448,68,512.4,Holstein,Mastitis,4.4
+COW00449,42,584.8,Guernsey,Healthy,2.5
+COW00450,115,487.6,Brown Swiss,Healthy,4.8
+COW00451,111,590.8,Brown Swiss,Mastitis,4.7
+COW00452,65,594.1,Ayrshire,Mastitis,3.1
+COW00453,14,316.6,Holstein,Healthy,2.9
+COW00454,76,645.2,Guernsey,Healthy,2.4
+COW00455,71,306.2,Jersey,Ketosis,4.7
+COW00456,28,500.7,Ayrshire,Healthy,3.9
+COW00457,80,632.0,Ayrshire,Healthy,2.1
+COW00458,102,524.6,Brown Swiss,Healthy,3.5
+COW00459,23,432.7,Jersey,Healthy,2.3
+COW00460,90,462.5,Jersey,Ketosis,3.7
+COW00461,27,632.2,Holstein,Healthy,3.5
+COW00462,92,396.3,Ayrshire,Healthy,2.2
+COW00463,57,640.3,Holstein,Healthy,4.4
+COW00464,12,545.6,Brown Swiss,Healthy,2.8
+COW00465,116,454.6,Brown Swiss,Healthy,3.6
+COW00466,29,503.4,Guernsey,Ketosis,3.9
+COW00467,76,468.6,Ayrshire,Mastitis,4.9
+COW00468,31,619.3,Brown Swiss,Healthy,3.5
+COW00469,112,608.6,Guernsey,Healthy,4.8
+COW00470,91,412.5,Brown Swiss,Healthy,3.1
+COW00471,98,517.7,Brown Swiss,Healthy,4.6
+COW00472,58,480.9,Holstein,Healthy,2.7
+COW00473,62,653.5,Jersey,Healthy,4.1
+COW00474,80,442.0,Brown Swiss,Mastitis,2.3
+COW00475,96,678.3,Holstein,Bloat,5.0
+COW00476,103,547.3,Jersey,Healthy,4.9
+COW00477,13,457.0,Brown Swiss,Bloat,3.3
+COW00478,83,495.8,Brown Swiss,Healthy,3.6
+COW00479,23,485.9,Ayrshire,Healthy,3.8
+COW00480,43,448.0,Ayrshire,Foot and Mouth,2.8
+COW00481,101,557.6,Guernsey,Healthy,4.0
+COW00482,39,451.8,Holstein,Healthy,4.1
+COW00483,98,375.6,Brown Swiss,Mastitis,3.6
+COW00484,62,519.6,Guernsey,Healthy,2.4
+COW00485,37,405.8,Brown Swiss,Foot and Mouth,4.8
+COW00486,48,489.8,Brown Swiss,Healthy,2.3
+COW00487,69,477.3,Brown Swiss,Foot and Mouth,3.9
+COW00488,94,480.3,Brown Swiss,Healthy,2.3
+COW00489,77,710.1,Brown Swiss,Healthy,2.4
+COW00490,112,554.5,Holstein,Healthy,2.1
+COW00491,105,569.6,Brown Swiss,Foot and Mouth,3.1
+COW00492,93,407.9,Jersey,Healthy,3.9
+COW00493,77,497.7,Guernsey,Foot and Mouth,3.6
+COW00494,43,567.2,Ayrshire,Healthy,4.0
+COW00495,56,468.0,Brown Swiss,Healthy,4.0
+COW00496,24,622.6,Jersey,Healthy,2.4
+COW00497,52,453.8,Ayrshire,Healthy,2.2
+COW00498,112,527.1,Guernsey,Bloat,3.9
+COW00499,57,503.1,Brown Swiss,Healthy,4.0
+COW00500,24,563.1,Holstein,Mastitis,3.7
+COW00501,82,498.8,Holstein,Healthy,2.7
+COW00502,115,528.3,Jersey,Healthy,4.4
+COW00503,105,531.1,Jersey,Healthy,2.2
+COW00504,41,491.2,Guernsey,Bloat,3.9
+COW00505,61,588.8,Brown Swiss,Mastitis,2.4
+COW00506,69,569.1,Ayrshire,Healthy,4.0
+COW00507,38,542.9,Brown Swiss,Healthy,3.3
+COW00508,41,515.6,Ayrshire,Healthy,4.2
+COW00509,37,613.7,Brown Swiss,Healthy,2.2
+COW00510,119,531.1,Jersey,Healthy,3.7
+COW00511,92,525.5,Guernsey,Healthy,2.4
+COW00512,102,558.4,Brown Swiss,Mastitis,4.0
+COW00513,100,685.7,Jersey,Ketosis,2.4
+COW00514,115,442.8,Brown Swiss,Ketosis,2.2
+COW00515,23,611.6,Guernsey,Foot and Mouth,4.1
+COW00516,107,398.5,Jersey,Healthy,2.2
+COW00517,19,567.4,Guernsey,Mastitis,2.7
+COW00518,63,676.0,Ayrshire,Healthy,4.5
+COW00519,76,589.1,Brown Swiss,Healthy,4.4
+COW00520,50,563.7,Jersey,Healthy,4.6
+COW00521,27,505.2,Brown Swiss,Healthy,3.0
+COW00522,32,552.5,Ayrshire,Ketosis,3.6
+COW00523,101,529.8,Holstein,Foot and Mouth,4.3
+COW00524,46,487.1,Ayrshire,Healthy,2.4
+COW00525,45,526.8,Brown Swiss,Healthy,4.2
+COW00526,111,565.9,Ayrshire,Mastitis,2.3
+COW00527,27,488.6,Guernsey,Healthy,4.7
+COW00528,110,485.5,Guernsey,Foot and Mouth,3.9
+COW00529,111,441.2,Ayrshire,Ketosis,3.5
+COW00530,76,581.3,Holstein,Healthy,3.5
+COW00531,29,593.6,Brown Swiss,Healthy,2.5
+COW00532,28,568.5,Holstein,Healthy,3.0
+COW00533,42,627.2,Jersey,Healthy,4.2
+COW00534,74,557.0,Holstein,Healthy,3.6
+COW00535,28,581.4,Guernsey,Healthy,3.6
+COW00536,61,574.3,Guernsey,Healthy,2.6
+COW00537,24,542.7,Guernsey,Healthy,4.1
+COW00538,70,507.5,Holstein,Healthy,3.2
+COW00539,14,727.1,Jersey,Mastitis,2.5
+COW00540,88,513.8,Guernsey,Healthy,4.8
+COW00541,17,496.7,Ayrshire,Foot and Mouth,3.5
+COW00542,33,584.7,Ayrshire,Healthy,3.6
+COW00543,30,570.1,Holstein,Healthy,4.9
+COW00544,101,437.6,Brown Swiss,Healthy,3.1
+COW00545,17,639.8,Holstein,Mastitis,4.8
+COW00546,58,542.5,Ayrshire,Healthy,4.1
+COW00547,75,461.1,Holstein,Healthy,3.9
+COW00548,67,645.1,Ayrshire,Healthy,2.7
+COW00549,85,600.1,Holstein,Ketosis,2.2
+COW00550,98,448.8,Holstein,Healthy,3.3
+COW00551,54,692.2,Ayrshire,Healthy,2.0
+COW00552,101,602.7,Brown Swiss,Foot and Mouth,2.2
+COW00553,46,549.2,Brown Swiss,Healthy,3.8
+COW00554,118,677.2,Guernsey,Healthy,4.2
+COW00555,66,562.7,Jersey,Foot and Mouth,2.5
+COW00556,91,547.8,Guernsey,Healthy,4.2
+COW00557,106,497.2,Brown Swiss,Healthy,4.8
+COW00558,97,596.5,Jersey,Healthy,4.2
+COW00559,103,588.1,Jersey,Healthy,4.4
+COW00560,69,551.2,Holstein,Bloat,4.1
+COW00561,16,486.8,Jersey,Healthy,2.7
+COW00562,65,560.4,Brown Swiss,Healthy,3.1
+COW00563,31,544.4,Holstein,Healthy,4.8
+COW00564,108,443.3,Holstein,Mastitis,4.0
+COW00565,37,432.3,Guernsey,Mastitis,4.4
+COW00566,36,595.2,Brown Swiss,Healthy,4.9
+COW00567,38,341.8,Holstein,Bloat,2.7
+COW00568,81,566.4,Guernsey,Healthy,3.0
+COW00569,73,511.8,Guernsey,Mastitis,3.9
+COW00570,114,654.7,Holstein,Healthy,2.1
+COW00571,56,510.5,Jersey,Healthy,3.7
+COW00572,42,602.8,Jersey,Mastitis,4.4
+COW00573,17,518.2,Guernsey,Mastitis,3.8
+COW00574,12,559.1,Holstein,Healthy,2.9
+COW00575,52,608.9,Ayrshire,Healthy,4.2
+COW00576,111,513.0,Jersey,Foot and Mouth,2.4
+COW00577,68,629.7,Holstein,Healthy,4.7
+COW00578,108,470.5,Ayrshire,Healthy,2.3
+COW00579,22,573.6,Holstein,Healthy,4.6
+COW00580,22,623.8,Holstein,Healthy,3.5
+COW00581,102,602.8,Ayrshire,Healthy,3.3
+COW00582,23,703.3,Brown Swiss,Healthy,3.5
+COW00583,17,488.9,Brown Swiss,Bloat,2.6
+COW00584,55,439.7,Guernsey,Healthy,3.4
+COW00585,111,470.5,Guernsey,Mastitis,4.5
+COW00586,86,602.8,Guernsey,Ketosis,4.4
+COW00587,22,589.8,Holstein,Mastitis,2.5
+COW00588,102,558.2,Brown Swiss,Healthy,4.0
+COW00589,103,460.2,Jersey,Healthy,4.6
+COW00590,98,611.3,Ayrshire,Healthy,4.5
+COW00591,109,452.0,Brown Swiss,Healthy,3.3
+COW00592,37,642.7,Holstein,Ketosis,2.1
+COW00593,117,778.6,Ayrshire,Mastitis,4.8
+COW00594,46,579.3,Jersey,Healthy,3.2
+COW00595,98,596.6,Jersey,Healthy,3.1
+COW00596,74,510.6,Ayrshire,Bloat,4.3
+COW00597,96,405.2,Guernsey,Healthy,2.8
+COW00598,79,501.8,Ayrshire,Foot and Mouth,4.5
+COW00599,81,462.6,Guernsey,Healthy,2.2
+COW00600,78,434.2,Ayrshire,Mastitis,4.2
+COW00601,96,687.8,Holstein,Foot and Mouth,4.9
+COW00602,91,571.8,Brown Swiss,Healthy,5.0
+COW00603,26,580.4,Jersey,Healthy,4.8
+COW00604,101,525.3,Jersey,Foot and Mouth,4.6
+COW00605,69,536.2,Jersey,Healthy,2.8
+COW00606,46,627.2,Jersey,Healthy,4.9
+COW00607,67,547.4,Brown Swiss,Healthy,4.8
+COW00608,116,592.5,Ayrshire,Healthy,3.6
+COW00609,104,534.3,Guernsey,Mastitis,3.2
+COW00610,102,522.6,Jersey,Healthy,2.3
+COW00611,61,437.4,Brown Swiss,Healthy,3.8
+COW00612,96,391.8,Brown Swiss,Bloat,4.1
+COW00613,53,529.1,Jersey,Healthy,3.2
+COW00614,86,554.5,Brown Swiss,Healthy,3.2
+COW00615,81,447.1,Guernsey,Mastitis,3.7
+COW00616,38,547.2,Jersey,Bloat,2.1
+COW00617,40,554.3,Brown Swiss,Healthy,4.9
+COW00618,18,377.5,Guernsey,Foot and Mouth,2.9
+COW00619,27,476.8,Brown Swiss,Healthy,2.4
+COW00620,58,582.6,Jersey,Healthy,2.0
+COW00621,63,581.0,Brown Swiss,Bloat,4.6
+COW00622,29,457.7,Guernsey,Bloat,4.6
+COW00623,57,562.7,Jersey,Healthy,2.3
+COW00624,77,631.8,Brown Swiss,Healthy,2.5
+COW00625,37,612.2,Guernsey,Healthy,3.3
+COW00626,48,542.4,Jersey,Healthy,2.6
+COW00627,51,512.6,Jersey,Bloat,4.2
+COW00628,66,499.7,Ayrshire,Foot and Mouth,2.2
+COW00629,51,587.4,Jersey,Healthy,3.6
+COW00630,91,565.6,Brown Swiss,Healthy,3.1
+COW00631,47,600.4,Holstein,Healthy,3.4
+COW00632,58,560.5,Ayrshire,Healthy,3.3
+COW00633,52,615.5,Brown Swiss,Mastitis,2.5
+COW00634,31,557.6,Guernsey,Healthy,2.7
+COW00635,86,612.8,Guernsey,Healthy,2.2
+COW00636,37,619.7,Jersey,Healthy,2.3
+COW00637,44,485.6,Jersey,Ketosis,4.9
+COW00638,97,405.3,Guernsey,Healthy,2.8
+COW00639,114,673.5,Ayrshire,Healthy,2.9
+COW00640,84,570.5,Holstein,Healthy,2.4
+COW00641,110,412.8,Ayrshire,Healthy,4.3
+COW00642,104,492.9,Ayrshire,Healthy,4.8
+COW00643,63,611.7,Holstein,Healthy,4.4
+COW00644,95,527.6,Holstein,Healthy,3.8
+COW00645,47,509.0,Guernsey,Healthy,4.4
+COW00646,61,662.1,Ayrshire,Foot and Mouth,3.2
+COW00647,69,466.2,Jersey,Healthy,4.6
+COW00648,115,486.1,Guernsey,Healthy,4.4
+COW00649,103,566.9,Ayrshire,Healthy,2.0
+COW00650,64,581.2,Jersey,Foot and Mouth,3.5
+COW00651,82,589.7,Jersey,Mastitis,2.8
+COW00652,33,622.9,Ayrshire,Foot and Mouth,2.3
+COW00653,98,565.9,Jersey,Healthy,4.5
+COW00654,71,589.2,Brown Swiss,Healthy,2.0
+COW00655,69,529.3,Brown Swiss,Healthy,4.2
+COW00656,94,555.0,Brown Swiss,Healthy,5.0
+COW00657,80,558.6,Jersey,Healthy,3.4
+COW00658,19,567.2,Guernsey,Healthy,3.1
+COW00659,43,611.8,Guernsey,Healthy,3.8
+COW00660,31,594.4,Jersey,Healthy,4.4
+COW00661,91,553.5,Brown Swiss,Healthy,2.7
+COW00662,15,485.3,Holstein,Healthy,2.8
+COW00663,33,555.4,Jersey,Mastitis,3.8
+COW00664,76,547.8,Ayrshire,Healthy,4.8
+COW00665,87,565.5,Brown Swiss,Foot and Mouth,2.9
+COW00666,66,726.5,Guernsey,Healthy,3.1
+COW00667,104,508.1,Ayrshire,Foot and Mouth,5.0
+COW00668,111,583.8,Guernsey,Mastitis,2.5
+COW00669,26,635.5,Guernsey,Healthy,2.2
+COW00670,114,557.8,Guernsey,Ketosis,3.8
+COW00671,78,737.0,Brown Swiss,Healthy,2.1
+COW00672,80,519.8,Guernsey,Healthy,2.5
+COW00673,22,575.9,Jersey,Mastitis,3.9
+COW00674,79,486.1,Ayrshire,Healthy,4.0
+COW00675,90,521.9,Holstein,Healthy,3.5
+COW00676,74,569.9,Ayrshire,Healthy,3.2
+COW00677,21,617.7,Ayrshire,Healthy,3.7
+COW00678,68,575.5,Holstein,Healthy,3.9
+COW00679,113,650.7,Guernsey,Healthy,4.4
+COW00680,90,542.4,Ayrshire,Healthy,4.4
+COW00681,26,523.4,Brown Swiss,Healthy,4.0
+COW00682,115,766.3,Jersey,Healthy,4.7
+COW00683,115,581.5,Ayrshire,Healthy,4.5
+COW00684,30,492.4,Brown Swiss,Mastitis,2.4
+COW00685,98,494.5,Holstein,Healthy,4.9
+COW00686,55,474.6,Jersey,Healthy,4.7
+COW00687,76,624.9,Guernsey,Mastitis,3.0
+COW00688,60,520.8,Brown Swiss,Bloat,2.1
+COW00689,96,560.2,Jersey,Healthy,3.8
+COW00690,119,544.9,Guernsey,Healthy,3.3
+COW00691,97,608.5,Holstein,Mastitis,4.2
+COW00692,112,482.3,Jersey,Bloat,3.6
+COW00693,114,464.0,Brown Swiss,Healthy,2.2
+COW00694,21,567.9,Holstein,Healthy,2.7
+COW00695,39,598.1,Jersey,Healthy,4.6
+COW00696,89,576.6,Ayrshire,Healthy,2.1
+COW00697,75,485.2,Ayrshire,Bloat,4.2
+COW00698,17,604.2,Ayrshire,Mastitis,2.9
+COW00699,22,490.5,Jersey,Healthy,3.4
+COW00700,68,508.3,Holstein,Healthy,3.6
+COW00701,78,474.5,Ayrshire,Foot and Mouth,2.8
+COW00702,30,654.1,Jersey,Healthy,4.0
+COW00703,30,600.7,Guernsey,Foot and Mouth,4.1
+COW00704,25,598.4,Holstein,Healthy,2.3
+COW00705,73,649.8,Guernsey,Healthy,3.1
+COW00706,12,775.0,Brown Swiss,Healthy,4.2
+COW00707,73,413.3,Ayrshire,Healthy,4.2
+COW00708,63,490.9,Holstein,Ketosis,3.6
+COW00709,62,500.7,Brown Swiss,Healthy,4.3
+COW00710,85,481.9,Ayrshire,Healthy,2.3
+COW00711,68,463.8,Jersey,Healthy,2.4
+COW00712,90,526.0,Guernsey,Healthy,4.0
+COW00713,94,452.7,Holstein,Healthy,4.1
+COW00714,111,576.8,Guernsey,Mastitis,4.4
+COW00715,98,554.1,Jersey,Healthy,2.5
+COW00716,67,588.5,Brown Swiss,Healthy,3.6
+COW00717,65,590.6,Ayrshire,Healthy,4.0
+COW00718,37,598.2,Guernsey,Healthy,2.7
+COW00719,76,520.1,Brown Swiss,Mastitis,3.6
+COW00720,27,719.7,Holstein,Healthy,3.9
+COW00721,112,568.8,Jersey,Healthy,2.6
+COW00722,103,401.0,Ayrshire,Mastitis,3.1
+COW00723,24,469.8,Jersey,Mastitis,2.6
+COW00724,96,410.8,Guernsey,Foot and Mouth,4.7
+COW00725,24,551.4,Brown Swiss,Healthy,2.7
+COW00726,89,540.3,Jersey,Healthy,2.4
+COW00727,21,512.5,Guernsey,Mastitis,2.1
+COW00728,64,710.9,Jersey,Healthy,2.1
+COW00729,83,593.9,Jersey,Healthy,2.6
+COW00730,90,608.1,Brown Swiss,Healthy,3.8
+COW00731,57,475.5,Guernsey,Mastitis,2.1
+COW00732,111,470.1,Ayrshire,Healthy,2.9
+COW00733,95,552.9,Guernsey,Healthy,2.2
+COW00734,34,563.8,Guernsey,Healthy,3.2
+COW00735,84,401.5,Guernsey,Healthy,2.1
+COW00736,90,535.6,Jersey,Mastitis,3.8
+COW00737,48,551.1,Jersey,Healthy,4.1
+COW00738,91,532.8,Brown Swiss,Healthy,4.2
+COW00739,109,484.9,Guernsey,Bloat,2.7
+COW00740,100,506.8,Guernsey,Mastitis,4.6
+COW00741,94,535.9,Holstein,Healthy,4.1
+COW00742,80,557.3,Guernsey,Ketosis,2.2
+COW00743,41,598.4,Jersey,Healthy,3.3
+COW00744,97,636.5,Ayrshire,Mastitis,4.3
+COW00745,51,526.5,Guernsey,Healthy,2.9
+COW00746,69,513.5,Ayrshire,Healthy,3.1
+COW00747,45,585.0,Guernsey,Healthy,3.9
+COW00748,45,598.9,Brown Swiss,Healthy,2.2
+COW00749,29,515.3,Holstein,Healthy,4.9
+COW00750,115,613.2,Jersey,Healthy,2.5
+COW00751,27,628.4,Ayrshire,Healthy,2.1
+COW00752,21,653.3,Jersey,Healthy,2.0
+COW00753,113,692.3,Holstein,Healthy,3.2
+COW00754,71,480.7,Jersey,Ketosis,4.7
+COW00755,59,551.1,Brown Swiss,Mastitis,4.5
+COW00756,91,550.9,Guernsey,Bloat,4.7
+COW00757,53,542.2,Ayrshire,Healthy,3.6
+COW00758,25,498.1,Ayrshire,Healthy,3.3
+COW00759,90,431.2,Brown Swiss,Healthy,3.2
+COW00760,31,557.4,Brown Swiss,Healthy,2.1
+COW00761,71,488.5,Ayrshire,Healthy,4.7
+COW00762,114,556.9,Holstein,Foot and Mouth,3.5
+COW00763,113,486.5,Brown Swiss,Healthy,3.4
+COW00764,50,462.0,Brown Swiss,Mastitis,3.5
+COW00765,96,568.7,Guernsey,Healthy,4.4
+COW00766,78,562.1,Ayrshire,Healthy,2.7
+COW00767,63,596.3,Guernsey,Healthy,4.1
+COW00768,27,724.9,Guernsey,Ketosis,4.1
+COW00769,52,572.2,Guernsey,Healthy,4.5
+COW00770,82,588.8,Brown Swiss,Healthy,2.0
+COW00771,118,463.8,Jersey,Healthy,2.5
+COW00772,12,447.0,Jersey,Healthy,3.4
+COW00773,89,676.6,Guernsey,Ketosis,4.6
+COW00774,103,476.1,Guernsey,Bloat,4.9
+COW00775,114,466.5,Jersey,Mastitis,3.8
+COW00776,57,546.9,Ayrshire,Ketosis,2.6
+COW00777,24,542.8,Ayrshire,Mastitis,2.6
+COW00778,41,477.8,Guernsey,Healthy,3.9
+COW00779,103,525.6,Jersey,Healthy,2.6
+COW00780,106,648.4,Ayrshire,Healthy,3.7
+COW00781,80,485.5,Jersey,Healthy,4.5
+COW00782,25,438.5,Brown Swiss,Healthy,3.2
+COW00783,25,625.4,Ayrshire,Healthy,3.1
+COW00784,63,589.4,Brown Swiss,Ketosis,2.1
+COW00785,75,500.4,Jersey,Ketosis,2.8
+COW00786,15,423.4,Holstein,Healthy,4.1
+COW00787,86,490.4,Jersey,Mastitis,3.1
+COW00788,70,545.6,Guernsey,Healthy,2.5
+COW00789,13,643.3,Guernsey,Healthy,2.3
+COW00790,22,467.1,Jersey,Healthy,2.3
+COW00791,61,543.2,Holstein,Healthy,4.0
+COW00792,90,604.0,Guernsey,Healthy,3.8
+COW00793,101,359.5,Holstein,Healthy,3.6
+COW00794,58,632.7,Holstein,Healthy,3.5
+COW00795,43,455.4,Brown Swiss,Healthy,2.5
+COW00796,116,576.6,Brown Swiss,Bloat,3.5
+COW00797,61,569.7,Jersey,Healthy,2.2
+COW00798,46,636.8,Jersey,Healthy,4.8
+COW00799,59,594.1,Jersey,Healthy,2.2
+COW00800,13,359.8,Jersey,Healthy,3.3
+COW00801,44,487.2,Holstein,Healthy,2.0
+COW00802,67,561.1,Holstein,Healthy,4.4
+COW00803,111,534.4,Jersey,Healthy,2.5
+COW00804,91,588.2,Holstein,Healthy,4.8
+COW00805,96,613.1,Jersey,Mastitis,2.1
+COW00806,70,598.7,Brown Swiss,Healthy,4.5
+COW00807,23,532.9,Holstein,Healthy,4.0
+COW00808,54,402.3,Guernsey,Healthy,2.7
+COW00809,119,513.6,Guernsey,Healthy,2.6
+COW00810,16,583.3,Brown Swiss,Healthy,3.1
+COW00811,106,462.8,Guernsey,Healthy,4.5
+COW00812,85,600.5,Ayrshire,Healthy,4.6
+COW00813,42,622.7,Holstein,Mastitis,2.5
+COW00814,96,560.1,Holstein,Healthy,3.1
+COW00815,102,304.9,Jersey,Healthy,2.7
+COW00816,16,447.8,Guernsey,Mastitis,2.4
+COW00817,23,700.9,Ayrshire,Healthy,3.9
+COW00818,83,506.3,Ayrshire,Foot and Mouth,3.0
+COW00819,119,391.3,Brown Swiss,Bloat,2.7
+COW00820,14,648.8,Brown Swiss,Ketosis,4.6
+COW00821,83,551.1,Brown Swiss,Healthy,4.2
+COW00822,26,638.4,Holstein,Healthy,4.3
+COW00823,82,572.2,Brown Swiss,Healthy,2.1
+COW00824,79,586.7,Brown Swiss,Healthy,4.7
+COW00825,21,579.0,Jersey,Healthy,3.7
+COW00826,85,605.8,Guernsey,Healthy,3.5
+COW00827,108,732.2,Ayrshire,Healthy,2.0
+COW00828,105,627.7,Jersey,Healthy,4.7
+COW00829,15,423.6,Ayrshire,Healthy,3.6
+COW00830,38,585.7,Holstein,Healthy,4.5
+COW00831,38,641.3,Ayrshire,Bloat,4.0
+COW00832,60,646.2,Guernsey,Healthy,4.4
+COW00833,27,515.9,Jersey,Healthy,4.1
+COW00834,104,643.2,Guernsey,Bloat,4.8
+COW00835,95,624.2,Jersey,Healthy,2.7
+COW00836,99,755.8,Guernsey,Healthy,2.6
+COW00837,33,490.0,Holstein,Mastitis,4.1
+COW00838,13,509.4,Jersey,Healthy,3.5
+COW00839,110,525.5,Jersey,Healthy,3.8
+COW00840,43,510.8,Holstein,Foot and Mouth,4.1
+COW00841,82,478.8,Jersey,Mastitis,3.6
+COW00842,110,329.0,Guernsey,Foot and Mouth,4.4
+COW00843,15,515.2,Guernsey,Ketosis,3.0
+COW00844,12,579.5,Brown Swiss,Healthy,4.6
+COW00845,12,510.5,Holstein,Mastitis,2.3
+COW00846,28,704.8,Jersey,Healthy,3.9
+COW00847,17,551.1,Ayrshire,Mastitis,4.7
+COW00848,100,653.3,Jersey,Mastitis,2.8
+COW00849,77,570.9,Holstein,Mastitis,3.0
+COW00850,117,616.1,Brown Swiss,Bloat,2.9
+COW00851,98,572.3,Holstein,Healthy,3.7
+COW00852,116,659.5,Jersey,Mastitis,3.2
+COW00853,37,554.5,Ayrshire,Healthy,2.3
+COW00854,43,589.7,Jersey,Healthy,4.7
+COW00855,103,579.3,Guernsey,Mastitis,2.6
+COW00856,38,526.9,Brown Swiss,Mastitis,3.6
+COW00857,18,582.4,Jersey,Healthy,3.8
+COW00858,84,728.8,Guernsey,Healthy,2.1
+COW00859,98,528.4,Brown Swiss,Healthy,2.3
+COW00860,116,583.6,Jersey,Healthy,4.9
+COW00861,112,650.6,Jersey,Healthy,4.0
+COW00862,24,641.2,Ayrshire,Bloat,2.1
+COW00863,95,550.9,Holstein,Healthy,4.4
+COW00864,103,359.3,Ayrshire,Ketosis,3.5
+COW00865,87,591.3,Brown Swiss,Healthy,2.2
+COW00866,100,372.4,Ayrshire,Mastitis,4.0
+COW00867,102,667.6,Jersey,Healthy,3.5
+COW00868,60,563.6,Brown Swiss,Mastitis,2.6
+COW00869,16,630.0,Guernsey,Healthy,4.6
+COW00870,61,477.8,Jersey,Mastitis,2.9
+COW00871,33,425.8,Jersey,Bloat,2.9
+COW00872,24,570.9,Brown Swiss,Healthy,2.8
+COW00873,25,547.3,Guernsey,Healthy,4.3
+COW00874,87,510.7,Jersey,Healthy,4.1
+COW00875,66,556.8,Guernsey,Mastitis,4.7
+COW00876,70,771.4,Guernsey,Healthy,2.7
+COW00877,92,616.8,Holstein,Healthy,4.4
+COW00878,71,634.0,Ayrshire,Healthy,3.7
+COW00879,80,617.5,Holstein,Healthy,2.9
+COW00880,21,668.4,Guernsey,Mastitis,2.1
+COW00881,103,534.8,Brown Swiss,Mastitis,4.5
+COW00882,60,385.6,Guernsey,Mastitis,2.7
+COW00883,28,534.9,Guernsey,Mastitis,3.9
+COW00884,99,614.9,Guernsey,Bloat,3.6
+COW00885,91,472.4,Guernsey,Healthy,2.0
+COW00886,17,535.9,Ayrshire,Ketosis,5.0
+COW00887,32,494.7,Guernsey,Healthy,4.4
+COW00888,13,670.2,Ayrshire,Healthy,3.5
+COW00889,41,610.0,Brown Swiss,Mastitis,4.0
+COW00890,22,602.1,Jersey,Healthy,3.4
+COW00891,88,599.7,Jersey,Healthy,4.2
+COW00892,68,547.0,Guernsey,Healthy,2.4
+COW00893,117,565.8,Brown Swiss,Healthy,3.3
+COW00894,92,455.2,Holstein,Bloat,3.0
+COW00895,78,375.1,Jersey,Healthy,3.4
+COW00896,67,562.0,Ayrshire,Healthy,3.4
+COW00897,17,575.9,Guernsey,Healthy,2.4
+COW00898,19,646.7,Guernsey,Healthy,4.9
+COW00899,78,675.7,Holstein,Healthy,2.0
+COW00900,12,675.6,Holstein,Healthy,2.0
+COW00901,16,470.2,Jersey,Healthy,3.1
+COW00902,35,521.8,Ayrshire,Healthy,3.9
+COW00903,107,588.4,Brown Swiss,Healthy,2.5
+COW00904,61,752.6,Guernsey,Healthy,3.6
+COW00905,88,668.4,Brown Swiss,Mastitis,4.2
+COW00906,56,639.6,Brown Swiss,Healthy,2.3
+COW00907,30,519.0,Guernsey,Healthy,5.0
+COW00908,52,479.3,Ayrshire,Ketosis,3.0
+COW00909,21,613.1,Brown Swiss,Healthy,3.9
+COW00910,95,461.9,Brown Swiss,Healthy,2.3
+COW00911,31,530.9,Ayrshire,Foot and Mouth,4.1
+COW00912,52,540.8,Jersey,Healthy,4.5
+COW00913,117,677.4,Ayrshire,Mastitis,2.3
+COW00914,75,521.6,Brown Swiss,Mastitis,2.4
+COW00915,61,354.9,Ayrshire,Ketosis,2.8
+COW00916,70,590.4,Brown Swiss,Ketosis,2.0
+COW00917,96,494.1,Guernsey,Healthy,5.0
+COW00918,39,553.4,Jersey,Mastitis,3.8
+COW00919,80,543.1,Guernsey,Healthy,3.8
+COW00920,106,528.1,Jersey,Healthy,4.9
+COW00921,73,613.2,Guernsey,Healthy,4.5
+COW00922,60,427.4,Guernsey,Healthy,4.4
+COW00923,27,508.6,Brown Swiss,Healthy,3.0
+COW00924,38,604.7,Brown Swiss,Healthy,3.0
+COW00925,114,500.9,Jersey,Healthy,2.9
+COW00926,70,421.3,Guernsey,Healthy,3.0
+COW00927,44,603.5,Brown Swiss,Bloat,3.1
+COW00928,57,639.8,Brown Swiss,Healthy,2.4
+COW00929,74,546.4,Holstein,Mastitis,3.1
+COW00930,70,393.1,Holstein,Foot and Mouth,3.3
+COW00931,87,606.5,Holstein,Mastitis,2.9
+COW00932,39,417.2,Ayrshire,Healthy,2.5
+COW00933,82,574.7,Ayrshire,Foot and Mouth,3.1
+COW00934,59,479.0,Holstein,Mastitis,3.4
+COW00935,113,457.2,Holstein,Mastitis,4.2
+COW00936,29,514.6,Guernsey,Bloat,4.1
+COW00937,28,535.3,Brown Swiss,Healthy,2.6
+COW00938,61,498.5,Jersey,Healthy,2.1
+COW00939,66,597.1,Guernsey,Bloat,2.9
+COW00940,86,514.3,Jersey,Healthy,2.5
+COW00941,55,628.4,Holstein,Foot and Mouth,3.2
+COW00942,110,572.5,Jersey,Healthy,4.9
+COW00943,63,494.2,Ayrshire,Healthy,2.5
+COW00944,25,480.7,Guernsey,Healthy,3.0
+COW00945,24,418.2,Holstein,Healthy,4.2
+COW00946,117,573.3,Brown Swiss,Ketosis,3.5
+COW00947,26,521.6,Ayrshire,Healthy,2.1
+COW00948,114,360.2,Ayrshire,Mastitis,2.5
+COW00949,42,507.1,Guernsey,Healthy,4.8
+COW00950,22,477.9,Holstein,Ketosis,2.3
+COW00951,44,676.1,Jersey,Healthy,3.9
+COW00952,78,413.8,Jersey,Healthy,4.4
+COW00953,58,434.7,Holstein,Healthy,2.8
+COW00954,96,638.8,Holstein,Healthy,4.2
+COW00955,77,658.5,Jersey,Ketosis,2.5
+COW00956,55,490.4,Brown Swiss,Ketosis,2.9
+COW00957,80,499.4,Jersey,Healthy,2.9
+COW00958,116,599.3,Brown Swiss,Healthy,5.0
+COW00959,56,363.8,Jersey,Healthy,2.6
+COW00960,28,401.1,Holstein,Healthy,2.4
+COW00961,56,527.5,Ayrshire,Healthy,4.8
+COW00962,102,674.0,Brown Swiss,Healthy,2.5
+COW00963,35,515.1,Jersey,Healthy,4.6
+COW00964,114,558.1,Ayrshire,Bloat,4.0
+COW00965,75,640.7,Ayrshire,Healthy,3.7
+COW00966,76,718.6,Ayrshire,Healthy,4.3
+COW00967,46,503.9,Holstein,Healthy,4.2
+COW00968,111,548.7,Guernsey,Healthy,2.3
+COW00969,15,695.8,Ayrshire,Healthy,5.0
+COW00970,44,428.2,Ayrshire,Healthy,4.8
+COW00971,57,632.2,Jersey,Healthy,4.7
+COW00972,63,468.5,Ayrshire,Mastitis,3.9
+COW00973,63,558.2,Brown Swiss,Bloat,3.6
+COW00974,27,530.6,Brown Swiss,Bloat,3.6
+COW00975,36,473.4,Brown Swiss,Mastitis,2.0
+COW00976,22,471.4,Guernsey,Healthy,3.5
+COW00977,73,572.1,Holstein,Healthy,3.9
+COW00978,49,629.6,Brown Swiss,Healthy,4.0
+COW00979,73,539.6,Ayrshire,Ketosis,3.0
+COW00980,75,555.6,Brown Swiss,Ketosis,3.4
+COW00981,87,595.7,Jersey,Healthy,3.9
+COW00982,71,472.3,Holstein,Healthy,3.3
+COW00983,81,609.2,Brown Swiss,Healthy,4.9
+COW00984,75,615.5,Guernsey,Healthy,4.1
+COW00985,82,758.3,Brown Swiss,Ketosis,2.0
+COW00986,78,519.9,Ayrshire,Healthy,2.1
+COW00987,46,513.4,Guernsey,Healthy,4.1
+COW00988,38,611.5,Brown Swiss,Healthy,3.2
+COW00989,97,615.5,Holstein,Healthy,4.5
+COW00990,49,507.2,Brown Swiss,Healthy,2.5
+COW00991,71,517.7,Holstein,Foot and Mouth,2.0
+COW00992,33,593.3,Guernsey,Healthy,3.2
+COW00993,58,483.8,Holstein,Healthy,4.2
+COW00994,69,517.2,Ayrshire,Healthy,4.9
+COW00995,79,557.2,Jersey,Healthy,4.7
+COW00996,68,629.7,Brown Swiss,Healthy,3.5
+COW00997,50,501.6,Holstein,Healthy,4.4
+COW00998,115,402.6,Jersey,Healthy,2.2
+COW00999,67,396.7,Ayrshire,Healthy,3.7
+COW01000,99,449.2,Jersey,Foot and Mouth,4.8
+COW01001,91,444.9,Brown Swiss,Mastitis,3.2
+COW01002,72,537.6,Ayrshire,Bloat,4.9
+COW01003,107,454.9,Guernsey,Healthy,2.7
+COW01004,25,493.8,Holstein,Mastitis,2.3
+COW01005,111,488.1,Jersey,Mastitis,3.6
+COW01006,103,514.8,Jersey,Healthy,4.7
+COW01007,66,655.8,Jersey,Healthy,2.9
+COW01008,91,603.0,Jersey,Healthy,4.4
+COW01009,68,551.3,Brown Swiss,Mastitis,2.5
+COW01010,41,513.1,Jersey,Healthy,4.2
+COW01011,98,515.3,Jersey,Healthy,3.7
+COW01012,38,576.2,Brown Swiss,Ketosis,2.5
+COW01013,45,596.7,Jersey,Healthy,4.2
+COW01014,68,477.4,Jersey,Ketosis,4.1
+COW01015,102,552.9,Brown Swiss,Foot and Mouth,3.5
+COW01016,53,387.5,Ayrshire,Foot and Mouth,2.7
+COW01017,65,566.9,Brown Swiss,Mastitis,2.4
+COW01018,16,611.0,Brown Swiss,Healthy,4.9
+COW01019,24,527.6,Ayrshire,Healthy,4.0
+COW01020,18,695.3,Guernsey,Mastitis,4.4
+COW01021,19,479.5,Jersey,Mastitis,4.1
+COW01022,105,567.4,Jersey,Healthy,4.5
+COW01023,102,547.1,Brown Swiss,Healthy,2.5
+COW01024,100,542.0,Brown Swiss,Healthy,3.5
+COW01025,18,540.9,Holstein,Healthy,4.0
+COW01026,20,558.6,Holstein,Healthy,2.3
+COW01027,42,617.8,Jersey,Foot and Mouth,2.4
+COW01028,73,660.2,Ayrshire,Mastitis,3.9
+COW01029,48,549.8,Guernsey,Mastitis,4.6
+COW01030,64,615.2,Ayrshire,Healthy,4.0
+COW01031,30,493.9,Holstein,Healthy,2.1
+COW01032,90,611.3,Brown Swiss,Healthy,4.9
+COW01033,45,489.0,Brown Swiss,Healthy,2.4
+COW01034,19,637.3,Brown Swiss,Healthy,2.7
+COW01035,92,726.9,Brown Swiss,Healthy,4.9
+COW01036,109,540.2,Jersey,Healthy,4.3
+COW01037,13,374.6,Holstein,Healthy,4.8
+COW01038,59,506.2,Ayrshire,Healthy,4.4
+COW01039,101,648.6,Ayrshire,Healthy,4.0
+COW01040,88,594.2,Holstein,Healthy,2.9
+COW01041,104,569.9,Brown Swiss,Healthy,3.0
+COW01042,56,630.7,Brown Swiss,Healthy,4.8
+COW01043,52,588.8,Guernsey,Healthy,4.6
+COW01044,88,647.4,Ayrshire,Healthy,3.1
+COW01045,28,623.6,Brown Swiss,Ketosis,3.1
+COW01046,37,671.7,Guernsey,Healthy,2.9
+COW01047,76,578.7,Ayrshire,Mastitis,3.0
+COW01048,84,622.4,Ayrshire,Healthy,4.6
+COW01049,24,525.4,Jersey,Foot and Mouth,2.0
+COW01050,66,501.9,Ayrshire,Bloat,3.3
+COW01051,51,686.5,Brown Swiss,Healthy,4.8
+COW01052,66,567.3,Holstein,Mastitis,3.6
+COW01053,115,614.4,Guernsey,Healthy,3.4
+COW01054,20,559.9,Ayrshire,Mastitis,2.9
+COW01055,119,503.1,Jersey,Healthy,2.2
+COW01056,60,550.9,Brown Swiss,Healthy,2.7
+COW01057,95,664.9,Jersey,Ketosis,2.3
+COW01058,57,594.4,Holstein,Foot and Mouth,2.4
+COW01059,45,413.1,Ayrshire,Healthy,2.5
+COW01060,95,532.8,Holstein,Ketosis,2.9
+COW01061,86,692.6,Brown Swiss,Healthy,2.0
+COW01062,27,532.9,Holstein,Healthy,4.9
+COW01063,88,406.0,Guernsey,Foot and Mouth,2.4
+COW01064,93,701.4,Ayrshire,Healthy,3.1
+COW01065,53,604.6,Guernsey,Healthy,4.6
+COW01066,111,544.4,Guernsey,Mastitis,2.3
+COW01067,81,520.3,Ayrshire,Healthy,3.5
+COW01068,48,636.6,Ayrshire,Healthy,4.5
+COW01069,13,506.6,Ayrshire,Healthy,3.7
+COW01070,84,641.9,Jersey,Mastitis,2.6
+COW01071,34,593.4,Brown Swiss,Healthy,4.2
+COW01072,93,569.6,Ayrshire,Healthy,4.0
+COW01073,68,561.6,Jersey,Mastitis,3.1
+COW01074,62,536.0,Guernsey,Healthy,2.1
+COW01075,29,633.7,Holstein,Healthy,2.0
+COW01076,88,480.8,Ayrshire,Mastitis,4.5
+COW01077,29,420.2,Guernsey,Mastitis,3.0
+COW01078,57,599.2,Guernsey,Healthy,2.4
+COW01079,102,600.5,Ayrshire,Foot and Mouth,3.6
+COW01080,111,588.4,Jersey,Mastitis,4.8
+COW01081,118,582.6,Brown Swiss,Healthy,2.0
+COW01082,115,524.4,Ayrshire,Mastitis,2.2
+COW01083,72,613.0,Holstein,Mastitis,3.3
+COW01084,33,546.4,Ayrshire,Healthy,4.0
+COW01085,102,511.0,Jersey,Healthy,3.4
+COW01086,98,525.0,Brown Swiss,Mastitis,4.7
+COW01087,118,711.7,Brown Swiss,Ketosis,2.1
+COW01088,82,411.2,Guernsey,Healthy,3.0
+COW01089,27,590.0,Ayrshire,Foot and Mouth,3.1
+COW01090,66,415.7,Jersey,Mastitis,3.0
+COW01091,60,541.3,Holstein,Foot and Mouth,3.5
+COW01092,103,515.3,Brown Swiss,Ketosis,4.4
+COW01093,54,383.2,Guernsey,Healthy,3.0
+COW01094,47,581.1,Guernsey,Healthy,4.2
+COW01095,20,519.6,Guernsey,Healthy,2.4
+COW01096,102,382.1,Jersey,Healthy,3.7
+COW01097,93,617.2,Ayrshire,Healthy,3.1
+COW01098,16,664.8,Holstein,Mastitis,3.6
+COW01099,58,669.2,Holstein,Bloat,2.3
+COW01100,63,578.7,Holstein,Healthy,4.9
+COW01101,62,553.7,Ayrshire,Mastitis,4.7
+COW01102,111,656.3,Holstein,Healthy,4.5
+COW01103,28,684.6,Guernsey,Healthy,4.7
+COW01104,45,640.7,Ayrshire,Healthy,2.4
+COW01105,31,474.7,Guernsey,Healthy,3.5
+COW01106,38,566.1,Ayrshire,Healthy,3.0
+COW01107,109,585.2,Holstein,Mastitis,4.7
+COW01108,113,405.2,Brown Swiss,Healthy,2.6
+COW01109,16,587.5,Brown Swiss,Healthy,2.7
+COW01110,80,731.8,Guernsey,Healthy,4.1
+COW01111,37,601.2,Guernsey,Healthy,2.3
+COW01112,32,667.9,Brown Swiss,Ketosis,4.2
+COW01113,43,564.6,Jersey,Bloat,2.8
+COW01114,32,544.1,Holstein,Healthy,4.0
+COW01115,64,580.5,Brown Swiss,Healthy,4.6
+COW01116,119,484.7,Jersey,Healthy,3.8
+COW01117,75,472.9,Brown Swiss,Mastitis,2.6
+COW01118,90,651.3,Guernsey,Healthy,2.1
+COW01119,65,659.8,Brown Swiss,Healthy,2.1
+COW01120,13,470.7,Brown Swiss,Healthy,2.3
+COW01121,21,627.4,Holstein,Healthy,3.7
+COW01122,41,543.0,Guernsey,Healthy,3.0
+COW01123,38,577.2,Brown Swiss,Healthy,2.7
+COW01124,102,586.8,Holstein,Mastitis,2.7
+COW01125,103,629.5,Jersey,Healthy,4.8
+COW01126,104,556.6,Guernsey,Healthy,2.4
+COW01127,80,662.8,Ayrshire,Healthy,2.9
+COW01128,72,574.8,Brown Swiss,Healthy,3.4
+COW01129,82,599.9,Ayrshire,Mastitis,2.0
+COW01130,55,483.3,Holstein,Ketosis,4.8
+COW01131,84,722.7,Jersey,Healthy,2.3
+COW01132,97,587.6,Ayrshire,Bloat,4.0
+COW01133,94,607.0,Holstein,Mastitis,3.9
+COW01134,78,421.3,Guernsey,Mastitis,4.4
+COW01135,18,484.2,Jersey,Healthy,4.0
+COW01136,90,649.0,Jersey,Healthy,4.3
+COW01137,51,573.0,Brown Swiss,Healthy,3.3
+COW01138,92,396.9,Jersey,Ketosis,3.5
+COW01139,70,633.1,Ayrshire,Healthy,4.1
+COW01140,107,506.5,Ayrshire,Healthy,3.7
+COW01141,48,662.9,Brown Swiss,Healthy,3.5
+COW01142,112,543.0,Brown Swiss,Healthy,2.6
+COW01143,103,566.4,Holstein,Healthy,2.8
+COW01144,47,644.3,Jersey,Healthy,3.1
+COW01145,64,478.2,Holstein,Healthy,2.0
+COW01146,69,470.6,Ayrshire,Mastitis,3.3
+COW01147,95,534.3,Jersey,Mastitis,2.0
+COW01148,86,616.2,Jersey,Healthy,3.7
+COW01149,104,443.5,Ayrshire,Foot and Mouth,4.1
+COW01150,51,416.6,Guernsey,Healthy,3.7
+COW01151,66,615.9,Guernsey,Mastitis,4.1
+COW01152,58,501.8,Holstein,Mastitis,2.0
+COW01153,110,518.6,Brown Swiss,Healthy,2.2
+COW01154,44,401.5,Brown Swiss,Healthy,4.1
+COW01155,75,495.7,Jersey,Healthy,4.4
+COW01156,24,549.4,Guernsey,Healthy,4.2
+COW01157,103,624.4,Ayrshire,Healthy,4.0
+COW01158,53,488.3,Jersey,Healthy,4.1
+COW01159,48,682.6,Jersey,Mastitis,4.2
+COW01160,74,495.2,Jersey,Healthy,4.2
+COW01161,65,495.4,Ayrshire,Healthy,4.2
+COW01162,103,673.0,Holstein,Healthy,2.2
+COW01163,69,566.9,Ayrshire,Healthy,2.2
+COW01164,67,505.8,Guernsey,Ketosis,3.1
+COW01165,23,537.6,Brown Swiss,Healthy,3.6
+COW01166,14,658.2,Brown Swiss,Healthy,4.3
+COW01167,55,667.3,Ayrshire,Healthy,3.0
+COW01168,119,484.7,Guernsey,Healthy,2.8
+COW01169,111,546.6,Jersey,Healthy,4.3
+COW01170,79,557.2,Holstein,Mastitis,2.7
+COW01171,80,471.1,Guernsey,Healthy,4.5
+COW01172,54,545.5,Holstein,Healthy,2.5
+COW01173,31,550.4,Holstein,Healthy,3.1
+COW01174,12,641.2,Ayrshire,Foot and Mouth,3.2
+COW01175,48,646.6,Brown Swiss,Healthy,2.9
+COW01176,46,523.7,Guernsey,Healthy,2.0
+COW01177,32,532.9,Jersey,Mastitis,2.7
+COW01178,39,603.1,Holstein,Foot and Mouth,3.0
+COW01179,14,503.2,Holstein,Healthy,2.9
+COW01180,77,597.1,Jersey,Ketosis,4.4
+COW01181,112,543.0,Holstein,Foot and Mouth,2.1
+COW01182,86,472.4,Brown Swiss,Healthy,3.2
+COW01183,60,473.5,Jersey,Mastitis,2.1
+COW01184,57,665.8,Brown Swiss,Healthy,4.8
+COW01185,45,537.5,Brown Swiss,Healthy,4.4
+COW01186,27,681.2,Jersey,Healthy,4.9
+COW01187,76,508.9,Brown Swiss,Foot and Mouth,4.7
+COW01188,73,573.3,Holstein,Healthy,2.9
+COW01189,12,741.4,Jersey,Healthy,4.1
+COW01190,56,465.4,Ayrshire,Healthy,2.9
+COW01191,42,398.2,Ayrshire,Healthy,4.7
+COW01192,30,652.9,Brown Swiss,Bloat,3.2
+COW01193,87,483.9,Ayrshire,Mastitis,3.1
+COW01194,68,548.3,Brown Swiss,Healthy,4.7
+COW01195,80,503.1,Holstein,Bloat,4.5
+COW01196,89,571.5,Ayrshire,Foot and Mouth,4.9
+COW01197,118,474.0,Brown Swiss,Healthy,2.2
+COW01198,98,535.6,Guernsey,Healthy,2.7
+COW01199,78,586.0,Guernsey,Healthy,2.9
+COW01200,106,469.3,Jersey,Healthy,3.3
+COW01201,63,494.0,Guernsey,Healthy,3.4
+COW01202,118,522.2,Brown Swiss,Healthy,2.9
+COW01203,94,435.7,Jersey,Bloat,4.4
+COW01204,82,516.2,Jersey,Healthy,2.7
+COW01205,109,559.5,Guernsey,Foot and Mouth,4.1
+COW01206,67,518.0,Jersey,Bloat,4.6
+COW01207,89,528.3,Holstein,Healthy,3.8
+COW01208,42,548.4,Ayrshire,Healthy,3.1
+COW01209,116,497.5,Jersey,Mastitis,2.6
+COW01210,79,605.3,Guernsey,Mastitis,2.4
+COW01211,96,664.9,Guernsey,Healthy,4.2
+COW01212,61,512.8,Ayrshire,Mastitis,3.4
+COW01213,105,588.8,Guernsey,Healthy,2.1
+COW01214,20,530.8,Guernsey,Mastitis,5.0
+COW01215,24,579.2,Ayrshire,Mastitis,4.0
+COW01216,66,675.3,Ayrshire,Healthy,4.5
+COW01217,91,590.7,Holstein,Healthy,3.3
+COW01218,99,408.1,Guernsey,Healthy,4.9
+COW01219,59,586.3,Holstein,Bloat,2.6
+COW01220,82,648.6,Ayrshire,Bloat,2.6
+COW01221,71,532.3,Holstein,Mastitis,4.7
+COW01222,115,629.7,Jersey,Healthy,4.7
+COW01223,82,494.8,Holstein,Healthy,3.5
+COW01224,57,431.2,Guernsey,Healthy,2.4
+COW01225,116,561.3,Holstein,Healthy,2.9
+COW01226,23,409.5,Holstein,Healthy,4.3
+COW01227,118,530.8,Brown Swiss,Foot and Mouth,4.5
+COW01228,28,652.9,Ayrshire,Healthy,3.0
+COW01229,43,397.2,Brown Swiss,Healthy,2.2
+COW01230,100,447.6,Brown Swiss,Ketosis,4.0
+COW01231,91,467.4,Guernsey,Mastitis,4.2
+COW01232,116,544.9,Brown Swiss,Healthy,3.3
+COW01233,92,520.7,Jersey,Bloat,3.7
+COW01234,80,661.9,Brown Swiss,Healthy,5.0
+COW01235,49,626.3,Holstein,Healthy,2.7
+COW01236,12,589.6,Jersey,Mastitis,3.7
+COW01237,25,561.7,Guernsey,Foot and Mouth,3.8
+COW01238,44,581.5,Jersey,Healthy,3.6
+COW01239,16,481.0,Holstein,Healthy,4.6
+COW01240,66,618.6,Holstein,Healthy,3.8
+COW01241,95,461.0,Ayrshire,Healthy,3.5
+COW01242,116,616.8,Jersey,Mastitis,2.4
+COW01243,64,644.9,Holstein,Healthy,4.1
+COW01244,106,566.9,Guernsey,Healthy,2.4
+COW01245,118,535.9,Brown Swiss,Healthy,2.1
+COW01246,104,582.0,Brown Swiss,Healthy,3.5
+COW01247,62,321.1,Ayrshire,Healthy,3.7
+COW01248,47,574.2,Jersey,Healthy,5.0
+COW01249,117,540.9,Brown Swiss,Healthy,4.1
+COW01250,38,545.9,Guernsey,Healthy,4.5
+COW01251,56,606.5,Guernsey,Foot and Mouth,3.0
+COW01252,19,544.0,Jersey,Ketosis,3.5
+COW01253,97,458.8,Guernsey,Healthy,4.9
+COW01254,82,538.7,Guernsey,Healthy,3.3
+COW01255,21,555.4,Holstein,Healthy,4.4
+COW01256,35,559.2,Holstein,Healthy,3.6
+COW01257,71,563.0,Guernsey,Healthy,2.7
+COW01258,70,633.1,Holstein,Bloat,3.7
+COW01259,98,463.1,Ayrshire,Mastitis,2.7
+COW01260,40,564.1,Holstein,Healthy,2.0
+COW01261,111,653.2,Ayrshire,Ketosis,2.7
+COW01262,60,411.2,Guernsey,Healthy,2.6
+COW01263,100,564.4,Brown Swiss,Healthy,3.1
+COW01264,37,503.2,Jersey,Healthy,4.7
+COW01265,15,520.3,Jersey,Healthy,3.2
+COW01266,17,477.6,Guernsey,Bloat,4.5
+COW01267,52,536.4,Guernsey,Healthy,3.7
+COW01268,114,697.3,Jersey,Mastitis,2.0
+COW01269,17,448.8,Brown Swiss,Healthy,2.6
+COW01270,51,456.4,Ayrshire,Bloat,4.8
+COW01271,23,445.8,Jersey,Healthy,3.8
+COW01272,112,688.2,Guernsey,Healthy,4.8
+COW01273,84,513.0,Holstein,Healthy,2.9
+COW01274,94,547.9,Ayrshire,Bloat,4.1
+COW01275,89,517.8,Holstein,Healthy,4.3
+COW01276,82,474.4,Jersey,Healthy,4.9
+COW01277,95,531.2,Brown Swiss,Foot and Mouth,2.1
+COW01278,12,746.7,Jersey,Healthy,4.9
+COW01279,105,661.4,Holstein,Healthy,3.2
+COW01280,91,481.8,Guernsey,Healthy,4.5
+COW01281,91,601.8,Holstein,Healthy,3.6
+COW01282,54,483.5,Ayrshire,Healthy,3.7
+COW01283,98,407.9,Holstein,Healthy,3.1
+COW01284,53,631.6,Jersey,Healthy,4.5
+COW01285,17,642.8,Ayrshire,Healthy,2.8
+COW01286,110,633.7,Holstein,Healthy,3.5
+COW01287,37,512.4,Holstein,Ketosis,3.7
+COW01288,23,536.7,Guernsey,Healthy,4.2
+COW01289,79,610.0,Holstein,Healthy,3.4
+COW01290,37,581.3,Ayrshire,Healthy,4.0
+COW01291,104,518.5,Brown Swiss,Mastitis,3.5
+COW01292,59,420.5,Ayrshire,Healthy,4.0
+COW01293,12,559.1,Jersey,Healthy,4.0
+COW01294,114,636.3,Holstein,Mastitis,4.1
+COW01295,67,454.2,Ayrshire,Healthy,4.5
+COW01296,40,601.1,Guernsey,Mastitis,3.6
+COW01297,85,576.5,Ayrshire,Bloat,2.6
+COW01298,69,610.0,Jersey,Foot and Mouth,4.0
+COW01299,15,619.8,Brown Swiss,Healthy,2.2
+COW01300,94,494.4,Brown Swiss,Healthy,2.7
+COW01301,55,420.6,Brown Swiss,Healthy,4.4
+COW01302,87,507.3,Jersey,Mastitis,3.3
+COW01303,108,621.1,Jersey,Bloat,3.5
+COW01304,77,506.6,Guernsey,Bloat,5.0
+COW01305,84,494.5,Holstein,Healthy,2.7
+COW01306,39,404.3,Jersey,Foot and Mouth,2.1
+COW01307,37,690.2,Jersey,Healthy,2.3
+COW01308,56,616.1,Holstein,Foot and Mouth,2.7
+COW01309,104,611.6,Holstein,Healthy,4.2
+COW01310,68,627.4,Brown Swiss,Healthy,4.3
+COW01311,49,596.1,Holstein,Healthy,3.7
+COW01312,96,530.5,Jersey,Ketosis,2.8
+COW01313,104,536.9,Brown Swiss,Healthy,3.6
+COW01314,109,515.8,Ayrshire,Healthy,2.0
+COW01315,44,760.8,Holstein,Healthy,4.0
+COW01316,88,594.5,Brown Swiss,Healthy,3.8
+COW01317,75,512.9,Holstein,Bloat,2.1
+COW01318,60,587.2,Brown Swiss,Healthy,4.5
+COW01319,54,469.1,Brown Swiss,Healthy,4.3
+COW01320,24,670.4,Guernsey,Mastitis,2.9
+COW01321,41,497.1,Brown Swiss,Healthy,3.9
+COW01322,71,590.1,Ayrshire,Healthy,3.8
+COW01323,107,635.3,Holstein,Healthy,2.4
+COW01324,105,580.8,Holstein,Healthy,2.6
+COW01325,32,557.6,Holstein,Healthy,4.0
+COW01326,85,550.9,Jersey,Healthy,4.8
+COW01327,21,545.5,Holstein,Healthy,3.7
+COW01328,84,503.9,Holstein,Mastitis,3.7
+COW01329,48,514.0,Jersey,Foot and Mouth,3.9
+COW01330,60,668.4,Ayrshire,Bloat,3.3
+COW01331,89,541.3,Ayrshire,Healthy,2.2
+COW01332,57,487.1,Holstein,Healthy,3.2
+COW01333,99,508.7,Ayrshire,Ketosis,4.7
+COW01334,69,638.0,Jersey,Mastitis,4.4
+COW01335,119,604.0,Brown Swiss,Healthy,4.8
+COW01336,80,594.8,Jersey,Healthy,2.5
+COW01337,44,529.4,Brown Swiss,Healthy,3.5
+COW01338,95,595.9,Guernsey,Healthy,3.8
+COW01339,56,498.5,Guernsey,Healthy,2.6
+COW01340,69,529.2,Brown Swiss,Healthy,2.6
+COW01341,26,627.6,Guernsey,Ketosis,4.3
+COW01342,24,619.9,Guernsey,Healthy,4.0
+COW01343,74,471.4,Holstein,Healthy,3.9
+COW01344,32,481.6,Jersey,Healthy,2.8
+COW01345,119,558.7,Holstein,Mastitis,3.5
+COW01346,104,688.1,Guernsey,Mastitis,2.1
+COW01347,87,396.8,Brown Swiss,Healthy,2.4
+COW01348,91,572.3,Guernsey,Healthy,3.6
+COW01349,76,439.9,Brown Swiss,Mastitis,2.9
+COW01350,18,499.3,Jersey,Foot and Mouth,4.9
+COW01351,54,520.8,Holstein,Healthy,3.4
+COW01352,65,516.4,Ayrshire,Foot and Mouth,2.3
+COW01353,110,507.3,Jersey,Healthy,2.1
+COW01354,35,550.6,Holstein,Healthy,4.2
+COW01355,65,507.2,Jersey,Healthy,2.5
+COW01356,49,433.0,Ayrshire,Healthy,2.6
+COW01357,26,612.4,Jersey,Healthy,3.3
+COW01358,23,610.2,Ayrshire,Healthy,2.8
+COW01359,51,617.5,Brown Swiss,Mastitis,3.8
+COW01360,20,426.7,Ayrshire,Healthy,3.5
+COW01361,19,573.9,Guernsey,Ketosis,2.3
+COW01362,49,604.1,Holstein,Healthy,4.4
+COW01363,33,467.5,Brown Swiss,Healthy,3.3
+COW01364,71,550.7,Brown Swiss,Bloat,3.8
+COW01365,13,540.7,Jersey,Foot and Mouth,2.0
+COW01366,44,697.4,Brown Swiss,Healthy,3.9
+COW01367,60,704.0,Holstein,Mastitis,2.8
+COW01368,116,416.9,Guernsey,Healthy,3.5
+COW01369,80,749.5,Ayrshire,Healthy,2.9
+COW01370,107,476.8,Holstein,Healthy,5.0
+COW01371,49,628.5,Brown Swiss,Healthy,2.7
+COW01372,60,627.6,Guernsey,Healthy,4.7
+COW01373,57,470.3,Holstein,Healthy,4.8
+COW01374,107,589.5,Jersey,Bloat,3.3
+COW01375,115,541.4,Jersey,Bloat,2.9
+COW01376,115,594.3,Holstein,Foot and Mouth,3.1
+COW01377,93,568.5,Ayrshire,Mastitis,5.0
+COW01378,66,645.7,Brown Swiss,Healthy,3.9
+COW01379,70,556.0,Guernsey,Healthy,3.6
+COW01380,117,536.6,Brown Swiss,Mastitis,2.1
+COW01381,42,637.7,Ayrshire,Healthy,4.5
+COW01382,49,596.4,Ayrshire,Healthy,2.3
+COW01383,108,608.5,Guernsey,Healthy,2.1
+COW01384,53,496.8,Jersey,Healthy,2.8
+COW01385,37,466.4,Brown Swiss,Healthy,3.4
+COW01386,72,504.6,Ayrshire,Healthy,4.7
+COW01387,47,500.3,Brown Swiss,Healthy,4.4
+COW01388,108,612.9,Brown Swiss,Healthy,2.6
+COW01389,110,628.1,Holstein,Ketosis,3.1
+COW01390,45,537.6,Ayrshire,Healthy,4.3
+COW01391,69,664.5,Guernsey,Mastitis,3.6
+COW01392,118,659.5,Jersey,Foot and Mouth,2.5
+COW01393,92,569.5,Brown Swiss,Healthy,3.2
+COW01394,35,484.2,Brown Swiss,Mastitis,3.9
+COW01395,75,676.0,Holstein,Healthy,4.9
+COW01396,78,545.1,Ayrshire,Healthy,4.0
+COW01397,82,560.1,Ayrshire,Healthy,2.0
+COW01398,14,522.8,Ayrshire,Bloat,4.1
+COW01399,44,478.8,Jersey,Ketosis,2.8
+COW01400,104,432.5,Jersey,Healthy,4.6
+COW01401,38,600.6,Holstein,Healthy,3.2
+COW01402,44,487.3,Guernsey,Healthy,2.6
+COW01403,46,794.8,Jersey,Mastitis,3.4
+COW01404,31,463.1,Ayrshire,Healthy,2.8
+COW01405,28,449.4,Ayrshire,Healthy,2.7
+COW01406,49,590.8,Holstein,Foot and Mouth,3.7
+COW01407,106,672.3,Ayrshire,Healthy,4.3
+COW01408,12,555.2,Holstein,Healthy,4.5
+COW01409,42,595.8,Brown Swiss,Healthy,3.2
+COW01410,18,402.5,Brown Swiss,Healthy,2.2
+COW01411,72,495.8,Ayrshire,Healthy,3.5
+COW01412,39,464.1,Guernsey,Healthy,3.3
+COW01413,97,398.4,Ayrshire,Healthy,2.6
+COW01414,75,559.4,Brown Swiss,Bloat,4.7
+COW01415,96,370.6,Ayrshire,Healthy,4.9
+COW01416,80,444.2,Ayrshire,Bloat,2.2
+COW01417,59,507.0,Ayrshire,Healthy,4.4
+COW01418,104,483.5,Brown Swiss,Mastitis,3.9
+COW01419,63,581.7,Jersey,Healthy,2.8
+COW01420,114,574.4,Ayrshire,Mastitis,3.9
+COW01421,119,621.5,Guernsey,Healthy,2.4
+COW01422,75,610.2,Ayrshire,Healthy,2.2
+COW01423,84,641.3,Brown Swiss,Healthy,5.0
+COW01424,39,549.8,Ayrshire,Healthy,3.9
+COW01425,99,574.3,Guernsey,Bloat,2.8
+COW01426,84,590.9,Guernsey,Ketosis,3.4
+COW01427,109,561.3,Holstein,Mastitis,4.9
+COW01428,40,518.2,Brown Swiss,Healthy,3.3
+COW01429,97,523.4,Guernsey,Bloat,4.7
+COW01430,62,484.6,Guernsey,Mastitis,4.6
+COW01431,31,583.7,Ayrshire,Healthy,3.0
+COW01432,30,542.5,Jersey,Healthy,4.1
+COW01433,72,496.9,Jersey,Mastitis,4.0
+COW01434,46,497.0,Ayrshire,Healthy,4.3
+COW01435,23,453.2,Ayrshire,Healthy,3.1
+COW01436,58,628.3,Holstein,Mastitis,2.2
+COW01437,82,556.3,Jersey,Healthy,2.5
+COW01438,46,481.0,Ayrshire,Healthy,3.8
+COW01439,115,614.7,Holstein,Healthy,4.3
+COW01440,96,505.2,Guernsey,Mastitis,4.3
+COW01441,67,437.5,Holstein,Ketosis,3.8
+COW01442,112,631.7,Holstein,Foot and Mouth,2.3
+COW01443,58,507.0,Guernsey,Healthy,2.1
+COW01444,27,517.3,Guernsey,Healthy,4.3
+COW01445,15,553.3,Brown Swiss,Healthy,3.6
+COW01446,113,641.4,Ayrshire,Healthy,4.3
+COW01447,115,551.6,Jersey,Healthy,2.5
+COW01448,91,454.1,Brown Swiss,Mastitis,3.2
+COW01449,23,593.5,Guernsey,Mastitis,4.8
+COW01450,43,511.2,Guernsey,Healthy,2.5
+COW01451,16,701.0,Jersey,Foot and Mouth,2.2
+COW01452,17,549.9,Guernsey,Mastitis,4.0
+COW01453,38,371.2,Brown Swiss,Healthy,3.8
+COW01454,73,578.6,Brown Swiss,Healthy,4.9
+COW01455,19,705.6,Ayrshire,Healthy,4.7
+COW01456,118,676.1,Jersey,Healthy,4.2
+COW01457,61,696.5,Guernsey,Healthy,2.1
+COW01458,40,468.4,Ayrshire,Healthy,3.4
+COW01459,67,623.0,Guernsey,Healthy,4.7
+COW01460,97,492.2,Ayrshire,Healthy,3.3
+COW01461,45,567.9,Brown Swiss,Mastitis,4.9
+COW01462,17,448.2,Jersey,Mastitis,4.0
+COW01463,17,498.4,Ayrshire,Healthy,2.3
+COW01464,104,495.9,Guernsey,Healthy,3.5
+COW01465,24,621.9,Jersey,Healthy,4.1
+COW01466,80,614.1,Jersey,Healthy,2.2
+COW01467,53,572.1,Jersey,Healthy,3.0
+COW01468,95,442.0,Ayrshire,Healthy,4.2
+COW01469,18,525.1,Holstein,Healthy,2.5
+COW01470,108,490.3,Guernsey,Ketosis,3.0
+COW01471,87,619.6,Brown Swiss,Healthy,4.1
+COW01472,60,644.3,Holstein,Foot and Mouth,4.3
+COW01473,34,634.5,Guernsey,Healthy,3.6
+COW01474,117,489.6,Guernsey,Healthy,4.9
+COW01475,44,330.8,Guernsey,Bloat,4.8
+COW01476,64,408.6,Brown Swiss,Healthy,3.4
+COW01477,54,663.7,Jersey,Healthy,2.5
+COW01478,36,517.9,Holstein,Ketosis,4.3
+COW01479,56,489.9,Holstein,Healthy,2.7
+COW01480,28,681.4,Jersey,Healthy,4.5
+COW01481,12,651.2,Guernsey,Healthy,3.8
+COW01482,43,552.0,Holstein,Healthy,3.2
+COW01483,24,526.5,Ayrshire,Healthy,3.7
+COW01484,56,539.4,Brown Swiss,Healthy,3.6
+COW01485,105,568.2,Jersey,Bloat,4.8
+COW01486,29,678.0,Ayrshire,Mastitis,2.6
+COW01487,12,583.8,Holstein,Healthy,4.8
+COW01488,23,608.1,Ayrshire,Healthy,2.1
+COW01489,66,643.5,Jersey,Mastitis,4.3
+COW01490,41,456.4,Jersey,Bloat,4.8
+COW01491,64,610.4,Brown Swiss,Healthy,3.2
+COW01492,15,526.4,Ayrshire,Healthy,2.2
+COW01493,47,348.7,Jersey,Foot and Mouth,4.4
+COW01494,56,379.7,Ayrshire,Bloat,4.5
+COW01495,58,468.6,Jersey,Bloat,3.0
+COW01496,71,592.5,Jersey,Healthy,3.6
+COW01497,96,559.1,Guernsey,Healthy,4.4
+COW01498,62,564.7,Guernsey,Healthy,2.6
+COW01499,102,706.1,Jersey,Healthy,3.9
+COW01500,69,448.5,Holstein,Bloat,3.3
+COW01501,40,547.8,Jersey,Healthy,2.5
+COW01502,36,574.4,Brown Swiss,Healthy,4.5
+COW01503,46,491.1,Holstein,Bloat,3.0
+COW01504,76,552.3,Holstein,Ketosis,4.8
+COW01505,38,422.0,Ayrshire,Mastitis,3.7
+COW01506,110,662.8,Holstein,Bloat,3.5
+COW01507,63,495.5,Brown Swiss,Healthy,3.3
+COW01508,105,712.5,Guernsey,Healthy,3.2
+COW01509,85,547.4,Jersey,Healthy,4.5
+COW01510,48,632.2,Brown Swiss,Ketosis,4.0
+COW01511,36,545.7,Holstein,Bloat,4.3
+COW01512,92,547.5,Guernsey,Healthy,3.3
+COW01513,47,503.3,Guernsey,Healthy,2.8
+COW01514,38,559.5,Ayrshire,Healthy,2.3
+COW01515,112,575.4,Ayrshire,Healthy,4.3
+COW01516,64,487.3,Jersey,Foot and Mouth,3.2
+COW01517,17,540.0,Holstein,Healthy,3.5
+COW01518,65,501.2,Jersey,Mastitis,3.4
+COW01519,61,734.0,Holstein,Healthy,3.3
+COW01520,105,542.8,Brown Swiss,Healthy,4.1
+COW01521,88,673.6,Holstein,Healthy,3.8
+COW01522,32,534.4,Ayrshire,Ketosis,4.9
+COW01523,28,570.7,Guernsey,Healthy,2.4
+COW01524,77,444.3,Jersey,Healthy,3.7
+COW01525,17,514.2,Ayrshire,Healthy,2.2
+COW01526,46,566.8,Guernsey,Bloat,4.4
+COW01527,26,676.9,Brown Swiss,Foot and Mouth,3.8
+COW01528,14,567.8,Holstein,Foot and Mouth,3.3
+COW01529,111,660.7,Jersey,Healthy,4.4
+COW01530,21,601.3,Brown Swiss,Bloat,3.4
+COW01531,13,680.2,Guernsey,Healthy,2.7
+COW01532,112,545.3,Jersey,Mastitis,3.4
+COW01533,32,741.2,Guernsey,Healthy,2.2
+COW01534,100,511.2,Jersey,Healthy,4.7
+COW01535,15,488.7,Jersey,Ketosis,4.2
+COW01536,28,453.2,Brown Swiss,Ketosis,4.3
+COW01537,23,736.5,Holstein,Healthy,4.6
+COW01538,88,615.6,Brown Swiss,Healthy,4.4
+COW01539,78,523.3,Jersey,Bloat,3.3
+COW01540,63,649.9,Jersey,Ketosis,2.4
+COW01541,38,605.0,Guernsey,Mastitis,3.1
+COW01542,21,707.3,Jersey,Healthy,4.8
+COW01543,73,426.2,Guernsey,Healthy,4.8
+COW01544,36,528.8,Guernsey,Bloat,4.3
+COW01545,75,513.0,Guernsey,Mastitis,2.6
+COW01546,86,392.1,Jersey,Mastitis,2.6
+COW01547,103,634.8,Ayrshire,Mastitis,4.6
+COW01548,65,528.4,Jersey,Healthy,2.4
+COW01549,12,609.2,Jersey,Healthy,3.8
+COW01550,42,738.8,Ayrshire,Foot and Mouth,3.1
+COW01551,104,521.7,Jersey,Healthy,2.9
+COW01552,69,516.3,Guernsey,Mastitis,4.0
+COW01553,78,559.5,Holstein,Mastitis,4.9
+COW01554,61,629.0,Guernsey,Foot and Mouth,4.3
+COW01555,29,504.7,Ayrshire,Healthy,3.5
+COW01556,108,499.5,Guernsey,Mastitis,3.3
+COW01557,95,634.6,Brown Swiss,Healthy,4.7
+COW01558,119,580.3,Ayrshire,Healthy,3.7
+COW01559,104,386.4,Jersey,Healthy,3.5
+COW01560,43,452.0,Jersey,Healthy,4.0
+COW01561,39,670.1,Holstein,Bloat,2.7
+COW01562,38,582.2,Guernsey,Bloat,2.2
+COW01563,111,489.0,Guernsey,Healthy,4.6
+COW01564,72,536.4,Guernsey,Foot and Mouth,3.8
+COW01565,61,551.1,Guernsey,Healthy,2.5
+COW01566,116,608.9,Holstein,Mastitis,2.9
+COW01567,77,441.3,Guernsey,Bloat,5.0
+COW01568,110,482.7,Guernsey,Healthy,3.9
+COW01569,118,571.8,Jersey,Healthy,3.9
+COW01570,20,542.0,Brown Swiss,Healthy,2.2
+COW01571,51,595.7,Ayrshire,Healthy,4.9
+COW01572,91,451.6,Brown Swiss,Bloat,4.7
+COW01573,99,578.6,Guernsey,Healthy,3.6
+COW01574,28,637.3,Brown Swiss,Healthy,2.9
+COW01575,46,588.9,Guernsey,Healthy,4.1
+COW01576,71,561.1,Guernsey,Bloat,4.5
+COW01577,98,542.3,Guernsey,Healthy,4.4
+COW01578,24,483.2,Guernsey,Mastitis,4.9
+COW01579,76,544.2,Ayrshire,Mastitis,3.9
+COW01580,44,650.8,Jersey,Healthy,3.0
+COW01581,35,540.5,Ayrshire,Healthy,3.5
+COW01582,67,478.8,Guernsey,Healthy,4.4
+COW01583,56,510.6,Brown Swiss,Healthy,2.8
+COW01584,80,566.1,Jersey,Mastitis,2.7
+COW01585,46,520.1,Brown Swiss,Foot and Mouth,4.2
+COW01586,100,588.8,Guernsey,Healthy,3.3
+COW01587,20,591.8,Jersey,Healthy,4.4
+COW01588,105,621.1,Jersey,Healthy,2.4
+COW01589,15,663.9,Ayrshire,Healthy,3.0
+COW01590,91,629.7,Brown Swiss,Mastitis,2.8
+COW01591,49,475.3,Guernsey,Mastitis,4.1
+COW01592,53,477.7,Holstein,Mastitis,4.3
+COW01593,14,543.9,Holstein,Healthy,3.4
+COW01594,87,513.9,Ayrshire,Healthy,3.4
+COW01595,29,458.9,Holstein,Healthy,2.4
+COW01596,83,514.7,Guernsey,Ketosis,4.1
+COW01597,90,512.0,Ayrshire,Mastitis,5.0
+COW01598,103,496.3,Brown Swiss,Bloat,4.3
+COW01599,88,524.7,Ayrshire,Healthy,2.7
+COW01600,44,644.3,Brown Swiss,Healthy,3.9
+COW01601,91,565.9,Ayrshire,Mastitis,2.9
+COW01602,101,747.7,Jersey,Healthy,2.1
+COW01603,46,563.6,Brown Swiss,Healthy,2.5
+COW01604,25,526.8,Jersey,Healthy,2.3
+COW01605,108,550.3,Guernsey,Ketosis,2.6
+COW01606,27,570.5,Holstein,Healthy,4.4
+COW01607,76,584.8,Ayrshire,Bloat,2.9
+COW01608,37,716.1,Holstein,Healthy,4.3
+COW01609,25,482.4,Jersey,Healthy,4.8
+COW01610,95,618.7,Brown Swiss,Healthy,3.7
+COW01611,27,566.6,Holstein,Healthy,3.5
+COW01612,84,424.3,Brown Swiss,Ketosis,4.3
+COW01613,86,611.7,Ayrshire,Bloat,2.3
+COW01614,18,651.4,Ayrshire,Ketosis,3.3
+COW01615,30,481.4,Holstein,Ketosis,3.5
+COW01616,97,549.3,Brown Swiss,Mastitis,4.5
+COW01617,66,412.0,Brown Swiss,Healthy,4.4
+COW01618,25,449.3,Holstein,Foot and Mouth,4.5
+COW01619,119,633.8,Guernsey,Healthy,4.1
+COW01620,40,512.7,Brown Swiss,Foot and Mouth,3.6
+COW01621,12,461.3,Guernsey,Healthy,4.5
+COW01622,111,568.4,Jersey,Mastitis,4.6
+COW01623,13,508.2,Jersey,Healthy,3.4
+COW01624,71,512.3,Guernsey,Healthy,5.0
+COW01625,119,609.1,Guernsey,Healthy,4.6
+COW01626,74,457.1,Holstein,Healthy,3.5
+COW01627,75,477.6,Jersey,Healthy,2.2
+COW01628,53,562.3,Brown Swiss,Healthy,2.7
+COW01629,25,627.6,Ayrshire,Healthy,4.3
+COW01630,73,649.1,Jersey,Healthy,2.3
+COW01631,108,496.8,Jersey,Healthy,3.4
+COW01632,21,625.0,Ayrshire,Foot and Mouth,3.8
+COW01633,107,487.3,Guernsey,Healthy,4.6
+COW01634,56,696.1,Ayrshire,Healthy,4.5
+COW01635,69,459.3,Guernsey,Healthy,4.3
+COW01636,29,656.3,Ayrshire,Healthy,3.2
+COW01637,79,497.5,Holstein,Healthy,2.4
+COW01638,31,711.1,Jersey,Healthy,4.0
+COW01639,41,597.3,Jersey,Healthy,2.5
+COW01640,89,468.7,Holstein,Healthy,3.7
+COW01641,17,508.2,Guernsey,Healthy,4.9
+COW01642,60,612.5,Guernsey,Healthy,3.7
+COW01643,76,634.2,Holstein,Healthy,3.9
+COW01644,26,544.3,Holstein,Mastitis,4.0
+COW01645,43,553.6,Holstein,Healthy,4.5
+COW01646,49,610.7,Brown Swiss,Mastitis,3.3
+COW01647,83,560.5,Brown Swiss,Healthy,3.5
+COW01648,117,446.5,Jersey,Healthy,2.5
+COW01649,102,485.0,Ayrshire,Healthy,3.8
+COW01650,32,568.8,Jersey,Healthy,2.9
+COW01651,13,647.2,Brown Swiss,Healthy,3.5
+COW01652,17,679.3,Brown Swiss,Foot and Mouth,4.3
+COW01653,76,612.4,Jersey,Mastitis,2.1
+COW01654,28,573.0,Ayrshire,Healthy,3.7
+COW01655,36,609.9,Ayrshire,Healthy,2.5
+COW01656,103,496.7,Holstein,Foot and Mouth,2.8
+COW01657,106,537.7,Brown Swiss,Healthy,2.1
+COW01658,102,484.1,Holstein,Healthy,2.5
+COW01659,39,450.1,Brown Swiss,Foot and Mouth,5.0
+COW01660,78,576.7,Guernsey,Healthy,5.0
+COW01661,77,564.8,Brown Swiss,Healthy,4.2
+COW01662,32,605.0,Jersey,Healthy,3.8
+COW01663,71,593.7,Jersey,Healthy,4.3
+COW01664,68,569.4,Jersey,Healthy,4.7
+COW01665,54,594.5,Jersey,Mastitis,3.6
+COW01666,93,546.6,Jersey,Healthy,2.1
+COW01667,85,583.0,Guernsey,Healthy,4.1
+COW01668,69,491.9,Holstein,Healthy,5.0
+COW01669,90,579.6,Holstein,Foot and Mouth,2.8
+COW01670,94,603.5,Brown Swiss,Healthy,3.4
+COW01671,73,496.4,Guernsey,Mastitis,3.1
+COW01672,40,554.1,Jersey,Healthy,3.2
+COW01673,93,500.1,Jersey,Healthy,4.2
+COW01674,89,507.9,Guernsey,Healthy,3.1
+COW01675,118,460.0,Jersey,Healthy,4.8
+COW01676,28,651.3,Guernsey,Healthy,4.4
+COW01677,57,635.3,Holstein,Foot and Mouth,2.1
+COW01678,111,593.0,Holstein,Bloat,4.5
+COW01679,67,707.8,Brown Swiss,Mastitis,4.3
+COW01680,113,534.9,Jersey,Healthy,3.5
+COW01681,13,792.5,Guernsey,Healthy,3.5
+COW01682,15,531.8,Brown Swiss,Healthy,4.5
+COW01683,97,570.4,Jersey,Healthy,3.3
+COW01684,50,518.2,Holstein,Foot and Mouth,2.5
+COW01685,68,579.8,Holstein,Foot and Mouth,2.9
+COW01686,58,616.8,Guernsey,Healthy,2.8
+COW01687,56,540.9,Jersey,Bloat,4.0
+COW01688,113,692.1,Brown Swiss,Foot and Mouth,2.5
+COW01689,22,569.1,Ayrshire,Healthy,3.9
+COW01690,95,571.6,Ayrshire,Bloat,3.4
+COW01691,108,477.3,Jersey,Healthy,4.5
+COW01692,83,583.5,Holstein,Healthy,3.5
+COW01693,54,539.3,Guernsey,Healthy,4.8
+COW01694,29,501.3,Guernsey,Healthy,4.7
+COW01695,85,487.9,Jersey,Healthy,2.6
+COW01696,62,763.7,Brown Swiss,Bloat,4.1
+COW01697,28,528.9,Holstein,Healthy,2.6
+COW01698,50,433.4,Guernsey,Healthy,4.5
+COW01699,115,494.1,Guernsey,Healthy,3.9
+COW01700,40,545.9,Jersey,Healthy,2.9
+COW01701,31,593.7,Brown Swiss,Mastitis,2.7
+COW01702,85,594.4,Jersey,Healthy,3.3
+COW01703,33,604.1,Holstein,Ketosis,4.4
+COW01704,111,498.4,Holstein,Mastitis,4.4
+COW01705,104,577.2,Ayrshire,Healthy,2.1
+COW01706,118,479.9,Brown Swiss,Healthy,2.9
+COW01707,110,500.4,Holstein,Healthy,3.3
+COW01708,38,476.6,Holstein,Ketosis,3.8
+COW01709,34,454.9,Jersey,Mastitis,2.4
+COW01710,49,635.1,Ayrshire,Healthy,3.0
+COW01711,62,605.1,Jersey,Healthy,4.7
+COW01712,107,628.1,Ayrshire,Foot and Mouth,3.4
+COW01713,91,553.1,Brown Swiss,Healthy,4.2
+COW01714,81,612.1,Guernsey,Mastitis,3.5
+COW01715,106,409.1,Guernsey,Mastitis,3.4
+COW01716,81,619.0,Holstein,Healthy,3.9
+COW01717,52,564.2,Holstein,Healthy,2.8
+COW01718,56,600.2,Ayrshire,Healthy,2.7
+COW01719,67,580.4,Ayrshire,Healthy,5.0
+COW01720,21,471.0,Holstein,Ketosis,4.6
+COW01721,92,430.2,Guernsey,Mastitis,4.2
+COW01722,82,493.0,Ayrshire,Foot and Mouth,2.4
+COW01723,90,595.2,Ayrshire,Healthy,2.1
+COW01724,69,605.2,Jersey,Healthy,2.5
+COW01725,96,440.6,Ayrshire,Mastitis,4.8
+COW01726,114,471.5,Guernsey,Healthy,4.4
+COW01727,73,492.1,Ayrshire,Healthy,3.6
+COW01728,59,521.4,Holstein,Healthy,4.9
+COW01729,23,441.0,Guernsey,Healthy,2.4
+COW01730,96,436.2,Holstein,Mastitis,3.7
+COW01731,109,484.3,Jersey,Healthy,2.5
+COW01732,87,556.9,Holstein,Foot and Mouth,2.9
+COW01733,105,455.6,Brown Swiss,Healthy,4.8
+COW01734,105,540.7,Ayrshire,Healthy,4.6
+COW01735,98,634.7,Guernsey,Healthy,2.3
+COW01736,66,445.9,Jersey,Foot and Mouth,2.7
+COW01737,22,533.5,Brown Swiss,Healthy,3.8
+COW01738,12,632.0,Jersey,Healthy,2.2
+COW01739,34,516.5,Guernsey,Healthy,3.7
+COW01740,58,504.1,Jersey,Mastitis,3.8
+COW01741,92,643.1,Holstein,Mastitis,2.9
+COW01742,61,525.5,Brown Swiss,Healthy,2.9
+COW01743,14,638.4,Ayrshire,Bloat,2.7
+COW01744,34,584.3,Brown Swiss,Healthy,4.8
+COW01745,117,522.6,Jersey,Healthy,3.2
+COW01746,118,588.4,Holstein,Healthy,3.8
+COW01747,52,575.6,Ayrshire,Mastitis,2.9
+COW01748,98,631.7,Guernsey,Healthy,4.1
+COW01749,89,506.1,Holstein,Healthy,2.3
+COW01750,112,553.3,Holstein,Healthy,2.2
+COW01751,107,545.1,Holstein,Healthy,4.2
+COW01752,79,606.3,Jersey,Mastitis,4.2
+COW01753,54,468.0,Ayrshire,Ketosis,2.8
+COW01754,79,631.4,Holstein,Healthy,3.1
+COW01755,46,587.3,Ayrshire,Healthy,4.9
+COW01756,49,444.6,Holstein,Healthy,2.3
+COW01757,77,646.7,Guernsey,Healthy,2.5
+COW01758,73,728.7,Jersey,Healthy,3.3
+COW01759,74,630.1,Ayrshire,Ketosis,2.8
+COW01760,53,664.2,Brown Swiss,Healthy,3.9
+COW01761,56,556.8,Jersey,Mastitis,4.1
+COW01762,13,417.1,Jersey,Healthy,3.6
+COW01763,76,402.5,Ayrshire,Foot and Mouth,3.8
+COW01764,74,570.4,Brown Swiss,Healthy,3.3
+COW01765,113,502.6,Jersey,Ketosis,4.3
+COW01766,66,476.8,Guernsey,Mastitis,2.1
+COW01767,62,545.0,Brown Swiss,Healthy,2.9
+COW01768,19,599.2,Guernsey,Mastitis,4.1
+COW01769,33,433.8,Brown Swiss,Healthy,3.0
+COW01770,48,514.1,Holstein,Healthy,2.2
+COW01771,52,670.8,Holstein,Healthy,3.0
+COW01772,51,464.0,Holstein,Mastitis,4.1
+COW01773,54,619.6,Brown Swiss,Mastitis,2.4
+COW01774,95,511.2,Brown Swiss,Healthy,4.2
+COW01775,26,593.7,Guernsey,Foot and Mouth,4.3
+COW01776,47,637.8,Ayrshire,Healthy,3.9
+COW01777,29,609.3,Holstein,Healthy,2.7
+COW01778,45,622.7,Ayrshire,Healthy,4.4
+COW01779,85,457.9,Ayrshire,Healthy,2.6
+COW01780,17,639.1,Guernsey,Healthy,4.7
+COW01781,48,481.8,Brown Swiss,Healthy,4.1
+COW01782,14,570.8,Holstein,Healthy,2.2
+COW01783,115,570.7,Holstein,Healthy,4.4
+COW01784,90,588.8,Holstein,Mastitis,3.5
+COW01785,38,577.0,Guernsey,Healthy,3.4
+COW01786,33,482.5,Brown Swiss,Foot and Mouth,3.3
+COW01787,22,442.0,Holstein,Healthy,3.8
+COW01788,63,619.8,Holstein,Healthy,4.2
+COW01789,93,564.9,Holstein,Healthy,4.7
+COW01790,75,642.0,Guernsey,Mastitis,2.8
+COW01791,107,546.4,Guernsey,Healthy,3.9
+COW01792,49,437.6,Guernsey,Healthy,4.1
+COW01793,42,627.3,Holstein,Foot and Mouth,4.0
+COW01794,63,520.4,Holstein,Mastitis,3.5
+COW01795,33,577.4,Holstein,Healthy,3.2
+COW01796,117,498.2,Guernsey,Healthy,4.3
+COW01797,32,681.5,Guernsey,Healthy,2.9
+COW01798,63,479.9,Jersey,Healthy,2.6
+COW01799,68,523.0,Holstein,Mastitis,3.6
+COW01800,18,558.6,Jersey,Healthy,2.8
+COW01801,62,462.6,Ayrshire,Healthy,2.1
+COW01802,61,576.4,Holstein,Healthy,2.2
+COW01803,40,679.0,Guernsey,Healthy,4.1
+COW01804,25,510.8,Brown Swiss,Mastitis,4.9
+COW01805,16,581.6,Holstein,Healthy,3.4
+COW01806,12,330.0,Ayrshire,Healthy,2.4
+COW01807,64,546.9,Brown Swiss,Healthy,4.5
+COW01808,21,525.0,Guernsey,Healthy,2.8
+COW01809,115,484.5,Holstein,Healthy,5.0
+COW01810,38,636.5,Jersey,Healthy,3.7
+COW01811,82,523.9,Guernsey,Healthy,2.7
+COW01812,84,535.8,Guernsey,Mastitis,3.5
+COW01813,65,519.8,Holstein,Ketosis,3.0
+COW01814,107,396.7,Guernsey,Bloat,4.3
+COW01815,23,459.4,Ayrshire,Healthy,2.3
+COW01816,37,626.9,Guernsey,Healthy,4.6
+COW01817,39,381.2,Jersey,Healthy,4.3
+COW01818,26,488.7,Ayrshire,Mastitis,4.6
+COW01819,43,518.0,Guernsey,Healthy,4.7
+COW01820,45,689.5,Holstein,Healthy,2.7
+COW01821,94,611.5,Holstein,Healthy,3.6
+COW01822,44,505.4,Ayrshire,Healthy,4.5
+COW01823,106,654.4,Jersey,Mastitis,3.1
+COW01824,95,490.8,Holstein,Mastitis,2.2
+COW01825,109,630.7,Brown Swiss,Healthy,2.9
+COW01826,23,441.3,Brown Swiss,Bloat,2.7
+COW01827,118,635.9,Brown Swiss,Healthy,4.6
+COW01828,78,517.5,Guernsey,Healthy,3.4
+COW01829,118,467.7,Ayrshire,Healthy,4.1
+COW01830,50,532.6,Guernsey,Mastitis,4.9
+COW01831,114,572.2,Holstein,Healthy,2.9
+COW01832,75,510.4,Holstein,Healthy,4.3
+COW01833,19,594.3,Holstein,Ketosis,2.1
+COW01834,56,503.4,Jersey,Healthy,2.3
+COW01835,26,599.6,Jersey,Healthy,2.5
+COW01836,113,585.4,Ayrshire,Healthy,2.9
+COW01837,44,545.1,Jersey,Bloat,3.2
+COW01838,36,514.7,Holstein,Mastitis,3.4
+COW01839,71,562.1,Ayrshire,Ketosis,2.7
+COW01840,57,594.0,Jersey,Healthy,2.2
+COW01841,22,714.9,Ayrshire,Healthy,4.0
+COW01842,100,625.2,Guernsey,Foot and Mouth,2.1
+COW01843,103,628.1,Ayrshire,Healthy,4.4
+COW01844,92,797.1,Ayrshire,Healthy,4.8
+COW01845,78,591.3,Holstein,Ketosis,4.1
+COW01846,55,588.8,Guernsey,Healthy,3.8
+COW01847,70,606.3,Brown Swiss,Healthy,4.0
+COW01848,68,469.3,Guernsey,Foot and Mouth,4.0
+COW01849,29,514.5,Guernsey,Bloat,4.8
+COW01850,20,509.5,Brown Swiss,Ketosis,4.9
+COW01851,39,601.8,Jersey,Bloat,3.3
+COW01852,61,536.1,Ayrshire,Healthy,3.9
+COW01853,29,561.1,Guernsey,Bloat,4.4
+COW01854,23,637.0,Ayrshire,Healthy,2.0
+COW01855,104,619.1,Jersey,Mastitis,3.6
+COW01856,52,537.1,Ayrshire,Healthy,4.0
+COW01857,75,496.4,Jersey,Foot and Mouth,4.2
+COW01858,68,640.8,Brown Swiss,Healthy,3.1
+COW01859,91,611.9,Ayrshire,Foot and Mouth,2.9
+COW01860,91,421.5,Jersey,Healthy,2.5
+COW01861,43,524.9,Jersey,Healthy,3.7
+COW01862,103,563.2,Ayrshire,Healthy,4.8
+COW01863,52,612.3,Ayrshire,Healthy,4.7
+COW01864,102,622.8,Jersey,Mastitis,3.1
+COW01865,55,572.7,Jersey,Healthy,2.8
+COW01866,23,596.8,Jersey,Healthy,4.4
+COW01867,94,555.1,Holstein,Healthy,4.2
+COW01868,15,496.1,Brown Swiss,Healthy,3.5
+COW01869,95,529.1,Jersey,Healthy,3.2
+COW01870,16,551.5,Ayrshire,Healthy,2.4
+COW01871,34,547.2,Holstein,Healthy,4.4
+COW01872,77,399.2,Guernsey,Healthy,3.9
+COW01873,113,518.2,Brown Swiss,Healthy,3.1
+COW01874,56,554.5,Guernsey,Healthy,4.8
+COW01875,25,527.5,Holstein,Healthy,4.0
+COW01876,37,530.3,Brown Swiss,Healthy,4.8
+COW01877,108,589.0,Guernsey,Mastitis,3.4
+COW01878,90,463.7,Jersey,Healthy,3.4
+COW01879,22,419.8,Ayrshire,Healthy,4.8
+COW01880,53,522.1,Brown Swiss,Healthy,4.9
+COW01881,40,611.1,Jersey,Bloat,4.9
+COW01882,31,685.0,Holstein,Healthy,4.5
+COW01883,103,612.6,Holstein,Healthy,3.4
+COW01884,78,432.5,Brown Swiss,Bloat,2.6
+COW01885,31,531.4,Brown Swiss,Mastitis,3.2
+COW01886,82,570.5,Ayrshire,Healthy,4.8
+COW01887,56,564.2,Guernsey,Bloat,3.1
+COW01888,18,593.1,Holstein,Healthy,4.3
+COW01889,60,476.6,Brown Swiss,Foot and Mouth,4.8
+COW01890,32,555.2,Brown Swiss,Mastitis,4.9
+COW01891,38,583.6,Holstein,Healthy,4.8
+COW01892,106,616.1,Guernsey,Healthy,3.7
+COW01893,88,485.5,Brown Swiss,Healthy,3.5
+COW01894,26,522.4,Holstein,Bloat,5.0
+COW01895,103,333.7,Brown Swiss,Healthy,2.7
+COW01896,74,500.3,Guernsey,Healthy,2.6
+COW01897,106,508.0,Jersey,Mastitis,4.9
+COW01898,92,468.4,Jersey,Mastitis,4.1
+COW01899,48,563.2,Holstein,Healthy,3.6
+COW01900,69,545.5,Jersey,Foot and Mouth,2.4
+COW01901,69,369.3,Ayrshire,Healthy,3.5
+COW01902,89,567.2,Guernsey,Foot and Mouth,4.8
+COW01903,38,475.7,Holstein,Healthy,3.8
+COW01904,47,588.9,Brown Swiss,Healthy,3.2
+COW01905,38,447.5,Holstein,Healthy,3.7
+COW01906,43,552.4,Brown Swiss,Healthy,4.7
+COW01907,29,527.3,Holstein,Healthy,4.7
+COW01908,15,574.2,Guernsey,Healthy,3.2
+COW01909,113,560.0,Brown Swiss,Mastitis,3.8
+COW01910,20,529.6,Guernsey,Bloat,2.8
+COW01911,107,427.1,Brown Swiss,Foot and Mouth,3.4
+COW01912,12,431.8,Jersey,Ketosis,2.7
+COW01913,95,503.3,Jersey,Bloat,3.6
+COW01914,47,549.3,Jersey,Healthy,3.7
+COW01915,67,501.3,Brown Swiss,Healthy,3.0
+COW01916,42,600.0,Brown Swiss,Bloat,2.8
+COW01917,64,527.7,Guernsey,Bloat,2.5
+COW01918,60,472.8,Holstein,Ketosis,2.4
+COW01919,69,527.8,Jersey,Mastitis,4.1
+COW01920,54,568.1,Ayrshire,Healthy,2.7
+COW01921,69,576.0,Ayrshire,Bloat,2.4
+COW01922,101,700.3,Ayrshire,Bloat,5.0
+COW01923,58,496.5,Jersey,Mastitis,2.8
+COW01924,51,544.1,Holstein,Foot and Mouth,4.7
+COW01925,26,584.1,Holstein,Healthy,3.8
+COW01926,50,548.1,Holstein,Bloat,4.1
+COW01927,25,510.0,Ayrshire,Healthy,3.7
+COW01928,31,426.1,Ayrshire,Foot and Mouth,2.5
+COW01929,114,509.1,Ayrshire,Healthy,4.5
+COW01930,21,464.1,Guernsey,Healthy,4.5
+COW01931,64,411.9,Jersey,Healthy,3.0
+COW01932,102,486.3,Brown Swiss,Healthy,4.3
+COW01933,114,466.2,Ayrshire,Healthy,3.6
+COW01934,27,596.7,Ayrshire,Ketosis,4.7
+COW01935,29,598.1,Brown Swiss,Healthy,4.4
+COW01936,52,477.7,Ayrshire,Bloat,2.1
+COW01937,71,529.2,Jersey,Healthy,4.6
+COW01938,115,401.3,Brown Swiss,Healthy,4.9
+COW01939,34,510.5,Ayrshire,Mastitis,4.2
+COW01940,29,581.9,Jersey,Mastitis,2.4
+COW01941,39,616.0,Guernsey,Healthy,4.4
+COW01942,106,493.0,Brown Swiss,Foot and Mouth,3.9
+COW01943,15,634.1,Jersey,Foot and Mouth,3.0
+COW01944,53,428.7,Jersey,Healthy,4.7
+COW01945,24,450.2,Guernsey,Ketosis,3.7
+COW01946,28,606.8,Brown Swiss,Mastitis,4.6
+COW01947,111,683.7,Jersey,Mastitis,4.0
+COW01948,12,589.5,Guernsey,Healthy,2.9
+COW01949,46,546.8,Holstein,Healthy,4.9
+COW01950,110,374.4,Holstein,Healthy,3.7
+COW01951,77,388.2,Ayrshire,Mastitis,3.6
+COW01952,19,560.4,Guernsey,Mastitis,3.2
+COW01953,62,521.4,Brown Swiss,Healthy,2.4
+COW01954,116,461.5,Holstein,Healthy,4.1
+COW01955,55,555.2,Brown Swiss,Healthy,3.3
+COW01956,69,559.2,Brown Swiss,Healthy,4.8
+COW01957,69,625.6,Brown Swiss,Bloat,4.9
+COW01958,83,560.9,Holstein,Healthy,4.3
+COW01959,32,648.3,Brown Swiss,Healthy,2.7
+COW01960,102,550.6,Brown Swiss,Healthy,4.1
+COW01961,118,540.8,Jersey,Healthy,2.1
+COW01962,27,635.1,Holstein,Mastitis,4.5
+COW01963,100,471.7,Ayrshire,Ketosis,3.5
+COW01964,100,775.2,Guernsey,Healthy,4.8
+COW01965,92,580.0,Guernsey,Healthy,3.1
+COW01966,52,580.5,Guernsey,Healthy,2.8
+COW01967,62,592.0,Guernsey,Healthy,5.0
+COW01968,102,700.2,Holstein,Healthy,3.6
+COW01969,28,613.4,Brown Swiss,Healthy,4.6
+COW01970,101,421.6,Ayrshire,Foot and Mouth,4.7
+COW01971,111,662.3,Jersey,Healthy,3.6
+COW01972,85,522.7,Ayrshire,Healthy,3.4
+COW01973,48,558.6,Holstein,Healthy,3.7
+COW01974,72,447.7,Jersey,Foot and Mouth,4.5
+COW01975,17,592.1,Jersey,Healthy,4.9
+COW01976,112,497.9,Guernsey,Healthy,3.0
+COW01977,48,558.0,Holstein,Foot and Mouth,4.2
+COW01978,18,527.3,Jersey,Healthy,2.9
+COW01979,97,704.0,Guernsey,Bloat,3.8
+COW01980,83,708.6,Jersey,Healthy,4.4
+COW01981,79,553.7,Ayrshire,Mastitis,4.7
+COW01982,17,555.1,Ayrshire,Ketosis,3.3
+COW01983,93,520.1,Jersey,Healthy,3.1
+COW01984,80,638.5,Brown Swiss,Mastitis,2.8
+COW01985,97,523.7,Jersey,Healthy,2.4
+COW01986,101,516.3,Jersey,Mastitis,3.1
+COW01987,34,628.3,Guernsey,Bloat,4.6
+COW01988,34,506.9,Jersey,Mastitis,3.3
+COW01989,111,547.0,Holstein,Bloat,3.0
+COW01990,69,423.5,Jersey,Healthy,4.2
+COW01991,59,606.3,Ayrshire,Healthy,2.6
+COW01992,43,705.3,Jersey,Healthy,2.8
+COW01993,81,607.7,Jersey,Mastitis,4.8
+COW01994,93,666.9,Guernsey,Bloat,2.2
+COW01995,12,482.3,Holstein,Healthy,3.2
+COW01996,71,568.9,Jersey,Healthy,3.7
+COW01997,119,474.5,Holstein,Healthy,2.7
+COW01998,42,531.8,Ayrshire,Mastitis,2.8
+COW01999,42,611.8,Ayrshire,Bloat,2.7
+COW02000,106,558.1,Guernsey,Healthy,3.0
+COW02001,18,437.0,Jersey,Healthy,4.7
+COW02002,54,444.8,Guernsey,Healthy,3.3
+COW02003,61,439.5,Guernsey,Healthy,3.3
+COW02004,98,589.3,Ayrshire,Ketosis,3.2
+COW02005,25,715.1,Holstein,Healthy,4.9
+COW02006,58,659.0,Guernsey,Healthy,2.4
+COW02007,28,398.3,Holstein,Healthy,4.6
+COW02008,97,663.7,Brown Swiss,Healthy,3.0
+COW02009,80,624.9,Ayrshire,Ketosis,4.9
+COW02010,65,426.4,Holstein,Healthy,2.9
+COW02011,54,525.7,Holstein,Healthy,2.2
+COW02012,28,637.6,Ayrshire,Healthy,3.6
+COW02013,111,594.0,Holstein,Ketosis,2.7
+COW02014,81,445.3,Guernsey,Ketosis,4.3
+COW02015,46,598.9,Brown Swiss,Healthy,4.0
+COW02016,56,379.0,Jersey,Healthy,4.1
+COW02017,90,532.2,Ayrshire,Healthy,2.6
+COW02018,89,641.0,Ayrshire,Healthy,4.1
+COW02019,61,551.5,Jersey,Healthy,2.9
+COW02020,44,510.1,Holstein,Foot and Mouth,5.0
+COW02021,83,621.1,Holstein,Bloat,4.2
+COW02022,83,628.0,Holstein,Healthy,3.8
+COW02023,76,654.8,Ayrshire,Healthy,4.6
+COW02024,19,619.9,Brown Swiss,Healthy,3.8
+COW02025,63,636.5,Guernsey,Healthy,3.7
+COW02026,78,608.6,Jersey,Healthy,2.7
+COW02027,114,571.2,Ayrshire,Healthy,4.0
+COW02028,68,557.2,Guernsey,Ketosis,3.1
+COW02029,49,531.0,Guernsey,Healthy,2.1
+COW02030,72,453.0,Brown Swiss,Foot and Mouth,4.4
+COW02031,31,473.6,Guernsey,Healthy,2.2
+COW02032,21,527.4,Brown Swiss,Healthy,4.0
+COW02033,85,569.3,Jersey,Healthy,2.5
+COW02034,118,665.3,Brown Swiss,Bloat,3.3
+COW02035,103,546.7,Jersey,Healthy,4.6
+COW02036,75,630.3,Ayrshire,Healthy,2.3
+COW02037,16,636.3,Guernsey,Mastitis,4.0
+COW02038,118,531.5,Guernsey,Mastitis,3.8
+COW02039,60,597.6,Guernsey,Mastitis,4.6
+COW02040,43,530.5,Brown Swiss,Healthy,2.5
+COW02041,108,655.8,Ayrshire,Healthy,4.4
+COW02042,92,600.9,Jersey,Foot and Mouth,3.4
+COW02043,92,454.8,Brown Swiss,Healthy,3.3
+COW02044,41,562.9,Holstein,Healthy,3.1
+COW02045,119,681.8,Jersey,Healthy,3.2
+COW02046,60,535.5,Brown Swiss,Healthy,3.6
+COW02047,69,585.8,Brown Swiss,Bloat,2.3
+COW02048,93,593.7,Ayrshire,Mastitis,3.3
+COW02049,83,467.1,Guernsey,Healthy,4.0
+COW02050,30,590.9,Brown Swiss,Bloat,3.5
+COW02051,44,438.5,Brown Swiss,Healthy,2.5
+COW02052,51,500.0,Guernsey,Healthy,3.1
+COW02053,114,636.1,Guernsey,Healthy,3.3
+COW02054,89,578.5,Jersey,Mastitis,4.0
+COW02055,51,525.6,Brown Swiss,Healthy,4.7
+COW02056,91,585.7,Brown Swiss,Healthy,3.7
+COW02057,91,545.2,Holstein,Mastitis,4.0
+COW02058,54,551.0,Ayrshire,Healthy,2.2
+COW02059,55,602.5,Brown Swiss,Bloat,4.9
+COW02060,108,491.8,Jersey,Healthy,2.9
+COW02061,72,553.2,Guernsey,Healthy,3.1
+COW02062,28,525.0,Guernsey,Mastitis,2.7
+COW02063,89,423.2,Ayrshire,Healthy,2.3
+COW02064,75,476.4,Holstein,Healthy,4.4
+COW02065,66,675.5,Brown Swiss,Healthy,2.7
+COW02066,90,580.8,Holstein,Bloat,2.8
+COW02067,109,444.1,Brown Swiss,Foot and Mouth,2.5
+COW02068,47,426.8,Brown Swiss,Foot and Mouth,4.9
+COW02069,57,541.0,Brown Swiss,Healthy,4.3
+COW02070,32,674.9,Ayrshire,Healthy,4.8
+COW02071,81,535.1,Brown Swiss,Healthy,4.6
+COW02072,55,654.6,Brown Swiss,Healthy,4.7
+COW02073,48,578.2,Holstein,Mastitis,3.4
+COW02074,87,587.7,Jersey,Healthy,2.5
+COW02075,56,443.1,Ayrshire,Healthy,3.0
+COW02076,62,625.0,Brown Swiss,Healthy,2.9
+COW02077,59,523.2,Ayrshire,Healthy,4.2
+COW02078,39,619.0,Brown Swiss,Healthy,2.1
+COW02079,25,484.9,Brown Swiss,Healthy,2.4
+COW02080,101,564.2,Brown Swiss,Healthy,4.0
+COW02081,21,578.2,Brown Swiss,Healthy,2.4
+COW02082,47,537.7,Holstein,Healthy,2.1
+COW02083,84,582.4,Holstein,Foot and Mouth,2.3
+COW02084,26,528.7,Brown Swiss,Healthy,4.1
+COW02085,82,498.1,Brown Swiss,Healthy,2.4
+COW02086,91,678.4,Brown Swiss,Healthy,2.4
+COW02087,83,633.9,Brown Swiss,Healthy,2.7
+COW02088,44,489.1,Jersey,Bloat,4.3
+COW02089,14,595.5,Guernsey,Healthy,2.6
+COW02090,107,490.6,Guernsey,Ketosis,2.1
+COW02091,47,455.2,Holstein,Foot and Mouth,4.7
+COW02092,98,632.7,Brown Swiss,Healthy,4.6
+COW02093,33,413.7,Guernsey,Healthy,2.6
+COW02094,29,624.1,Guernsey,Healthy,2.8
+COW02095,96,529.8,Jersey,Healthy,2.6
+COW02096,113,533.1,Ayrshire,Healthy,4.2
+COW02097,104,582.8,Guernsey,Healthy,2.8
+COW02098,93,596.5,Brown Swiss,Healthy,4.8
+COW02099,38,483.9,Guernsey,Healthy,4.5
+COW02100,110,607.4,Ayrshire,Mastitis,3.8
+COW02101,84,559.1,Jersey,Mastitis,2.0
+COW02102,30,449.5,Holstein,Ketosis,4.7
+COW02103,25,536.4,Brown Swiss,Healthy,4.2
+COW02104,106,660.5,Holstein,Healthy,4.4
+COW02105,41,684.1,Ayrshire,Ketosis,2.2
+COW02106,94,607.4,Ayrshire,Mastitis,4.1
+COW02107,26,454.8,Guernsey,Healthy,4.4
+COW02108,42,589.2,Ayrshire,Healthy,4.9
+COW02109,42,618.1,Holstein,Healthy,3.7
+COW02110,42,608.1,Guernsey,Bloat,3.5
+COW02111,84,612.8,Brown Swiss,Healthy,3.3
+COW02112,110,579.1,Jersey,Healthy,4.1
+COW02113,110,544.2,Jersey,Healthy,4.8
+COW02114,92,501.3,Brown Swiss,Healthy,3.8
+COW02115,33,398.2,Guernsey,Healthy,2.7
+COW02116,115,577.2,Holstein,Mastitis,2.1
+COW02117,70,564.9,Guernsey,Healthy,3.9
+COW02118,70,594.6,Ayrshire,Healthy,4.6
+COW02119,87,443.0,Holstein,Healthy,2.2
+COW02120,95,601.6,Ayrshire,Bloat,3.2
+COW02121,114,714.4,Guernsey,Healthy,4.8
+COW02122,74,556.3,Jersey,Healthy,3.5
+COW02123,77,545.1,Guernsey,Healthy,2.7
+COW02124,92,574.7,Guernsey,Foot and Mouth,3.1
+COW02125,39,712.6,Guernsey,Mastitis,3.2
+COW02126,45,468.1,Holstein,Foot and Mouth,2.4
+COW02127,79,566.3,Holstein,Healthy,4.0
+COW02128,18,486.0,Guernsey,Bloat,3.8
+COW02129,46,506.2,Jersey,Bloat,3.9
+COW02130,89,546.0,Jersey,Healthy,3.8
+COW02131,117,657.8,Brown Swiss,Healthy,2.1
+COW02132,68,694.1,Guernsey,Healthy,2.5
+COW02133,55,585.9,Holstein,Healthy,2.5
+COW02134,59,519.9,Ayrshire,Healthy,2.3
+COW02135,86,749.4,Brown Swiss,Healthy,4.2
+COW02136,70,515.8,Holstein,Ketosis,2.4
+COW02137,14,504.3,Holstein,Healthy,4.0
+COW02138,70,408.0,Ayrshire,Healthy,2.5
+COW02139,55,661.7,Holstein,Healthy,2.4
+COW02140,87,627.5,Brown Swiss,Healthy,2.5
+COW02141,106,743.4,Guernsey,Healthy,3.5
+COW02142,115,438.8,Brown Swiss,Healthy,3.9
+COW02143,77,666.7,Jersey,Healthy,4.4
+COW02144,51,555.6,Holstein,Ketosis,2.4
+COW02145,59,614.5,Guernsey,Healthy,3.8
+COW02146,31,418.2,Brown Swiss,Ketosis,4.3
+COW02147,113,667.4,Holstein,Mastitis,2.9
+COW02148,103,612.9,Holstein,Healthy,2.2
+COW02149,104,546.9,Brown Swiss,Healthy,2.5
+COW02150,47,601.6,Holstein,Healthy,2.3
+COW02151,46,488.8,Jersey,Foot and Mouth,4.7
+COW02152,104,503.6,Holstein,Healthy,3.1
+COW02153,70,512.9,Guernsey,Healthy,3.6
+COW02154,88,401.8,Guernsey,Foot and Mouth,4.3
+COW02155,64,618.9,Guernsey,Healthy,3.1
+COW02156,59,645.3,Holstein,Mastitis,3.9
+COW02157,80,493.9,Jersey,Healthy,2.2
+COW02158,99,577.9,Jersey,Bloat,3.4
+COW02159,48,528.8,Guernsey,Healthy,2.3
+COW02160,99,576.3,Ayrshire,Healthy,2.7
+COW02161,38,499.8,Jersey,Mastitis,2.9
+COW02162,55,479.3,Guernsey,Healthy,4.2
+COW02163,110,634.2,Brown Swiss,Bloat,4.0
+COW02164,115,544.9,Ayrshire,Mastitis,4.2
+COW02165,111,711.8,Holstein,Healthy,2.2
+COW02166,46,553.7,Ayrshire,Healthy,5.0
+COW02167,103,475.9,Brown Swiss,Bloat,2.2
+COW02168,113,648.2,Jersey,Healthy,4.5
+COW02169,117,600.5,Holstein,Bloat,4.2
+COW02170,14,608.1,Ayrshire,Healthy,3.8
+COW02171,92,645.2,Ayrshire,Bloat,3.3
+COW02172,119,497.8,Holstein,Healthy,4.3
+COW02173,94,539.8,Brown Swiss,Mastitis,4.2
+COW02174,37,536.3,Guernsey,Healthy,2.4
+COW02175,94,446.7,Brown Swiss,Healthy,4.4
+COW02176,23,528.9,Holstein,Ketosis,2.2
+COW02177,63,656.9,Jersey,Ketosis,3.5
+COW02178,79,569.0,Jersey,Healthy,3.9
+COW02179,61,442.3,Jersey,Bloat,4.5
+COW02180,87,425.5,Ayrshire,Healthy,3.4
+COW02181,37,683.2,Jersey,Healthy,2.7
+COW02182,77,542.8,Guernsey,Healthy,3.5
+COW02183,81,498.2,Ayrshire,Healthy,2.8
+COW02184,80,528.1,Guernsey,Healthy,3.6
+COW02185,43,431.8,Guernsey,Healthy,3.4
+COW02186,44,663.8,Holstein,Healthy,4.3
+COW02187,39,518.6,Holstein,Mastitis,2.7
+COW02188,61,659.4,Guernsey,Foot and Mouth,2.6
+COW02189,75,554.1,Guernsey,Mastitis,3.4
+COW02190,51,664.4,Guernsey,Healthy,2.2
+COW02191,56,570.5,Brown Swiss,Mastitis,2.7
+COW02192,42,618.3,Brown Swiss,Healthy,3.1
+COW02193,35,607.5,Holstein,Mastitis,3.5
+COW02194,83,599.9,Jersey,Healthy,2.8
+COW02195,100,577.8,Brown Swiss,Healthy,3.7
+COW02196,43,531.4,Holstein,Healthy,4.6
+COW02197,104,703.2,Holstein,Foot and Mouth,3.6
+COW02198,73,477.4,Holstein,Bloat,2.9
+COW02199,30,550.3,Jersey,Mastitis,2.2
+COW02200,51,551.2,Ayrshire,Ketosis,2.4
+COW02201,12,582.2,Guernsey,Bloat,3.7
+COW02202,16,515.6,Ayrshire,Healthy,4.1
+COW02203,48,575.2,Jersey,Mastitis,2.1
+COW02204,61,536.5,Brown Swiss,Healthy,2.6
+COW02205,98,423.4,Ayrshire,Healthy,3.0
+COW02206,26,550.8,Jersey,Healthy,3.0
+COW02207,102,462.0,Guernsey,Ketosis,4.9
+COW02208,37,411.2,Guernsey,Mastitis,2.6
+COW02209,26,560.9,Ayrshire,Healthy,2.2
+COW02210,87,589.0,Ayrshire,Healthy,3.1
+COW02211,95,592.1,Guernsey,Healthy,2.4
+COW02212,77,595.4,Brown Swiss,Mastitis,2.4
+COW02213,24,395.4,Ayrshire,Bloat,3.2
+COW02214,24,441.1,Guernsey,Healthy,2.9
+COW02215,54,707.9,Jersey,Healthy,2.3
+COW02216,60,466.2,Guernsey,Healthy,3.8
+COW02217,119,598.9,Brown Swiss,Healthy,3.5
+COW02218,42,495.0,Jersey,Healthy,2.2
+COW02219,32,556.4,Brown Swiss,Healthy,4.6
+COW02220,114,499.3,Guernsey,Healthy,2.9
+COW02221,28,594.9,Ayrshire,Healthy,4.9
+COW02222,14,560.9,Brown Swiss,Bloat,4.8
+COW02223,57,514.1,Holstein,Healthy,3.3
+COW02224,55,466.0,Ayrshire,Healthy,2.7
+COW02225,78,571.4,Brown Swiss,Mastitis,4.5
+COW02226,106,453.0,Jersey,Bloat,3.1
+COW02227,112,584.2,Guernsey,Healthy,2.5
+COW02228,43,760.1,Jersey,Healthy,3.7
+COW02229,117,658.0,Jersey,Mastitis,3.5
+COW02230,80,607.5,Ayrshire,Healthy,4.6
+COW02231,19,543.2,Ayrshire,Mastitis,4.2
+COW02232,113,394.9,Brown Swiss,Healthy,4.6
+COW02233,26,444.2,Jersey,Healthy,4.2
+COW02234,75,652.6,Ayrshire,Healthy,3.9
+COW02235,97,486.8,Holstein,Mastitis,3.5
+COW02236,38,494.1,Guernsey,Healthy,5.0
+COW02237,41,536.7,Brown Swiss,Healthy,4.9
+COW02238,63,465.0,Ayrshire,Healthy,4.5
+COW02239,107,451.9,Brown Swiss,Mastitis,4.3
+COW02240,36,546.0,Ayrshire,Healthy,3.7
+COW02241,83,478.7,Holstein,Mastitis,2.8
+COW02242,60,490.7,Guernsey,Mastitis,4.6
+COW02243,24,487.5,Holstein,Healthy,2.0
+COW02244,88,591.8,Guernsey,Ketosis,2.7
+COW02245,101,531.4,Holstein,Bloat,3.2
+COW02246,74,535.7,Ayrshire,Healthy,3.8
+COW02247,31,597.8,Guernsey,Healthy,3.7
+COW02248,28,538.6,Holstein,Healthy,2.5
+COW02249,57,527.7,Ayrshire,Healthy,2.3
+COW02250,66,587.6,Jersey,Healthy,2.7
+COW02251,71,603.5,Brown Swiss,Bloat,3.0
+COW02252,38,538.2,Holstein,Foot and Mouth,2.0
+COW02253,66,556.4,Holstein,Healthy,4.1
+COW02254,43,487.5,Jersey,Healthy,2.7
+COW02255,86,481.1,Brown Swiss,Healthy,3.1
+COW02256,98,611.5,Brown Swiss,Healthy,3.0
+COW02257,82,585.6,Ayrshire,Healthy,3.5
+COW02258,12,586.4,Holstein,Bloat,4.6
+COW02259,119,572.5,Guernsey,Foot and Mouth,2.4
+COW02260,14,553.7,Holstein,Healthy,3.0
+COW02261,119,605.7,Jersey,Mastitis,4.1
+COW02262,15,624.8,Holstein,Healthy,2.1
+COW02263,67,622.9,Holstein,Foot and Mouth,4.5
+COW02264,23,541.9,Brown Swiss,Healthy,4.9
+COW02265,22,661.0,Ayrshire,Healthy,3.8
+COW02266,85,568.3,Guernsey,Healthy,4.9
+COW02267,90,600.6,Ayrshire,Healthy,3.2
+COW02268,24,572.6,Brown Swiss,Healthy,3.2
+COW02269,117,569.8,Holstein,Healthy,2.3
+COW02270,46,491.1,Jersey,Mastitis,2.1
+COW02271,46,606.1,Ayrshire,Foot and Mouth,2.7
+COW02272,44,777.6,Holstein,Healthy,3.4
+COW02273,61,520.0,Holstein,Healthy,3.5
+COW02274,31,555.7,Ayrshire,Mastitis,2.7
+COW02275,57,514.3,Holstein,Healthy,3.8
+COW02276,34,511.0,Ayrshire,Healthy,2.5
+COW02277,17,673.6,Guernsey,Mastitis,3.0
+COW02278,51,496.2,Guernsey,Healthy,2.6
+COW02279,84,512.1,Brown Swiss,Foot and Mouth,4.1
+COW02280,94,423.0,Holstein,Healthy,3.5
+COW02281,50,489.4,Brown Swiss,Healthy,4.2
+COW02282,46,413.3,Ayrshire,Healthy,2.2
+COW02283,97,600.5,Ayrshire,Healthy,3.3
+COW02284,85,774.0,Brown Swiss,Healthy,4.9
+COW02285,101,520.7,Ayrshire,Bloat,2.2
+COW02286,109,416.7,Guernsey,Bloat,3.3
+COW02287,100,622.0,Holstein,Foot and Mouth,2.1
+COW02288,113,491.8,Guernsey,Healthy,2.4
+COW02289,56,653.9,Guernsey,Healthy,3.4
+COW02290,54,527.4,Brown Swiss,Mastitis,2.5
+COW02291,46,499.5,Guernsey,Mastitis,3.6
+COW02292,37,535.8,Ayrshire,Healthy,4.8
+COW02293,92,610.6,Brown Swiss,Bloat,2.6
+COW02294,89,531.8,Jersey,Healthy,2.3
+COW02295,98,510.3,Ayrshire,Healthy,4.5
+COW02296,30,534.1,Ayrshire,Bloat,3.4
+COW02297,65,448.3,Guernsey,Healthy,4.6
+COW02298,35,581.8,Guernsey,Healthy,2.9
+COW02299,108,407.1,Holstein,Healthy,3.9
+COW02300,40,514.5,Brown Swiss,Ketosis,4.8
+COW02301,27,610.8,Holstein,Healthy,2.5
+COW02302,73,574.2,Brown Swiss,Mastitis,4.4
+COW02303,106,597.2,Ayrshire,Healthy,3.9
+COW02304,110,544.8,Jersey,Healthy,4.4
+COW02305,22,643.6,Ayrshire,Healthy,2.5
+COW02306,47,624.0,Holstein,Healthy,3.3
+COW02307,28,585.7,Holstein,Healthy,2.4
+COW02308,45,624.2,Ayrshire,Healthy,4.9
+COW02309,69,610.0,Holstein,Healthy,2.2
+COW02310,42,514.8,Guernsey,Healthy,2.2
+COW02311,19,442.5,Guernsey,Mastitis,4.7
+COW02312,67,583.6,Jersey,Foot and Mouth,2.9
+COW02313,17,593.7,Holstein,Healthy,3.8
+COW02314,36,637.2,Jersey,Healthy,2.9
+COW02315,12,475.1,Holstein,Healthy,3.9
+COW02316,21,477.5,Guernsey,Healthy,2.6
+COW02317,59,586.8,Ayrshire,Healthy,3.4
+COW02318,103,544.3,Ayrshire,Healthy,3.6
+COW02319,95,399.1,Ayrshire,Healthy,3.0
+COW02320,22,580.0,Guernsey,Healthy,2.8
+COW02321,15,401.8,Ayrshire,Ketosis,2.4
+COW02322,48,474.4,Guernsey,Healthy,4.1
+COW02323,82,658.1,Guernsey,Healthy,2.5
+COW02324,92,696.0,Ayrshire,Healthy,2.9
+COW02325,100,452.7,Jersey,Mastitis,3.0
+COW02326,48,523.6,Brown Swiss,Healthy,3.4
+COW02327,30,553.4,Ayrshire,Healthy,4.1
+COW02328,14,692.5,Jersey,Mastitis,3.3
+COW02329,27,510.6,Jersey,Healthy,4.6
+COW02330,19,511.8,Holstein,Healthy,4.0
+COW02331,104,673.9,Jersey,Healthy,4.5
+COW02332,40,520.0,Brown Swiss,Mastitis,4.1
+COW02333,100,607.8,Ayrshire,Ketosis,2.4
+COW02334,71,431.8,Holstein,Mastitis,4.9
+COW02335,70,536.3,Guernsey,Healthy,4.4
+COW02336,61,417.2,Guernsey,Healthy,3.7
+COW02337,100,465.6,Ayrshire,Healthy,2.5
+COW02338,16,617.1,Guernsey,Foot and Mouth,2.5
+COW02339,22,546.0,Holstein,Bloat,3.8
+COW02340,57,524.5,Brown Swiss,Foot and Mouth,3.2
+COW02341,54,490.1,Ayrshire,Healthy,4.0
+COW02342,70,532.3,Ayrshire,Mastitis,3.1
+COW02343,91,574.1,Guernsey,Bloat,3.5
+COW02344,75,628.6,Ayrshire,Mastitis,2.6
+COW02345,39,340.0,Guernsey,Mastitis,2.5
+COW02346,47,483.5,Holstein,Healthy,2.2
+COW02347,93,562.7,Ayrshire,Healthy,4.5
+COW02348,33,542.1,Holstein,Healthy,3.7
+COW02349,66,582.3,Jersey,Healthy,4.8
+COW02350,70,571.4,Jersey,Foot and Mouth,4.2
+COW02351,93,525.6,Guernsey,Bloat,4.3
+COW02352,89,507.9,Holstein,Foot and Mouth,3.5
+COW02353,62,530.4,Guernsey,Healthy,4.4
+COW02354,45,641.9,Ayrshire,Healthy,4.8
+COW02355,51,491.4,Guernsey,Healthy,4.2
+COW02356,56,545.0,Jersey,Foot and Mouth,2.3
+COW02357,35,564.7,Ayrshire,Mastitis,4.0
+COW02358,79,674.8,Jersey,Ketosis,2.4
+COW02359,34,526.0,Guernsey,Healthy,2.2
+COW02360,82,626.7,Brown Swiss,Healthy,4.1
+COW02361,93,648.6,Holstein,Mastitis,4.5
+COW02362,115,544.9,Holstein,Healthy,2.5
+COW02363,24,533.1,Holstein,Ketosis,2.2
+COW02364,94,523.7,Ayrshire,Healthy,4.7
+COW02365,21,529.5,Ayrshire,Healthy,2.4
+COW02366,48,618.3,Brown Swiss,Healthy,2.1
+COW02367,31,568.5,Ayrshire,Bloat,4.2
+COW02368,29,568.8,Holstein,Healthy,4.5
+COW02369,30,460.0,Ayrshire,Mastitis,3.5
+COW02370,16,472.6,Jersey,Mastitis,3.6
+COW02371,100,721.5,Holstein,Healthy,3.0
+COW02372,18,535.8,Guernsey,Mastitis,2.7
+COW02373,55,488.0,Jersey,Bloat,4.3
+COW02374,87,664.5,Jersey,Healthy,4.5
+COW02375,118,572.5,Guernsey,Mastitis,3.0
+COW02376,104,596.3,Jersey,Healthy,2.8
+COW02377,26,539.0,Guernsey,Healthy,2.8
+COW02378,118,524.5,Holstein,Healthy,2.2
+COW02379,82,536.4,Holstein,Foot and Mouth,2.8
+COW02380,31,439.4,Jersey,Healthy,2.1
+COW02381,60,543.0,Guernsey,Healthy,4.4
+COW02382,111,573.7,Jersey,Mastitis,2.8
+COW02383,54,698.0,Holstein,Healthy,4.1
+COW02384,31,556.9,Guernsey,Mastitis,3.6
+COW02385,106,363.3,Brown Swiss,Bloat,4.5
+COW02386,114,542.5,Brown Swiss,Healthy,4.9
+COW02387,117,769.2,Jersey,Healthy,3.1
+COW02388,115,619.3,Holstein,Ketosis,2.3
+COW02389,106,485.1,Holstein,Healthy,4.2
+COW02390,61,597.3,Guernsey,Healthy,2.1
+COW02391,32,490.6,Holstein,Ketosis,2.7
+COW02392,78,441.7,Jersey,Bloat,2.2
+COW02393,35,522.1,Ayrshire,Mastitis,4.7
+COW02394,63,557.3,Jersey,Healthy,2.0
+COW02395,82,400.2,Guernsey,Bloat,3.5
+COW02396,114,458.1,Jersey,Mastitis,3.3
+COW02397,43,550.8,Ayrshire,Mastitis,4.0
+COW02398,39,517.3,Ayrshire,Foot and Mouth,2.9
+COW02399,91,581.6,Brown Swiss,Mastitis,4.6
+COW02400,12,452.8,Guernsey,Healthy,4.2
+COW02401,73,607.1,Brown Swiss,Healthy,3.3
+COW02402,92,455.3,Ayrshire,Healthy,3.1
+COW02403,71,681.4,Jersey,Healthy,4.4
+COW02404,53,412.7,Ayrshire,Healthy,4.3
+COW02405,101,462.6,Guernsey,Healthy,3.2
+COW02406,52,583.4,Guernsey,Foot and Mouth,3.0
+COW02407,88,683.1,Jersey,Healthy,2.1
+COW02408,62,575.2,Ayrshire,Healthy,2.2
+COW02409,14,595.0,Guernsey,Healthy,2.2
+COW02410,69,551.4,Ayrshire,Healthy,2.1
+COW02411,17,467.9,Ayrshire,Mastitis,2.5
+COW02412,112,510.8,Holstein,Healthy,4.6
+COW02413,76,453.0,Ayrshire,Healthy,4.4
+COW02414,52,447.7,Ayrshire,Foot and Mouth,4.5
+COW02415,64,582.1,Jersey,Healthy,3.9
+COW02416,78,460.1,Ayrshire,Healthy,3.9
+COW02417,40,575.6,Brown Swiss,Foot and Mouth,2.4
+COW02418,43,445.9,Jersey,Healthy,4.1
+COW02419,57,573.7,Jersey,Mastitis,2.8
+COW02420,39,510.9,Jersey,Foot and Mouth,3.6
+COW02421,93,662.5,Holstein,Bloat,4.9
+COW02422,23,575.9,Guernsey,Healthy,4.6
+COW02423,101,648.9,Guernsey,Mastitis,2.7
+COW02424,49,489.5,Guernsey,Mastitis,4.2
+COW02425,72,554.5,Brown Swiss,Healthy,2.3
+COW02426,29,471.5,Jersey,Bloat,2.1
+COW02427,53,516.9,Guernsey,Healthy,2.1
+COW02428,93,529.0,Ayrshire,Bloat,2.5
+COW02429,41,491.9,Holstein,Healthy,4.1
+COW02430,26,452.8,Jersey,Healthy,3.1
+COW02431,68,436.9,Ayrshire,Healthy,2.0
+COW02432,29,362.8,Ayrshire,Bloat,5.0
+COW02433,45,465.5,Ayrshire,Healthy,3.6
+COW02434,60,600.2,Holstein,Healthy,3.2
+COW02435,72,422.1,Brown Swiss,Healthy,3.6
+COW02436,81,440.6,Holstein,Mastitis,3.6
+COW02437,85,693.3,Ayrshire,Healthy,3.4
+COW02438,103,499.1,Brown Swiss,Healthy,3.8
+COW02439,19,575.7,Jersey,Mastitis,4.7
+COW02440,51,601.4,Holstein,Healthy,2.9
+COW02441,12,603.0,Guernsey,Healthy,3.5
+COW02442,13,428.2,Ayrshire,Healthy,2.0
+COW02443,34,531.5,Ayrshire,Bloat,4.6
+COW02444,76,420.5,Ayrshire,Foot and Mouth,2.9
+COW02445,108,745.7,Ayrshire,Healthy,2.8
+COW02446,95,422.4,Guernsey,Healthy,5.0
+COW02447,81,466.2,Ayrshire,Healthy,3.8
+COW02448,96,466.8,Ayrshire,Ketosis,2.4
+COW02449,30,430.3,Brown Swiss,Healthy,2.8
+COW02450,102,658.2,Guernsey,Healthy,3.1
+COW02451,108,743.8,Ayrshire,Bloat,5.0
+COW02452,22,511.9,Holstein,Healthy,3.3
+COW02453,62,444.4,Guernsey,Healthy,2.7
+COW02454,101,371.0,Jersey,Healthy,3.7
+COW02455,63,530.5,Holstein,Healthy,3.2
+COW02456,102,524.7,Holstein,Healthy,2.2
+COW02457,113,497.9,Holstein,Ketosis,4.6
+COW02458,63,567.7,Ayrshire,Healthy,2.0
+COW02459,18,581.6,Guernsey,Healthy,4.7
+COW02460,48,575.8,Holstein,Foot and Mouth,4.4
+COW02461,35,524.7,Guernsey,Foot and Mouth,2.2
+COW02462,63,461.9,Guernsey,Mastitis,4.2
+COW02463,75,603.3,Brown Swiss,Mastitis,4.3
+COW02464,62,551.0,Guernsey,Healthy,3.8
+COW02465,33,621.1,Ayrshire,Healthy,3.7
+COW02466,44,613.2,Brown Swiss,Healthy,2.1
+COW02467,85,436.3,Guernsey,Healthy,2.2
+COW02468,14,435.3,Brown Swiss,Bloat,4.2
+COW02469,35,489.6,Jersey,Mastitis,2.3
+COW02470,108,465.5,Ayrshire,Healthy,2.7
+COW02471,22,610.4,Brown Swiss,Healthy,3.5
+COW02472,56,578.1,Guernsey,Bloat,2.5
+COW02473,34,637.9,Guernsey,Healthy,4.4
+COW02474,23,581.7,Guernsey,Healthy,4.4
+COW02475,57,566.7,Guernsey,Healthy,4.5
+COW02476,68,646.0,Guernsey,Healthy,2.1
+COW02477,31,587.6,Brown Swiss,Healthy,3.3
+COW02478,20,555.4,Guernsey,Ketosis,4.5
+COW02479,26,668.4,Brown Swiss,Healthy,3.1
+COW02480,82,559.2,Jersey,Healthy,4.1
+COW02481,104,525.7,Guernsey,Mastitis,3.8
+COW02482,31,483.0,Ayrshire,Healthy,3.0
+COW02483,46,606.2,Guernsey,Mastitis,2.8
+COW02484,49,649.0,Guernsey,Mastitis,4.0
+COW02485,50,546.0,Ayrshire,Healthy,2.4
+COW02486,38,654.6,Jersey,Healthy,4.6
+COW02487,17,392.4,Holstein,Mastitis,3.7
+COW02488,68,545.6,Jersey,Mastitis,2.3
+COW02489,50,546.8,Guernsey,Mastitis,4.1
+COW02490,48,491.8,Ayrshire,Healthy,3.3
+COW02491,40,740.7,Brown Swiss,Mastitis,2.6
+COW02492,112,544.7,Guernsey,Mastitis,4.9
+COW02493,77,517.4,Holstein,Healthy,4.2
+COW02494,57,552.1,Guernsey,Foot and Mouth,3.8
+COW02495,34,389.8,Guernsey,Healthy,4.5
+COW02496,98,489.2,Brown Swiss,Healthy,3.6
+COW02497,107,628.7,Guernsey,Foot and Mouth,3.3
+COW02498,15,499.7,Brown Swiss,Healthy,2.6
+COW02499,112,483.7,Brown Swiss,Healthy,2.5
+COW02500,87,654.8,Guernsey,Healthy,3.3
+COW02501,22,657.2,Guernsey,Bloat,3.4
+COW02502,93,591.4,Jersey,Healthy,4.2
+COW02503,23,513.6,Jersey,Mastitis,3.3
+COW02504,17,530.8,Brown Swiss,Mastitis,3.8
+COW02505,24,485.7,Jersey,Healthy,4.5
+COW02506,61,470.4,Jersey,Bloat,5.0
+COW02507,78,466.4,Jersey,Foot and Mouth,3.0
+COW02508,55,500.6,Jersey,Healthy,4.7
+COW02509,25,467.2,Brown Swiss,Ketosis,4.4
+COW02510,33,424.9,Brown Swiss,Healthy,2.2
+COW02511,104,567.6,Guernsey,Healthy,3.0
+COW02512,115,568.8,Jersey,Healthy,2.7
+COW02513,93,686.1,Ayrshire,Healthy,4.0
+COW02514,23,496.5,Brown Swiss,Healthy,3.7
+COW02515,100,573.7,Guernsey,Healthy,3.5
+COW02516,86,575.0,Holstein,Healthy,4.3
+COW02517,68,529.7,Holstein,Healthy,3.0
+COW02518,27,609.5,Brown Swiss,Healthy,3.1
+COW02519,119,612.0,Jersey,Foot and Mouth,4.6
+COW02520,59,576.2,Brown Swiss,Healthy,4.9
+COW02521,16,529.5,Holstein,Healthy,4.3
+COW02522,34,521.4,Brown Swiss,Healthy,2.7
+COW02523,55,440.6,Guernsey,Healthy,2.3
+COW02524,18,485.5,Guernsey,Healthy,2.6
+COW02525,46,500.2,Jersey,Healthy,3.3
+COW02526,62,460.1,Jersey,Healthy,2.7
+COW02527,114,585.2,Brown Swiss,Foot and Mouth,4.7
+COW02528,21,645.7,Brown Swiss,Healthy,4.0
+COW02529,74,477.4,Guernsey,Healthy,3.3
+COW02530,110,572.7,Jersey,Mastitis,2.8
+COW02531,99,467.3,Guernsey,Mastitis,3.1
+COW02532,111,525.6,Ayrshire,Healthy,3.4
+COW02533,30,494.8,Jersey,Healthy,4.1
+COW02534,98,598.2,Ayrshire,Healthy,2.3
+COW02535,117,495.7,Jersey,Healthy,4.5
+COW02536,47,630.9,Jersey,Healthy,2.4
+COW02537,65,530.3,Guernsey,Healthy,2.8
+COW02538,69,498.0,Guernsey,Ketosis,5.0
+COW02539,65,449.7,Brown Swiss,Mastitis,2.6
+COW02540,43,570.3,Jersey,Healthy,2.3
+COW02541,116,621.6,Holstein,Healthy,3.9
+COW02542,115,571.9,Ayrshire,Mastitis,3.2
+COW02543,53,729.1,Ayrshire,Healthy,2.3
+COW02544,98,664.4,Ayrshire,Healthy,2.0
+COW02545,54,525.4,Brown Swiss,Healthy,2.2
+COW02546,97,524.6,Ayrshire,Mastitis,3.6
+COW02547,75,587.6,Brown Swiss,Healthy,2.7
+COW02548,62,483.0,Holstein,Healthy,4.3
+COW02549,25,643.3,Holstein,Healthy,4.6
+COW02550,82,578.9,Jersey,Healthy,2.4
+COW02551,46,570.5,Jersey,Healthy,3.0
+COW02552,35,605.0,Ayrshire,Mastitis,2.4
+COW02553,32,687.8,Jersey,Healthy,2.9
+COW02554,118,563.7,Guernsey,Mastitis,2.7
+COW02555,23,541.0,Jersey,Bloat,4.4
+COW02556,98,670.7,Guernsey,Healthy,3.0
+COW02557,105,627.4,Brown Swiss,Healthy,3.5
+COW02558,15,524.3,Holstein,Mastitis,4.0
+COW02559,75,550.4,Brown Swiss,Healthy,4.5
+COW02560,74,565.6,Holstein,Healthy,2.9
+COW02561,50,578.9,Ayrshire,Healthy,2.6
+COW02562,84,441.5,Guernsey,Bloat,4.9
+COW02563,56,426.6,Ayrshire,Healthy,3.0
+COW02564,59,479.0,Ayrshire,Foot and Mouth,4.0
+COW02565,58,472.8,Jersey,Healthy,4.0
+COW02566,98,498.5,Guernsey,Healthy,3.5
+COW02567,80,600.8,Holstein,Healthy,2.7
+COW02568,52,536.5,Ayrshire,Healthy,2.4
+COW02569,112,565.7,Guernsey,Healthy,3.5
+COW02570,98,452.1,Guernsey,Healthy,3.5
+COW02571,112,513.1,Ayrshire,Healthy,4.3
+COW02572,90,597.0,Ayrshire,Healthy,4.1
+COW02573,54,597.6,Ayrshire,Healthy,4.7
+COW02574,95,492.0,Holstein,Healthy,4.9
+COW02575,47,562.9,Holstein,Healthy,4.2
+COW02576,41,725.9,Ayrshire,Ketosis,2.2
+COW02577,60,548.6,Jersey,Healthy,3.2
+COW02578,116,494.5,Brown Swiss,Healthy,3.8
+COW02579,73,536.1,Holstein,Healthy,3.8
+COW02580,53,557.4,Guernsey,Healthy,2.5
+COW02581,61,537.9,Ayrshire,Mastitis,3.7
+COW02582,43,547.5,Ayrshire,Healthy,3.0
+COW02583,83,434.5,Brown Swiss,Healthy,3.0
+COW02584,49,473.0,Guernsey,Healthy,4.5
+COW02585,71,538.1,Brown Swiss,Healthy,3.3
+COW02586,51,536.8,Brown Swiss,Bloat,3.6
+COW02587,46,504.7,Brown Swiss,Ketosis,3.7
+COW02588,116,535.8,Ayrshire,Healthy,3.7
+COW02589,49,554.9,Jersey,Healthy,2.6
+COW02590,19,621.2,Brown Swiss,Healthy,3.8
+COW02591,52,542.1,Guernsey,Healthy,3.0
+COW02592,69,581.9,Brown Swiss,Healthy,4.0
+COW02593,22,506.7,Holstein,Healthy,2.4
+COW02594,45,595.8,Jersey,Healthy,5.0
+COW02595,29,580.1,Guernsey,Healthy,4.3
+COW02596,66,619.3,Guernsey,Healthy,3.3
+COW02597,90,607.1,Guernsey,Ketosis,2.9
+COW02598,116,597.1,Ayrshire,Bloat,3.2
+COW02599,54,542.1,Guernsey,Healthy,4.2
+COW02600,105,569.6,Brown Swiss,Mastitis,4.0
+COW02601,35,635.1,Jersey,Healthy,4.1
+COW02602,96,497.8,Jersey,Mastitis,4.7
+COW02603,72,499.7,Ayrshire,Healthy,3.4
+COW02604,93,564.5,Brown Swiss,Bloat,4.0
+COW02605,93,583.2,Guernsey,Healthy,3.3
+COW02606,69,484.1,Holstein,Healthy,3.9
+COW02607,39,544.0,Holstein,Ketosis,3.4
+COW02608,68,542.5,Jersey,Healthy,4.3
+COW02609,101,372.8,Holstein,Healthy,2.0
+COW02610,116,532.4,Guernsey,Mastitis,2.6
+COW02611,112,537.4,Guernsey,Mastitis,2.9
+COW02612,31,537.2,Brown Swiss,Mastitis,4.8
+COW02613,76,663.3,Jersey,Mastitis,3.5
+COW02614,23,452.7,Brown Swiss,Mastitis,3.1
+COW02615,84,484.0,Holstein,Healthy,3.2
+COW02616,119,341.0,Brown Swiss,Healthy,3.4
+COW02617,17,511.5,Holstein,Mastitis,4.6
+COW02618,82,518.3,Holstein,Foot and Mouth,4.9
+COW02619,114,509.2,Holstein,Healthy,4.5
+COW02620,103,638.6,Holstein,Healthy,4.5
+COW02621,54,618.8,Brown Swiss,Mastitis,2.6
+COW02622,23,556.2,Brown Swiss,Healthy,2.8
+COW02623,111,520.4,Guernsey,Healthy,3.8
+COW02624,111,632.1,Brown Swiss,Foot and Mouth,4.0
+COW02625,74,548.4,Holstein,Healthy,2.6
+COW02626,117,484.5,Holstein,Healthy,4.2
+COW02627,12,412.7,Guernsey,Healthy,2.6
+COW02628,78,514.7,Ayrshire,Healthy,2.8
+COW02629,16,610.4,Jersey,Mastitis,2.9
+COW02630,113,732.1,Jersey,Healthy,4.5
+COW02631,85,554.9,Jersey,Healthy,4.2
+COW02632,110,488.8,Jersey,Healthy,3.6
+COW02633,72,455.2,Jersey,Healthy,4.5
+COW02634,20,594.2,Brown Swiss,Healthy,4.4
+COW02635,14,408.8,Guernsey,Healthy,3.2
+COW02636,48,594.0,Guernsey,Healthy,4.3
+COW02637,92,615.4,Ayrshire,Healthy,2.6
+COW02638,28,584.9,Jersey,Healthy,3.5
+COW02639,104,532.4,Brown Swiss,Healthy,2.4
+COW02640,37,595.2,Jersey,Healthy,3.3
+COW02641,65,563.7,Holstein,Healthy,3.6
+COW02642,33,487.8,Jersey,Healthy,2.2
+COW02643,62,698.0,Jersey,Healthy,3.4
+COW02644,60,521.9,Brown Swiss,Healthy,4.0
+COW02645,12,612.1,Holstein,Mastitis,3.8
+COW02646,73,356.5,Guernsey,Healthy,2.2
+COW02647,96,652.1,Ayrshire,Mastitis,2.3
+COW02648,113,667.5,Ayrshire,Mastitis,3.1
+COW02649,47,552.4,Holstein,Healthy,4.5
+COW02650,107,594.7,Holstein,Healthy,4.6
+COW02651,106,594.7,Ayrshire,Healthy,2.9
+COW02652,118,498.6,Ayrshire,Healthy,4.2
+COW02653,52,593.8,Brown Swiss,Healthy,3.7
+COW02654,103,485.3,Jersey,Healthy,5.0
+COW02655,73,501.3,Brown Swiss,Foot and Mouth,2.3
+COW02656,18,640.2,Brown Swiss,Healthy,3.6
+COW02657,41,628.0,Ayrshire,Mastitis,3.8
+COW02658,84,493.5,Brown Swiss,Mastitis,2.9
+COW02659,29,491.3,Holstein,Healthy,2.1
+COW02660,58,498.4,Guernsey,Bloat,2.2
+COW02661,95,608.6,Guernsey,Ketosis,3.4
+COW02662,28,470.0,Jersey,Healthy,4.1
+COW02663,65,578.5,Holstein,Healthy,4.1
+COW02664,35,609.7,Holstein,Healthy,2.5
+COW02665,69,542.9,Ayrshire,Healthy,4.6
+COW02666,37,630.8,Brown Swiss,Healthy,3.1
+COW02667,116,525.7,Brown Swiss,Healthy,4.9
+COW02668,20,532.9,Ayrshire,Healthy,2.4
+COW02669,116,471.8,Holstein,Mastitis,4.5
+COW02670,97,631.4,Jersey,Healthy,4.7
+COW02671,104,488.7,Ayrshire,Healthy,4.5
+COW02672,103,578.0,Brown Swiss,Healthy,4.4
+COW02673,32,544.3,Holstein,Mastitis,3.1
+COW02674,112,465.8,Guernsey,Healthy,4.1
+COW02675,76,501.3,Holstein,Healthy,3.7
+COW02676,115,660.6,Guernsey,Mastitis,3.3
+COW02677,106,566.1,Guernsey,Healthy,5.0
+COW02678,74,469.3,Ayrshire,Mastitis,2.9
+COW02679,52,574.4,Brown Swiss,Healthy,3.2
+COW02680,24,538.3,Jersey,Healthy,4.7
+COW02681,22,826.3,Ayrshire,Mastitis,2.9
+COW02682,54,572.8,Brown Swiss,Foot and Mouth,2.5
+COW02683,99,519.6,Guernsey,Mastitis,2.9
+COW02684,66,663.6,Holstein,Healthy,4.3
+COW02685,64,402.7,Guernsey,Mastitis,4.6
+COW02686,38,557.5,Brown Swiss,Healthy,2.3
+COW02687,72,709.6,Jersey,Mastitis,3.9
+COW02688,80,540.7,Guernsey,Foot and Mouth,3.7
+COW02689,118,411.3,Holstein,Healthy,4.0
+COW02690,90,518.3,Guernsey,Healthy,4.0
+COW02691,77,666.4,Ayrshire,Healthy,4.9
+COW02692,110,580.1,Brown Swiss,Healthy,3.0
+COW02693,57,482.9,Holstein,Healthy,2.9
+COW02694,112,495.2,Brown Swiss,Healthy,3.7
+COW02695,51,505.2,Brown Swiss,Healthy,3.3
+COW02696,25,578.9,Brown Swiss,Healthy,3.4
+COW02697,57,657.1,Jersey,Healthy,2.2
+COW02698,25,634.2,Guernsey,Mastitis,2.4
+COW02699,24,586.5,Jersey,Healthy,4.8
+COW02700,107,443.5,Brown Swiss,Healthy,2.2
+COW02701,97,443.8,Brown Swiss,Mastitis,3.8
+COW02702,35,592.7,Guernsey,Ketosis,4.3
+COW02703,102,442.4,Guernsey,Healthy,2.0
+COW02704,19,532.0,Ayrshire,Healthy,2.7
+COW02705,42,574.3,Guernsey,Healthy,3.1
+COW02706,88,459.0,Guernsey,Ketosis,3.5
+COW02707,44,468.1,Ayrshire,Mastitis,3.0
+COW02708,90,542.5,Jersey,Mastitis,3.9
+COW02709,106,590.3,Jersey,Mastitis,2.7
+COW02710,19,634.9,Brown Swiss,Healthy,2.1
+COW02711,14,598.6,Brown Swiss,Healthy,2.0
+COW02712,113,555.9,Guernsey,Mastitis,3.0
+COW02713,68,490.3,Holstein,Foot and Mouth,3.1
+COW02714,66,464.3,Holstein,Healthy,4.8
+COW02715,62,509.1,Guernsey,Healthy,2.1
+COW02716,58,582.8,Ayrshire,Healthy,3.6
+COW02717,86,576.9,Jersey,Ketosis,3.7
+COW02718,74,382.0,Jersey,Healthy,4.1
+COW02719,29,487.1,Brown Swiss,Mastitis,3.9
+COW02720,79,646.4,Brown Swiss,Healthy,2.0
+COW02721,84,556.3,Holstein,Healthy,3.9
+COW02722,24,436.6,Brown Swiss,Mastitis,3.0
+COW02723,52,738.5,Ayrshire,Healthy,4.3
+COW02724,97,547.7,Guernsey,Foot and Mouth,2.6
+COW02725,78,580.7,Ayrshire,Bloat,4.1
+COW02726,26,582.0,Guernsey,Foot and Mouth,3.9
+COW02727,16,520.6,Ayrshire,Healthy,4.0
+COW02728,74,491.8,Jersey,Mastitis,2.5
+COW02729,61,719.7,Holstein,Healthy,4.0
+COW02730,115,630.3,Holstein,Healthy,4.2
+COW02731,68,615.8,Ayrshire,Healthy,3.5
+COW02732,112,596.1,Guernsey,Healthy,3.0
+COW02733,35,469.7,Jersey,Healthy,2.5
+COW02734,60,652.2,Ayrshire,Healthy,2.9
+COW02735,27,482.5,Jersey,Healthy,4.3
+COW02736,74,572.7,Brown Swiss,Healthy,3.2
+COW02737,32,418.8,Jersey,Healthy,4.1
+COW02738,65,386.7,Holstein,Healthy,4.2
+COW02739,49,575.5,Jersey,Mastitis,4.0
+COW02740,32,485.3,Jersey,Healthy,4.0
+COW02741,22,390.9,Brown Swiss,Healthy,3.8
+COW02742,67,593.2,Holstein,Mastitis,3.6
+COW02743,114,719.6,Jersey,Bloat,2.6
+COW02744,33,661.2,Brown Swiss,Bloat,4.5
+COW02745,55,529.4,Jersey,Foot and Mouth,4.9
+COW02746,36,550.7,Guernsey,Ketosis,3.4
+COW02747,99,621.0,Guernsey,Healthy,4.8
+COW02748,56,639.8,Ayrshire,Ketosis,5.0
+COW02749,117,522.5,Ayrshire,Bloat,3.5
+COW02750,38,552.7,Jersey,Healthy,4.2
+COW02751,20,574.0,Guernsey,Foot and Mouth,3.9
+COW02752,74,594.3,Guernsey,Mastitis,2.7
+COW02753,82,539.4,Brown Swiss,Mastitis,2.1
+COW02754,119,540.4,Guernsey,Bloat,3.4
+COW02755,106,660.4,Holstein,Healthy,4.4
+COW02756,107,646.8,Jersey,Healthy,3.0
+COW02757,80,588.2,Ayrshire,Healthy,4.4
+COW02758,50,687.5,Ayrshire,Mastitis,4.0
+COW02759,58,519.1,Holstein,Foot and Mouth,4.1
+COW02760,26,679.8,Brown Swiss,Foot and Mouth,2.9
+COW02761,58,593.4,Jersey,Mastitis,3.4
+COW02762,51,811.7,Holstein,Ketosis,2.5
+COW02763,15,454.6,Holstein,Healthy,2.7
+COW02764,34,494.9,Brown Swiss,Ketosis,2.3
+COW02765,69,583.5,Guernsey,Healthy,2.4
+COW02766,51,581.8,Brown Swiss,Healthy,2.6
+COW02767,119,706.0,Jersey,Healthy,3.7
+COW02768,63,496.5,Guernsey,Healthy,3.3
+COW02769,115,622.4,Guernsey,Healthy,2.8
+COW02770,83,643.0,Ayrshire,Healthy,4.6
+COW02771,16,606.4,Jersey,Healthy,3.6
+COW02772,33,473.1,Jersey,Mastitis,4.8
+COW02773,88,662.6,Brown Swiss,Healthy,3.9
+COW02774,70,648.3,Brown Swiss,Mastitis,2.0
+COW02775,44,598.0,Brown Swiss,Healthy,4.7
+COW02776,68,566.3,Ayrshire,Healthy,4.6
+COW02777,109,568.1,Holstein,Healthy,3.9
+COW02778,53,543.7,Brown Swiss,Healthy,3.6
+COW02779,16,601.3,Brown Swiss,Mastitis,3.4
+COW02780,45,552.5,Jersey,Healthy,3.4
+COW02781,113,482.1,Guernsey,Foot and Mouth,4.3
+COW02782,94,466.1,Ayrshire,Healthy,3.5
+COW02783,102,489.8,Brown Swiss,Mastitis,2.5
+COW02784,110,567.8,Holstein,Ketosis,2.2
+COW02785,24,547.8,Holstein,Healthy,2.4
+COW02786,42,567.2,Brown Swiss,Healthy,2.8
+COW02787,18,590.1,Guernsey,Healthy,3.1
+COW02788,12,499.8,Jersey,Healthy,4.7
+COW02789,102,667.3,Jersey,Healthy,2.7
+COW02790,113,528.6,Ayrshire,Healthy,3.0
+COW02791,28,515.3,Holstein,Bloat,2.7
+COW02792,89,588.6,Holstein,Ketosis,3.6
+COW02793,69,403.1,Holstein,Healthy,3.9
+COW02794,19,486.8,Ayrshire,Healthy,3.6
+COW02795,110,628.5,Brown Swiss,Healthy,4.9
+COW02796,106,411.0,Holstein,Healthy,5.0
+COW02797,73,639.4,Jersey,Foot and Mouth,4.5
+COW02798,88,670.9,Ayrshire,Healthy,4.4
+COW02799,54,520.4,Guernsey,Healthy,3.1
+COW02800,97,573.3,Jersey,Healthy,3.7
+COW02801,60,639.5,Jersey,Healthy,3.1
+COW02802,118,512.7,Holstein,Healthy,4.4
+COW02803,18,619.4,Guernsey,Healthy,2.5
+COW02804,30,496.3,Holstein,Healthy,2.7
+COW02805,116,511.8,Jersey,Healthy,2.1
+COW02806,43,486.1,Jersey,Foot and Mouth,3.8
+COW02807,45,577.4,Guernsey,Healthy,4.1
+COW02808,97,642.6,Guernsey,Mastitis,2.0
+COW02809,32,535.3,Guernsey,Healthy,3.5
+COW02810,67,448.3,Jersey,Healthy,3.1
+COW02811,42,463.4,Jersey,Foot and Mouth,4.4
+COW02812,33,581.6,Jersey,Mastitis,2.1
+COW02813,116,697.5,Holstein,Healthy,2.1
+COW02814,33,581.5,Guernsey,Healthy,3.9
+COW02815,22,519.0,Brown Swiss,Mastitis,3.8
+COW02816,84,611.3,Brown Swiss,Bloat,4.5
+COW02817,105,530.8,Ayrshire,Healthy,3.8
+COW02818,25,519.7,Holstein,Healthy,4.8
+COW02819,88,473.3,Ayrshire,Healthy,2.9
+COW02820,70,662.7,Guernsey,Healthy,3.2
+COW02821,101,346.9,Jersey,Healthy,4.9
+COW02822,25,613.8,Guernsey,Healthy,2.3
+COW02823,117,512.9,Guernsey,Mastitis,4.4
+COW02824,78,517.2,Jersey,Healthy,2.0
+COW02825,102,685.4,Jersey,Mastitis,3.5
+COW02826,51,492.9,Ayrshire,Mastitis,2.5
+COW02827,113,495.6,Holstein,Mastitis,3.8
+COW02828,79,539.6,Holstein,Healthy,4.4
+COW02829,25,583.1,Guernsey,Healthy,2.1
+COW02830,111,514.7,Ayrshire,Healthy,2.5
+COW02831,97,424.1,Brown Swiss,Healthy,3.0
+COW02832,44,480.7,Holstein,Healthy,2.8
+COW02833,70,652.5,Brown Swiss,Healthy,3.1
+COW02834,53,556.0,Jersey,Healthy,4.9
+COW02835,70,586.1,Ayrshire,Healthy,2.3
+COW02836,116,529.1,Guernsey,Bloat,3.3
+COW02837,109,497.2,Jersey,Mastitis,3.4
+COW02838,35,684.2,Guernsey,Healthy,2.8
+COW02839,116,534.9,Guernsey,Bloat,2.8
+COW02840,59,514.5,Guernsey,Healthy,4.1
+COW02841,88,637.7,Jersey,Healthy,3.9
+COW02842,94,492.2,Brown Swiss,Foot and Mouth,4.4
+COW02843,64,502.4,Holstein,Healthy,3.2
+COW02844,61,550.8,Brown Swiss,Healthy,3.8
+COW02845,61,550.0,Jersey,Healthy,4.7
+COW02846,105,570.8,Brown Swiss,Healthy,4.6
+COW02847,53,717.3,Ayrshire,Healthy,4.8
+COW02848,42,576.9,Ayrshire,Healthy,2.8
+COW02849,51,359.8,Brown Swiss,Healthy,5.0
+COW02850,33,576.1,Guernsey,Healthy,4.4
+COW02851,54,553.0,Holstein,Healthy,4.4
+COW02852,24,553.5,Brown Swiss,Healthy,4.0
+COW02853,21,569.7,Guernsey,Foot and Mouth,4.9
+COW02854,90,547.7,Guernsey,Mastitis,3.3
+COW02855,20,545.8,Ayrshire,Healthy,4.2
+COW02856,73,599.0,Brown Swiss,Mastitis,4.1
+COW02857,96,506.6,Ayrshire,Healthy,4.2
+COW02858,90,474.2,Ayrshire,Healthy,4.3
+COW02859,60,791.9,Brown Swiss,Healthy,2.6
+COW02860,32,492.7,Holstein,Healthy,3.0
+COW02861,112,558.0,Jersey,Mastitis,3.2
+COW02862,102,430.3,Guernsey,Ketosis,4.2
+COW02863,78,559.3,Brown Swiss,Healthy,4.1
+COW02864,21,475.3,Ayrshire,Healthy,4.5
+COW02865,15,514.6,Ayrshire,Healthy,4.4
+COW02866,46,633.6,Holstein,Healthy,3.8
+COW02867,29,587.8,Ayrshire,Healthy,2.4
+COW02868,104,595.5,Jersey,Ketosis,3.9
+COW02869,34,408.3,Ayrshire,Foot and Mouth,4.7
+COW02870,42,697.0,Brown Swiss,Ketosis,3.9
+COW02871,117,454.6,Brown Swiss,Healthy,4.7
+COW02872,100,672.3,Holstein,Healthy,5.0
+COW02873,35,631.7,Holstein,Healthy,3.1
+COW02874,53,596.2,Brown Swiss,Bloat,4.2
+COW02875,67,481.6,Brown Swiss,Healthy,3.6
+COW02876,83,562.1,Brown Swiss,Healthy,3.4
+COW02877,113,512.3,Holstein,Healthy,2.7
+COW02878,106,552.3,Brown Swiss,Mastitis,2.7
+COW02879,117,530.0,Holstein,Mastitis,2.6
+COW02880,16,386.9,Holstein,Mastitis,3.9
+COW02881,37,639.7,Brown Swiss,Healthy,2.4
+COW02882,72,543.5,Guernsey,Mastitis,3.3
+COW02883,17,511.2,Guernsey,Healthy,3.6
+COW02884,50,505.2,Ayrshire,Healthy,3.3
+COW02885,28,578.7,Ayrshire,Healthy,4.6
+COW02886,112,478.5,Jersey,Healthy,3.3
+COW02887,18,369.6,Guernsey,Healthy,2.2
+COW02888,28,582.6,Holstein,Ketosis,5.0
+COW02889,33,591.5,Ayrshire,Healthy,4.5
+COW02890,28,534.0,Jersey,Healthy,4.0
+COW02891,73,458.2,Guernsey,Mastitis,4.3
+COW02892,51,557.1,Ayrshire,Mastitis,2.4
+COW02893,110,432.8,Guernsey,Healthy,4.3
+COW02894,40,467.8,Ayrshire,Healthy,2.6
+COW02895,70,489.9,Holstein,Healthy,3.5
+COW02896,83,617.5,Holstein,Healthy,2.5
+COW02897,79,521.0,Guernsey,Mastitis,4.3
+COW02898,98,514.2,Brown Swiss,Healthy,2.7
+COW02899,33,706.4,Holstein,Healthy,2.8
+COW02900,66,578.2,Guernsey,Healthy,2.3
+COW02901,98,577.1,Holstein,Healthy,4.2
+COW02902,105,520.4,Ayrshire,Healthy,2.9
+COW02903,78,502.3,Holstein,Bloat,3.6
+COW02904,82,375.1,Brown Swiss,Healthy,3.0
+COW02905,105,627.5,Ayrshire,Foot and Mouth,4.3
+COW02906,79,585.9,Brown Swiss,Healthy,2.7
+COW02907,114,535.7,Guernsey,Foot and Mouth,4.8
+COW02908,25,539.0,Guernsey,Healthy,3.0
+COW02909,49,608.9,Ayrshire,Healthy,2.3
+COW02910,24,425.6,Brown Swiss,Healthy,2.7
+COW02911,21,502.8,Ayrshire,Healthy,2.2
+COW02912,62,459.1,Brown Swiss,Bloat,3.4
+COW02913,36,691.7,Ayrshire,Mastitis,2.8
+COW02914,55,620.1,Guernsey,Healthy,4.7
+COW02915,59,373.8,Holstein,Healthy,3.6
+COW02916,79,428.9,Guernsey,Healthy,2.7
+COW02917,114,539.4,Ayrshire,Healthy,3.4
+COW02918,103,512.2,Holstein,Foot and Mouth,2.6
+COW02919,52,444.0,Ayrshire,Healthy,2.5
+COW02920,47,705.6,Holstein,Mastitis,2.9
+COW02921,95,575.0,Ayrshire,Healthy,2.3
+COW02922,25,588.0,Guernsey,Ketosis,2.6
+COW02923,70,494.6,Holstein,Healthy,4.8
+COW02924,57,607.8,Guernsey,Healthy,4.0
+COW02925,31,519.6,Holstein,Bloat,4.8
+COW02926,78,527.3,Brown Swiss,Healthy,2.8
+COW02927,46,598.9,Ayrshire,Healthy,4.6
+COW02928,32,419.7,Jersey,Healthy,3.1
+COW02929,82,677.8,Holstein,Healthy,2.4
+COW02930,30,564.6,Brown Swiss,Bloat,4.4
+COW02931,84,652.5,Jersey,Foot and Mouth,2.2
+COW02932,29,464.0,Holstein,Healthy,3.2
+COW02933,58,476.1,Brown Swiss,Ketosis,4.5
+COW02934,99,457.0,Jersey,Healthy,3.9
+COW02935,36,570.0,Holstein,Foot and Mouth,3.6
+COW02936,94,555.3,Jersey,Healthy,3.1
+COW02937,89,512.8,Holstein,Healthy,2.2
+COW02938,109,468.9,Ayrshire,Healthy,5.0
+COW02939,30,448.7,Ayrshire,Healthy,2.5
+COW02940,89,546.1,Jersey,Mastitis,2.8
+COW02941,113,512.8,Ayrshire,Healthy,2.7
+COW02942,94,495.2,Brown Swiss,Healthy,4.7
+COW02943,32,673.8,Ayrshire,Mastitis,4.3
+COW02944,100,543.4,Holstein,Healthy,3.4
+COW02945,23,651.6,Jersey,Healthy,4.9
+COW02946,75,507.3,Guernsey,Mastitis,2.2
+COW02947,65,569.6,Jersey,Bloat,4.7
+COW02948,69,545.6,Ayrshire,Healthy,2.2
+COW02949,68,414.2,Brown Swiss,Ketosis,3.2
+COW02950,15,664.3,Brown Swiss,Foot and Mouth,2.2
+COW02951,66,539.2,Brown Swiss,Mastitis,5.0
+COW02952,113,609.7,Guernsey,Healthy,4.7
+COW02953,59,489.8,Holstein,Mastitis,3.8
+COW02954,41,536.8,Guernsey,Foot and Mouth,2.7
+COW02955,119,480.7,Guernsey,Healthy,2.8
+COW02956,22,648.9,Ayrshire,Ketosis,3.3
+COW02957,64,574.9,Ayrshire,Bloat,3.0
+COW02958,67,579.4,Guernsey,Healthy,2.1
+COW02959,63,658.7,Brown Swiss,Mastitis,4.0
+COW02960,111,642.5,Brown Swiss,Healthy,3.8
+COW02961,57,611.2,Jersey,Mastitis,4.7
+COW02962,117,436.3,Ayrshire,Foot and Mouth,3.4
+COW02963,19,494.3,Jersey,Healthy,3.0
+COW02964,91,469.7,Brown Swiss,Healthy,3.5
+COW02965,76,608.2,Holstein,Healthy,2.6
+COW02966,37,563.7,Jersey,Bloat,3.9
+COW02967,36,438.8,Jersey,Healthy,4.3
+COW02968,89,534.9,Brown Swiss,Bloat,2.5
+COW02969,80,430.5,Brown Swiss,Healthy,3.0
+COW02970,78,545.7,Guernsey,Healthy,4.6
+COW02971,17,417.6,Brown Swiss,Bloat,3.5
+COW02972,76,592.3,Holstein,Healthy,3.6
+COW02973,117,580.2,Brown Swiss,Healthy,4.2
+COW02974,13,702.6,Holstein,Healthy,3.7
+COW02975,62,617.8,Ayrshire,Healthy,2.2
+COW02976,65,516.2,Guernsey,Healthy,4.4
+COW02977,108,615.4,Jersey,Healthy,4.8
+COW02978,42,438.2,Jersey,Healthy,2.2
+COW02979,63,473.0,Holstein,Healthy,2.4
+COW02980,89,576.7,Jersey,Healthy,4.1
+COW02981,18,377.3,Holstein,Healthy,3.8
+COW02982,98,547.0,Ayrshire,Healthy,3.1
+COW02983,100,468.4,Holstein,Ketosis,3.6
+COW02984,89,558.1,Guernsey,Healthy,4.1
+COW02985,82,463.8,Brown Swiss,Healthy,3.5
+COW02986,92,583.9,Jersey,Healthy,2.4
+COW02987,96,551.5,Ayrshire,Bloat,2.3
+COW02988,109,662.0,Holstein,Mastitis,3.3
+COW02989,58,550.5,Ayrshire,Foot and Mouth,4.8
+COW02990,61,488.5,Guernsey,Bloat,3.7
+COW02991,80,530.2,Guernsey,Healthy,3.1
+COW02992,32,442.5,Ayrshire,Ketosis,4.7
+COW02993,104,582.5,Brown Swiss,Healthy,3.2
+COW02994,95,597.2,Jersey,Foot and Mouth,3.5
+COW02995,80,747.5,Holstein,Foot and Mouth,2.3
+COW02996,44,500.3,Ayrshire,Bloat,4.2
+COW02997,49,528.6,Brown Swiss,Healthy,4.1
+COW02998,58,503.9,Ayrshire,Mastitis,4.4
+COW02999,83,567.0,Jersey,Healthy,3.0

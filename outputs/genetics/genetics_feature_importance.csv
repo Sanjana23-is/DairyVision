@@ -1,0 +1,16 @@
+Model,Feature,Importance
+Linear Regression,Days_To_Peak,138.69583924208752
+Linear Regression,Peak_Yield,125.08263703268037
+Linear Regression,Corrected_Milk_Yield,26.782921577218058
+Linear Regression,Dry_Days,13.252536102037903
+Linear Regression,Lactation_Length,0.8718810232093278
+Random Forest,Dry_Days,0.21565378010056338
+Random Forest,Peak_Yield,0.20215204487141097
+Random Forest,Corrected_Milk_Yield,0.19721090805888875
+Random Forest,Lactation_Length,0.1963515621634413
+Random Forest,Days_To_Peak,0.1886317048056956
+XGBoost,Peak_Yield,1.0
+XGBoost,Days_To_Peak,0.0
+XGBoost,Lactation_Length,0.0
+XGBoost,Corrected_Milk_Yield,0.0
+XGBoost,Dry_Days,0.0

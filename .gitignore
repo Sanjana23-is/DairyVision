@@ -1,0 +1,28 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Outputs
+outputs/
+logs/
+models/
+
+# Datasets (optional if large/private)
+datasets/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# VS Code
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+*.tsbuildinfo
