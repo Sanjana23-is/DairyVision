@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.database.base import Base
 from app.core.database import get_db
 from app.main import app
+import importlib
+importlib.import_module("app.models")  # ensure all model classes are imported so metadata is complete
 
 
 @pytest.fixture()
@@ -20,6 +22,12 @@ def db_session() -> Session:
         yield session
     finally:
         session.close()
+
+
+@pytest.fixture()
+def session(db_session: Session) -> Session:
+    # compatibility alias for tests that expect a `session` fixture
+    return db_session
 
 
 @pytest.fixture()

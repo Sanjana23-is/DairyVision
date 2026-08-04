@@ -17,17 +17,17 @@ class ObservationValidationError(ObservationError):
     pass
 
 
-class ObservationError(Exception):
+class WeatherError(Exception):
     pass
 
 
-class ObservationNotFound(ObservationError):
+class WeatherNotFound(WeatherError):
     pass
 
 
-class ObservationForbidden(ObservationError):
+class WeatherForbidden(WeatherError):
     pass
 
 
-class ObservationValidationError(ObservationError):
+class WeatherValidationError(WeatherError):
     pass

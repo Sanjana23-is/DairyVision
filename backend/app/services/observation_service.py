@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, time, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -9,12 +9,14 @@ from app.exceptions import ObservationForbidden, ObservationNotFound, Observatio
 from app.models import ActivityLog, DailyObservation
 from app.repositories.observation_repository import ObservationRepository
 from app.schemas.observation import ObservationCreate, ObservationUpdate
+from app.services.weather_service import WeatherService
 
 
 class ObservationService:
     def __init__(self, db: Session) -> None:
         self.db = db
         self.repository = ObservationRepository(db)
+        self.weather_service = WeatherService(db)
 
     def list_observations(self, user_id: str) -> list[DailyObservation]:
         return self.repository.list_for_user(user_id)
@@ -35,6 +37,10 @@ class ObservationService:
             raise ObservationValidationError(str(exc)) from exc
         except PermissionError as exc:
             raise ObservationForbidden(str(exc)) from exc
+
+        weather_time = datetime.combine(payload_data["observation_date"], time(hour=12), tzinfo=timezone.utc)
+        weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, farm_id, weather_time)
+        payload_data["weather_log_id"] = weather_log.id
 
         observation = self.repository.create(user_id, observed_by=user_id, **payload_data)
         self._log_activity(user_id, cow_id, "observation.created", f"Created observation {observation.id}")
@@ -58,6 +64,14 @@ class ObservationService:
         observation = self.repository.update(user_id, observation_id, **update_data)
         if observation is None:
             return None
+
+        if "observation_date" in update_data or observation.weather_log_id is None:
+            weather_time = datetime.combine(observation.observation_date, time(hour=12), tzinfo=timezone.utc)
+            weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, observation.farm_id, weather_time)
+            observation.weather_log_id = weather_log.id
+            self.db.commit()
+            self.db.refresh(observation)
+
         self._log_activity(user_id, observation.cow_id, "observation.updated", f"Updated observation {observation.id}")
         return observation
 

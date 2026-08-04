@@ -15,7 +15,14 @@ def _create_user_farm_cow(session: Session) -> tuple[str, str, str]:
     session.add(user)
     session.flush()
 
-    farm = Farm(id=str(uuid4()), name="Test Farm", timezone="UTC", created_by=user.id)
+    farm = Farm(
+        id=str(uuid4()),
+        name="Test Farm",
+        timezone="UTC",
+        latitude=12.345678,
+        longitude=98.765432,
+        created_by=user.id,
+    )
     session.add(farm)
     session.flush()
 

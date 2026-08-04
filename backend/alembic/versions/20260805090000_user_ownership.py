@@ -31,7 +31,7 @@ def upgrade() -> None:
     op.create_index("idx_health_alerts_owner_id", "health_alerts", ["owner_id"], unique=False)
 
     op.add_column("milk_predictions", sa.Column("owner_id", postgresql.UUID(as_uuid=False), nullable=True))
-    op.create_foreign_key("fk_milk_predictions_owner_id_users", "milk_predictions", "users", ["owner_id"], ondelete="CASCADE")
+    op.create_foreign_key("fk_milk_predictions_owner_id_users", "milk_predictions", "users", ["owner_id"], ["id"], ondelete="CASCADE")
     op.create_index("idx_milk_predictions_owner_id", "milk_predictions", ["owner_id"], unique=False)
 
     op.add_column("recommendations", sa.Column("owner_id", postgresql.UUID(as_uuid=False), nullable=True))
