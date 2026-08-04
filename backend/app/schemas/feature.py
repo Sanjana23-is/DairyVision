@@ -7,6 +7,9 @@ from pydantic import BaseModel, ConfigDict
 
 
 class FeatureVector(BaseModel):
+    # Metadata
+    observation_id: Optional[str] = None
+
     # Match the ML training schema exactly (see config.ALL_FEATURES)
     age: Optional[float] = None
     weight: Optional[float] = None
