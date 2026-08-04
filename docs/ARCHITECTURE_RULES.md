@@ -3,7 +3,9 @@
 ## Layer Responsibilities
 
 ### frontend/
+
 Contains only React, TypeScript, Tailwind CSS, and UI-related code.
+
 - Components
 - Pages
 - Routing
@@ -11,7 +13,9 @@ Contains only React, TypeScript, Tailwind CSS, and UI-related code.
 - API client wrappers for calling backend endpoints
 
 ### backend/
+
 Contains only FastAPI, SQLAlchemy, authentication, REST APIs, and business logic.
+
 - API routes
 - Authentication and authorization
 - Service layer
@@ -20,7 +24,9 @@ Contains only FastAPI, SQLAlchemy, authentication, REST APIs, and business logic
 - Integration with the ML engine through service calls
 
 ### ml_engine/
+
 Contains only machine learning logic.
+
 - Feature engineering
 - Training and inference pipelines
 - Model definitions
@@ -30,13 +36,16 @@ Contains only machine learning logic.
 - Digital twin logic
 
 ### docs/
+
 Contains only architecture and documentation artifacts.
+
 - Architecture documents
 - Design notes
 - Planning documents
 - Database schema documentation
 
 ## Architectural Constraints
+
 - React code must never be placed inside backend.
 - Python ML code must never be placed inside frontend.
 - React must never access the database directly.
@@ -45,6 +54,7 @@ Contains only architecture and documentation artifacts.
 - If a requested feature belongs to another layer, the work must stop and be explained before implementation proceeds.
 
 ## Design Principles
+
 - Preserve clean architecture and maintainability over convenience.
 - Keep each layer focused on its responsibility.
 - Use interfaces and service boundaries to prevent coupling.

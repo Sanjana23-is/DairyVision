@@ -36,7 +36,18 @@ flowchart LR
 
 - PostgreSQL hosted by Supabase
 - SQLAlchemy ORM and Alembic migrations
-- Structured persistence for users, organizations, animals, operations, and analytics artifacts
+- Structured persistence for users, farms, animals, operations, and analytics artifacts
+- Master-data tables for breeds and aliases so the system can support Indian dairy context without duplicating free-form breed strings
+- Farm-level and user-level preference tables to support localization, language, and display defaults without mixing them into transactional data
+
+### Data Model Decisions for Sprint 2
+
+- Breed values are treated as controlled reference data rather than free text. This prevents spelling drift, duplicate entries, and inconsistent reporting across farms.
+- BreedMaster is the canonical source for breed identities. Every cow references a breed through a foreign key rather than storing a literal breed name in the cow record.
+- BreedAlias stores multilingual and regional names, alternate spellings, and local terminology for the same breed. This makes the platform suitable for Hindi, regional languages, and local farm usage without changing the canonical breed record.
+- FarmSettings isolates farm-level defaults such as language, currency, and display preference from the core farm identity. This keeps farm configuration explicit and easy to extend.
+- UserPreference stores personal display and localization settings at the user level so each operator can view data in a preferred way without affecting other users or farms.
+- The schema intentionally separates master data, operational data, and user preferences so future expansion remains maintainable and less error-prone.
 
 ### Intelligence Layer
 
@@ -79,3 +90,14 @@ flowchart LR
 - Performance: responsive UI, cached query data, efficient database access
 - Reliability: graceful error handling and clear failure states
 - Maintainability: modular services and documented contracts
+
+## 9. Domain Model Sketch
+
+```mermaid
+erDiagram
+    USERS ||--o{ USER_PREFERENCE : personalizes
+    FARMS ||--|| FARM_SETTINGS : configures
+    BREED_MASTER ||--o{ BREED_ALIAS : aliases
+    BREED_MASTER ||--o{ COWS : classifies
+    FARMS ||--o{ COWS : contains
+```

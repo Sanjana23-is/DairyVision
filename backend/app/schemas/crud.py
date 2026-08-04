@@ -1,0 +1,238 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any, Optional
+
+from pydantic import BaseModel, ConfigDict
+
+
+class CowBase(BaseModel):
+    farm_id: str
+    tag_id: str
+    name: Optional[str] = None
+    breed_id: Optional[str] = None
+    birth_date: Optional[date] = None
+    sex: Optional[str] = None
+    status: Optional[str] = None
+    weight_kg: Optional[float] = None
+    lactation_number: Optional[int] = None
+    notes: Optional[str] = None
+
+
+class CowCreate(CowBase):
+    status: str
+
+
+class CowUpdate(BaseModel):
+    name: Optional[str] = None
+    breed_id: Optional[str] = None
+    birth_date: Optional[date] = None
+    sex: Optional[str] = None
+    status: Optional[str] = None
+    weight_kg: Optional[float] = None
+    lactation_number: Optional[int] = None
+    notes: Optional[str] = None
+
+
+class CowResponse(CowBase):
+    id: str
+    created_by: Optional[str] = None
+    owner_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DailyObservationBase(BaseModel):
+    cow_id: str
+    observation_date: date
+    milk_produced_liters: Optional[float] = None
+    feed_quantity_kg: Optional[float] = None
+    symptoms: Optional[dict[str, Any]] = None
+    notes: Optional[str] = None
+
+
+class DailyObservationCreate(DailyObservationBase):
+    pass
+
+
+class DailyObservationUpdate(BaseModel):
+    milk_produced_liters: Optional[float] = None
+    feed_quantity_kg: Optional[float] = None
+    symptoms: Optional[dict[str, Any]] = None
+    notes: Optional[str] = None
+
+
+class DailyObservationResponse(DailyObservationBase):
+    id: str
+    observed_by: Optional[str] = None
+    owner_id: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ActivityLogBase(BaseModel):
+    cow_id: Optional[str] = None
+    activity_type: str
+    description: Optional[str] = None
+
+
+class ActivityLogCreate(ActivityLogBase):
+    pass
+
+
+class ActivityLogUpdate(BaseModel):
+    cow_id: Optional[str] = None
+    activity_type: Optional[str] = None
+    description: Optional[str] = None
+
+
+class ActivityLogResponse(ActivityLogBase):
+    id: str
+    user_id: Optional[str] = None
+    owner_id: str
+    occurred_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class HealthAlertBase(BaseModel):
+    cow_id: str
+    alert_level: str
+    alert_type: str
+    description: Optional[str] = None
+    resolved: Optional[bool] = False
+
+
+class HealthAlertCreate(HealthAlertBase):
+    pass
+
+
+class HealthAlertUpdate(BaseModel):
+    alert_level: Optional[str] = None
+    alert_type: Optional[str] = None
+    description: Optional[str] = None
+    resolved: Optional[bool] = None
+
+
+class HealthAlertResponse(HealthAlertBase):
+    id: str
+    owner_id: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MilkPredictionBase(BaseModel):
+    cow_id: str
+    observation_id: Optional[str] = None
+    predicted_milk_yield: float
+    model_version: str
+    confidence_score: Optional[float] = None
+
+
+class MilkPredictionCreate(MilkPredictionBase):
+    pass
+
+
+class MilkPredictionUpdate(BaseModel):
+    observation_id: Optional[str] = None
+    predicted_milk_yield: Optional[float] = None
+    model_version: Optional[str] = None
+    confidence_score: Optional[float] = None
+
+
+class MilkPredictionResponse(MilkPredictionBase):
+    id: str
+    owner_id: str
+    prediction_timestamp: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RecommendationBase(BaseModel):
+    cow_id: Optional[str] = None
+    alert_id: Optional[str] = None
+    title: str
+    content: Optional[str] = None
+    recommendation_type: str
+
+
+class RecommendationCreate(RecommendationBase):
+    pass
+
+
+class RecommendationUpdate(BaseModel):
+    cow_id: Optional[str] = None
+    alert_id: Optional[str] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+    recommendation_type: Optional[str] = None
+
+
+class RecommendationResponse(RecommendationBase):
+    id: str
+    owner_id: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FarmBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    location_city: Optional[str] = None
+    location_country: Optional[str] = None
+    timezone: Optional[str] = None
+    is_active: Optional[bool] = True
+
+
+class FarmCreate(FarmBase):
+    pass
+
+
+class FarmUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    location_city: Optional[str] = None
+    location_country: Optional[str] = None
+    timezone: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class FarmResponse(FarmBase):
+    id: str
+    created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserPreferenceBase(BaseModel):
+    preferred_language: Optional[str] = None
+    preferred_currency: Optional[str] = None
+    breed_display_preference: Optional[str] = None
+    show_local_names: Optional[bool] = None
+
+
+class UserPreferenceCreate(UserPreferenceBase):
+    pass
+
+
+class UserPreferenceUpdate(BaseModel):
+    preferred_language: Optional[str] = None
+    preferred_currency: Optional[str] = None
+    breed_display_preference: Optional[str] = None
+    show_local_names: Optional[bool] = None
+
+
+class UserPreferenceResponse(UserPreferenceBase):
+    id: str
+    user_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

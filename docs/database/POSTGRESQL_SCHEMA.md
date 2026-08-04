@@ -8,9 +8,19 @@ This schema is designed for a production-ready, scalable dairy operations platfo
 
 - Use UUID primary keys for portability and future scaling.
 - Use PostgreSQL-native features such as `JSONB`, `TIMESTAMPTZ`, and `CHECK` constraints.
-- Separate identity, ownership, operational data, and analytics data into clear domains.
+- Separate identity, ownership, operational data, analytics data, and configuration data into clear domains.
+- Use master tables for controlled vocabulary and multilingual reference data, especially for breeds.
 - Include audit timestamps and soft-delete support where appropriate.
 - Use explicit indexes for high-volume queries.
+
+## Architectural Decisions for Sprint 2
+
+- Breed data is modeled as reference data rather than free-form strings. This prevents inconsistent breed labels and enables clean analytics and reporting.
+- BreedMaster is the canonical breed dictionary. It supports indigenous breeds, exotic breeds, crossbreeds, and future breed families relevant to Indian dairy operations.
+- BreedAlias captures regional names, alternate spellings, translations, and local terminology. This supports multiple languages and local farm usage without changing the canonical breed definition.
+- Cows no longer store a literal breed name. They reference BreedMaster through a foreign key, which improves data quality and enables better filtering and reporting.
+- FarmSettings and UserPreference are separated from transactional tables so language, currency, and display preferences remain configurable without polluting core operational records.
+- All new tables use explicit constraints and indexes to preserve consistency and keep lookup operations fast.
 
 ## Core Assumptions
 
@@ -107,7 +117,68 @@ Indexes:
 
 ---
 
-### 4. Cows
+### 4. BreedMaster
+
+Purpose: Canonical master table for cattle breeds used across the platform.
+
+Columns:
+
+- `id` UUID PRIMARY KEY
+- `canonical_name` VARCHAR(150) NOT NULL
+- `breed_category` VARCHAR(30) NOT NULL
+- `species` VARCHAR(30) NOT NULL DEFAULT 'cattle'
+- `origin_region` VARCHAR(150) NULL
+- `description` TEXT NULL
+- `is_active` BOOLEAN NOT NULL DEFAULT TRUE
+- `is_featured` BOOLEAN NOT NULL DEFAULT FALSE
+- `created_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+- `updated_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+Constraints:
+
+- `canonical_name` must not be empty
+- `breed_category` must be one of `indigenous`, `exotic`, `crossbreed`, `other`
+- `species` must not be empty
+- Unique pair `(canonical_name, breed_category)`
+
+Indexes:
+
+- `idx_breed_master_category` on `breed_category`
+- `idx_breed_master_is_active` on `is_active`
+- `idx_breed_master_name` on `canonical_name`
+
+---
+
+### 5. BreedAlias
+
+Purpose: Stores multilingual and regional aliases for breeds, including alternate spellings and local names.
+
+Columns:
+
+- `id` UUID PRIMARY KEY
+- `breed_id` UUID NOT NULL REFERENCES breed_master(id) ON DELETE CASCADE
+- `alias_text` VARCHAR(200) NOT NULL
+- `language_code` VARCHAR(10) NOT NULL DEFAULT 'en'
+- `alias_type` VARCHAR(30) NOT NULL DEFAULT 'regional'
+- `is_primary` BOOLEAN NOT NULL DEFAULT FALSE
+- `created_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+Constraints:
+
+- `alias_text` must not be empty
+- `language_code` must not be empty
+- `alias_type` must be one of `regional`, `spelling`, `translation`, `local_name`
+- Unique combination `(breed_id, alias_text, language_code, alias_type)`
+
+Indexes:
+
+- `idx_breed_alias_breed_id` on `breed_id`
+- `idx_breed_alias_language_code` on `language_code`
+- `idx_breed_alias_type` on `alias_type`
+
+---
+
+### 6. Cows
 
 Purpose: Represents the individual cows within a farm.
 
@@ -117,7 +188,7 @@ Columns:
 - `farm_id` UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE
 - `tag_id` VARCHAR(100) NOT NULL UNIQUE
 - `name` VARCHAR(255) NULL
-- `breed` VARCHAR(100) NULL
+- `breed_master_id` UUID NULL REFERENCES breed_master(id) ON DELETE RESTRICT
 - `birth_date` DATE NULL
 - `sex` VARCHAR(20) NULL
 - `status` VARCHAR(50) NOT NULL DEFAULT 'active'
@@ -140,10 +211,70 @@ Indexes:
 - `idx_cows_status` on `status`
 - `idx_cows_created_by` on `created_by`
 - `idx_cows_tag_id` on `tag_id`
+- `idx_cows_breed_master_id` on `breed_master_id`
 
 ---
 
-### 5. DailyObservations
+### 7. FarmSettings
+
+Purpose: Stores farm-level defaults for localization and display preferences.
+
+Columns:
+
+- `id` UUID PRIMARY KEY
+- `farm_id` UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE
+- `default_language` VARCHAR(10) NOT NULL DEFAULT 'en'
+- `default_currency` VARCHAR(10) NOT NULL DEFAULT 'INR'
+- `timezone` VARCHAR(100) NOT NULL DEFAULT 'Asia/Kolkata'
+- `breed_display_mode` VARCHAR(20) NOT NULL DEFAULT 'canonical'
+- `use_local_breed_names` BOOLEAN NOT NULL DEFAULT TRUE
+- `created_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+- `updated_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+Constraints:
+
+- `farm_id` must be unique
+- `default_language` must not be empty
+- `default_currency` must not be empty
+- `breed_display_mode` must be one of `canonical`, `alias`, `auto`
+
+Indexes:
+
+- `idx_farm_settings_farm_id` on `farm_id`
+- `idx_farm_settings_language` on `default_language`
+
+---
+
+### 8. UserPreference
+
+Purpose: Stores user-level localization and display preferences for data presentation.
+
+Columns:
+
+- `id` UUID PRIMARY KEY
+- `user_id` UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
+- `preferred_language` VARCHAR(10) NOT NULL DEFAULT 'en'
+- `preferred_currency` VARCHAR(10) NOT NULL DEFAULT 'INR'
+- `breed_display_preference` VARCHAR(20) NOT NULL DEFAULT 'canonical'
+- `show_local_names` BOOLEAN NOT NULL DEFAULT TRUE
+- `created_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+- `updated_at` TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+Constraints:
+
+- `user_id` must be unique
+- `preferred_language` must not be empty
+- `preferred_currency` must not be empty
+- `breed_display_preference` must be one of `canonical`, `alias`, `auto`
+
+Indexes:
+
+- `idx_user_preference_user_id` on `user_id`
+- `idx_user_preference_language` on `preferred_language`
+
+---
+
+### 9. DailyObservations
 
 Purpose: Stores daily operational and health observations for cows or farms.
 
@@ -340,7 +471,7 @@ Indexes:
 ## PostgreSQL CREATE TABLE Statements
 
 ```sql
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -383,12 +514,43 @@ CREATE TABLE farm_members (
     CHECK (role IN ('owner', 'manager', 'member', 'viewer'))
 );
 
+CREATE TABLE breed_master (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    canonical_name VARCHAR(150) NOT NULL,
+    breed_category VARCHAR(30) NOT NULL,
+    species VARCHAR(30) NOT NULL DEFAULT 'cattle',
+    origin_region VARCHAR(150) NULL,
+    description TEXT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (canonical_name, breed_category),
+    CHECK (canonical_name <> ''),
+    CHECK (breed_category IN ('indigenous', 'exotic', 'crossbreed', 'other')),
+    CHECK (species <> '')
+);
+
+CREATE TABLE breed_alias (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    breed_id UUID NOT NULL REFERENCES breed_master(id) ON DELETE CASCADE,
+    alias_text VARCHAR(200) NOT NULL,
+    language_code VARCHAR(10) NOT NULL DEFAULT 'en',
+    alias_type VARCHAR(30) NOT NULL DEFAULT 'regional',
+    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (breed_id, alias_text, language_code, alias_type),
+    CHECK (alias_text <> ''),
+    CHECK (language_code <> ''),
+    CHECK (alias_type IN ('regional', 'spelling', 'translation', 'local_name'))
+);
+
 CREATE TABLE cows (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farm_id UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
     tag_id VARCHAR(100) NOT NULL UNIQUE,
     name VARCHAR(255) NULL,
-    breed VARCHAR(100) NULL,
+    breed_master_id UUID NULL REFERENCES breed_master(id) ON DELETE RESTRICT,
     birth_date DATE NULL,
     sex VARCHAR(20) NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'active',
@@ -401,6 +563,37 @@ CREATE TABLE cows (
     CHECK (status IN ('active', 'dry', 'sick', 'deceased', 'sold')),
     CHECK (lactation_number IS NULL OR lactation_number > 0),
     CHECK (weight_kg IS NULL OR weight_kg > 0)
+);
+
+CREATE TABLE farm_settings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id UUID NOT NULL REFERENCES farms(id) ON DELETE CASCADE,
+    default_language VARCHAR(10) NOT NULL DEFAULT 'en',
+    default_currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    timezone VARCHAR(100) NOT NULL DEFAULT 'Asia/Kolkata',
+    breed_display_mode VARCHAR(20) NOT NULL DEFAULT 'canonical',
+    use_local_breed_names BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (farm_id),
+    CHECK (default_language <> ''),
+    CHECK (default_currency <> ''),
+    CHECK (breed_display_mode IN ('canonical', 'alias', 'auto'))
+);
+
+CREATE TABLE user_preference (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    preferred_language VARCHAR(10) NOT NULL DEFAULT 'en',
+    preferred_currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    breed_display_preference VARCHAR(20) NOT NULL DEFAULT 'canonical',
+    show_local_names BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id),
+    CHECK (preferred_language <> ''),
+    CHECK (preferred_currency <> ''),
+    CHECK (breed_display_preference IN ('canonical', 'alias', 'auto'))
 );
 
 CREATE TABLE daily_observations (
@@ -516,9 +709,24 @@ CREATE INDEX idx_farm_members_farm_id ON farm_members (farm_id);
 CREATE INDEX idx_farm_members_user_id ON farm_members (user_id);
 CREATE INDEX idx_farm_members_role ON farm_members (role);
 
+CREATE INDEX idx_breed_master_category ON breed_master (breed_category);
+CREATE INDEX idx_breed_master_is_active ON breed_master (is_active);
+CREATE INDEX idx_breed_master_name ON breed_master (canonical_name);
+
+CREATE INDEX idx_breed_alias_breed_id ON breed_alias (breed_id);
+CREATE INDEX idx_breed_alias_language_code ON breed_alias (language_code);
+CREATE INDEX idx_breed_alias_type ON breed_alias (alias_type);
+
 CREATE INDEX idx_cows_farm_id ON cows (farm_id);
 CREATE INDEX idx_cows_status ON cows (status);
 CREATE INDEX idx_cows_tag_id ON cows (tag_id);
+CREATE INDEX idx_cows_breed_master_id ON cows (breed_master_id);
+
+CREATE INDEX idx_farm_settings_farm_id ON farm_settings (farm_id);
+CREATE INDEX idx_farm_settings_language ON farm_settings (default_language);
+
+CREATE INDEX idx_user_preference_user_id ON user_preference (user_id);
+CREATE INDEX idx_user_preference_language ON user_preference (preferred_language);
 
 CREATE INDEX idx_daily_observations_farm_id ON daily_observations (farm_id);
 CREATE INDEX idx_daily_observations_cow_id ON daily_observations (cow_id);
@@ -786,6 +994,10 @@ erDiagram
     USERS ||--o{ FARM_MEMBERS : belongs_to
     FARMS ||--o{ FARM_MEMBERS : has
     FARMS ||--o{ COWS : contains
+    FARMS ||--|| FARM_SETTINGS : configures
+    USERS ||--o{ USER_PREFERENCE : personalizes
+    BREED_MASTER ||--o{ BREED_ALIAS : aliases
+    BREED_MASTER ||--o{ COWS : classifies
     FARMS ||--o{ DAILY_OBSERVATIONS : receives
     FARMS ||--o{ MILK_PREDICTIONS : generates
     FARMS ||--o{ WEATHER_LOGS : records

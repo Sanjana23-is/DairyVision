@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     database_url: str = Field(default_factory=lambda: _db_url_from_env("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/dairyvision"))
     alembic_database_url: str = Field(default_factory=lambda: _db_url_from_env("ALEMBIC_DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/dairyvision"))
     log_level: str = Field(default="INFO")
+    supabase_url: str = Field(default="")
+    supabase_publishable_key: str = Field(default="")
+    supabase_secret_key: str = Field(default="")
 
     model_config = SettingsConfigDict(
         env_file=".env",
