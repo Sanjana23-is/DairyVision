@@ -26,3 +26,9 @@ frontend/.vite/
 .DS_Store
 
 *.tsbuildinfo
+
+
+backend/.env
+/.env
+
+node_modules/
