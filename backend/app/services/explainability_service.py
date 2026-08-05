@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from uuid import uuid4
 import hashlib
 import os
 from typing import List, Optional
@@ -52,7 +53,13 @@ class ExplainabilityService:
         m.update(arr.encode('utf-8'))
         return m.hexdigest()
 
-    def explain(self, user_id: str, prediction_id: Optional[str] = None, feature_vector: Optional[FeatureVector] = None) -> ExplainabilityResult:
+    def explain(
+        self,
+        user_id: str,
+        prediction_id: Optional[str] = None,
+        feature_vector: Optional[FeatureVector] = None,
+        persist: bool = True,
+    ) -> ExplainabilityResult:
         # Determine context and validate ownership
         obs = None
         cow = None
@@ -160,5 +167,12 @@ class ExplainabilityService:
             top_negative=top_negative,
         )
 
-        saved = self.repo.save(result)
-        return saved
+        if persist:
+            saved = self.repo.save(result)
+            return saved
+
+        if getattr(result, 'id', None) is None:
+            result.id = str(uuid4())
+        if getattr(result, 'computed_at', None) is None:
+            result.computed_at = datetime.now(timezone.utc)
+        return result

@@ -19,7 +19,7 @@ class PredictionService:
     def __init__(self, db: Session, model_path: str | None = None) -> None:
         self.db = db
         self.repo = PredictionRepository(db)
-        self.model_path = model_path or MODEL_PATH
+        self.model_path = model_path
         self._model = None
 
     def _load_model(self):
@@ -46,6 +46,12 @@ class PredictionService:
             ordered.append(float(val) if val is not None else np.nan)
         return ordered
 
+    def predict_value(self, feature_vector: FeatureVector) -> float:
+        model = self._load_model()
+        x = np.array([self._feature_order(feature_vector)])
+        pred = model.predict(x)
+        return float(pred[0])
+
     def predict_for_observation(self, user_id: str, observation_id: str, feature_vector: FeatureVector) -> MilkPrediction:
         # validate observation and ownership
         obs = self.db.query(DailyObservation).get(observation_id)
@@ -67,12 +73,8 @@ class PredictionService:
         if getattr(farm, "created_by", None) != user_id and getattr(farm, "owner_id", None) not in (None, user_id):
             raise PermissionError("User does not own this farm")
 
-        model = self._load_model()
-        x = np.array([self._feature_order(feature_vector)])
-        pred = model.predict(x)
-
-        predicted = float(pred[0])
-        model_version = getattr(model, "__version__", os.path.basename(self.model_path))
+        predicted = self.predict_value(feature_vector)
+        model_version = getattr(self._load_model(), "__version__", os.path.basename(self.model_path))
 
         mp = MilkPrediction(
             cow_id=cow.id,

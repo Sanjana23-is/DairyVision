@@ -9,6 +9,8 @@ from .api.v1.predictions import router as predictions_router
 from .api.v1.explainability import router as explainability_router
 from .api.v1.health_alerts import router as health_alerts_router
 from .api.v1.recommendations import router as recommendations_router
+from .api.v1.what_if import router as what_if_router
+from .api.v1.dashboard import router as dashboard_router
 from .core.config import get_settings
 from .core.logging import configure_logging
 
@@ -25,6 +27,8 @@ app.include_router(predictions_router, prefix="/api/v1")
 app.include_router(explainability_router, prefix="/api/v1")
 app.include_router(health_alerts_router, prefix="/api/v1")
 app.include_router(recommendations_router, prefix="/api/v1")
+app.include_router(what_if_router, prefix="/api/v1")
+app.include_router(dashboard_router, prefix="/api/v1")
 
 
 @app.get("/")

@@ -58,6 +58,150 @@ class RecommendationService:
             }
         )
 
+    def _generate_recommendations(
+        self,
+        user_id: str,
+        health_alert: Optional[HealthAlert] = None,
+        prediction: Optional[MilkPrediction] = None,
+        explainability: Optional[ExplainabilityResult] = None,
+        observation: Optional[DailyObservation] = None,
+        weather: Optional[WeatherLog] = None,
+        thi_override: Optional[float] = None,
+    ) -> list[dict[str, Any]]:
+        recommendations: list[dict[str, Any]] = []
+
+        alert_level = getattr(health_alert, "alert_level", "Healthy")
+
+        thi = None
+        if weather is not None and getattr(weather, "thi", None) is not None:
+            thi = float(weather.thi)
+        elif thi_override is not None:
+            thi = float(thi_override)
+
+        milk_drop = 0.0
+        if prediction is not None and observation is not None and getattr(observation, "milk_produced_liters", None) is not None:
+            expected = float(prediction.predicted_milk_yield)
+            observed = float(observation.milk_produced_liters)
+            if expected > 0:
+                milk_drop = max(0.0, (expected - observed) / expected)
+
+        abnormal = False
+        if observation is not None and getattr(observation, "symptoms", None):
+            abnormal = isinstance(observation.symptoms, dict) and len(observation.symptoms) > 0
+
+        if thi is not None:
+            if thi >= 80.0:
+                self._add_recommendation(
+                    recommendations,
+                    title="Implement immediate cooling and shade",
+                    description=(
+                        "THI is very high and heat stress is a likely driver. "
+                        "Increase water access, provide shade, and consider fans or misting."
+                    ),
+                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
+                    priority=RecommendationPriority.HIGH,
+                )
+            elif thi >= 75.0:
+                self._add_recommendation(
+                    recommendations,
+                    title="Increase water and cooling support",
+                    description=(
+                        "Moderate heat stress conditions are present. "
+                        "Ensure fresh water is available and monitor the herd closely for overheating."
+                    ),
+                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
+                    priority=RecommendationPriority.MEDIUM,
+                )
+            elif thi >= 70.0:
+                self._add_recommendation(
+                    recommendations,
+                    title="Monitor heat stress and hydration",
+                    description=(
+                        "Heat stress risk is elevated. "
+                        "Track water consumption and animal comfort more frequently."
+                    ),
+                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
+                    priority=RecommendationPriority.LOW,
+                )
+
+        if milk_drop > 0.25:
+            self._add_recommendation(
+                recommendations,
+                title="Review feeding strategy for milk production",
+                description=(
+                    "Milk output is dropping significantly compared to prediction. "
+                    "Assess ration quality and adjust feeding to support yield recovery."
+                ),
+                category=RecommendationCategory.FEEDING_STRATEGY,
+                priority=RecommendationPriority.HIGH,
+            )
+        elif milk_drop > 0.12:
+            self._add_recommendation(
+                recommendations,
+                title="Adjust feeding and nutrition",
+                description=(
+                    "Milk yield is lower than expected. "
+                    "Evaluate feed intake and consider a slightly richer diet for the herd."
+                ),
+                category=RecommendationCategory.FEEDING_STRATEGY,
+                priority=RecommendationPriority.MEDIUM,
+            )
+
+        if abnormal:
+            self._add_recommendation(
+                recommendations,
+                title="Schedule veterinary attention",
+                description=(
+                    "Recorded symptoms suggest abnormal health conditions. "
+                    "Arrange a veterinary check-up to diagnose and treat the issue promptly."
+                ),
+                category=RecommendationCategory.VETERINARY_ATTENTION,
+                priority=RecommendationPriority.HIGH,
+            )
+
+        if explainability is not None:
+            top_positive = explainability.top_positive or []
+            top_negative = explainability.top_negative or []
+            top_features = [item.get("feature") for item in top_positive + top_negative if item.get("feature")]
+
+            if any(feature in ("temperature", "humidity", "thi") for feature in top_features):
+                self._add_recommendation(
+                    recommendations,
+                    title="Prioritize heat stress mitigation",
+                    description=(
+                        "SHAP explainability highlights environmental drivers. "
+                        "Focus on cooling, ventilation, and hydration to reduce stress."
+                    ),
+                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
+                    priority=RecommendationPriority.MEDIUM,
+                )
+
+            if any(feature in ("feed_quantity_kg", "milk_produced_liters", "dry_matter_intake") for feature in top_features):
+                self._add_recommendation(
+                    recommendations,
+                    title="Review nutrition and feed quality",
+                    description=(
+                        "Feature importance indicates feeding inputs are influencing performance. "
+                        "Confirm rations are balanced and feeding frequency is consistent."
+                    ),
+                    category=RecommendationCategory.FEEDING_STRATEGY,
+                    priority=RecommendationPriority.MEDIUM,
+                )
+
+        if not recommendations:
+            self._add_recommendation(
+                recommendations,
+                title="Continue monitoring farm conditions",
+                description=(
+                    "No urgent recommendations were identified. "
+                    "Keep observing feed, weather, and milk yield trends for the herd."
+                ),
+                category=RecommendationCategory.GENERAL_FARM_MANAGEMENT,
+                priority=RecommendationPriority.LOW,
+            )
+
+        return recommendations
+
     def generate_recommendations(
         self,
         user_id: str,
@@ -98,204 +242,33 @@ class RecommendationService:
         if health_alert is None and prediction is None and observation is None and weather is None and explainability is None:
             raise ValueError("At least one context ID must be provided")
 
-        cow_id = None
-        farm_id = None
-        if health_alert is not None:
-            cow_id = health_alert.cow_id
-        elif observation is not None:
-            cow_id = observation.cow_id
-        elif prediction is not None:
-            cow_id = prediction.cow_id
-        elif explainability is not None:
-            cow_id = getattr(explainability, "cow_id", None)
+        results = self._generate_recommendations(
+            user_id=user_id,
+            health_alert=health_alert,
+            prediction=prediction,
+            explainability=explainability,
+            observation=observation,
+            weather=weather,
+        )
 
-        if cow_id is not None:
-            cow = self.db.get(Cow, cow_id)
-            farm_id = getattr(cow, "farm_id", None)
-        elif weather is not None:
-            farm_id = getattr(weather, "farm_id", None)
+        return results
 
-        if farm_id is None and observation is not None:
-            cow = self.db.get(Cow, observation.cow_id)
-            farm_id = getattr(cow, "farm_id", None)
-
-        if farm_id is None and explainability is not None:
-            farm_id = getattr(explainability, "farm_id", None)
-
-        if cow_id is not None:
-            cow = self.db.get(Cow, cow_id)
-            farm_id = getattr(cow, "farm_id", None)
-        elif weather is not None:
-            farm_id = getattr(weather, "farm_id", None)
-
-        if farm_id is None and observation is not None:
-            cow = self.db.get(Cow, observation.cow_id)
-            farm_id = getattr(cow, "farm_id", None)
-
-        if health_alert is None and prediction is None and observation is None and weather is None and explainability is None:
-            raise ValueError("Unable to establish recommendation context")
-
-        alert_level = getattr(health_alert, "alert_level", "Healthy")
-        recommendations: list[dict[str, Any]] = []
-
-        thi = None
-        if weather is not None and getattr(weather, "thi", None) is not None:
-            thi = float(weather.thi)
-
-        milk_drop = 0.0
-        if prediction is not None and observation is not None and observation.milk_produced_liters is not None:
-            expected = float(prediction.predicted_milk_yield)
-            observed = float(observation.milk_produced_liters)
-            if expected > 0:
-                milk_drop = max(0.0, (expected - observed) / expected)
-
-        abnormal = False
-        if observation is not None and getattr(observation, "symptoms", None):
-            abnormal = isinstance(observation.symptoms, dict) and len(observation.symptoms) > 0
-
-        # Heat stress recommendations
-        if thi is not None:
-            if thi >= 80.0:
-                self._add_recommendation(
-                    recommendations,
-                    title="Implement immediate cooling and shade",
-                    description=(
-                        "THI is very high and heat stress is a likely driver. "
-                        "Increase water access, provide shade, and consider fans or misting."
-                    ),
-                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
-                    priority=RecommendationPriority.HIGH,
-                )
-            elif thi >= 75.0:
-                self._add_recommendation(
-                    recommendations,
-                    title="Increase water and cooling support",
-                    description=(
-                        "Moderate heat stress conditions are present. "
-                        "Ensure fresh water is available and monitor the herd closely for overheating."
-                    ),
-                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
-                    priority=RecommendationPriority.MEDIUM,
-                )
-            elif thi >= 70.0:
-                self._add_recommendation(
-                    recommendations,
-                    title="Monitor heat stress and hydration",
-                    description=(
-                        "Heat stress risk is elevated. "
-                        "Track water consumption and animal comfort more frequently."
-                    ),
-                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
-                    priority=RecommendationPriority.LOW,
-                )
-
-        # Milk drop recommendations
-        if milk_drop > 0.25:
-            self._add_recommendation(
-                recommendations,
-                title="Review feeding strategy for milk production",
-                description=(
-                    "Milk output is dropping significantly compared to prediction. "
-                    "Assess ration quality and adjust feeding to support yield recovery."
-                ),
-                category=RecommendationCategory.FEEDING_STRATEGY,
-                priority=RecommendationPriority.HIGH,
-            )
-        elif milk_drop > 0.12:
-            self._add_recommendation(
-                recommendations,
-                title="Adjust feeding and nutrition",
-                description=(
-                    "Milk yield is lower than expected. "
-                    "Evaluate feed intake and consider a slightly richer diet for the herd."
-                ),
-                category=RecommendationCategory.FEEDING_STRATEGY,
-                priority=RecommendationPriority.MEDIUM,
-            )
-
-        # Abnormal condition recommendations
-        if abnormal:
-            self._add_recommendation(
-                recommendations,
-                title="Schedule veterinary attention",
-                description=(
-                    "Recorded symptoms suggest abnormal health conditions. "
-                    "Arrange a veterinary check-up to diagnose and treat the issue promptly."
-                ),
-                category=RecommendationCategory.VETERINARY_ATTENTION,
-                priority=RecommendationPriority.HIGH,
-            )
-
-        # SHAP explainability guidance
-        if explainability is not None:
-            top_positive = explainability.top_positive or []
-            top_negative = explainability.top_negative or []
-            top_features = [item.get("feature") for item in top_positive + top_negative if item.get("feature")]
-
-            if any(feature in ("temperature", "humidity", "thi") for feature in top_features):
-                self._add_recommendation(
-                    recommendations,
-                    title="Prioritize heat stress mitigation",
-                    description=(
-                        "SHAP explainability highlights environmental drivers. "
-                        "Focus on cooling, ventilation, and hydration to reduce stress."
-                    ),
-                    category=RecommendationCategory.HEAT_STRESS_MANAGEMENT,
-                    priority=RecommendationPriority.MEDIUM,
-                )
-
-            if any(feature in ("feed_quantity_kg", "milk_produced_liters", "dry_matter_intake") for feature in top_features):
-                self._add_recommendation(
-                    recommendations,
-                    title="Review nutrition and feed quality",
-                    description=(
-                        "Feature importance indicates feeding inputs are influencing performance. "
-                        "Confirm rations are balanced and feeding frequency is consistent."
-                    ),
-                    category=RecommendationCategory.FEEDING_STRATEGY,
-                    priority=RecommendationPriority.MEDIUM,
-                )
-
-        # Add a general observation recommendation when no higher priority actions exist
-        if not recommendations:
-            self._add_recommendation(
-                recommendations,
-                title="Increase observation frequency",
-                description=(
-                    "Current evidence does not require urgent action, but continued monitoring is important. "
-                    "Record observations more frequently to catch issues early."
-                ),
-                category=RecommendationCategory.OBSERVATION_FREQUENCY,
-                priority=RecommendationPriority.LOW,
-            )
-
-        if health_alert is not None and health_alert.alert_level == "Critical":
-            self._add_recommendation(
-                recommendations,
-                title="Escalate to urgent farm management review",
-                description=(
-                    "Critical health alert indicates a serious event. "
-                    "Review management practices and implement corrective actions immediately."
-                ),
-                category=RecommendationCategory.GENERAL_FARM_MANAGEMENT,
-                priority=RecommendationPriority.HIGH,
-            )
-
-        saved_recommendations: list[Recommendation] = []
-        for spec in recommendations:
-            recommendation = Recommendation(
-                cow_id=cow_id,
-                alert_id=getattr(health_alert, "id", None),
-                prediction_id=getattr(prediction, "id", None),
-                observation_id=getattr(observation, "id", None),
-                farm_id=farm_id,
-                title=spec["title"],
-                description=spec["description"],
-                category=spec["category"],
-                priority=spec["priority"],
-                recommendation_type=spec["recommendation_type"],
-                owner_id=user_id,
-            )
-            saved_recommendations.append(self.repo.save(recommendation))
-
-        return saved_recommendations
+    def generate_recommendations_for_context(
+        self,
+        user_id: str,
+        health_alert: Optional[HealthAlert] = None,
+        prediction: Optional[MilkPrediction] = None,
+        explainability: Optional[ExplainabilityResult] = None,
+        observation: Optional[DailyObservation] = None,
+        weather: Optional[WeatherLog] = None,
+        thi_override: Optional[float] = None,
+    ) -> list[dict[str, Any]]:
+        return self._generate_recommendations(
+            user_id=user_id,
+            health_alert=health_alert,
+            prediction=prediction,
+            explainability=explainability,
+            observation=observation,
+            weather=weather,
+            thi_override=thi_override,
+        )

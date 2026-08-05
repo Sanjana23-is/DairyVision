@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from uuid import uuid4
 from typing import Optional
 
 import math
@@ -33,6 +34,7 @@ class HealthAlertService:
         prediction_id: Optional[str] = None,
         weather_log_id: Optional[str] = None,
         feature_vector: Optional[FeatureVector] = None,
+        persist: bool = True,
     ) -> HealthAlert:
         # ownership
         cow = self._validate_cow_ownership(cow_id, user_id)
@@ -144,5 +146,12 @@ class HealthAlertService:
             owner_id=user_id,
         )
 
-        saved = self.repo.save(ha)
-        return saved
+        if persist:
+            saved = self.repo.save(ha)
+            return saved
+
+        if getattr(ha, 'id', None) is None:
+            ha.id = str(uuid4())
+        if getattr(ha, 'created_at', None) is None:
+            ha.created_at = datetime.now(timezone.utc)
+        return ha

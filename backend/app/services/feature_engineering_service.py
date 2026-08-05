@@ -153,6 +153,7 @@ class FeatureEngineeringService:
                 feed_thi_interaction = feed * thi
 
         features = FeatureVector(
+            observation_id=observation_id,
             age=age,
             weight=weight,
             health_status=int(health_status),

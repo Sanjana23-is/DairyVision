@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ExplainabilityFeature(BaseModel):
@@ -24,3 +24,5 @@ class ExplainabilityResponse(BaseModel):
     features: List[ExplainabilityFeature]
     top_positive: List[ExplainabilityFeature]
     top_negative: List[ExplainabilityFeature]
+
+    model_config = ConfigDict(from_attributes=True)

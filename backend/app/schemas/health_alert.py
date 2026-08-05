@@ -3,7 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from app.schemas.feature import FeatureVector
 
 
 class HealthAlertCreate(BaseModel):
@@ -11,7 +13,7 @@ class HealthAlertCreate(BaseModel):
     observation_id: Optional[str] = None
     prediction_id: Optional[str] = None
     weather_log_id: Optional[str] = None
-    feature_vector: Optional[dict] = None
+    feature_vector: Optional[FeatureVector] = None
 
 
 class HealthAlertResponse(BaseModel):
@@ -26,3 +28,5 @@ class HealthAlertResponse(BaseModel):
     confidence: float
     owner_id: str
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

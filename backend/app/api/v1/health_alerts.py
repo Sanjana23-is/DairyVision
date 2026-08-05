@@ -28,7 +28,7 @@ def create_health_alert(
             observation_id=payload.observation_id,
             prediction_id=payload.prediction_id,
             weather_log_id=payload.weather_log_id,
-            feature_vector=None if payload.feature_vector is None else payload.feature_vector,
+            feature_vector=payload.feature_vector,
         )
 
         return {
