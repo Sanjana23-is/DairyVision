@@ -103,6 +103,7 @@ class HealthAlertBase(BaseModel):
     alert_level: str
     alert_type: str
     description: Optional[str] = None
+    confidence: float = 0.0
     resolved: Optional[bool] = False
 
 
@@ -155,8 +156,13 @@ class MilkPredictionResponse(MilkPredictionBase):
 class RecommendationBase(BaseModel):
     cow_id: Optional[str] = None
     alert_id: Optional[str] = None
+    prediction_id: Optional[str] = None
+    observation_id: Optional[str] = None
+    farm_id: Optional[str] = None
     title: str
-    content: Optional[str] = None
+    description: Optional[str] = None
+    category: str
+    priority: str
     recommendation_type: str
 
 
@@ -167,8 +173,13 @@ class RecommendationCreate(RecommendationBase):
 class RecommendationUpdate(BaseModel):
     cow_id: Optional[str] = None
     alert_id: Optional[str] = None
+    prediction_id: Optional[str] = None
+    observation_id: Optional[str] = None
+    farm_id: Optional[str] = None
     title: Optional[str] = None
-    content: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: Optional[str] = None
     recommendation_type: Optional[str] = None
 
 

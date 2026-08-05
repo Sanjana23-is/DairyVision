@@ -7,6 +7,8 @@ from .api.v1.weather import router as weather_router
 from .api.v1.feature_engineering import router as feature_engineering_router
 from .api.v1.predictions import router as predictions_router
 from .api.v1.explainability import router as explainability_router
+from .api.v1.health_alerts import router as health_alerts_router
+from .api.v1.recommendations import router as recommendations_router
 from .core.config import get_settings
 from .core.logging import configure_logging
 
@@ -21,6 +23,8 @@ app.include_router(weather_router, prefix="/api/v1")
 app.include_router(feature_engineering_router, prefix="/api/v1")
 app.include_router(predictions_router, prefix="/api/v1")
 app.include_router(explainability_router, prefix="/api/v1")
+app.include_router(health_alerts_router, prefix="/api/v1")
+app.include_router(recommendations_router, prefix="/api/v1")
 
 
 @app.get("/")
