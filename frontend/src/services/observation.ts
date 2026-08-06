@@ -3,6 +3,7 @@ import { Cow } from "./cow";
 
 export type Observation = {
   id: string;
+  farm_id: string;
   cow_id: string;
   observation_date: string;
   milk_produced_liters?: number;
@@ -16,6 +17,7 @@ export type Observation = {
   observed_by?: string | null;
   owner_id: string;
   created_at: string;
+  updated_at?: string;
   cow?: Cow;
 };
 

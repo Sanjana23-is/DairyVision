@@ -1,44 +1,122 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
 import StatCard from "@/components/cards/StatCard";
-import PlaceholderChart from "@/components/charts/PlaceholderChart";
-import { fetchDashboardSummary } from "@/services/dashboard";
+import SimpleLineChart from "@/components/charts/SimpleLineChart";
+import {
+  fetchDashboardSummary,
+  fetchDashboardTrends,
+} from "@/services/dashboard";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, Droplet, CloudSun, Package } from "lucide-react";
+import {
+  Activity,
+  Droplet,
+  CloudSun,
+  Package,
+  Sparkles,
+  BarChart3,
+  Thermometer,
+  ShieldCheck,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+
+function formatTrendLabel(dateString: string) {
+  try {
+    return new Date(dateString).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+}
 
 export function DashboardPage() {
   const { currentFarmId } = useAuth();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
 
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+    error: summaryError,
+  } = useQuery({
     queryKey: ["dashboardSummary", farmId],
     queryFn: () => fetchDashboardSummary(farmId as string),
     staleTime: 1000 * 30,
     enabled: !!farmId,
   });
 
-  const totalCows = data?.totalCows ?? data?.total_cows ?? "-";
-  const todaysPrediction =
-    data?.todaysPrediction ?? data?.todays_prediction ?? "-";
-  const activeAlerts = data?.activeAlerts ?? data?.active_alerts ?? "-";
-  const currentWeather = data?.currentWeather ??
-    data?.current_weather ?? { temp: "-" };
+  const {
+    data: trends,
+    isLoading: isTrendsLoading,
+    isError: isTrendsError,
+    error: trendsError,
+  } = useQuery({
+    queryKey: ["dashboardTrends", farmId],
+    queryFn: () => fetchDashboardTrends(farmId as string),
+    staleTime: 1000 * 30,
+    enabled: !!farmId,
+  });
 
-  const recentPredictions =
-    data?.recentPredictions ?? data?.recent_predictions ?? [];
-  const recentAlerts = data?.recentAlerts ?? data?.recent_alerts ?? [];
-  const recommendations = data?.recommendations ?? [];
+  const totalCows = summary?.total_cow_count ?? "-";
+  const todaysPrediction = summary?.average_predicted_milk_yield ?? "-";
+  const activeAlerts = summary?.active_health_alerts?.length ?? 0;
+  const currentWeather = summary?.todays_weather ?? { temperature: "-" };
+  const totalMilk = summary?.total_milk_produced ?? "-";
+  const avgMilkPerCow = summary?.average_milk_per_cow ?? "-";
+  const activeRecommendations = summary?.active_recommendations ?? "-";
+  const predictionAccuracy = summary?.prediction_accuracy ?? null;
+
+  const recentObservations = summary?.recent_observations ?? [];
+  const recentRecommendations = summary?.recent_recommendations ?? [];
+
+  const milkYieldData =
+    trends?.milk_yield_trends?.map((item) => ({
+      label: formatTrendLabel(item.date),
+      value: item.average_predicted_milk_yield,
+    })) ?? [];
+
+  const weatherData =
+    trends?.weather_trends?.map((item) => ({
+      label: formatTrendLabel(item.date),
+      value: item.average_temperature,
+    })) ?? [];
+
+  const observationData =
+    trends?.observation_trends?.map((item) => ({
+      label: formatTrendLabel(item.date),
+      value: item.total_milk_produced,
+    })) ?? [];
+
+  const recommendationCategories =
+    trends?.recommendation_category_distribution ?? [];
+  const alertDistribution = trends?.health_alert_distribution ?? [];
+  const cowStatusDistribution = trends?.cow_health_status_distribution ?? [];
 
   if (!farmId) {
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-7xl rounded-2xl border border-amber-100 bg-amber-50 p-6 shadow-sm text-amber-900">
-          No farm is selected. Please choose a farm from the Farms page or
-          contact your administrator.
+          <p className="mb-3">
+            No farm is selected. Please choose a farm from the Farms page or
+            contact your administrator.
+          </p>
+          <div>
+            <Link
+              to="/farms"
+              className="rounded bg-sky-600 px-4 py-2 text-white"
+            >
+              Create or Select Farm
+            </Link>
+          </div>
         </div>
       </DashboardLayout>
     );
   }
+
+  const isLoading = isSummaryLoading || isTrendsLoading;
+  const isError = isSummaryError || isTrendsError;
+  const error = summaryError ?? trendsError;
 
   return (
     <DashboardLayout>
@@ -64,7 +142,7 @@ export function DashboardPage() {
                 title="Today's Milk Prediction"
                 value={
                   typeof todaysPrediction === "number"
-                    ? `${todaysPrediction} L`
+                    ? `${todaysPrediction.toFixed(1)} L`
                     : todaysPrediction
                 }
                 icon={<Package />}
@@ -76,93 +154,194 @@ export function DashboardPage() {
               />
               <StatCard
                 title="Current Weather"
-                value={`${currentWeather.temp} °C`}
+                value={
+                  typeof currentWeather.temperature === "number"
+                    ? `${currentWeather.temperature} °C`
+                    : "-"
+                }
                 icon={<CloudSun />}
               />
             </div>
 
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
+              <StatCard
+                title="Total Milk Produced"
+                value={
+                  typeof totalMilk === "number"
+                    ? `${totalMilk.toFixed(1)} L`
+                    : totalMilk
+                }
+                icon={<Sparkles />}
+              />
+              <StatCard
+                title="Avg Milk / Cow"
+                value={
+                  typeof avgMilkPerCow === "number"
+                    ? `${avgMilkPerCow.toFixed(1)} L`
+                    : avgMilkPerCow
+                }
+                icon={<BarChart3 />}
+              />
+              <StatCard
+                title="Active Recommendations"
+                value={activeRecommendations}
+                icon={<ShieldCheck />}
+              />
+              <StatCard
+                title="Prediction Accuracy"
+                value={
+                  predictionAccuracy !== null
+                    ? `${predictionAccuracy.toFixed(1)}%`
+                    : "N/A"
+                }
+                icon={<Thermometer />}
+              />
+            </div>
+
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <PlaceholderChart title="Milk Yield Trend" />
+              <SimpleLineChart
+                title="Milk Yield Trend"
+                valueLabel="Avg predicted milk yield"
+                data={milkYieldData}
+                color="#0f766e"
+              />
+              <SimpleLineChart
+                title="Weather Trend"
+                valueLabel="Avg temperature"
+                data={weatherData}
+                color="#1d4ed8"
+              />
+              <SimpleLineChart
+                title="Milk Production"
+                valueLabel="Total milk produced"
+                data={observationData}
+                color="#f59e0b"
+              />
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Recommendation Categories
+                </div>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  {recommendationCategories.length === 0 ? (
+                    <li>No categories available.</li>
+                  ) : (
+                    recommendationCategories.map((item) => (
+                      <li
+                        key={item.category}
+                        className="flex items-center justify-between"
+                      >
+                        <div>{item.category}</div>
+                        <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {item.count}
+                        </div>
+                      </li>
+                    ))
+                  )}
+                </ul>
               </div>
 
-              <div className="space-y-6">
-                <PlaceholderChart title="Weather Summary" />
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    Recent Health Alerts
-                  </div>
-                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                    {recentAlerts.map((a: any) => (
-                      <li
-                        key={a.id}
-                        className="flex items-start justify-between"
-                      >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {a.cow}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {a.message}
-                          </div>
-                        </div>
-                        <div className="text-xs text-rose-600">{a.level}</div>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Alert Distribution
                 </div>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  {alertDistribution.length === 0 ? (
+                    <li>No alerts available.</li>
+                  ) : (
+                    alertDistribution.map((item) => (
+                      <li
+                        key={item.category}
+                        className="flex items-center justify-between"
+                      >
+                        <div>{item.category}</div>
+                        <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {item.count}
+                        </div>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Cow Status
+                </div>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  {cowStatusDistribution.length === 0 ? (
+                    <li>No cow statuses available.</li>
+                  ) : (
+                    cowStatusDistribution.map((item) => (
+                      <li
+                        key={item.category}
+                        className="flex items-center justify-between"
+                      >
+                        <div>{item.category}</div>
+                        <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {item.count}
+                        </div>
+                      </li>
+                    ))
+                  )}
+                </ul>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    Recent Predictions
-                  </div>
-                  <ul className="mt-3 divide-y divide-slate-100 text-sm text-slate-600">
-                    {recentPredictions.map((p: any) => (
-                      <li
-                        key={p.id}
-                        className="flex items-center justify-between py-3"
+              <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Recent Observations
+                </div>
+                <div className="mt-3 space-y-3 text-sm text-slate-600">
+                  {recentObservations.length === 0 ? (
+                    <div>No recent observations.</div>
+                  ) : (
+                    recentObservations.map((observation) => (
+                      <div
+                        key={observation.id}
+                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
                       >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {p.cow}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            Predicted: {p.predicted} L
-                          </div>
+                        <div className="font-medium text-slate-800">
+                          {observation.cow_name ?? observation.cow_id}
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {new Date(
+                            observation.observation_date,
+                          ).toLocaleDateString()}{" "}
+                          · {observation.milk_produced_liters ?? "-"} L
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
-              <div>
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    AI Recommendations
-                  </div>
-                  <ul className="mt-3 space-y-3 text-sm text-slate-600">
-                    {recommendations.map((r: any) => (
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Recent Recommendations
+                </div>
+                <ul className="mt-3 space-y-3 text-sm text-slate-600">
+                  {recentRecommendations.length === 0 ? (
+                    <li>No recent recommendations.</li>
+                  ) : (
+                    recentRecommendations.map((recommendation) => (
                       <li
-                        key={r.id}
-                        className="flex items-start justify-between"
+                        key={recommendation.id}
+                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
                       >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {r.title}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            Priority: {r.priority}
-                          </div>
+                        <div className="font-medium text-slate-800">
+                          {recommendation.title}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          Priority: {recommendation.priority}
                         </div>
                       </li>
-                    ))}
-                  </ul>
-                </div>
+                    ))
+                  )}
+                </ul>
               </div>
             </div>
           </>

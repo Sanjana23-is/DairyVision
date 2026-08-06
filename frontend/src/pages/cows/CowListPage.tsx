@@ -174,8 +174,8 @@ export default function CowListPage() {
                           c.status === "active"
                             ? "bg-emerald-100 text-emerald-700"
                             : c.status === "inactive"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-slate-100 text-slate-600"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {c.status ?? "unknown"}

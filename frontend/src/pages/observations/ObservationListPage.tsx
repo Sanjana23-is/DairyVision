@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -11,7 +11,13 @@ import {
   deleteObservation,
 } from "@/services/observation";
 import { fetchCows, Cow } from "@/services/cow";
+import DeleteObservationDialog from "@/components/observations/DeleteObservationDialog";
 import ObservationForm from "@/components/observations/ObservationForm";
+
+type ToastMessage = {
+  type: "success" | "error";
+  message: string;
+};
 
 export default function ObservationListPage() {
   const { currentFarmId } = useAuth();
@@ -20,6 +26,8 @@ export default function ObservationListPage() {
   const [selectedCow, setSelectedCow] = useState<string>("");
   const [editing, setEditing] = useState<Observation | null>(null);
   const [adding, setAdding] = useState(false);
+  const [deleting, setDeleting] = useState<Observation | null>(null);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -35,9 +43,7 @@ export default function ObservationListPage() {
     refetchInterval: 15000,
   });
 
-  const {
-    data: cows = [],
-  } = useQuery<Cow[], Error>({
+  const { data: cows = [] } = useQuery<Cow[], Error>({
     queryKey: ["cows", farmId],
     queryFn: () => fetchCows(farmId as string),
     enabled: !!farmId,
@@ -62,14 +68,41 @@ export default function ObservationListPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["observations", farmId] });
       setAdding(false);
+      setToast({
+        type: "success",
+        message: "Observation created successfully.",
+      });
+    },
+    onError: (err) => {
+      setToast({
+        type: "error",
+        message: err.message || "Unable to create observation.",
+      });
     },
   });
 
-  const updateMut = useMutation<Observation, Error, { id: string; data: Partial<Observation> }>({
-    mutationFn: ({ id, data }) => updateObservation(id, data),
+  const updateMut = useMutation<
+    Observation,
+    Error,
+    { id: string; data: Partial<Observation> }
+  >({
+    mutationFn: ({ id, data }) => {
+      const payload = farmId ? { ...data, farm_id: farmId } : data;
+      return updateObservation(id, payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["observations", farmId] });
       setEditing(null);
+      setToast({
+        type: "success",
+        message: "Observation updated successfully.",
+      });
+    },
+    onError: (err) => {
+      setToast({
+        type: "error",
+        message: err.message || "Unable to update observation.",
+      });
     },
   });
 
@@ -77,6 +110,17 @@ export default function ObservationListPage() {
     mutationFn: (id) => deleteObservation(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["observations", farmId] });
+      setDeleting(null);
+      setToast({
+        type: "success",
+        message: "Observation deleted successfully.",
+      });
+    },
+    onError: (err) => {
+      setToast({
+        type: "error",
+        message: err.message || "Unable to delete observation.",
+      });
     },
   });
 
@@ -86,11 +130,27 @@ export default function ObservationListPage() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [cows]);
 
+  const clearToast = () => setToast(null);
+
   if (!farmId) {
+    // If no farm is selected, try to fetch farms to determine if we should prompt creation
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-7xl rounded-2xl border border-amber-100 bg-amber-50 p-6 shadow-sm text-amber-900">
-          No farm selected. Please select a farm before viewing observations.
+          <p className="mb-3">
+            No farm selected. Please select a farm before viewing observations.
+          </p>
+          <p className="mb-3">
+            If you don't have a farm yet, create your first farm.
+          </p>
+          <div>
+            <Link
+              to="/farms"
+              className="rounded bg-sky-600 px-4 py-2 text-white"
+            >
+              Create Your First Farm
+            </Link>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -102,7 +162,9 @@ export default function ObservationListPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold">Daily Observations</h2>
-            <p className="text-sm text-slate-500">Track cow performance and health observations over time.</p>
+            <p className="text-sm text-slate-500">
+              Track cow performance and health observations over time.
+            </p>
           </div>
           <button
             onClick={() => setAdding(true)}
@@ -134,6 +196,28 @@ export default function ObservationListPage() {
         </div>
 
         <div className="mt-6 overflow-x-auto">
+          {toast && (
+            <div
+              className="mb-4 rounded-2xl border px-4 py-3 text-sm shadow-sm"
+              style={{
+                backgroundColor:
+                  toast.type === "success" ? "#ecfdf5" : "#fee2e2",
+                borderColor: toast.type === "success" ? "#a7f3d0" : "#fecaca",
+                color: toast.type === "success" ? "#14532d" : "#991b1b",
+              }}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span>{toast.message}</span>
+                <button
+                  type="button"
+                  onClick={clearToast}
+                  className="text-sm font-semibold underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
           {isLoading ? (
             <div className="p-6">Loading observations...</div>
           ) : isError ? (
@@ -143,8 +227,13 @@ export default function ObservationListPage() {
           ) : filteredObservations.length === 0 ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-700">
               <p className="mb-3 text-lg font-medium">No observations found</p>
-              <p className="mb-4 text-sm text-slate-500">Create an observation to start tracking daily cow data.</p>
-              <button onClick={() => setAdding(true)} className="rounded bg-sky-600 px-4 py-2 text-white">
+              <p className="mb-4 text-sm text-slate-500">
+                Create an observation to start tracking daily cow data.
+              </p>
+              <button
+                onClick={() => setAdding(true)}
+                className="rounded bg-sky-600 px-4 py-2 text-white"
+              >
                 Add Observation
               </button>
             </div>
@@ -165,9 +254,13 @@ export default function ObservationListPage() {
                   <tr key={obs.id} className="border-t hover:bg-slate-50">
                     <td className="px-4 py-4">{obs.observation_date}</td>
                     <td className="px-4 py-4">{obs.cow?.name ?? obs.cow_id}</td>
-                    <td className="px-4 py-4">{obs.milk_produced_liters ?? "—"}</td>
+                    <td className="px-4 py-4">
+                      {obs.milk_produced_liters ?? "—"}
+                    </td>
                     <td className="px-4 py-4">{obs.feed_quantity_kg ?? "—"}</td>
-                    <td className="px-4 py-4">{obs.notes ? obs.notes.slice(0, 40) : "—"}</td>
+                    <td className="px-4 py-4">
+                      {obs.notes ? obs.notes.slice(0, 40) : "—"}
+                    </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-2">
                         <Link
@@ -183,8 +276,11 @@ export default function ObservationListPage() {
                           Edit
                         </button>
                         <button
-                          onClick={() => deleteMut.mutate(obs.id)}
+                          onClick={() => setDeleting(obs)}
                           className="rounded border border-rose-200 bg-rose-50 px-3 py-1 text-rose-700"
+                          disabled={
+                            deleteMut.isPending && deleting?.id === obs.id
+                          }
                         >
                           Delete
                         </button>
@@ -202,7 +298,9 @@ export default function ObservationListPage() {
             open={adding}
             cowOptions={cowOptions}
             onClose={() => setAdding(false)}
-            onSave={(payload) => createMut.mutate(payload)}
+            onSave={(payload) =>
+              createMut.mutateAsync({ ...payload, farm_id: farmId as string })
+            }
           />
         )}
 
@@ -212,7 +310,19 @@ export default function ObservationListPage() {
             cowOptions={cowOptions}
             observation={editing}
             onClose={() => setEditing(null)}
-            onSave={(payload) => updateMut.mutate({ id: editing.id, data: payload })}
+            onSave={(payload) =>
+              updateMut.mutateAsync({ id: editing.id, data: payload })
+            }
+          />
+        )}
+
+        {deleting && (
+          <DeleteObservationDialog
+            observation={deleting}
+            open={Boolean(deleting)}
+            onClose={() => setDeleting(null)}
+            onDelete={(id) => deleteMut.mutate(id)}
+            loading={deleteMut.isPending}
           />
         )}
       </div>

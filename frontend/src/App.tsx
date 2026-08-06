@@ -9,6 +9,12 @@ import CowListPage from "@/pages/cows/CowListPage";
 import CowDetailsPage from "@/pages/cows/CowDetailsPage";
 import ObservationListPage from "@/pages/observations/ObservationListPage";
 import ObservationDetailsPage from "@/pages/observations/ObservationDetailsPage";
+import PredictionPage from "@/pages/predictions/PredictionPage";
+import PredictionHistoryPage from "@/pages/predictions/PredictionHistoryPage";
+import ExplainabilityPage from "@/pages/explainability/ExplainabilityPage";
+import FarmListPage from "@/pages/farms/FarmListPage";
+import HealthAlertsPage from "@/pages/HealthAlertsPage";
+import RecommendationsPage from "@/pages/RecommendationsPage";
 
 // Note: dashboard routes will use the DashboardLayout inside pages
 
@@ -21,10 +27,22 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/farms" element={<FarmListPage />} />
           <Route path="/cows" element={<CowListPage />} />
           <Route path="/cows/:id" element={<CowDetailsPage />} />
           <Route path="/observations" element={<ObservationListPage />} />
-          <Route path="/observations/:id" element={<ObservationDetailsPage />} />
+          <Route
+            path="/observations/:id"
+            element={<ObservationDetailsPage />}
+          />
+          <Route path="/predictions" element={<PredictionPage />} />
+          <Route
+            path="/predictions/history"
+            element={<PredictionHistoryPage />}
+          />
+          <Route path="/health-alerts" element={<HealthAlertsPage />} />
+          <Route path="/recommendations" element={<RecommendationsPage />} />
+          <Route path="/explainability" element={<ExplainabilityPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

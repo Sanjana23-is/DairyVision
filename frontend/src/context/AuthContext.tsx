@@ -14,6 +14,7 @@ interface AuthContextValue extends AuthState {
   register: (payload: RegisterPayload) => Promise<void>;
   forgotPassword: (payload: ForgotPasswordPayload) => Promise<void>;
   logout: () => void;
+  setCurrentFarm: (farmId: string | null, farmName: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -34,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedFarmId = localStorage.getItem("current_farm_id");
     const storedFarmName = localStorage.getItem("current_farm_name");
 
+    // (debug logs removed)
+
     if (storedToken && storedUser) {
       setAuthState({
         user: JSON.parse(storedUser) as AuthUser,
@@ -43,6 +46,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentFarmId: storedFarmId,
         currentFarmName: storedFarmName,
       });
+      // If no farm is stored, try to fetch farms and auto-select the first
+      if (!storedFarmId) {
+        (async () => {
+          try {
+            const farms = await fetchFarms();
+            const selected = (farms && farms[0]) ?? null;
+            if (selected) {
+              setCurrentFarm(selected.id, selected.name ?? null);
+            }
+          } catch (e) {
+            // ignore errors here; leave farm unselected
+          }
+        })();
+      }
       return;
     }
 
@@ -52,6 +69,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentFarmId: storedFarmId,
       currentFarmName: storedFarmName,
     }));
+  }, []);
+
+  // If authenticated but no farm selected, try fetching farms and auto-select first
+  useEffect(() => {
+    if (!authState.isAuthenticated) return;
+    if (authState.currentFarmId) return;
+
+    (async () => {
+      try {
+        const farms = await fetchFarms();
+        const selected = (farms && farms[0]) ?? null;
+        if (selected) {
+          setCurrentFarm(selected.id, selected.name ?? null);
+        }
+      } catch (e) {
+        // ignore errors
+      }
+    })();
+  }, [authState.isAuthenticated, authState.currentFarmId]);
+
+  // Keep auth state in sync across tabs and window reloads
+  useEffect(() => {
+    function handleStorage(e: StorageEvent) {
+      if (
+        e.key === "dairyvision_access_token" ||
+        e.key === "dairyvision_user"
+      ) {
+        const storedToken = localStorage.getItem("dairyvision_access_token");
+        const storedUser = localStorage.getItem("dairyvision_user");
+        if (storedToken && storedUser) {
+          setAuthState((prev) => ({
+            ...prev,
+            accessToken: storedToken,
+            user: JSON.parse(storedUser),
+            isAuthenticated: true,
+          }));
+        } else {
+          setAuthState((prev) => ({
+            ...prev,
+            accessToken: null,
+            user: null,
+            isAuthenticated: false,
+          }));
+        }
+      }
+    }
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   const setCurrentFarm = (farmId: string | null, farmName: string | null) => {
@@ -136,7 +202,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ...authState, login, register, forgotPassword, logout }),
+    () => ({
+      ...authState,
+      login,
+      register,
+      forgotPassword,
+      logout,
+      setCurrentFarm,
+    }),
     [authState],
   );
 

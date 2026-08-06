@@ -49,25 +49,35 @@ export default function ObservationDetailsPage() {
           <div className="space-y-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <div>
               <h2 className="text-xl font-semibold">Observation Details</h2>
-              <p className="text-sm text-slate-500">Recorded on {observation.observation_date}</p>
+              <p className="text-sm text-slate-500">
+                Recorded on {observation.observation_date}
+              </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-sm text-slate-500">Cow</div>
-                <div className="font-medium text-slate-900">{observation.cow?.name ?? observation.cow_id}</div>
+                <div className="font-medium text-slate-900">
+                  {observation.cow?.name ?? observation.cow_id}
+                </div>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-sm text-slate-500">Total Milk</div>
-                <div className="font-medium text-slate-900">{observation.milk_produced_liters ?? "—"} L</div>
+                <div className="font-medium text-slate-900">
+                  {observation.milk_produced_liters ?? "—"} L
+                </div>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-sm text-slate-500">Total Feed</div>
-                <div className="font-medium text-slate-900">{observation.feed_quantity_kg ?? "—"} kg</div>
+                <div className="font-medium text-slate-900">
+                  {observation.feed_quantity_kg ?? "—"} kg
+                </div>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-sm text-slate-500">Recorded by</div>
-                <div className="font-medium text-slate-900">{observation.observed_by ?? "Unknown"}</div>
+                <div className="font-medium text-slate-900">
+                  {observation.observed_by ?? "Unknown"}
+                </div>
               </div>
             </div>
 
@@ -75,7 +85,9 @@ export default function ObservationDetailsPage() {
               <div>
                 <div className="text-sm text-slate-500">Condition</div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
-                  {observation.symptoms?.condition ? observation.symptoms.condition.replace(/_/g, " ") : "Not specified"}
+                  {observation.symptoms?.condition
+                    ? observation.symptoms.condition.replace(/_/g, " ")
+                    : "Not specified"}
                 </div>
               </div>
 

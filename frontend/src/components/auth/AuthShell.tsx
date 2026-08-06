@@ -6,7 +6,7 @@ interface AuthShellProps {
   children: ReactNode;
 }
 
-export function AuthShell({ children }: AuthShellProps) {
+export function AuthShell({ title, subtitle, children }: AuthShellProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
       <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
@@ -30,7 +30,17 @@ export function AuthShell({ children }: AuthShellProps) {
           </div>
 
           <div className="flex items-center justify-center p-6 sm:p-10">
-            <div className="w-full max-w-md">{children}</div>
+            <div className="w-full max-w-md">
+              <div className="mb-6 space-y-2">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
+                  {title}
+                </p>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  {subtitle}
+                </h2>
+              </div>
+              {children}
+            </div>
           </div>
         </div>
       </div>
