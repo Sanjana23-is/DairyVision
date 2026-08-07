@@ -114,21 +114,19 @@ export function DashboardPage() {
     );
   }
 
-  const isLoading = isSummaryLoading || isTrendsLoading;
-  const isError = isSummaryError || isTrendsError;
-  const error = summaryError ?? trendsError;
-
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl">
-        {isLoading ? (
+        {/* Summary section: stat cards + recent observations/recommendations.
+            Rendered independently from trends so a trends failure never hides this data. */}
+        {isSummaryLoading ? (
           <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            Loading dashboard...
+            Loading summary...
           </div>
-        ) : isError ? (
+        ) : isSummaryError ? (
           <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6 text-rose-700 shadow-sm">
-            Error loading dashboard:{" "}
-            {(error as any)?.message ?? "Unknown error"}
+            Error loading dashboard summary:{" "}
+            {(summaryError as any)?.message ?? "Unknown error"}
           </div>
         ) : (
           <>
@@ -198,6 +196,76 @@ export function DashboardPage() {
               />
             </div>
 
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Recent Observations
+                </div>
+                <div className="mt-3 space-y-3 text-sm text-slate-600">
+                  {recentObservations.length === 0 ? (
+                    <div>No recent observations.</div>
+                  ) : (
+                    recentObservations.map((observation) => (
+                      <div
+                        key={observation.id}
+                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
+                      >
+                        <div className="font-medium text-slate-800">
+                          {observation.cow_name ?? observation.cow_id}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {new Date(
+                            observation.observation_date,
+                          ).toLocaleDateString()}{" "}
+                          · {observation.milk_produced_liters ?? "-"} L
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="text-sm font-medium text-slate-700">
+                  Recent Recommendations
+                </div>
+                <ul className="mt-3 space-y-3 text-sm text-slate-600">
+                  {recentRecommendations.length === 0 ? (
+                    <li>No recent recommendations.</li>
+                  ) : (
+                    recentRecommendations.map((recommendation) => (
+                      <li
+                        key={recommendation.id}
+                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
+                      >
+                        <div className="font-medium text-slate-800">
+                          {recommendation.title}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          Priority: {recommendation.priority}
+                        </div>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Trends section: charts + distributions.
+            Rendered independently from summary so a summary failure never hides this data. */}
+        {isTrendsLoading ? (
+          <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+            Loading trends...
+          </div>
+        ) : isTrendsError ? (
+          <div className="mt-6 rounded-2xl border border-rose-100 bg-rose-50 p-6 text-rose-700 shadow-sm">
+            Error loading dashboard trends:{" "}
+            {(trendsError as any)?.message ?? "Unknown error"}
+          </div>
+        ) : (
+          <>
             <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
               <SimpleLineChart
                 title="Milk Yield Trend"
@@ -282,61 +350,6 @@ export function DashboardPage() {
                         <div>{item.category}</div>
                         <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                           {item.count}
-                        </div>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div className="text-sm font-medium text-slate-700">
-                  Recent Observations
-                </div>
-                <div className="mt-3 space-y-3 text-sm text-slate-600">
-                  {recentObservations.length === 0 ? (
-                    <div>No recent observations.</div>
-                  ) : (
-                    recentObservations.map((observation) => (
-                      <div
-                        key={observation.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
-                      >
-                        <div className="font-medium text-slate-800">
-                          {observation.cow_name ?? observation.cow_id}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          {new Date(
-                            observation.observation_date,
-                          ).toLocaleDateString()}{" "}
-                          · {observation.milk_produced_liters ?? "-"} L
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div className="text-sm font-medium text-slate-700">
-                  Recent Recommendations
-                </div>
-                <ul className="mt-3 space-y-3 text-sm text-slate-600">
-                  {recentRecommendations.length === 0 ? (
-                    <li>No recent recommendations.</li>
-                  ) : (
-                    recentRecommendations.map((recommendation) => (
-                      <li
-                        key={recommendation.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50 p-3"
-                      >
-                        <div className="font-medium text-slate-800">
-                          {recommendation.title}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          Priority: {recommendation.priority}
                         </div>
                       </li>
                     ))

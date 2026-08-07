@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 export type SimpleLineChartPoint = {
   label: string;
   value: number | null;
@@ -14,6 +16,7 @@ export default function SimpleLineChart({
   valueLabel: string;
   color?: string;
 }) {
+  const gradientId = `line-gradient-${useId()}`;
   const values = data.map((point) => point.value ?? 0);
   const maxValue = Math.max(...values, 1);
   const minValue = Math.min(...values, 0);
@@ -53,12 +56,12 @@ export default function SimpleLineChart({
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={color} stopOpacity="0.35" />
                 <stop offset="100%" stopColor={color} stopOpacity="0.05" />
               </linearGradient>
             </defs>
-            <path d={filledPath} fill="url(#lineGradient)" />
+            <path d={filledPath} fill={`url(#${gradientId})`} />
             <path
               d={linePath}
               fill="none"
