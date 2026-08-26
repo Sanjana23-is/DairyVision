@@ -1,0 +1,64 @@
+{
+  "systemSetup": [
+    {
+      "name": "Install pip",
+      "command": "curl -sS https://bootstrap.pypa.io/get-pip.py | python3 - --break-system-packages"
+    }
+  ],
+  "templateName": "custom",
+  "projectDependencies": [
+    {
+      "name": "Install Backend Dependencies",
+      "command": "cd backend && pip install -r requirements.txt --break-system-packages || true"
+    },
+    {
+      "name": "Install Frontend Dependencies",
+      "command": "cd frontend && npm install"
+    }
+  ],
+  "codeChecks": [
+    {
+      "name": "TypeScript Type Check",
+      "command": "cd frontend && npx tsc --noEmit"
+    }
+  ],
+  "buildSteps": [
+    {
+      "name": "Build Frontend",
+      "command": "cd frontend && npm run build"
+    }
+  ],
+  "runStep": [
+    {
+      "name": "Run Backend Server",
+      "command": "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000",
+      "port": "8000"
+    },
+    {
+      "name": "Run Frontend Dev Server",
+      "command": "cd frontend && npm run dev -- --host 0.0.0.0 --port 3000",
+      "port": "3000"
+    }
+  ],
+  "deploySteps": [],
+  "cleanupFiles": [
+    "backend/__pycache__",
+    "backend/app/__pycache__",
+    "frontend/dist",
+    "frontend/node_modules/.cache",
+    "*.pyc",
+    "__pycache__",
+    ".pytest_cache"
+  ],
+  "packageManager": "npm",
+  "envPaths": [
+    {
+      "name": "backend",
+      "path": "backend/.env"
+    },
+    {
+      "name": "frontend",
+      "path": "frontend/.env"
+    }
+  ]
+}
