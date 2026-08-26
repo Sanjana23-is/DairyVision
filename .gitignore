@@ -32,3 +32,5 @@ backend/.env
 /.env
 
 node_modules/
+.ideavo/project
+*.log
