@@ -29,7 +29,9 @@ if TYPE_CHECKING:
     from .farm import Farm
     from .health_alert import HealthAlert
     from .milk_prediction import MilkPrediction
+    from .sire_master import SireMaster
     from .user import User
+
 
 
 class Cow(Base):
@@ -90,8 +92,22 @@ class Cow(Base):
         doc="User who owns this cow record.",
     )
 
+    sire_id: Mapped[Optional[str]] = mapped_column(
+        GUID(),
+        ForeignKey("sire_master.id", ondelete="SET NULL"),
+        nullable=True,
+        doc="Canonical sire for this cow.",
+    )
+    dam_name: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Name or tag of the dam (mother).",
+    )
+
     breed: Mapped[Optional["BreedMaster"]] = relationship(back_populates="cows", doc="Canonical breed assigned to this cow.")
+    sire: Mapped[Optional["SireMaster"]] = relationship(back_populates="offspring_cows", doc="Canonical sire for this cow.")
     creator: Mapped[Optional["User"]] = relationship(foreign_keys=[created_by], doc="User who created this cow record.")
+
     owner: Mapped["User"] = relationship(back_populates="owned_cows", foreign_keys=[owner_id], doc="User who owns this cow record.")
     farm: Mapped["Farm"] = relationship(back_populates="cows", doc="Farm that owns this cow.")
     daily_observations: Mapped[list["DailyObservation"]] = relationship(

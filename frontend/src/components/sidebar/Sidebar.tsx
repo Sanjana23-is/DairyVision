@@ -10,6 +10,7 @@ import {
   Activity,
   Repeat,
   Layers,
+  Dna,
 } from "lucide-react";
 
 const items = [
@@ -23,7 +24,9 @@ const items = [
   { to: "/anomalies", label: "Anomaly Detection", icon: Activity },
   { to: "/recommendations", label: "Recommendations", icon: Repeat },
   { to: "/digital-twin", label: "Digital Twin", icon: Layers },
+  { to: "/genetics", label: "Genetics", icon: Dna },
 ];
+
 
 
 
