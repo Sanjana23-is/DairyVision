@@ -23,6 +23,65 @@ def test_format_supabase_error_expired_token():
     err4 = service._format_supabase_error(exc4, action="login", email="test@example.com")
     assert str(err4) == "Supabase authentication failed during login."
 
+
+def test_format_supabase_error_transient_disconnect():
+    from app.exceptions import AuthServiceUnavailable, AuthUnauthorized
+    service = AuthService()
+
+    exc = Exception("httpx.RemoteProtocolError: Server disconnected")
+    err = service._format_supabase_error(exc, action="me", email=None)
+    assert isinstance(err, AuthServiceUnavailable)
+    assert str(err) == "Authentication service is temporarily unavailable. Please try again."
+
+
+@patch("app.services.auth_service.supabase")
+def test_transient_supabase_error_retries_and_raises_service_unavailable(mock_supabase, session):
+    from app.exceptions import AuthServiceUnavailable
+
+    mock_supabase.auth.get_user.side_effect = Exception("Server disconnected")
+
+    service = AuthService(db=session)
+    with pytest.raises(AuthServiceUnavailable):
+        service.me("valid-token")
+
+    # Verify bounded retry executed max_retries + 1 times (3 attempts total)
+    assert mock_supabase.auth.get_user.call_count == 3
+
+
+def test_get_current_user_maps_service_unavailable_to_503(session):
+    from fastapi import HTTPException
+    from app.dependencies.auth import get_current_user
+    from app.exceptions import AuthServiceUnavailable
+
+    with patch("app.dependencies.auth.AuthService") as mock_auth_cls:
+        mock_instance = MagicMock()
+        mock_instance.me.side_effect = AuthServiceUnavailable("Auth service unavailable")
+        mock_auth_cls.return_value = mock_instance
+
+        with pytest.raises(HTTPException) as exc_info:
+            get_current_user("some-token", session)
+
+        assert exc_info.value.status_code == 503
+        assert exc_info.value.detail == "Auth service unavailable"
+
+
+def test_get_current_user_maps_invalid_token_to_401(session):
+    from fastapi import HTTPException
+    from app.dependencies.auth import get_current_user
+    from app.exceptions import AuthUnauthorized
+
+    with patch("app.dependencies.auth.AuthService") as mock_auth_cls:
+        mock_instance = MagicMock()
+        mock_instance.me.side_effect = AuthUnauthorized("The provided authentication token is invalid or expired.")
+        mock_auth_cls.return_value = mock_instance
+
+        with pytest.raises(HTTPException) as exc_info:
+            get_current_user("invalid-token", session)
+
+        assert exc_info.value.status_code == 401
+        assert exc_info.value.detail == "The provided authentication token is invalid or expired."
+
+
 @patch("app.services.auth_service.supabase")
 def test_login_success(mock_supabase, session):
     # Mock supabase response for sign_in_with_password

@@ -12,6 +12,11 @@ from app.schemas.weather import WeatherCreate
 from app.services.weather_provider import OpenMeteoWeatherProvider, WeatherProvider, WeatherSnapshot
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class WeatherService:
     def __init__(self, db: Session, provider: Optional[WeatherProvider] = None) -> None:
         self.db = db
@@ -27,6 +32,17 @@ class WeatherService:
     def create_weather_log(self, user_id: str, payload: WeatherCreate) -> WeatherLog:
         farm = self.repository.validate_farm_owner(user_id, payload.farm_id)
         payload_data = payload.model_dump(exclude_none=True)
+
+        if farm.latitude is None or farm.longitude is None:
+            if farm.location_city:
+                coords = self.provider.geocode_location(farm.location_city, farm.location_country)
+                if coords:
+                    lat, lon = coords
+                    farm.latitude = lat
+                    farm.longitude = lon
+                    self.db.commit()
+                    self.db.refresh(farm)
+                    logger.info("Auto-geocoded farm %s (%s, %s) to lat=%f, lon=%f", farm.id, farm.location_city, farm.location_country, lat, lon)
 
         if any(key not in payload_data for key in ("temperature", "humidity", "rainfall", "wind_speed", "pressure", "cloud_cover")):
             try:
@@ -49,12 +65,24 @@ class WeatherService:
             return nearest
 
         if farm.latitude is None or farm.longitude is None:
-            raise WeatherNotFound("No weather snapshot available and farm coordinates are missing")
+            if farm.location_city:
+                coords = self.provider.geocode_location(farm.location_city, farm.location_country)
+                if coords:
+                    lat, lon = coords
+                    farm.latitude = lat
+                    farm.longitude = lon
+                    self.db.commit()
+                    self.db.refresh(farm)
+                    logger.info("Auto-geocoded farm %s (%s, %s) to lat=%f, lon=%f", farm.id, farm.location_city, farm.location_country, lat, lon)
+
+        if farm.latitude is None or farm.longitude is None:
+            raise WeatherNotFound("No weather snapshot available and farm location could not be resolved")
 
         try:
             snapshot = self.provider.fetch_snapshot(farm, target_time)
         except RuntimeError as exc:
             raise WeatherNotFound(str(exc)) from exc
+
 
         weather_data = {
             "farm_id": farm_id,

@@ -15,6 +15,26 @@ import AddCowDialog from "@/components/cows/AddCowDialog";
 import EditCowDialog from "@/components/cows/EditCowDialog";
 import DeleteCowDialog from "@/components/cows/DeleteCowDialog";
 
+export function formatAge(age_months?: number | null): string {
+  if (age_months === undefined || age_months === null || isNaN(Number(age_months))) {
+    return "—";
+  }
+  const total = Math.max(0, Math.floor(Number(age_months)));
+  const years = Math.floor(total / 12);
+  const months = total % 12;
+
+  if (years > 0 && months > 0) {
+    return `${years} yr${years > 1 ? "s" : ""} ${months} mo${months > 1 ? "s" : ""}`;
+  }
+  if (years > 0) {
+    return `${years} year${years > 1 ? "s" : ""}`;
+  }
+  if (months > 0) {
+    return `${months} month${months > 1 ? "s" : ""}`;
+  }
+  return "0 months";
+}
+
 function errorMessage(error: unknown): string {
   const anyErr = error as any;
   return (
@@ -187,6 +207,8 @@ export default function CowListPage() {
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Tag</th>
                   <th className="px-4 py-3">Breed</th>
+                  <th className="px-4 py-3">Weight</th>
+                  <th className="px-4 py-3">Age</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
@@ -200,6 +222,8 @@ export default function CowListPage() {
                     </td>
                     <td className="px-4 py-4">{c.tag ?? "—"}</td>
                     <td className="px-4 py-4">{breedName(c.breed) ?? "—"}</td>
+                    <td className="px-4 py-4">{c.weight_kg ? `${c.weight_kg} kg` : "—"}</td>
+                    <td className="px-4 py-4">{formatAge(c.age_months)}</td>
                     <td className="px-4 py-4">
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${

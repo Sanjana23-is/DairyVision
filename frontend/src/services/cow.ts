@@ -8,19 +8,37 @@ export type Cow = {
   tag_id?: string;
   breed?: string;
   breed_id?: string;
-  status?: 'active' | 'inactive' | string;
+  birth_date?: string | null;
+  age_months?: number | null;
+  weight_kg?: number | null;
+  status?: 'active' | 'dry' | 'sick' | 'deceased' | 'sold' | string;
   [key: string]: any;
 };
 
 function normalizeCowPayload(payload: Partial<Cow>) {
   const normalized: Record<string, unknown> = { ...payload };
   if (payload.breed !== undefined) {
-    normalized.breed_id = payload.breed;
+    if (payload.breed) {
+      normalized.breed_id = payload.breed;
+    }
     delete normalized.breed;
   }
   if (payload.tag !== undefined) {
-    normalized.tag_id = payload.tag;
+    if (payload.tag) {
+      normalized.tag_id = payload.tag;
+    }
     delete normalized.tag;
+  }
+  if (payload.birth_date === "") {
+    normalized.birth_date = null;
+  }
+  if ((payload.age_months as any) === "" || payload.age_months === undefined) {
+    if ((payload.age_months as any) === "") {
+      normalized.age_months = null;
+    }
+  }
+  if ((payload.weight_kg as any) === "") {
+    normalized.weight_kg = null;
   }
   return normalized;
 }

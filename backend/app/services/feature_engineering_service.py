@@ -89,10 +89,12 @@ class FeatureEngineeringService:
 
         # derived animal features
         age = None
-        if cow.birth_date is not None:
+        if getattr(cow, "age_months", None) is not None:
+            age = float(cow.age_months) / 12.0
+        elif getattr(cow, "birth_date", None) is not None:
             age_days = (obs.observation_date - cow.birth_date).days
-            # training dataset uses age in months
-            age = int(age_days / 30)
+            age = float(age_days) / 365.25
+
 
         # days in milk and lactation stage not available without calving/lactation dates
         days_in_milk = None

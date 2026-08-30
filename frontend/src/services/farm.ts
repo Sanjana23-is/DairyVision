@@ -6,6 +6,8 @@ export type Farm = {
   description?: string;
   location_city?: string;
   location_country?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   timezone?: string;
   is_active?: boolean;
   created_at?: string;
@@ -22,6 +24,8 @@ export type CreateFarmPayload = {
   description?: string;
   location_city?: string;
   location_country?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   timezone?: string;
 };
 

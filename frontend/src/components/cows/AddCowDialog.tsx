@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +11,18 @@ const schema = z.object({
   status: z.enum(["active", "dry", "sick", "deceased", "sold"], {
     message: "Status is required",
   }),
+  age_years: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, "Years must be 0 or greater").optional(),
+  ),
+  age_months_part: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number().min(0, "Months must be between 0 and 11").max(11, "Months must be between 0 and 11").optional(),
+  ),
+  weight_kg: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : Number(val)),
+    z.number().positive("Weight must be greater than 0").optional(),
+  ),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -23,15 +35,17 @@ export default function AddCowDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (payload: Partial<FormData>) => void;
+  onCreate: (payload: Record<string, any>) => void;
   isSubmitting?: boolean;
   submitError?: string | null;
 }) {
+  const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  } = useForm<FormData>({ resolver });
 
   const { data: breeds = [] } = useQuery({
     queryKey: ["breeds"],
@@ -44,15 +58,30 @@ export default function AddCowDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <form
-        onSubmit={handleSubmit((v) => onCreate(v))}
+        onSubmit={handleSubmit((v) => {
+          const yrs = v.age_years ?? 0;
+          const mos = v.age_months_part ?? 0;
+          const totalAgeMonths = (v.age_years !== undefined || v.age_months_part !== undefined)
+            ? yrs * 12 + mos
+            : undefined;
+
+          onCreate({
+            name: v.name,
+            tag: v.tag,
+            breed: v.breed,
+            status: v.status,
+            weight_kg: v.weight_kg,
+            age_months: totalAgeMonths,
+          });
+        })}
         className="w-full max-w-md rounded bg-white p-6 shadow-xl"
       >
         <h3 className="mb-4 text-lg font-semibold">Add Cow</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-sm">Name</label>
+            <label className="text-sm font-medium text-slate-700">Name</label>
             <input
-              className="w-full rounded border px-2 py-1"
+              className="w-full rounded border px-2 py-1 text-sm"
               {...register("name")}
             />
             {errors.name && (
@@ -62,9 +91,9 @@ export default function AddCowDialog({
             )}
           </div>
           <div>
-            <label className="text-sm">Tag</label>
+            <label className="text-sm font-medium text-slate-700">Tag</label>
             <input
-              className="w-full rounded border px-2 py-1"
+              className="w-full rounded border px-2 py-1 text-sm"
               {...register("tag")}
             />
             {errors.tag && (
@@ -74,9 +103,59 @@ export default function AddCowDialog({
             )}
           </div>
           <div>
-            <label className="text-sm">Breed</label>
+            <label className="text-sm font-medium text-slate-700">Age</label>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Years (e.g. 4)"
+                  className="w-full rounded border px-2 py-1 text-sm"
+                  {...register("age_years")}
+                />
+                {errors.age_years && (
+                  <div className="text-rose-600 text-xs">
+                    {String(errors.age_years.message)}
+                  </div>
+                )}
+              </div>
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  max="11"
+                  placeholder="Months (0–11)"
+                  className="w-full rounded border px-2 py-1 text-sm"
+                  {...register("age_months_part")}
+                />
+                {errors.age_months_part && (
+                  <div className="text-rose-600 text-xs">
+                    {String(errors.age_months_part.message)}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="text-xs text-slate-400 mt-1">Approximate age is okay.</div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Weight (kg)</label>
+            <input
+              type="number"
+              step="any"
+              placeholder="e.g. 500"
+              className="w-full rounded border px-2 py-1 text-sm"
+              {...register("weight_kg")}
+            />
+            {errors.weight_kg && (
+              <div className="text-rose-600 text-xs">
+                {String(errors.weight_kg.message)}
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Breed</label>
             <select
-              className="w-full rounded border px-2 py-1"
+              className="w-full rounded border px-2 py-1 text-sm"
               {...register("breed")}
             >
               <option value="">Select breed</option>
@@ -88,9 +167,9 @@ export default function AddCowDialog({
             </select>
           </div>
           <div>
-            <label className="text-sm">Status</label>
+            <label className="text-sm font-medium text-slate-700">Status</label>
             <select
-              className="w-full rounded border px-2 py-1"
+              className="w-full rounded border px-2 py-1 text-sm"
               {...register("status")}
             >
               <option value="">Select status</option>
@@ -106,6 +185,7 @@ export default function AddCowDialog({
               </div>
             )}
           </div>
+
           {submitError && (
             <div className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
               {submitError}

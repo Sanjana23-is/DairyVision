@@ -55,3 +55,15 @@ class ExplainabilityNotFound(ExplainabilityError):
 
 class ExplainabilityValidationError(ExplainabilityError):
     pass
+
+
+class AuthError(Exception):
+    pass
+
+
+class AuthUnauthorized(AuthError):
+    pass
+
+
+class AuthServiceUnavailable(AuthError):
+    pass

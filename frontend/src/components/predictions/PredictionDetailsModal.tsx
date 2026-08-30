@@ -1,11 +1,30 @@
 import { MilkPrediction } from "@/services/prediction";
 
+function formatDate(dateStr?: string | null): string {
+  if (!dateStr) return "N/A";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function PredictionDetailsModal({
   prediction,
+  cowName,
+  observationDate,
   open = true,
   onClose,
 }: {
   prediction: MilkPrediction;
+  cowName?: string;
+  observationDate?: string;
   open?: boolean;
   onClose: () => void;
 }) {
@@ -51,24 +70,32 @@ export default function PredictionDetailsModal({
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-slate-50 p-4">
-            <div className="text-sm font-medium text-slate-600">
-              Prediction Time
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border bg-slate-50 p-4">
+              <div className="text-sm font-medium text-slate-600">Cow</div>
+              <div className="mt-2 text-sm text-slate-700">
+                {cowName || "N/A"}
+              </div>
             </div>
-            <div className="mt-2 text-sm text-slate-700">
-              {prediction.prediction_timestamp
-                ? new Date(prediction.prediction_timestamp).toLocaleString()
-                : "N/A"}
+            <div className="rounded-2xl border bg-slate-50 p-4">
+              <div className="text-sm font-medium text-slate-600">
+                Observation Date
+              </div>
+              <div className="mt-2 text-sm text-slate-700">
+                {formatDate(observationDate)}
+              </div>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border bg-slate-50 p-4">
               <div className="text-sm font-medium text-slate-600">
-                Observation
+                Prediction Time
               </div>
               <div className="mt-2 text-sm text-slate-700">
-                {prediction.observation_id ?? "N/A"}
+                {prediction.prediction_timestamp
+                  ? new Date(prediction.prediction_timestamp).toLocaleString()
+                  : "N/A"}
               </div>
             </div>
             <div className="rounded-2xl border bg-slate-50 p-4">

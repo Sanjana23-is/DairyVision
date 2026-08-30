@@ -58,6 +58,7 @@ class Cow(Base):
         doc="Canonical breed reference for the cow.",
     )
     birth_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True, doc="Birth date of the cow.")
+    age_months: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, doc="Age of the cow in months.")
     sex: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, doc="Sex of the cow.")
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="active", doc="Current cow status.")
     weight_kg: Mapped[Optional[float]] = mapped_column(Numeric(8, 2), nullable=True, doc="Current weight in kilograms.")
@@ -118,6 +119,7 @@ class Cow(Base):
         CheckConstraint("status IN ('active', 'dry', 'sick', 'deceased', 'sold')", name="ck_cow_status"),
         CheckConstraint("lactation_number IS NULL OR lactation_number > 0", name="ck_cow_lactation"),
         CheckConstraint("weight_kg IS NULL OR weight_kg > 0", name="ck_cow_weight"),
+        CheckConstraint("age_months IS NULL OR age_months >= 0", name="ck_cow_age_months"),
         Index("idx_cows_farm_id", "farm_id"),
         Index("idx_cows_status", "status"),
         Index("idx_cows_tag_id", "tag_id"),

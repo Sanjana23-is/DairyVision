@@ -1,9 +1,28 @@
 import { MilkPrediction } from "@/services/prediction";
 
+function formatDate(dateStr?: string | null): string {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function PredictionCard({
   prediction,
+  cowName,
+  observationDate,
 }: {
   prediction: MilkPrediction;
+  cowName?: string;
+  observationDate?: string;
 }) {
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -16,7 +35,8 @@ export default function PredictionCard({
       </div>
 
       <div className="mt-4 grid gap-3 text-sm text-slate-600">
-        <div>Observation: {prediction.observation_id ?? "—"}</div>
+        <div>Cow: {cowName || "—"}</div>
+        <div>Observation: {formatDate(observationDate)}</div>
         <div>
           Confidence:{" "}
           {prediction.confidence_score != null

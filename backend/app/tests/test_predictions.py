@@ -18,7 +18,8 @@ def _create_owner_entities(session: Session):
     session.add(user); session.flush()
     farm = Farm(id=str(uuid4()), name='Pred Farm', timezone='UTC', created_by=user.id, latitude=0.0, longitude=0.0)
     session.add(farm); session.flush()
-    cow = Cow(id=str(uuid4()), farm_id=farm.id, tag_id='T1', owner_id=user.id, created_by=user.id, birth_date=date.today(), weight_kg=500.0)
+    cow = Cow(id=str(uuid4()), farm_id=farm.id, tag_id='T1', owner_id=user.id, created_by=user.id, age_months=48, weight_kg=500.0)
+
     session.add(cow); session.flush()
     weather = WeatherLog(
         id=str(uuid4()),
@@ -282,3 +283,35 @@ def test_route_successful_prediction(db_session: Session, tmp_path):
     saved = create_prediction(payload, user.id, service)
     assert isinstance(saved, MilkPrediction)
     assert saved.owner_id == user.id
+
+
+def test_route_missing_weather_explains_coordinates_required(db_session: Session, tmp_path):
+    from fastapi import HTTPException
+    from app.api.v1.predictions import create_prediction
+    from app.schemas.feature import FeatureVector
+
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f"u{user_id}@example.com", full_name="No Weather Test")
+    db_session.add(user)
+    db_session.flush()
+    farm = Farm(id=str(uuid4()), name="No Weather Farm", timezone="UTC", created_by=user.id, latitude=None, longitude=None)
+    db_session.add(farm)
+    db_session.flush()
+    cow = Cow(id=str(uuid4()), farm_id=farm.id, tag_id="T-NOWX", owner_id=user.id, created_by=user.id, birth_date=date.today(), weight_kg=500.0)
+    db_session.add(cow)
+    db_session.flush()
+    obs = DailyObservation(id=str(uuid4()), cow_id=cow.id, observation_date=date.today(), owner_id=user.id, feed_quantity_kg=20.0, weather_log_id=None)
+    db_session.add(obs)
+    db_session.commit()
+
+    model_path = _make_dummy_model_path(tmp_path)
+    service = PredictionService(db_session, model_path=model_path)
+
+    payload = FeatureVector(observation_id=obs.id)
+    try:
+        create_prediction(payload, user.id, service)
+        assert False, "expected HTTPException"
+    except HTTPException as exc:
+        assert exc.status_code == 422
+        assert "missing required weather data" in exc.detail
+        assert "latitude and longitude" in exc.detail

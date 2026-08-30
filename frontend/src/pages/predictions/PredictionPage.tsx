@@ -64,11 +64,17 @@ export default function PredictionPage() {
       });
     },
     onError: (err) => {
+      const detail =
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Unable to generate prediction.";
+      const message = typeof detail === "string" ? detail : JSON.stringify(detail);
       setToast({
         type: "error",
-        message: err?.message || "Unable to generate prediction.",
+        message,
       });
     },
+
   });
 
   const generate = (obsId: string) => {
@@ -85,7 +91,17 @@ export default function PredictionPage() {
 
   const clearToast = () => setToast(null);
 
+  const obsMap = useMemo(() => {
+    const map = new Map<string, any>();
+    observations.forEach((o: any) => map.set(o.id, o));
+    return map;
+  }, [observations]);
+
   const latest = latestPrediction ?? predictions[0] ?? null;
+  const latestObs = latest?.observation_id ? obsMap.get(latest.observation_id) : null;
+  const latestCowId = latest?.cow_id || latestObs?.cow_id;
+  const latestCowName = latestCowId ? cowName(latestCowId) : undefined;
+  const latestObsDate = latestObs?.observation_date ?? undefined;
 
   return (
     <DashboardLayout>
@@ -161,7 +177,11 @@ export default function PredictionPage() {
               </div>
               <div className="mt-3">
                 {latest ? (
-                  <PredictionCard prediction={latest} />
+                  <PredictionCard
+                    prediction={latest}
+                    cowName={latestCowName}
+                    observationDate={latestObsDate}
+                  />
                 ) : (
                   <div className="text-sm text-slate-500">
                     No prediction generated yet.

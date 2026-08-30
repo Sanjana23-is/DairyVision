@@ -27,6 +27,7 @@ class CowBase(BaseModel):
     name: Optional[str] = None
     breed_id: Optional[str] = None
     birth_date: Optional[date] = None
+    age_months: Optional[int] = None
     sex: Optional[str] = None
     status: Optional[str] = None
     weight_kg: Optional[float] = None
@@ -51,11 +52,19 @@ class CowCreate(CowBase):
             raise ValueError(f"status must be one of {COW_STATUS_VALUES}")
         return value
 
+    @field_validator("age_months")
+    @classmethod
+    def age_months_must_be_non_negative(cls, value: Optional[int]) -> Optional[int]:
+        if value is not None and value < 0:
+            raise ValueError("age_months must not be negative")
+        return value
+
 
 class CowUpdate(BaseModel):
     name: Optional[str] = None
     breed_id: Optional[str] = None
     birth_date: Optional[date] = None
+    age_months: Optional[int] = None
     sex: Optional[str] = None
     status: Optional[str] = None
     weight_kg: Optional[float] = None
@@ -68,6 +77,14 @@ class CowUpdate(BaseModel):
         if value is not None and value not in COW_STATUS_VALUES:
             raise ValueError(f"status must be one of {COW_STATUS_VALUES}")
         return value
+
+    @field_validator("age_months")
+    @classmethod
+    def age_months_must_be_non_negative(cls, value: Optional[int]) -> Optional[int]:
+        if value is not None and value < 0:
+            raise ValueError("age_months must not be negative")
+        return value
+
 
 
 class CowResponse(CowBase):
@@ -237,6 +254,8 @@ class FarmBase(BaseModel):
     description: Optional[str] = None
     location_city: Optional[str] = None
     location_country: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     timezone: Optional[str] = None
     is_active: Optional[bool] = True
 
@@ -250,8 +269,11 @@ class FarmUpdate(BaseModel):
     description: Optional[str] = None
     location_city: Optional[str] = None
     location_country: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     timezone: Optional[str] = None
     is_active: Optional[bool] = None
+
 
 
 class FarmResponse(FarmBase):

@@ -12,6 +12,8 @@ import DeletePredictionDialog from "@/components/predictions/DeletePredictionDia
 import PredictionHistoryTable from "@/components/predictions/PredictionHistoryTable";
 import PredictionDetailsModal from "@/components/predictions/PredictionDetailsModal";
 
+import { fetchObservations } from "@/services/observation";
+
 export default function PredictionHistoryPage() {
   const qc = useQueryClient();
   const { currentFarmId } = useAuth();
@@ -34,6 +36,12 @@ export default function PredictionHistoryPage() {
     enabled: !!currentFarmId,
   });
 
+  const { data: observations = [] } = useQuery({
+    queryKey: ["observations", currentFarmId],
+    queryFn: () => fetchObservations(currentFarmId as string),
+    enabled: !!currentFarmId,
+  });
+
   const { data: cows = [] } = useQuery<Cow[], Error>({
     queryKey: ["cows", currentFarmId],
     queryFn: () => fetchCows(currentFarmId as string),
@@ -45,6 +53,16 @@ export default function PredictionHistoryPage() {
     cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
     return map;
   }, [cows]);
+
+  const obsDateById = useMemo(() => {
+    const map = new Map<string, string>();
+    observations.forEach((o: any) => {
+      if (o.id && o.observation_date) {
+        map.set(o.id, o.observation_date);
+      }
+    });
+    return map;
+  }, [observations]);
 
   const deleteMutation = useMutation<void, any, string>({
     mutationFn: deletePrediction,
@@ -73,6 +91,13 @@ export default function PredictionHistoryPage() {
   };
 
   const handleCloseToast = () => setToast(null);
+
+  const detailsCowName = detailsPrediction
+    ? cowNameById.get(detailsPrediction.cow_id)
+    : undefined;
+  const detailsObsDate = detailsPrediction?.observation_id
+    ? obsDateById.get(detailsPrediction.observation_id)
+    : undefined;
 
   return (
     <DashboardLayout>
@@ -109,6 +134,7 @@ export default function PredictionHistoryPage() {
             <PredictionHistoryTable
               data={data}
               cowNameById={cowNameById}
+              obsDateById={obsDateById}
               onOpenDetails={setDetailsPrediction}
               onRequestDelete={handleDeleteConfirmation}
               deletingId={deleteMutation.variables}
@@ -120,9 +146,12 @@ export default function PredictionHistoryPage() {
       {detailsPrediction ? (
         <PredictionDetailsModal
           prediction={detailsPrediction}
+          cowName={detailsCowName}
+          observationDate={detailsObsDate}
           onClose={() => setDetailsPrediction(null)}
         />
       ) : null}
+
 
       {deleteTarget ? (
         <DeletePredictionDialog

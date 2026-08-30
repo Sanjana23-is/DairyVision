@@ -7,6 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.exceptions import AuthServiceUnavailable, AuthUnauthorized
 from app.schemas.auth import MeResponse
 from app.services.auth_service import AuthService
 
@@ -37,8 +38,13 @@ def get_current_user(
     auth_service = AuthService(db=db)
     try:
         return auth_service.me(token)
+    except AuthUnauthorized as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+    except AuthServiceUnavailable as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+
 
 
 def get_current_user_id(current_user: Annotated[MeResponse, Depends(get_current_user)]) -> str:

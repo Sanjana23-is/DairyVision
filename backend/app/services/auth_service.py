@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Optional
 
 from sqlalchemy import select, text
@@ -8,9 +9,11 @@ from sqlalchemy.orm import Session
 
 from app.core.supabase import supabase
 from app.database.session import SessionLocal
+from app.exceptions import AuthError, AuthServiceUnavailable, AuthUnauthorized
 from app.models.user import User
 from app.models.user_preference import UserPreference
 from app.schemas.auth import AuthResponse, AuthUser, LoginRequest, LogoutResponse, MeResponse, SignupRequest
+
 
 logger = logging.getLogger(__name__)
 
@@ -59,15 +62,53 @@ class AuthService:
         supabase.auth.sign_out()
         return LogoutResponse(message="Logged out successfully")
 
+    @staticmethod
+    def _is_transient_error(exc: Exception) -> bool:
+        message = str(exc).lower()
+        exc_type = type(exc).__name__.lower()
+
+        if any(keyword in exc_type for keyword in ("remoteprotocol", "connect", "timeout", "network")):
+            return True
+
+        transient_keywords = (
+            "server disconnected",
+            "connection closed",
+            "connection reset",
+            "remote host closed",
+            "timed out",
+            "timeout",
+            "service unavailable",
+            "502",
+            "503",
+            "504",
+        )
+        if any(keyword in message for keyword in transient_keywords):
+            return True
+
+        status_code = getattr(exc, "status", None) or getattr(getattr(exc, "response", None), "status_code", None)
+        if status_code in (429, 500, 502, 503, 504):
+            return True
+
+        return False
+
     def me(self, access_token: Optional[str] = None) -> MeResponse:
-        try:
-            user_response = supabase.auth.get_user(access_token)
-            user_data = user_response.user if user_response else None
-            if user_data is None:
-                raise RuntimeError("No authenticated user found")
-        except Exception as exc:
-            logger.exception("Supabase get_user failed")
-            raise self._format_supabase_error(exc, action="me", email=None) from exc
+        user_response = None
+        max_retries = 2
+        for attempt in range(max_retries + 1):
+            try:
+                user_response = supabase.auth.get_user(access_token)
+                break
+            except Exception as exc:
+                if self._is_transient_error(exc) and attempt < max_retries:
+                    logger.warning("Transient Supabase error on attempt %d: %s. Retrying...", attempt + 1, exc)
+                    time.sleep(0.1 * (attempt + 1))
+                    continue
+                logger.exception("Supabase get_user failed")
+                raise self._format_supabase_error(exc, action="me", email=None) from exc
+
+        user_data = user_response.user if user_response else None
+        if user_data is None:
+            raise AuthUnauthorized("No authenticated user found")
 
         self._sync_local_user(user_data)
         return MeResponse(user=self._build_auth_user(user_data))
@@ -223,13 +264,19 @@ class AuthService:
             access_token = getattr(session, "access_token", None)
         return AuthResponse(access_token=access_token, user=auth_user)
 
-    def _format_supabase_error(self, exc: Exception, action: str, email: Optional[str]) -> RuntimeError:
+    def _format_supabase_error(self, exc: Exception, action: str, email: Optional[str]) -> Exception:
         message = str(exc).strip()
         lowered = message.lower()
 
+        if self._is_transient_error(exc):
+            detail = "Authentication service is temporarily unavailable. Please try again."
+            logger.warning("Supabase transient auth error for action=%s email=%s message=%s", action, email, message)
+            return AuthServiceUnavailable(detail)
+
         if "rate limit" in lowered or "429" in lowered:
             detail = "Supabase auth is temporarily rate-limiting signups. Please wait a few minutes and try again."
-        elif "invalid email" in lowered or "email address" in lowered and "invalid" in lowered:
+            return AuthServiceUnavailable(detail)
+        elif "invalid email" in lowered or ("email address" in lowered and "invalid" in lowered):
             detail = "The supplied email address is invalid."
         elif "password" in lowered:
             detail = "The supplied password does not meet the current authentication requirements."
@@ -237,11 +284,13 @@ class AuthService:
             detail = "An account already exists for this email address."
         elif "jwt" in lowered or "expired" in lowered or "invalid claims" in lowered or "signature" in lowered:
             detail = "The provided authentication token is invalid or expired."
+            logger.warning("Supabase auth error for action=%s email=%s message=%s", action, email, message)
+            return AuthUnauthorized(detail)
         else:
             detail = f"Supabase authentication failed during {action}."
 
         logger.warning("Supabase auth error for action=%s email=%s message=%s", action, email, message)
-        return RuntimeError(detail)
+        return AuthUnauthorized(detail)
 
     def _build_auth_user(self, user_data: object) -> AuthUser:
         user_metadata = getattr(user_data, "user_metadata", {}) or {}

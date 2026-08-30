@@ -47,12 +47,22 @@ class PredictionService:
 
         missing = [feat for feat in CF if getattr(fv, feat, None) is None]
         if missing:
-            raise PredictionValidationError(
-                "Cannot generate a prediction: missing required data for "
-                + ", ".join(missing)
-                + ". Record a complete observation (including feed and weather-dependent "
-                "values) before generating a prediction."
-            )
+            weather_feats = {"temperature", "humidity", "thi", "temp_humidity", "thi_squared", "feed_thi_interaction"}
+            missing_weather = any(f in weather_feats for f in missing)
+            if missing_weather:
+                msg = (
+                    "Cannot generate a prediction: missing required weather data. "
+                    "Weather data (temperature, humidity, THI) is required for prediction. "
+                    "Ensure the farm has valid geographic coordinates (latitude and longitude) set so weather can be retrieved."
+                )
+                non_weather_missing = [f for f in missing if f not in weather_feats]
+                if non_weather_missing:
+                    msg += f" Additional missing features: {', '.join(non_weather_missing)}."
+            else:
+                msg = f"Cannot generate a prediction: missing required data for {', '.join(missing)}."
+
+            raise PredictionValidationError(msg)
+
 
         return [float(getattr(fv, feat)) for feat in CF]
 
