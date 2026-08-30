@@ -111,6 +111,21 @@ class ObservationService:
                 str(exc),
             )
 
+        try:
+            from app.services.recommendation_service import RecommendationService
+            rec_svc = RecommendationService(self.db)
+            rec_svc.auto_generate_for_observation(
+                user_id=user_id,
+                observation_id=observation.id,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Recommendation auto-generation failed for observation %s: %s",
+                observation.id,
+                str(exc),
+            )
+
+
 
 
     def update_observation(self, user_id: str, observation_id: str, payload: ObservationUpdate) -> Optional[DailyObservation]:

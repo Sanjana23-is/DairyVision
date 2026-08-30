@@ -103,6 +103,8 @@ def test_generate_recommendations_for_warning_heat_stress(db_session: Session):
 
     assert any(rec.category == 'Heat Stress Management' for rec in recommendations)
     assert any(rec.priority in ('Medium', 'High') for rec in recommendations)
+    assert any(rec.why_reason and "heat stress" in rec.why_reason.lower() for rec in recommendations)
+
 
 
 def test_generate_recommendations_for_critical_alert_and_shap(db_session: Session):
@@ -114,11 +116,13 @@ def test_generate_recommendations_for_critical_alert_and_shap(db_session: Sessio
     alert = HealthAlert(
         id=str(uuid4()),
         cow_id=cow.id,
+        observation_id=obs.id,
         alert_level='Critical',
         alert_type='composite',
         description='Lethargy symptoms present',
         owner_id=user.id,
     )
+
     db_session.add(alert)
     db_session.commit()
 
@@ -190,3 +194,44 @@ def test_generate_recommendations_invalid_ownership(db_session: Session):
         assert False
     except PermissionError:
         assert True
+
+
+def test_generate_recommendations_for_anomaly(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    from app.models import AnomalyRecord
+    anom = AnomalyRecord(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        observation_id=obs.id,
+        farm_id=farm.id,
+        owner_id=user.id,
+        anomaly_score=0.85,
+        severity="Critical",
+        anomaly_type="composite",
+        issue_tags=["Extreme Heat Stress", "Abnormal Milk Drop"],
+    )
+    db_session.add(anom)
+    db_session.commit()
+
+    service = RecommendationService(db_session)
+    recs = service.generate_recommendations(user.id, anomaly_id=anom.id)
+
+    assert len(recs) >= 1
+    assert any(r.category == "Heat Stress Management" for r in recs)
+    assert any(r.category == "Feeding Strategy" for r in recs)
+
+
+def test_auto_generate_recommendation_on_observation_created(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    from app.services.observation_service import ObservationService
+    from app.schemas.observation import ObservationCreate
+
+    obs_svc = ObservationService(db_session)
+    new_obs = obs_svc.create_observation(
+        user.id,
+        ObservationCreate(farm_id=farm.id, cow_id=cow.id, milk_produced_liters=4.0, feed_quantity_kg=3.0),
+    )
+
+    recs = db_session.query(Recommendation).filter(Recommendation.observation_id == new_obs.id).all()
+    assert len(recs) >= 1
+

@@ -26,10 +26,12 @@ export default function HealthAlertsTable({
   }
 
   function getCowDisplayName(alert: HealthAlert): string {
+    if (alert.cow_name && !alert.cow_name.startsWith("Cow ")) return alert.cow_name;
     if (alert.cow?.name) return alert.cow.name;
     if (cowNameById[alert.cow_id]) return cowNameById[alert.cow_id];
-    return `Cow ${alert.cow_id.slice(0, 8)}`;
+    return "Unknown cow";
   }
+
 
   function formatDate(isoString: string): string {
     try {
@@ -45,12 +47,15 @@ export default function HealthAlertsTable({
   }
 
   function getRiskTitle(alert: HealthAlert): string {
+    const atype = (alert.alert_type || "").toLowerCase();
     const desc = (alert.description || "").toLowerCase();
-    if (desc.includes("heat")) return "Heat Stress";
-    if (desc.includes("milk")) return "Milk Drop";
-    if (desc.includes("fever") || desc.includes("temp")) return "High Temperature";
-    return alert.alert_type === "composite" ? "Health Condition" : alert.alert_type;
+    if (atype.includes("heat") || desc.includes("heat")) return "Heat Stress";
+    if (atype.includes("milk") || desc.includes("milk")) return "Milk Drop";
+    if (atype.includes("temp") || atype.includes("fever") || desc.includes("fever") || desc.includes("temperature")) return "High Temperature";
+    if (atype === "health_condition" || desc.includes("condition") || desc.includes("symptom")) return "Health Condition";
+    return "Health Condition";
   }
+
 
   return (
     <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">

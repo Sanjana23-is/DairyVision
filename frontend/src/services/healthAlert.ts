@@ -14,7 +14,16 @@ export type HealthAlert = {
   owner_id: string;
   created_at: string;
   cow?: { id: string; name?: string };
+
+  // Farmer-facing presentation fields
+  risk_display_name?: string | null;
+  why_explanation?: string | null;
+  evidence?: Record<string, any> | null;
+  cow_name?: string | null;
+  observation_date?: string | null;
+  recommended_actions?: string[] | null;
 };
+
 
 export type HealthAlertFilter = {
   alert_level?: string;

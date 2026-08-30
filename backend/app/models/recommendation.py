@@ -59,6 +59,13 @@ class Recommendation(Base):
         nullable=True,
         doc="Observation associated with the recommendation.",
     )
+    anomaly_id: Mapped[Optional[str]] = mapped_column(
+        GUID(),
+        ForeignKey("anomaly_records.id", ondelete="SET NULL"),
+        nullable=True,
+        doc="Anomaly record associated with the recommendation.",
+    )
+
     farm_id: Mapped[Optional[str]] = mapped_column(
         GUID(),
         ForeignKey("farms.id", ondelete="SET NULL"),
@@ -67,7 +74,9 @@ class Recommendation(Base):
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False, doc="Title of the recommendation.")
     description: Mapped[Optional[str]] = mapped_column("content", Text, nullable=True, doc="Detailed recommendation text.")
+    why_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True, doc="Farmer-friendly explanation of why recommendation was generated.")
     category: Mapped[str] = mapped_column(String(100), nullable=False, doc="Recommendation category.")
+
     priority: Mapped[str] = mapped_column(String(20), nullable=False, doc="Recommendation priority.")
     recommendation_type: Mapped[str] = mapped_column(String(50), nullable=False, doc="Type of recommendation.")
     completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default='false', doc="Whether the recommendation has been completed.")
@@ -86,6 +95,7 @@ class Recommendation(Base):
 
     cow: Mapped[Optional["Cow"]] = relationship(doc="Cow associated with the recommendation.")
     alert: Mapped[Optional["HealthAlert"]] = relationship(back_populates="recommendations", doc="Alert associated with the recommendation.")
+    anomaly: Mapped[Optional["AnomalyRecord"]] = relationship(doc="Anomaly associated with the recommendation.")
     owner: Mapped["User"] = relationship(back_populates="owned_recommendations", foreign_keys=[owner_id], doc="User who owns this recommendation.")
 
     __table_args__ = (
@@ -93,9 +103,11 @@ class Recommendation(Base):
         Index("idx_recommendations_alert_id", "alert_id"),
         Index("idx_recommendations_prediction_id", "prediction_id"),
         Index("idx_recommendations_observation_id", "observation_id"),
+        Index("idx_recommendations_anomaly_id", "anomaly_id"),
         Index("idx_recommendations_farm_id", "farm_id"),
         Index("idx_recommendations_category", "category"),
         Index("idx_recommendations_priority", "priority"),
         Index("idx_recommendations_type", "recommendation_type"),
         Index("idx_recommendations_owner_id", "owner_id"),
     )
+

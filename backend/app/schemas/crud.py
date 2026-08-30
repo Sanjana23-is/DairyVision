@@ -238,7 +238,16 @@ class HealthAlertResponse(HealthAlertBase):
     owner_id: str
     created_at: datetime
 
+    # Farmer-facing presentation fields
+    risk_display_name: Optional[str] = None
+    why_explanation: Optional[str] = None
+    evidence: Optional[dict[str, Any]] = None
+    cow_name: Optional[str] = None
+    observation_date: Optional[str] = None
+    recommended_actions: Optional[list[str]] = None
+
     model_config = ConfigDict(from_attributes=True)
+
 
 
 class MilkPredictionBase(BaseModel):
@@ -277,9 +286,11 @@ class RecommendationBase(BaseModel):
     alert_id: Optional[str] = None
     prediction_id: Optional[str] = None
     observation_id: Optional[str] = None
+    anomaly_id: Optional[str] = None
     farm_id: Optional[str] = None
     title: str
     description: Optional[str] = None
+    why_reason: Optional[str] = None
     category: str
     priority: str
     recommendation_type: str
@@ -295,12 +306,15 @@ class RecommendationUpdate(BaseModel):
     alert_id: Optional[str] = None
     prediction_id: Optional[str] = None
     observation_id: Optional[str] = None
+    anomaly_id: Optional[str] = None
     farm_id: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
+    why_reason: Optional[str] = None
     category: Optional[str] = None
     priority: Optional[str] = None
     recommendation_type: Optional[str] = None
+
 
 
 class RecommendationResponse(RecommendationBase):

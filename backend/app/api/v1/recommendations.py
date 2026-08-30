@@ -30,7 +30,9 @@ def generate_recommendations(
             explainability_id=payload.explainability_id,
             observation_id=payload.observation_id,
             weather_log_id=payload.weather_log_id,
+            anomaly_id=payload.anomaly_id,
         )
+
         return results
     except PermissionError:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")

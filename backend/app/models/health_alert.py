@@ -68,6 +68,14 @@ class HealthAlert(Base):
         server_default=func.now(),
         doc="Timestamp when the alert was created.",
     )
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        server_default=func.now(),
+        onupdate=func.now(),
+        doc="Timestamp when the alert was last updated.",
+    )
+
 
     cow: Mapped["Cow"] = relationship(back_populates="health_alerts", doc="Cow associated with the alert.")
     owner: Mapped["User"] = relationship(back_populates="owned_health_alerts", foreign_keys=[owner_id], doc="User who owns this health alert.")

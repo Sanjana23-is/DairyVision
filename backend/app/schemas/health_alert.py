@@ -30,7 +30,16 @@ class HealthAlertResponse(BaseModel):
     owner_id: str
     created_at: datetime
 
+    # Farmer-facing presentation fields
+    risk_display_name: Optional[str] = None
+    why_explanation: Optional[str] = None
+    evidence: Optional[dict[str, Any]] = None
+    cow_name: Optional[str] = None
+    observation_date: Optional[str] = None
+    recommended_actions: Optional[list[str]] = None
+
     model_config = ConfigDict(from_attributes=True)
+
 
 
 class HealthSummaryCounts(BaseModel):

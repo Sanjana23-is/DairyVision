@@ -84,12 +84,13 @@ def list_health_alerts(
 def get_health_alert(
     alert_id: str,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
+    crud_service: CRUDService = Depends(get_crud_service),
+    health_service: HealthAlertService = Depends(get_health_alert_service),
 ) -> HealthAlertResponse:
-    alert = service.get_owned(HealthAlert, user_id, alert_id)
+    alert = crud_service.get_owned(HealthAlert, user_id, alert_id)
     if alert is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health alert not found")
-    return alert
+    return health_service.enrich_health_alert_response(alert)
 
 
 @router.patch("/health-alerts/{alert_id}", response_model=HealthAlertResponse)
@@ -97,12 +98,14 @@ def update_health_alert(
     alert_id: str,
     payload: HealthAlertUpdate,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
+    crud_service: CRUDService = Depends(get_crud_service),
+    health_service: HealthAlertService = Depends(get_health_alert_service),
 ) -> HealthAlertResponse:
-    alert = service.update_owned(HealthAlert, user_id, alert_id, **payload.model_dump(exclude_unset=True))
+    alert = crud_service.update_owned(HealthAlert, user_id, alert_id, **payload.model_dump(exclude_unset=True))
     if alert is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health alert not found")
-    return alert
+    return health_service.enrich_health_alert_response(alert)
+
 
 
 @router.delete("/health-alerts/{alert_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)

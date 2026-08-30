@@ -386,9 +386,11 @@ export default function HealthAlertsPage() {
       {detailsAlert ? (
         <HealthAlertDetailsModal
           alert={detailsAlert}
+          cowNameById={cowNameById}
           onClose={() => setDetailsAlert(null)}
         />
       ) : null}
+
 
       {resolveAlert ? (
         <ResolveHealthAlertDialog

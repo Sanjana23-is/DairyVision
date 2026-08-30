@@ -6,10 +6,14 @@ export type Recommendation = {
   alert_id?: string | null;
   prediction_id?: string | null;
   observation_id?: string | null;
+  anomaly_id?: string | null;
   farm_id?: string | null;
+
   title: string;
   description?: string | null;
+  why_reason?: string | null;
   category: string;
+
   priority: string;
   recommendation_type: string;
   completed: boolean;

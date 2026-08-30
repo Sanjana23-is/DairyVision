@@ -27,3 +27,5 @@ class RecommendationGenerateRequest(BaseModel):
     explainability_id: Optional[str] = None
     observation_id: Optional[str] = None
     weather_log_id: Optional[str] = None
+    anomaly_id: Optional[str] = None
+
