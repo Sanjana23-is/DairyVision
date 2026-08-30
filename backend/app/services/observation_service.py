@@ -125,6 +125,18 @@ class ObservationService:
                 str(exc),
             )
 
+        try:
+            from app.services.digital_twin_service import DigitalTwinService
+            dt_svc = DigitalTwinService(self.db)
+            dt_svc.refresh_cow_digital_twin_state(user_id=user_id, cow_id=observation.cow_id)
+        except Exception as exc:
+            logger.warning(
+                "Digital Twin state refresh failed for observation %s: %s",
+                observation.id,
+                str(exc),
+            )
+
+
 
 
 

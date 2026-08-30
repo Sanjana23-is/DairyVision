@@ -336,7 +336,8 @@ class DigitalTwinService:
         if cow.breed:
             breed_str = cow.breed.name if hasattr(cow.breed, "name") else (cow.breed if isinstance(cow.breed, str) else None)
 
-        return CowDigitalTwinResponse(
+        response = CowDigitalTwinResponse(
+
             cow_id=cow.id,
             cow_name=cow_name,
             breed=breed_str,
@@ -356,6 +357,50 @@ class DigitalTwinService:
             recommended_actions=recs_list,
             last_updated=obs_date,
         )
+        return response
+
+    def refresh_cow_digital_twin_state(self, user_id: str, cow_id: str) -> CowDigitalTwinResponse:
+
+        response = self.get_cow_digital_twin(user_id, cow_id)
+        cow = self.db.get(Cow, cow_id)
+        if cow:
+            twin_record = (
+                self.db.query(DigitalTwinState)
+                .filter(DigitalTwinState.cow_id == cow_id, DigitalTwinState.owner_id == user_id)
+                .first()
+            )
+            now = datetime.now(timezone.utc)
+            if twin_record is None:
+                twin_record = DigitalTwinState(
+                    id=str(uuid4()),
+                    cow_id=cow.id,
+                    farm_id=cow.farm_id,
+                    owner_id=user_id,
+                    vitality_score=response.vitality_score,
+                    health_status=response.health_status,
+                    heat_stress_level=response.heat_stress_level,
+                    status_summary=response.status_summary,
+                    state_data=response.model_dump(mode="json"),
+                    created_at=now,
+                    updated_at=now,
+                )
+                self.db.add(twin_record)
+            else:
+                twin_record.vitality_score = response.vitality_score
+                twin_record.health_status = response.health_status
+                twin_record.heat_stress_level = response.heat_stress_level
+                twin_record.status_summary = response.status_summary
+                twin_record.state_data = response.model_dump(mode="json")
+                twin_record.updated_at = now
+            
+            try:
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+                logger.warning(f"Could not persist DigitalTwinState for cow {cow_id}: {e}")
+
+        return response
+
 
 
 

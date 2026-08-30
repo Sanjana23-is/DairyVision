@@ -70,3 +70,9 @@ export async function fetchCowDigitalTwin(cowId: string): Promise<CowDigitalTwin
   const res = await api.get<CowDigitalTwin>(`/api/v1/digital-twin/cow/${cowId}`);
   return res.data;
 }
+
+export async function refreshCowDigitalTwin(cowId: string): Promise<CowDigitalTwin> {
+  const res = await api.post<CowDigitalTwin>(`/api/v1/digital-twin/cow/${cowId}/refresh`);
+  return res.data;
+}
+
