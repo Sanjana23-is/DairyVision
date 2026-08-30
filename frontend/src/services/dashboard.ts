@@ -32,11 +32,13 @@ export type DashboardSummary = {
   recent_recommendations?: Array<{
     id: string;
     title: string;
+    description?: string;
     category: string;
     priority: string;
     recommendation_type: string;
     created_at: string;
   }>;
+
   recent_observations?: Array<{
     id: string;
     cow_id: string;

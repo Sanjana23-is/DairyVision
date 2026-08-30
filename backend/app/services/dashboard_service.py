@@ -82,6 +82,16 @@ class DashboardService:
             .all()
         )
 
+        if not today_predictions:
+            today_predictions = (
+                self.db.query(MilkPrediction)
+                .join(Cow)
+                .filter(Cow.farm_id == farm_id)
+                .order_by(MilkPrediction.prediction_timestamp.desc())
+                .limit(active_cow_count or 10)
+                .all()
+            )
+
         avg_yield = (
             self.db.query(func.avg(MilkPrediction.predicted_milk_yield))
             .join(Cow)
@@ -92,6 +102,14 @@ class DashboardService:
             .scalar()
         )
 
+        if avg_yield is None:
+            avg_yield = (
+                self.db.query(func.avg(MilkPrediction.predicted_milk_yield))
+                .join(Cow)
+                .filter(Cow.farm_id == farm_id)
+                .scalar()
+            )
+
         todays_weather = (
             self.db.query(WeatherLog)
             .filter(
@@ -101,6 +119,15 @@ class DashboardService:
             .order_by(WeatherLog.recorded_at.desc())
             .first()
         )
+
+        if not todays_weather:
+            todays_weather = (
+                self.db.query(WeatherLog)
+                .filter(WeatherLog.farm_id == farm_id)
+                .order_by(WeatherLog.recorded_at.desc())
+                .first()
+            )
+
 
         active_alerts = (
             self.db.query(HealthAlert)
