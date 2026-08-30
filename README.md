@@ -1,220 +1,113 @@
-# Smart Dairy Farm Digital Twin
+# 🥛 DairyVision AI — Smart Dairy Digital Twin Platform
 
-A research-grade machine learning pipeline for predicting milk yield under
-real-time ambient conditions, with a digital twin what-if simulation engine.
-
----
-
-## Project structure
-
-```
-smart_dairy_twin/
-├── config.py               Central config — all paths, hyperparameters, constants
-├── weather.py              Open-Meteo API integration with robust fallback
-├── data_loader.py          CSV loading, explicit-key merging, cleaning
-├── feature_engineering.py  THI, feed/weight ratio, synthetic weather assignment
-├── train.py                k-fold CV, Wilcoxon model selection, optional tuning
-├── evaluate.py             Diagnostics, permutation importance, residual plots
-├── simulate.py             Digital twin simulation with prediction intervals
-├── run_pipeline.py         Master orchestrator — run everything in one command
-│
-├── datasets/               (not in repo — place your CSVs here)
-│   ├── global_cattle_disease_detection_dataset.csv
-│   └── global_cattle_milk_yield_prediction_dataset.csv
-│
-├── models/                 Saved trained model (auto-created)
-├── outputs/                All plots, tables, reports (auto-created)
-└── logs/                   Per-step log files (auto-created)
-```
+**DairyVision AI** is an enterprise-grade AI operations and digital twin platform designed for modern dairy farm management. It integrates real-time ambient weather tracking, individual cow physiological monitoring, ML milk yield forecasting, genetic merit evaluation, SHAP explainability, automated health alerts, deduplicated actionable recommendations, and an interactive What-If scenario simulator.
 
 ---
 
-## Quick start
+## 🌟 Key Capabilities & System Features
 
-### 1. Install backend dependencies
+- **🐄 Cow & Herd Management**: Complete digital profiles for individual cows, including lactation history, breed metadata, sire lineage, and real-time health conditions.
+- **🥛 Milk Yield Prediction**: Machine learning engine leveraging historical observations, ration inputs, and real-time Temperature-Humidity Index (THI) ambient conditions.
+- **🌐 Digital Twin Monitoring**: Live digital representation of individual cows and herd-wide thermal stress levels, yield deviations, and health flags.
+- **🧬 Genetics & Sire Selection**: Pedigree tracking, sire ranking by genetic merit, predicted transmitting ability (PTA), and herd breeding strategy insights.
+- **🧪 What-If Scenario Simulation**: Dual herd-level and individual-cow scenario simulation engines to model yield impacts based on feed adjustments, water availability, and cooling interventions.
+- **💡 AI Explainability (SHAP)**: Granular feature attribution explaining why specific yield predictions or anomaly flags occurred.
+- **📋 Deduplicated Recommendations**: Real-time actionable farm recommendations that update dynamically and consolidate duplicate issues per cow/farm.
+- **🚨 Health & Anomaly Alerts**: Real-time detection of thermal stress, temperature spikes, abnormal milk drops, and feeding anomalies.
 
-```bash
-python3 -m pip install -r backend/requirements.txt
+---
+
+## 🏗 Project Structure
+
+```
+Smart_dairyvisionAI/
+├── backend/                        # FastAPI Backend Application
+│   ├── app/
+│   │   ├── api/v1/                 # API Routes (Dairy, Digital Twin, What-If, Genetics, etc.)
+│   │   ├── core/                   # Security, Auth, & DB Config
+│   │   ├── models/                 # SQLAlchemy Database Models
+│   │   ├── schemas/                # Pydantic Schemas & DTOs
+│   │   ├── services/               # Core Business Logic & ML Services
+│   │   └── tests/                  # Pytest Unit & Integration Test Suite
+│   ├── alembic/                    # Database Migrations
+│   ├── requirements.txt            # Python Dependencies
+│   └── main.py                     # FastAPI Application Entrypoint
+│
+├── frontend/                       # React 18 + Vite + Tailwind Frontend Application
+│   ├── src/
+│   │   ├── components/             # Reusable UI Components & Charts
+│   │   ├── pages/                  # Dashboard, Digital Twin, Simulation, Genetics, etc.
+│   │   ├── services/               # Axios API Client Services
+│   │   └── context/                # Auth & App State Contexts
+│   └── package.json                # Frontend Package Configuration
+│
+└── requirements.txt                # Root Dependency Shortcut
 ```
 
-### 2. Install frontend dependencies
+---
+
+## 🚀 Quick Start Guide
+
+### 1. Backend Setup
 
 ```bash
-cd frontend
-npm install
-cd ..
-```
-
-### 3. Configure environment
-
-Copy the sample environment files and provide production values:
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-```
-
-Update `backend/.env` with your database URL, Alembic URL, Supabase credentials, and CORS origins.
-Update `frontend/.env` with the production backend API URL.
-
-### 4. Run the backend
-
-```bash
+# Navigate to backend directory
 cd backend
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run database migrations
+alembic upgrade head
+
+# Launch local API development server
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 5. Run the frontend
+The FastAPI backend will run at `http://localhost:8000`. API Swagger documentation is available at `http://localhost:8000/docs`.
+
+---
+
+### 2. Frontend Setup
 
 ```bash
+# Navigate to frontend directory
 cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-### 6. Build for production
+The React frontend web application will run at `http://localhost:5173`.
+
+---
+
+## 🧪 Verification & Testing
+
+### Backend Unit & Integration Tests
+
+```bash
+cd backend
+PYTHONPATH=. pytest
+```
+
+### Frontend Production Build Test
 
 ```bash
 cd frontend
 npm run build
-cd ../backend
-python3 -m alembic upgrade head
-```
-
-### 7. Run the full pipeline (research mode)
-
-```bash
-python run_pipeline.py
-```
-
-### 8. Place datasets
-
-Copy your two CSV files into `datasets/`:
-
-```
-datasets/global_cattle_disease_detection_dataset.csv
-datasets/global_cattle_milk_yield_prediction_dataset.csv
-```
-
-Both files must share a `Cattle_ID` column (the join key).
-
-### 3. Run the full pipeline
-
-```bash
-python run_pipeline.py
-```
-
-This executes all six steps in order and prints a checklist of output files.
-
-### 4. Run with hyperparameter tuning (recommended for publication)
-
-```bash
-python run_pipeline.py --tune
-```
-
-Adds ~3–5 minutes but searches for better XGBoost and Random Forest
-parameters via RandomizedSearchCV (30 iterations each).
-
----
-
-## Running individual steps
-
-```bash
-python train.py           # Train all models (fast defaults)
-python train.py --tune    # Train with hyperparameter search
-python evaluate.py        # Evaluation diagnostics + plots
-python simulate.py        # Digital twin simulation
 ```
 
 ---
 
-## Output files
+## 🛠 Technology Stack
 
-| File | Description |
-|------|-------------|
-| `outputs/cv_results.csv` | Per-fold R², MAE, RMSE for every model |
-| `outputs/paper_table_model_comparison.csv` | Mean ± std table for Methods section |
-| `outputs/test_metrics.csv` | Hold-out test metrics (MAE, RMSE, R², MAPE) |
-| `outputs/feature_importance.csv` | Permutation importance (primary) + MDI |
-| `outputs/simulation_results.csv` | Full simulation grid with prediction intervals |
-| `outputs/monotonicity_report.txt` | Biological validity audit of simulation |
-| `outputs/cv_r2_boxplot.png` | CV R² distribution by model |
-| `outputs/predicted_vs_actual.png` | Scatter with identity line |
-| `outputs/residuals_vs_fitted.png` | Residual plot |
-| `outputs/residual_histogram.png` | Residual distribution |
-| `outputs/feature_importance.png` | Horizontal bar chart with error bars |
-| `outputs/simulation_feedlines.png` | Feed × yield lines with PI bands |
-| `outputs/simulation_heatmap.png` | Colour heatmap over temp × feed grid |
-| `outputs/simulation_thi_impact.png` | THI vs yield at median feed |
-| `models/best_milk_model.pkl` | Serialised best model |
-
----
-
-## Research design decisions
-
-### Target variable integrity
-The target (`milk_output`, in L/day) is never modified.
-Earlier versions subtracted a hand-coded stress formula from `y`, then
-compared models trained on different targets — an invalid comparison.
-Here, temperature and humidity appear only as **input features**; their
-relationship with yield is learned entirely from data.
-
-### Feature: Temperature-Humidity Index (THI)
-THI is the standard physiological heat-stress composite used in dairy
-science (NRC, 2001):
-
-    THI = T − (0.31 − 0.31 × RH/100) × (T − 14.4) − 32
-
-| THI | Stress level |
-|-----|-------------|
-| < 68 | None |
-| 68–72 | Mild |
-| 72–80 | Moderate |
-| 80–88 | Severe |
-| ≥ 88 | Emergency |
-
-THI is added as a feature because it captures the nonlinear
-temperature × humidity interaction that raw features cannot represent
-independently, and because it is the standard reporting unit in the
-veterinary literature.
-
-### Model evaluation
-- 5-fold cross-validation with `KFold(shuffle=True, random_state=42)`.
-- A `DummyRegressor(strategy='mean')` is the mandatory naive baseline.
-  Any model that does not exceed it cannot justify its complexity.
-- Model selection uses mean CV R², confirmed with a Wilcoxon signed-rank
-  test on fold-level R² values to establish statistical significance.
-
-### Synthetic weather assignment
-Source records lack timestamps, so exact historical weather cannot be
-matched. Ambient conditions are approximated by Gaussian perturbation
-around the real-time API baseline (σ_T = 2.5°C, σ_H = 7.5%).
-This is declared as a limitation; future work should integrate IoT
-sensor time-series.
-
-### Digital twin prediction intervals
-Prediction intervals (90%) use the "forest of trees" quantile method
-(Meinshausen, 2006): individual tree outputs from a 500-tree Random
-Forest give the 5th–95th percentile band. This is wider than a confidence
-interval — it reflects both model uncertainty and data variability.
-
----
-
-## References
-
-- National Research Council (2001). *Nutrient Requirements of Dairy Cattle*.
-  7th ed. National Academy Press, Washington, DC.
-- Meinshausen, N. (2006). Quantile regression forests.
-  *Journal of Machine Learning Research*, 7, 983–999.
-- West, J. W. (2003). Effects of heat-stress on production in dairy cattle.
-  *Journal of Dairy Science*, 86(6), 2131–2144.
-- Bohmanova, J., Misztal, I., & Cole, J. B. (2007). Temperature-humidity
-  indices as indicators of milk production losses due to heat stress.
-  *Journal of Dairy Science*, 90(4), 1947–1956.
-
----
-
-## Citing this work
-
-If you use this pipeline in a published study, please cite the datasets
-and acknowledge the Open-Meteo API for real-time weather data
-(https://open-meteo.com).
+- **Backend Framework**: FastAPI (Python 3.12)
+- **Database & ORM**: PostgreSQL / SQLite with SQLAlchemy & Alembic
+- **Machine Learning**: Scikit-Learn, XGBoost, SHAP, NumPy, Pandas
+- **Frontend Framework**: React 18 (TypeScript), Vite, Tailwind CSS, Lucide Icons
+- **Data Visualization**: Recharts, SVG Gauge overlays
+- **Authentication**: JWT Bearer Auth with Farm Scoping Control

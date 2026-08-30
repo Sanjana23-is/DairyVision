@@ -23,6 +23,7 @@ export type Recommendation = {
 };
 
 export type RecommendationFilter = {
+  farm_id?: string;
   category?: string;
   priority?: string;
   completed?: boolean;
@@ -32,6 +33,9 @@ export type RecommendationFilter = {
 export async function fetchRecommendations(filters: RecommendationFilter = {}) {
   const params: Record<string, string | boolean> = {};
 
+  if (filters.farm_id) {
+    params.farm_id = filters.farm_id;
+  }
   if (filters.category) {
     params.category = filters.category;
   }
@@ -44,6 +48,7 @@ export async function fetchRecommendations(filters: RecommendationFilter = {}) {
   if (filters.search) {
     params.search = filters.search;
   }
+
 
   const res = await api.get<Recommendation[]>('/api/v1/recommendations', {
     params,

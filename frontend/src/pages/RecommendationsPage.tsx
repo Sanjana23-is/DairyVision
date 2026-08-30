@@ -44,13 +44,15 @@ export default function RecommendationsPage() {
 
   const filters = useMemo(
     () => ({
+      farm_id: currentFarmId || undefined,
       category: category !== "All" ? category : undefined,
       priority: priority !== "All" ? priority : undefined,
       completed: completion === "all" ? undefined : completion === "completed",
       search: search || undefined,
     }),
-    [category, priority, completion, search],
+    [currentFarmId, category, priority, completion, search],
   );
+
 
   const { data: cows = [] } = useQuery({
     queryKey: ["cows", currentFarmId],

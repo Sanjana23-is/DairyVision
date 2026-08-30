@@ -357,6 +357,7 @@ def create_recommendation(
 
 @router.get("/recommendations", response_model=list[RecommendationResponse])
 def list_recommendations(
+    farm_id: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     priority: Optional[str] = Query(None),
     completed: Optional[bool] = Query(None),
@@ -366,13 +367,15 @@ def list_recommendations(
 ) -> list[RecommendationResponse]:
     query = scope_query(db.query(Recommendation), Recommendation, user_id)
 
-    if category is not None:
+    if isinstance(farm_id, str) and farm_id.strip():
+        query = query.filter(Recommendation.farm_id == farm_id)
+    if isinstance(category, str) and category.strip():
         query = query.filter(Recommendation.category == category)
-    if priority is not None:
+    if isinstance(priority, str) and priority.strip():
         query = query.filter(Recommendation.priority == priority)
-    if completed is not None:
+    if isinstance(completed, bool):
         query = query.filter(Recommendation.completed.is_(completed))
-    if search is not None and search.strip():
+    if isinstance(search, str) and search.strip():
         term = f"%{search.strip()}%"
         query = query.filter(
             or_(
@@ -383,7 +386,26 @@ def list_recommendations(
             )
         )
 
-    return query.order_by(Recommendation.created_at.desc()).all()
+
+    all_results = query.order_by(Recommendation.created_at.desc()).all()
+
+    seen_keys = set()
+    deduped_results: list[Recommendation] = []
+    for rec in all_results:
+        key_completed = rec.completed if completed is None else True
+        key = (
+            rec.farm_id or "",
+            rec.cow_id or "",
+            rec.recommendation_type or "",
+            rec.title or "",
+            key_completed,
+        )
+        if key not in seen_keys:
+            seen_keys.add(key)
+            deduped_results.append(rec)
+
+    return deduped_results
+
 
 
 @router.get("/recommendations/{recommendation_id}", response_model=RecommendationResponse)

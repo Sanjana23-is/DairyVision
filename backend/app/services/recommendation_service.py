@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from sqlalchemy.orm import Session
+
 
 from app.models import (
     AnomalyRecord,
@@ -319,34 +321,113 @@ class RecommendationService:
 
         recommendation_objects: list[Recommendation] = []
         for item in results:
-            recommendation = Recommendation(
-                cow_id=(
-                    getattr(health_alert, "cow_id", None)
-                    or getattr(observation, "cow_id", None)
-                    or getattr(prediction, "cow_id", None)
-                    or getattr(anomaly, "cow_id", None)
-                ),
-                alert_id=getattr(health_alert, "id", None),
-                prediction_id=getattr(prediction, "id", None),
-                observation_id=getattr(observation, "id", None),
-                anomaly_id=getattr(anomaly, "id", None),
-                farm_id=(
-                    getattr(health_alert, "farm_id", None)
-                    or getattr(observation, "farm_id", None)
-                    or getattr(weather, "farm_id", None)
-                    or getattr(anomaly, "farm_id", None)
-                ),
-                title=item["title"],
-                description=item.get("description"),
-                why_reason=item.get("why_reason"),
-                category=item["category"],
-                priority=item["priority"],
-                recommendation_type=item.get("recommendation_type", "generated"),
-                owner_id=user_id,
+            target_cow_id = (
+                getattr(health_alert, "cow_id", None)
+                or getattr(observation, "cow_id", None)
+                or getattr(prediction, "cow_id", None)
+                or getattr(anomaly, "cow_id", None)
             )
-            recommendation_objects.append(self.repo.save(recommendation))
+            target_farm_id = (
+                getattr(health_alert, "farm_id", None)
+                or getattr(observation, "farm_id", None)
+                or getattr(weather, "farm_id", None)
+                or getattr(anomaly, "farm_id", None)
+            )
+            rec_type = item.get("recommendation_type", "generated")
+            rec_title = item["title"]
+
+            existing_query = self.db.query(Recommendation).filter(
+                Recommendation.owner_id == user_id,
+                Recommendation.title == rec_title,
+                Recommendation.completed.is_(False),
+            )
+            if target_farm_id:
+                existing_query = existing_query.filter(Recommendation.farm_id == target_farm_id)
+            else:
+                existing_query = existing_query.filter(Recommendation.farm_id.is_(None))
+
+            if target_cow_id:
+                existing_query = existing_query.filter(Recommendation.cow_id == target_cow_id)
+            else:
+                existing_query = existing_query.filter(Recommendation.cow_id.is_(None))
+
+            existing = existing_query.order_by(Recommendation.created_at.desc()).first()
+
+            if existing:
+                existing.description = item.get("description")
+                existing.why_reason = item.get("why_reason")
+                existing.category = item["category"]
+                existing.priority = item["priority"]
+                existing.recommendation_type = rec_type
+                if health_alert:
+                    existing.alert_id = health_alert.id
+                if prediction:
+                    existing.prediction_id = prediction.id
+                if observation:
+                    existing.observation_id = observation.id
+                if anomaly:
+                    existing.anomaly_id = anomaly.id
+                existing.created_at = datetime.now(timezone.utc)
+                self.db.commit()
+                self.db.refresh(existing)
+                recommendation_objects.append(existing)
+            else:
+                recommendation = Recommendation(
+                    cow_id=target_cow_id,
+                    alert_id=getattr(health_alert, "id", None),
+                    prediction_id=getattr(prediction, "id", None),
+                    observation_id=getattr(observation, "id", None),
+                    anomaly_id=getattr(anomaly, "id", None),
+                    farm_id=target_farm_id,
+                    title=rec_title,
+                    description=item.get("description"),
+                    why_reason=item.get("why_reason"),
+                    category=item["category"],
+                    priority=item["priority"],
+                    recommendation_type=rec_type,
+                    owner_id=user_id,
+                )
+                recommendation_objects.append(self.repo.save(recommendation))
+
+        self.deduplicate_recommendations(user_id=user_id)
 
         return recommendation_objects
+
+    def deduplicate_recommendations(self, user_id: Optional[str] = None) -> int:
+        """Consolidate existing duplicate uncompleted recommendation records in the database."""
+        try:
+            query = self.db.query(Recommendation).filter(Recommendation.completed.is_(False))
+            if user_id:
+                query = query.filter(Recommendation.owner_id == user_id)
+
+            recommendations = query.order_by(Recommendation.created_at.desc()).all()
+
+            seen_keys = set()
+            to_delete_ids = []
+
+            for rec in recommendations:
+                key = (
+                    rec.owner_id,
+                    rec.farm_id or "",
+                    rec.cow_id or "",
+                    rec.title or "",
+                )
+                if key in seen_keys:
+                    to_delete_ids.append(rec.id)
+                else:
+                    seen_keys.add(key)
+
+            if to_delete_ids:
+                self.db.query(Recommendation).filter(Recommendation.id.in_(to_delete_ids)).delete(synchronize_session=False)
+                self.db.commit()
+                logger.info("Deduplicated %d uncompleted recommendation records for user %s", len(to_delete_ids), user_id)
+                return len(to_delete_ids)
+            return 0
+        except Exception as exc:
+            self.db.rollback()
+            logger.warning("Recommendation deduplication encountered notice: %s", str(exc))
+            return 0
+
 
     def auto_generate_for_observation(self, user_id: str, observation_id: str) -> list[Recommendation]:
         obs = self.db.get(DailyObservation, observation_id)
