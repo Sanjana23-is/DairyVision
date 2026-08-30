@@ -1,15 +1,24 @@
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime, time, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.exceptions import ObservationForbidden, ObservationNotFound, ObservationValidationError
+from app.exceptions import (
+    ObservationForbidden,
+    ObservationNotFound,
+    ObservationValidationError,
+    WeatherNotFound,
+)
 from app.models import ActivityLog, DailyObservation
 from app.repositories.observation_repository import ObservationRepository
 from app.schemas.observation import ObservationCreate, ObservationUpdate
 from app.services.weather_service import WeatherService
+
+logger = logging.getLogger(__name__)
+
 
 
 class ObservationService:
@@ -39,8 +48,15 @@ class ObservationService:
             raise ObservationForbidden(str(exc)) from exc
 
         weather_time = datetime.combine(payload_data["observation_date"], time(hour=12), tzinfo=timezone.utc)
-        weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, farm_id, weather_time)
-        payload_data["weather_log_id"] = weather_log.id
+        try:
+            weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, farm_id, weather_time)
+            payload_data["weather_log_id"] = weather_log.id
+        except WeatherNotFound as exc:
+            logger.warning(
+                "Could not fetch weather log for farm %s: %s. Proceeding without weather log.",
+                farm_id,
+                str(exc),
+            )
 
         observation = self.repository.create(user_id, observed_by=user_id, **payload_data)
         self._log_activity(user_id, cow_id, "observation.created", f"Created observation {observation.id}")
@@ -67,10 +83,17 @@ class ObservationService:
 
         if "observation_date" in update_data or observation.weather_log_id is None:
             weather_time = datetime.combine(observation.observation_date, time(hour=12), tzinfo=timezone.utc)
-            weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, observation.farm_id, weather_time)
-            observation.weather_log_id = weather_log.id
-            self.db.commit()
-            self.db.refresh(observation)
+            try:
+                weather_log = self.weather_service.get_or_create_nearest_snapshot(user_id, observation.farm_id, weather_time)
+                observation.weather_log_id = weather_log.id
+                self.db.commit()
+                self.db.refresh(observation)
+            except WeatherNotFound as exc:
+                logger.warning(
+                    "Could not fetch weather log for farm %s: %s. Proceeding without updating weather log.",
+                    observation.farm_id,
+                    str(exc),
+                )
 
         self._log_activity(user_id, observation.cow_id, "observation.updated", f"Updated observation {observation.id}")
         return observation

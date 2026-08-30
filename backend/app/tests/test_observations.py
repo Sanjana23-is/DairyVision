@@ -131,3 +131,52 @@ def test_delete_observation_removes_record_and_logs_activity(db_session: Session
     assert deleted_activity is not None
     assert deleted_activity.activity_type == "observation.deleted"
     assert user_id == deleted_activity.owner_id
+
+
+def test_create_observation_succeeds_without_farm_coordinates(db_session: Session) -> None:
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f"user+{user_id}@example.com", full_name="Test User")
+    db_session.add(user)
+    db_session.flush()
+
+    farm = Farm(
+        id=str(uuid4()),
+        name="No-Coords Farm",
+        timezone="UTC",
+        latitude=None,
+        longitude=None,
+        created_by=user.id,
+    )
+    db_session.add(farm)
+    db_session.flush()
+
+    cow = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id="TAG999",
+        status="active",
+        owner_id=user.id,
+        created_by=user.id,
+    )
+    db_session.add(cow)
+    db_session.commit()
+
+    service = ObservationService(db_session)
+    payload = ObservationCreate(
+        farm_id=farm.id,
+        cow_id=cow.id,
+        milk_produced_liters=12.0,
+        feed_quantity_kg=15.0,
+        notes="Weather-free check",
+    )
+
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert observation.owner_id == user_id
+    assert observation.observed_by == user_id
+    assert observation.cow_id == cow.id
+    assert observation.farm_id == farm.id
+    assert observation.milk_produced_liters == 12.0
+    assert observation.feed_quantity_kg == 15.0
+    assert observation.weather_log_id is None
