@@ -47,7 +47,12 @@ class DailyObservation(Base):
     milk_produced_liters: Mapped[Optional[float]] = mapped_column(Numeric(8, 2), nullable=True, doc="Milk produced in liters.")
     feed_quantity_kg: Mapped[Optional[float]] = mapped_column(Numeric(8, 2), nullable=True, doc="Feed quantity in kilograms.")
     symptoms: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True, doc="Farmer-selected symptom data.")
+    health_condition: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default="normal", server_default="normal", doc="Structured health condition.")
+    body_temperature_c: Mapped[Optional[float]] = mapped_column(Numeric(4, 2), nullable=True, doc="Body temperature in Celsius.")
+    body_condition_score: Mapped[Optional[float]] = mapped_column(Numeric(3, 2), nullable=True, doc="Body condition score (1.0 to 5.0).")
+    health_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True, doc="Optional health notes.")
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True, doc="Optional freeform notes.")
+
     observed_by: Mapped[Optional[str]] = mapped_column(
         GUID(),
         ForeignKey("users.id", ondelete="SET NULL"),

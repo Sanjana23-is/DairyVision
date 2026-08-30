@@ -71,6 +71,10 @@ class HealthAlertService:
                 raise ValueError("Prediction not found")
             if pred.owner_id != user_id:
                 raise PermissionError("User does not own this prediction")
+        elif observation_id:
+            pred = self.db.query(MilkPrediction).filter(MilkPrediction.observation_id == observation_id).first()
+            if pred:
+                prediction_id = pred.id
 
         weather = None
         if weather_log_id:
@@ -116,9 +120,14 @@ class HealthAlertService:
 
         # Abnormal conditions
         abnormal_score = 0.0
-        if obs is not None and getattr(obs, 'symptoms', None):
-            if isinstance(obs.symptoms, dict) and len(obs.symptoms) > 0:
+        if obs is not None:
+            if getattr(obs, 'symptoms', None) and isinstance(obs.symptoms, dict) and len(obs.symptoms) > 0:
                 abnormal_score = 1.0
+            if getattr(obs, 'health_condition', None) and obs.health_condition != 'normal':
+                abnormal_score = 1.0
+            if getattr(obs, 'body_temperature_c', None) and (float(obs.body_temperature_c) > 39.5 or float(obs.body_temperature_c) < 37.5):
+                abnormal_score = 1.0
+
         if weather is not None and getattr(weather, 'rainfall', 0) is not None:
             try:
                 if float(weather.rainfall) > 50.0:
@@ -150,6 +159,20 @@ class HealthAlertService:
         # description
         desc = f"heat_score={heat_score:.2f}; milk_score={milk_score:.2f}; abnormal_score={abnormal_score:.2f}"
 
+        if persist and observation_id:
+            existing_ha = self.db.query(HealthAlert).filter(HealthAlert.observation_id == observation_id).first()
+            if existing_ha:
+                existing_ha.alert_level = level
+                existing_ha.confidence = confidence
+                existing_ha.description = desc
+                if prediction_id:
+                    existing_ha.prediction_id = prediction_id
+                if farm:
+                    existing_ha.farm_id = farm.id
+                self.db.commit()
+                self.db.refresh(existing_ha)
+                return existing_ha
+
         ha = HealthAlert(
             cow_id=cow_id,
             observation_id=observation_id,
@@ -166,6 +189,7 @@ class HealthAlertService:
         if persist:
             saved = self.repo.save(ha)
             return saved
+
 
         if getattr(ha, 'id', None) is None:
             ha.id = str(uuid4())
@@ -206,3 +230,164 @@ class HealthAlertService:
             )
 
         return query.order_by(HealthAlert.created_at.desc()).all()
+
+    def get_health_summary(self, user_id: str, farm_id: Optional[str] = None) -> dict:
+        cow_query = self.db.query(Cow).filter(Cow.owner_id == user_id)
+        if farm_id:
+            cow_query = cow_query.filter(Cow.farm_id == farm_id)
+        cows = cow_query.all()
+        total_cows = len(cows)
+        cow_dict = {c.id: c for c in cows}
+
+        alert_query = self.db.query(HealthAlert).filter(
+            HealthAlert.owner_id == user_id,
+            HealthAlert.resolved.is_(False),
+            HealthAlert.alert_level != "Healthy",
+        )
+        if farm_id:
+            alert_query = alert_query.filter(HealthAlert.farm_id == farm_id)
+        active_alerts = alert_query.all()
+
+        cow_alerts: dict[str, list[HealthAlert]] = {}
+        for alert in active_alerts:
+            if alert.cow_id not in cow_alerts:
+                cow_alerts[alert.cow_id] = []
+            cow_alerts[alert.cow_id].append(alert)
+
+        critical_cows: set[str] = set()
+        warning_cows: set[str] = set()
+
+        for c_id, alerts in cow_alerts.items():
+            if any(a.alert_level == "Critical" for a in alerts):
+                critical_cows.add(c_id)
+            elif any(a.alert_level == "Warning" for a in alerts):
+                warning_cows.add(c_id)
+
+        critical_count = len(critical_cows)
+        warning_count = len(warning_cows)
+        needs_attention_count = critical_count + warning_count
+
+        from datetime import date, timedelta
+        recent_threshold = date.today() - timedelta(days=14)
+
+        healthy_count = 0
+        no_recent_data_count = 0
+
+        for c_id in cow_dict:
+            if c_id in critical_cows or c_id in warning_cows:
+                continue
+
+            latest_obs = (
+                self.db.query(DailyObservation)
+                .filter(DailyObservation.cow_id == c_id)
+                .order_by(DailyObservation.observation_date.desc())
+                .first()
+            )
+            if latest_obs and latest_obs.observation_date and latest_obs.observation_date >= recent_threshold:
+                healthy_count += 1
+            else:
+                no_recent_data_count += 1
+
+
+        risk_counts = {
+            "Heat Stress": 0,
+            "Milk Drop": 0,
+            "Health Condition": 0,
+            "High Temperature": 0,
+        }
+
+        for alert in active_alerts:
+            desc = (alert.description or "").lower()
+            obs = alert.observation_id and self.db.get(DailyObservation, alert.observation_id)
+
+            is_heat = "heat" in desc or (
+                obs
+                and getattr(obs, "weather_log", None)
+                and getattr(obs.weather_log, "thi", 0)
+                and float(obs.weather_log.thi) >= 70.0
+            )
+            is_milk = "milk" in desc or (
+                alert.prediction_id is not None
+                and obs
+                and obs.milk_produced_liters is not None
+            )
+            is_fever = (
+                obs
+                and obs.body_temperature_c
+                and (float(obs.body_temperature_c) > 39.5 or float(obs.body_temperature_c) < 37.5)
+            ) or "fever" in desc or "temperature" in desc
+            is_condition = (
+                obs and obs.health_condition and obs.health_condition != "normal"
+            ) or "abnormal" in desc or (obs and obs.symptoms)
+
+            if is_heat:
+                risk_counts["Heat Stress"] += 1
+            if is_milk:
+                risk_counts["Milk Drop"] += 1
+            if is_fever:
+                risk_counts["High Temperature"] += 1
+            if is_condition and not is_fever:
+                risk_counts["Health Condition"] += 1
+
+            if not (is_heat or is_milk or is_fever or is_condition):
+                risk_counts["Health Condition"] += 1
+
+        risk_breakdown = [
+            {"risk_type": k, "count": v} for k, v in risk_counts.items() if v > 0
+        ]
+        if not risk_breakdown:
+            risk_breakdown = [{"risk_type": k, "count": 0} for k in risk_counts.keys()]
+
+        attention_cows = []
+        for c_id in (critical_cows | warning_cows):
+            cow = cow_dict.get(c_id) or self.db.get(Cow, c_id)
+            c_alerts = cow_alerts.get(c_id, [])
+            worst_level = "Critical" if c_id in critical_cows else "Warning"
+
+            first_alert = c_alerts[0] if c_alerts else None
+            risk_desc = "Health Condition"
+            if first_alert:
+                d = (first_alert.description or "").lower()
+                if "heat" in d:
+                    risk_desc = "Heat Stress"
+                elif "milk" in d:
+                    risk_desc = "Milk Drop"
+                elif "fever" in d or "temp" in d:
+                    risk_desc = "High Temperature"
+
+            latest_obs = (
+                self.db.query(DailyObservation)
+                .filter(DailyObservation.cow_id == c_id)
+                .order_by(DailyObservation.observation_date.desc())
+                .first()
+            )
+            last_date_str = (
+                latest_obs.observation_date.strftime("%Y-%m-%d")
+                if latest_obs and latest_obs.observation_date
+                else None
+            )
+
+            attention_cows.append(
+                {
+                    "cow_id": c_id,
+                    "cow_name": (cow.name or cow.tag_id) if cow else c_id,
+                    "alert_level": worst_level,
+                    "risk_type": risk_desc,
+                    "last_observed_date": last_date_str,
+                }
+            )
+
+        return {
+            "summary": {
+                "healthy": healthy_count,
+                "warning": warning_count,
+                "critical": critical_count,
+                "needs_attention": needs_attention_count,
+                "no_recent_data": no_recent_data_count,
+                "total_cows": total_cows,
+            },
+            "risk_breakdown": risk_breakdown,
+            "attention_cows": attention_cows,
+        }
+
+

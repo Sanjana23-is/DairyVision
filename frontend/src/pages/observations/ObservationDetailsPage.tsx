@@ -25,20 +25,9 @@ export default function ObservationDetailsPage() {
     enabled: !!observation?.cow_id,
   });
 
-  const symptomList = (() => {
-    if (!observation?.symptoms) return [];
-    const symptoms = observation.symptoms;
-    if (Array.isArray(symptoms.signs)) return symptoms.signs;
-    if (typeof symptoms === "object") {
-      return Object.entries(symptoms)
-        .filter(([key, value]) => key !== "condition" && value === true)
-        .map(([key]) => key.replace(/_/g, " "));
-    }
-    return [];
-  })();
-
   return (
     <DashboardLayout>
+
       <div className="mx-auto max-w-4xl">
         <button onClick={() => navigate(-1)} className="mb-4 text-slate-600">
           Back
@@ -90,36 +79,46 @@ export default function ObservationDetailsPage() {
 
             <div className="space-y-4">
               <div>
-                <div className="text-sm text-slate-500">Condition</div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
-                  {observation.symptoms?.condition
-                    ? observation.symptoms.condition.replace(/_/g, " ")
-                    : "Not specified"}
+                <div className="text-sm font-semibold text-slate-700 mb-2">Health Information</div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-xs text-slate-500 font-medium">Condition</div>
+                    <div className="mt-1 font-semibold capitalize text-slate-800">
+                      {observation.health_condition || observation.symptoms?.condition || "Normal"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-xs text-slate-500 font-medium">Body Temperature</div>
+                    <div className="mt-1 font-semibold text-slate-800">
+                      {observation.body_temperature_c != null ? `${observation.body_temperature_c} °C` : "—"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-xs text-slate-500 font-medium">Body Condition (BCS)</div>
+                    <div className="mt-1 font-semibold text-slate-800">
+                      {observation.body_condition_score != null ? `${observation.body_condition_score} / 5.0` : "—"}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <div className="text-sm text-slate-500">Symptoms</div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
-                  {symptomList.length > 0 ? (
-                    <ul className="list-disc space-y-1 pl-5">
-                      {symptomList.map((symptom) => (
-                        <li key={symptom}>{symptom}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    "None"
-                  )}
+              {observation.health_notes ? (
+                <div>
+                  <div className="text-sm text-slate-500">Health Notes</div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
+                    {observation.health_notes}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div>
-                <div className="text-sm text-slate-500">Notes</div>
+                <div className="text-sm text-slate-500">General Notes</div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
                   {observation.notes ?? "No additional notes."}
                 </div>
               </div>
             </div>
+
           </div>
         )}
       </div>

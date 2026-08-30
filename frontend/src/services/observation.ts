@@ -12,12 +12,17 @@ export type Observation = {
     signs?: string[];
     [key: string]: any;
   };
+  health_condition?: string;
+  body_temperature_c?: number;
+  body_condition_score?: number;
+  health_notes?: string;
   notes?: string;
   observed_by?: string | null;
   owner_id: string;
   created_at: string;
   updated_at?: string;
 };
+
 
 export async function fetchObservations(farmId?: string) {
   const res = await api.get<Observation[]>("/api/v1/daily-observations", {

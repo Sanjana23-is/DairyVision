@@ -253,22 +253,38 @@ export default function ObservationListPage() {
                   <th className="px-4 py-3">Cow</th>
                   <th className="px-4 py-3">Milk Yield</th>
                   <th className="px-4 py-3">Feed Intake</th>
+                  <th className="px-4 py-3">Health Condition</th>
                   <th className="px-4 py-3">Notes</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredObservations.map((obs) => (
-                  <tr key={obs.id} className="border-t hover:bg-slate-50">
-                    <td className="px-4 py-4">{obs.observation_date}</td>
-                    <td className="px-4 py-4">{cowName(obs.cow_id)}</td>
-                    <td className="px-4 py-4">
-                      {obs.milk_produced_liters ?? "—"}
-                    </td>
-                    <td className="px-4 py-4">{obs.feed_quantity_kg ?? "—"}</td>
-                    <td className="px-4 py-4">
-                      {obs.notes ? obs.notes.slice(0, 40) : "—"}
-                    </td>
+                {filteredObservations.map((obs) => {
+                  const cond = (obs.health_condition || obs.symptoms?.condition || "normal").toLowerCase();
+                  const isHealthy = cond === "normal" || cond === "healthy";
+                  return (
+                    <tr key={obs.id} className="border-t hover:bg-slate-50">
+                      <td className="px-4 py-4">{obs.observation_date}</td>
+                      <td className="px-4 py-4">{cowName(obs.cow_id)}</td>
+                      <td className="px-4 py-4">
+                        {obs.milk_produced_liters ?? "—"}
+                      </td>
+                      <td className="px-4 py-4">{obs.feed_quantity_kg ?? "—"}</td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            isHealthy
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {cond.charAt(0).toUpperCase() + cond.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        {obs.notes ? obs.notes.slice(0, 40) : "—"}
+                      </td>
+
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-2">
                         <Link
@@ -295,8 +311,11 @@ export default function ObservationListPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
+
               </tbody>
+
             </table>
           )}
         </div>

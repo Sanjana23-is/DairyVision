@@ -9,7 +9,11 @@ from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
 from app.models import HealthAlert
 from app.schemas.crud import HealthAlertUpdate
-from app.schemas.health_alert import HealthAlertCreate, HealthAlertResponse
+from app.schemas.health_alert import (
+    HealthAlertCreate,
+    HealthAlertResponse,
+    HealthSummaryResponse,
+)
 from app.services.crud_service import CRUDService
 from app.services.health_alert_service import HealthAlertService
 
@@ -46,6 +50,15 @@ def create_health_alert(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
 
 
+@router.get("/health-alerts/summary", response_model=HealthSummaryResponse)
+def get_health_summary(
+    farm_id: Optional[str] = Query(None),
+    user_id: str = Depends(get_current_user_id),
+    service: HealthAlertService = Depends(get_health_alert_service),
+) -> HealthSummaryResponse:
+    return service.get_health_summary(user_id=user_id, farm_id=farm_id)
+
+
 @router.get("/health-alerts", response_model=list[HealthAlertResponse])
 def list_health_alerts(
     alert_level: Optional[str] = Query(None),
@@ -64,6 +77,7 @@ def list_health_alerts(
         prediction_id=prediction_id,
         search=search,
     )
+
 
 
 @router.get("/health-alerts/{alert_id}", response_model=HealthAlertResponse)

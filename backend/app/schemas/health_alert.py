@@ -31,3 +31,33 @@ class HealthAlertResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class HealthSummaryCounts(BaseModel):
+    healthy: int
+    warning: int
+    critical: int
+    needs_attention: int
+    no_recent_data: int
+    total_cows: int
+
+
+
+class RiskBreakdownItem(BaseModel):
+    risk_type: str
+    count: int
+
+
+class AttentionCow(BaseModel):
+    cow_id: str
+    cow_name: str
+    alert_level: str
+    risk_type: str
+    last_observed_date: Optional[str] = None
+
+
+class HealthSummaryResponse(BaseModel):
+    summary: HealthSummaryCounts
+    risk_breakdown: list[RiskBreakdownItem]
+    attention_cows: list[AttentionCow]
+

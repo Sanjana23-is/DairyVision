@@ -60,7 +60,42 @@ class ObservationService:
 
         observation = self.repository.create(user_id, observed_by=user_id, **payload_data)
         self._log_activity(user_id, cow_id, "observation.created", f"Created observation {observation.id}")
+        self._auto_evaluate_health(user_id, observation)
         return observation
+
+    def _auto_evaluate_health(self, user_id: str, observation: DailyObservation) -> None:
+        prediction_id = None
+        try:
+            from app.services.prediction_service import PredictionService
+            pred_svc = PredictionService(self.db)
+            pred = pred_svc.predict_for_observation(user_id, observation.id)
+            if pred:
+                prediction_id = pred.id
+        except Exception as exc:
+            logger.debug(
+                "Prediction generation skipped/failed for observation %s: %s",
+                observation.id,
+                str(exc),
+            )
+
+        try:
+            from app.services.health_alert_service import HealthAlertService
+            health_svc = HealthAlertService(self.db)
+            health_svc.evaluate_and_create(
+                user_id=user_id,
+                cow_id=observation.cow_id,
+                observation_id=observation.id,
+                prediction_id=prediction_id,
+                weather_log_id=observation.weather_log_id,
+                persist=True,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Health evaluation failed for observation %s: %s",
+                observation.id,
+                str(exc),
+            )
+
 
     def update_observation(self, user_id: str, observation_id: str, payload: ObservationUpdate) -> Optional[DailyObservation]:
         update_data = payload.model_dump(exclude_unset=True)

@@ -71,3 +71,119 @@ def test_persistence(db_session: Session):
     reloaded = db_session.get(HealthAlert, res.id)
     assert float(reloaded.confidence) == float(res.confidence)
     assert 'confidence=' not in (reloaded.description or '')
+
+
+def test_health_summary_returns_correct_counts(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    svc = HealthAlertService(db_session)
+
+    # Initially normal observation
+    svc.evaluate_and_create(user.id, cow.id, observation_id=obs.id)
+    summary = svc.get_health_summary(user.id, farm.id)
+
+    assert summary["summary"]["total_cows"] == 1
+    assert summary["summary"]["needs_attention"] == 0
+    assert summary["summary"]["healthy"] == 1
+
+
+def test_health_summary_user_and_farm_scoping(db_session: Session):
+    user1, farm1, cow1, obs1 = _create_owner_entities(db_session)
+    user2, farm2, cow2, obs2 = _create_owner_entities(db_session)
+    svc = HealthAlertService(db_session)
+
+    svc.evaluate_and_create(user1.id, cow1.id, observation_id=obs1.id)
+    svc.evaluate_and_create(user2.id, cow2.id, observation_id=obs2.id)
+
+    sum1 = svc.get_health_summary(user1.id, farm1.id)
+    sum2 = svc.get_health_summary(user2.id, farm2.id)
+
+    assert sum1["summary"]["total_cows"] == 1
+    assert sum2["summary"]["total_cows"] == 1
+
+
+def test_health_summary_risk_breakdown_categories(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    obs.health_condition = "fever"
+    db_session.add(obs); db_session.commit()
+
+    svc = HealthAlertService(db_session)
+    svc.evaluate_and_create(user.id, cow.id, observation_id=obs.id)
+
+    summary = svc.get_health_summary(user.id, farm.id)
+    assert summary["summary"]["critical"] == 1
+    assert summary["summary"]["needs_attention"] == 1
+    assert len(summary["attention_cows"]) == 1
+    assert summary["attention_cows"][0]["cow_name"] == "T1"
+
+
+def test_health_summary_handles_resolved_alerts(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    obs.health_condition = "mastitis"
+    db_session.add(obs); db_session.commit()
+
+    svc = HealthAlertService(db_session)
+    ha = svc.evaluate_and_create(user.id, cow.id, observation_id=obs.id)
+
+    # Active
+    sum_before = svc.get_health_summary(user.id, farm.id)
+    assert sum_before["summary"]["needs_attention"] == 1
+
+    # Resolve
+    ha.resolved = True
+    db_session.commit()
+
+    sum_after = svc.get_health_summary(user.id, farm.id)
+    assert sum_after["summary"]["needs_attention"] == 0
+    assert sum_after["summary"]["healthy"] == 1
+
+
+def test_health_summary_multiple_alerts_same_cow(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    svc = HealthAlertService(db_session)
+
+    # Create critical alert
+    ha1 = HealthAlert(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        farm_id=farm.id,
+        alert_level="Critical",
+        alert_type="composite",
+        description="heat_score=0.90",
+        confidence=0.9,
+        resolved=False,
+        owner_id=user.id,
+    )
+    ha2 = HealthAlert(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        farm_id=farm.id,
+        alert_level="Warning",
+        alert_type="composite",
+        description="milk_score=0.50",
+        confidence=0.5,
+        resolved=False,
+        owner_id=user.id,
+    )
+    db_session.add(ha1); db_session.add(ha2); db_session.commit()
+
+    summary = svc.get_health_summary(user.id, farm.id)
+    assert summary["summary"]["total_cows"] == 1
+    assert summary["summary"]["critical"] == 1
+    assert summary["summary"]["needs_attention"] == 1
+    assert len(summary["attention_cows"]) == 1
+
+
+def test_health_summary_empty_state(db_session: Session):
+    from app.models import User
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f'empty_{user_id}@example.com', full_name='Empty Test')
+    db_session.add(user); db_session.commit()
+
+    svc = HealthAlertService(db_session)
+    summary = svc.get_health_summary(user.id)
+
+    assert summary["summary"]["total_cows"] == 0
+    assert summary["summary"]["healthy"] == 0
+    assert summary["summary"]["needs_attention"] == 0
+    assert summary["attention_cows"] == []
+

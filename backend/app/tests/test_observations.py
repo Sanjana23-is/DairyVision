@@ -180,3 +180,284 @@ def test_create_observation_succeeds_without_farm_coordinates(db_session: Sessio
     assert observation.milk_produced_liters == 12.0
     assert observation.feed_quantity_kg == 15.0
     assert observation.weather_log_id is None
+
+
+def test_create_observation_without_health_info(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        milk_produced_liters=15.0,
+    )
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert observation.health_condition == "normal" or observation.health_condition is None
+    assert observation.body_temperature_c is None
+    assert observation.body_condition_score is None
+
+
+def test_create_observation_with_health_condition(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        health_condition="mastitis",
+    )
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert observation.health_condition == "mastitis"
+
+
+def test_create_observation_with_body_temperature(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        body_temperature_c=38.5,
+    )
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert float(observation.body_temperature_c) == 38.5
+
+
+def test_create_observation_with_bcs(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        body_condition_score=3.5,
+    )
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert float(observation.body_condition_score) == 3.5
+
+
+def test_observation_rejects_bcs_outside_range(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+
+    with pytest.raises(Exception):
+        ObservationCreate(
+            farm_id=farm_id,
+            cow_id=cow_id,
+            body_condition_score=0.5,
+        )
+
+    with pytest.raises(Exception):
+        ObservationCreate(
+            farm_id=farm_id,
+            cow_id=cow_id,
+            body_condition_score=5.5,
+        )
+
+
+def test_observation_rejects_invalid_health_condition(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+
+    with pytest.raises(Exception):
+        ObservationCreate(
+            farm_id=farm_id,
+            cow_id=cow_id,
+            health_condition="invalid_disease",
+        )
+
+
+def test_existing_observation_compatibility(db_session: Session) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        milk_produced_liters=14.0,
+        feed_quantity_kg=12.0,
+        symptoms={"condition": "abnormal", "signs": ["lethargy"]},
+        notes="Legacy observation format",
+    )
+    observation = service.create_observation(user_id, payload)
+
+    assert observation.id is not None
+    assert observation.symptoms == {"condition": "abnormal", "signs": ["lethargy"]}
+    assert observation.notes == "Legacy observation format"
+
+
+def test_auto_health_eval_on_normal_observation(db_session: Session) -> None:
+    from app.models import HealthAlert
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        milk_produced_liters=15.0,
+        health_condition="normal",
+    )
+    obs = service.create_observation(user_id, payload)
+
+    alert = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).first()
+    assert alert is not None
+    assert alert.cow_id == cow_id
+    assert alert.farm_id == farm_id
+    assert alert.owner_id == user_id
+    assert alert.alert_level in ("Healthy", "Warning")
+
+
+
+def test_auto_health_eval_fever_creates_critical_alert(db_session: Session) -> None:
+    from app.models import HealthAlert
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        health_condition="fever",
+    )
+    obs = service.create_observation(user_id, payload)
+
+    alert = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).first()
+    assert alert is not None
+    assert alert.alert_level == "Critical"
+
+
+def test_auto_health_eval_abnormal_temp_triggers_alert(db_session: Session) -> None:
+    from app.models import HealthAlert
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        body_temperature_c=40.5,
+    )
+    obs = service.create_observation(user_id, payload)
+
+    alert = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).first()
+    assert alert is not None
+    assert alert.alert_level == "Critical"
+
+
+def test_auto_health_eval_high_thi_evaluated(db_session: Session) -> None:
+    from app.models import HealthAlert, WeatherLog
+    from datetime import datetime, timezone
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+
+    # create a weather log with high THI (78.0)
+    weather = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm_id,
+        owner_id=user_id,
+        temperature=32.0,
+        humidity=70.0,
+        thi=78.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(weather)
+    db_session.commit()
+
+    service = ObservationService(db_session)
+    payload = ObservationCreate(
+        farm_id=farm_id,
+        cow_id=cow_id,
+        milk_produced_liters=10.0,
+    )
+    obs = service.create_observation(user_id, payload)
+
+    alert = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).first()
+    assert alert is not None
+    assert alert.alert_level in ("Warning", "Critical")
+
+
+def test_auto_health_eval_milk_drop_risk(db_session: Session) -> None:
+    from app.models import HealthAlert, MilkPrediction
+    from datetime import datetime, timezone
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+
+    service = ObservationService(db_session)
+    obs = service.create_observation(user_id, ObservationCreate(farm_id=farm_id, cow_id=cow_id, milk_produced_liters=5.0))
+
+    # attach a prediction with high expected yield (20.0 L) vs observed (5.0 L) -> 75% drop
+    pred = MilkPrediction(
+        id=str(uuid4()),
+        cow_id=cow_id,
+        observation_id=obs.id,
+        predicted_milk_yield=20.0,
+        model_version="test_v1",
+        owner_id=user_id,
+        prediction_timestamp=datetime.now(timezone.utc),
+    )
+    db_session.add(pred)
+    db_session.commit()
+
+    from app.services.health_alert_service import HealthAlertService
+    has = HealthAlertService(db_session)
+    alert = has.evaluate_and_create(user_id=user_id, observation_id=obs.id)
+
+    assert alert is not None
+    assert alert.prediction_id == pred.id
+    assert alert.alert_level in ("Warning", "Critical")
+
+
+def test_auto_health_eval_links_ids_properly(db_session: Session) -> None:
+    from app.models import HealthAlert
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    obs = service.create_observation(user_id, ObservationCreate(farm_id=farm_id, cow_id=cow_id, milk_produced_liters=12.0))
+
+    alert = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).first()
+    assert alert is not None
+    assert alert.observation_id == obs.id
+    assert alert.cow_id == cow_id
+    assert alert.farm_id == farm_id
+    assert alert.owner_id == user_id
+
+
+def test_health_eval_failure_does_not_fail_observation(db_session: Session, monkeypatch) -> None:
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    def mock_eval(*args, **kwargs):
+        raise RuntimeError("Subsystem failure")
+
+    from app.services.health_alert_service import HealthAlertService
+    monkeypatch.setattr(HealthAlertService, "evaluate_and_create", mock_eval)
+
+    obs = service.create_observation(user_id, ObservationCreate(farm_id=farm_id, cow_id=cow_id, milk_produced_liters=10.0))
+
+    assert obs is not None
+    assert obs.id is not None
+
+
+def test_auto_health_eval_prevents_duplicate_alerts(db_session: Session) -> None:
+    from app.models import HealthAlert
+    from app.services.health_alert_service import HealthAlertService
+
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    obs = service.create_observation(user_id, ObservationCreate(farm_id=farm_id, cow_id=cow_id, health_condition="normal"))
+
+    # Initial alert count for this observation
+    count_1 = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).count()
+    assert count_1 == 1
+
+    # Re-evaluate health alert for same observation
+    has = HealthAlertService(db_session)
+    has.evaluate_and_create(user_id=user_id, observation_id=obs.id)
+
+    count_2 = db_session.query(HealthAlert).filter(HealthAlert.observation_id == obs.id).count()
+    assert count_2 == 1  # Updated in place, no duplicate row added
+
+

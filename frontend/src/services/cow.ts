@@ -51,11 +51,14 @@ function mapCowFromApi(cow: Cow) {
   };
 }
 
-export async function fetchCows(farmId: string) {
-  const res = await api.get<Cow[]>('/api/v1/cows', { params: { farm_id: farmId } });
+export async function fetchCows(farmId?: string) {
+  const params: Record<string, string> = {};
+  if (farmId) params.farm_id = farmId;
+  const res = await api.get<Cow[]>('/api/v1/cows', { params });
   const cows = res.data || [];
   return cows.map(mapCowFromApi);
 }
+
 
 export async function fetchCow(cowId: string) {
   const res = await api.get<Cow>(`/api/v1/cows/${cowId}`);
