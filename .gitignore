@@ -35,4 +35,4 @@ backend/.env
 backend/.env
 .env
 
-node_modules/
+backend/.env.save
