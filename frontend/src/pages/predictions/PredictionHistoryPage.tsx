@@ -50,9 +50,11 @@ export default function PredictionHistoryPage() {
 
   const cowNameById = useMemo(() => {
     const map = new Map<string, string>();
-    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.tag_id || "Unknown cow"));
     return map;
   }, [cows]);
+
+
 
   const obsDateById = useMemo(() => {
     const map = new Map<string, string>();

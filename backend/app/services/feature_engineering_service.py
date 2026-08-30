@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from statistics import mean
 from typing import Optional
@@ -10,6 +11,9 @@ from app.exceptions import PredictionNotFound
 from app.repositories.feature_repository import FeatureRepository
 from app.repositories.ownership import ensure_record_accessible
 from app.schemas.feature import FeatureVector
+from app.models import WeatherLog
+
+logger = logging.getLogger(__name__)
 
 
 def _temp_category(temp: Optional[float]) -> Optional[str]:
@@ -76,6 +80,15 @@ class FeatureEngineeringService:
         if obs.weather_log_id:
             weather = self.repo.get_weather_log(obs.weather_log_id)
 
+        if weather is None:
+            # Check for existing recorded WeatherLog for farm
+            weather = (
+                self.db.query(WeatherLog)
+                .filter(WeatherLog.farm_id == farm.id)
+                .order_by(WeatherLog.recorded_at.desc())
+                .first()
+            )
+
         # compute milk history
         recorded_dt = datetime.combine(obs.observation_date, datetime.min.time()).replace(tzinfo=timezone.utc)
         recent = self.repo.recent_observations(cow.id, recorded_dt, days=7)
@@ -95,6 +108,8 @@ class FeatureEngineeringService:
             age_days = (obs.observation_date - cow.birth_date).days
             age = float(age_days) / 365.25
 
+        weight = float(cow.weight_kg) if cow.weight_kg is not None else None
+        feed = float(obs.feed_quantity_kg) if getattr(obs, "feed_quantity_kg", None) is not None else None
 
         # days in milk and lactation stage not available without calving/lactation dates
         days_in_milk = None
@@ -102,9 +117,6 @@ class FeatureEngineeringService:
 
         # body condition and health
         bcs_cat = self.defaults.get("bcs_category")
-        # health_status: match training-time encoding exactly
-        # (data_loader.py: health_status = (Disease_Status != "Healthy").astype(int))
-        # i.e. Healthy -> 0, anything else -> 1. Not a 3-way encoding.
         health_status = 0
         try:
             condition = None
@@ -135,10 +147,7 @@ class FeatureEngineeringService:
         except Exception:
             observation_age_hours = None
 
-        # engineered numeric features matching training dataset
-        weight = float(cow.weight_kg) if cow.weight_kg is not None else None
-        feed = float(obs.feed_quantity_kg) if getattr(obs, "feed_quantity_kg", None) is not None else None
-
+        # engineered numeric features matching ML training dataset
         feed_weight_ratio = None
         feed_per_weight = None
         temp_humidity = None

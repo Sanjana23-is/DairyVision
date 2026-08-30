@@ -212,18 +212,30 @@ class ExplainabilityService:
             return cached
 
         # Compute SHAP values
+        vals = None
         try:
             import shap
-            explainer = shap.TreeExplainer(model)
+            try:
+                explainer = shap.TreeExplainer(model)
+                x = np.array([ordered])
+                shap_values = explainer.shap_values(x)
+                vals = shap_values[0] if (isinstance(shap_values, np.ndarray) and shap_values.ndim == 2) else (shap_values[0] if isinstance(shap_values, list) else shap_values)
+            except Exception:
+                # Fallback for LinearRegression / Non-tree models
+                if hasattr(model, "coef_") and len(model.coef_) == len(ordered):
+                    coefs = np.array(model.coef_, dtype=float)
+                    vals = coefs * np.array(ordered, dtype=float)
+                else:
+                    explainer = shap.Explainer(model, np.zeros((1, len(ordered))))
+                    shap_values = explainer(np.array([ordered]))
+                    vals = shap_values.values[0]
         except Exception as e:
-            raise RuntimeError("SHAP package is required for explainability.") from e
+            logger.warning(f"SHAP explanation fallback used: {e}")
+            if hasattr(model, "coef_") and len(model.coef_) == len(ordered):
+                vals = np.array(model.coef_, dtype=float) * np.array(ordered, dtype=float)
+            else:
+                vals = np.zeros(len(ordered))
 
-        x = np.array([ordered])
-        shap_values = explainer.shap_values(x)
-        if isinstance(shap_values, list):
-            shap_values = shap_values[0]
-
-        vals = shap_values[0] if shap_values.ndim == 2 else shap_values
 
         from app.core.project_paths import ensure_project_root_on_path
         ensure_project_root_on_path()

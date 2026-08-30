@@ -11,7 +11,9 @@ import {
   Repeat,
   Layers,
   Dna,
+  FlaskConical,
 } from "lucide-react";
+
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: Home },
@@ -25,7 +27,9 @@ const items = [
   { to: "/recommendations", label: "Recommendations", icon: Repeat },
   { to: "/digital-twin", label: "Digital Twin", icon: Layers },
   { to: "/genetics", label: "Genetics", icon: Dna },
+  { to: "/simulation", label: "What-If Simulation", icon: FlaskConical },
 ];
+
 
 
 

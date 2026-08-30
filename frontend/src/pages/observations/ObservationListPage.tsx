@@ -52,11 +52,12 @@ export default function ObservationListPage() {
 
   const cowNameById = useMemo(() => {
     const map = new Map<string, string>();
-    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.tag_id || "Unknown cow"));
     return map;
   }, [cows]);
 
-  const cowName = (id: string) => cowNameById.get(id) ?? id;
+  const cowName = (id: string) => cowNameById.get(id) ?? "Unknown cow";
+
 
   const filteredObservations = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -134,9 +135,10 @@ export default function ObservationListPage() {
 
   const cowOptions = useMemo(() => {
     return cows
-      .map((cow) => ({ id: cow.id, name: cow.name || cow.id }))
+      .map((cow) => ({ id: cow.id, name: cow.name || cow.tag_id || "Unknown cow" }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [cows]);
+
 
   const clearToast = () => setToast(null);
 

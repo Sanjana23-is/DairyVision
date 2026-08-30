@@ -45,8 +45,9 @@ def get_explainability_history(
     # 1. Predictions history
     pred_query = db.query(MilkPrediction).filter(MilkPrediction.owner_id == user_id)
     if farm_id:
-        pred_query = pred_query.filter(MilkPrediction.farm_id == farm_id)
-    predictions = pred_query.order_by(MilkPrediction.created_at.desc()).limit(20).all()
+        pred_query = pred_query.join(Cow, MilkPrediction.cow_id == Cow.id).filter(Cow.farm_id == farm_id)
+    predictions = pred_query.order_by(MilkPrediction.prediction_timestamp.desc()).limit(20).all()
+
 
     # 2. Anomalies history
     anom_query = db.query(AnomalyRecord).filter(AnomalyRecord.owner_id == user_id)

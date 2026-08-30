@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,7 +11,6 @@ from .api.v1.predictions import router as predictions_router
 from .api.v1.explainability import router as explainability_router
 from .api.v1.health_alerts import router as health_alerts_router
 from .api.v1.anomaly_detection import router as anomaly_detection_router
-
 from .api.v1.recommendations import router as recommendations_router
 from .api.v1.digital_twin import router as digital_twin_router
 from .api.v1.genetics import router as genetics_router
@@ -19,11 +19,19 @@ from .api.v1.dashboard import router as dashboard_router
 from .api.v1.dairy import router as dairy_router
 from .core.config import get_settings
 from .core.logging import configure_logging
+from .database.init_db import ensure_database_schema
 
 configure_logging()
 settings = get_settings()
 
-app = FastAPI(title=settings.app_name, debug=settings.app_debug)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ensure_database_schema()
+    yield
+
+
+app = FastAPI(title=settings.app_name, debug=settings.app_debug, lifespan=lifespan)
 
 # CORS - allow configured frontend origins
 app.add_middleware(
@@ -48,9 +56,6 @@ app.include_router(genetics_router, prefix="/api/v1")
 app.include_router(what_if_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
 app.include_router(dairy_router, prefix="/api/v1")
-
-
-
 
 
 @app.get("/")

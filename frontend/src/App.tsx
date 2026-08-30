@@ -18,6 +18,7 @@ import AnomalyDetectionPage from "@/pages/AnomalyDetectionPage";
 import RecommendationsPage from "@/pages/RecommendationsPage";
 import DigitalTwinPage from "@/pages/DigitalTwinPage";
 import GeneticsPage from "@/pages/GeneticsPage";
+import SimulationPage from "@/pages/SimulationPage";
 
 // Note: dashboard routes will use the DashboardLayout inside pages
 
@@ -48,8 +49,10 @@ function App() {
           <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="/digital-twin" element={<DigitalTwinPage />} />
           <Route path="/genetics" element={<GeneticsPage />} />
+          <Route path="/simulation" element={<SimulationPage />} />
           <Route path="/explainability" element={<ExplainabilityPage />} />
         </Route>
+
 
 
 

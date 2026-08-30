@@ -54,10 +54,11 @@ export default function AnomalyDetectionPage() {
   const cowNameById = useMemo(() => {
     const map: Record<string, string> = {};
     for (const c of cows) {
-      map[c.id] = c.name || c.tag_id || c.id;
+      map[c.id] = c.name || c.tag_id || "Unknown cow";
     }
     return map;
   }, [cows]);
+
 
   const {
     data: anomalies = [],

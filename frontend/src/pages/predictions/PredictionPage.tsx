@@ -33,11 +33,12 @@ export default function PredictionPage() {
 
   const cowNameById = useMemo(() => {
     const map = new Map<string, string>();
-    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.tag_id || "Unknown cow"));
     return map;
   }, [cows]);
 
-  const cowName = (id: string) => cowNameById.get(id) ?? id;
+  const cowName = (id: string) => cowNameById.get(id) ?? "Unknown cow";
+
 
   const { data: predictions = [] } = useQuery({
     queryKey: ["predictions", currentFarmId],

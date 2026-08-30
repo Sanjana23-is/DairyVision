@@ -212,9 +212,10 @@ class HealthAlertService:
         if prediction_id:
             pred = self.db.get(MilkPrediction, prediction_id)
         elif observation_id:
-            pred = self.db.query(MilkPrediction).filter(MilkPrediction.observation_id == observation_id).first()
+            pred = self.db.query(MilkPrediction).filter(MilkPrediction.observation_id == observation_id).order_by(MilkPrediction.prediction_timestamp.desc()).first()
             if pred:
                 prediction_id = pred.id
+
 
         weather = self.db.get(WeatherLog, weather_log_id) if weather_log_id else None
 
