@@ -9,6 +9,7 @@ import {
   Bell,
   Activity,
   Repeat,
+  Layers,
 } from "lucide-react";
 
 const items = [
@@ -21,7 +22,9 @@ const items = [
   { to: "/health-alerts", label: "Health Alerts", icon: Bell },
   { to: "/anomalies", label: "Anomaly Detection", icon: Activity },
   { to: "/recommendations", label: "Recommendations", icon: Repeat },
+  { to: "/digital-twin", label: "Digital Twin", icon: Layers },
 ];
+
 
 
 export default function Sidebar() {

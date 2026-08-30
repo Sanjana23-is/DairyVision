@@ -12,6 +12,7 @@ from .api.v1.health_alerts import router as health_alerts_router
 from .api.v1.anomaly_detection import router as anomaly_detection_router
 
 from .api.v1.recommendations import router as recommendations_router
+from .api.v1.digital_twin import router as digital_twin_router
 from .api.v1.what_if import router as what_if_router
 from .api.v1.dashboard import router as dashboard_router
 from .api.v1.dairy import router as dairy_router
@@ -41,9 +42,11 @@ app.include_router(explainability_router, prefix="/api/v1")
 app.include_router(health_alerts_router, prefix="/api/v1")
 app.include_router(anomaly_detection_router, prefix="/api/v1")
 app.include_router(recommendations_router, prefix="/api/v1")
+app.include_router(digital_twin_router, prefix="/api/v1")
 app.include_router(what_if_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
 app.include_router(dairy_router, prefix="/api/v1")
+
 
 
 

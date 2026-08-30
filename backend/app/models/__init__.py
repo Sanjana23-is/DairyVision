@@ -13,6 +13,7 @@ from .milk_prediction import MilkPrediction
 from .anomaly_record import AnomalyRecord
 from .explainability_result import ExplainabilityResult
 from .recommendation import Recommendation
+from .digital_twin import DigitalTwinState
 from .user import User
 from .user_preference import UserPreference
 from .weather_log import WeatherLog
@@ -24,6 +25,7 @@ __all__ = [
     "BreedMaster",
     "Cow",
     "DailyObservation",
+    "DigitalTwinState",
     "Farm",
     "FarmMember",
     "FarmSettings",
@@ -35,4 +37,5 @@ __all__ = [
     "UserPreference",
     "WeatherLog",
 ]
+
 

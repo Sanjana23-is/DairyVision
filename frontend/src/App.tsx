@@ -16,6 +16,7 @@ import FarmListPage from "@/pages/farms/FarmListPage";
 import HealthAlertsPage from "@/pages/HealthAlertsPage";
 import AnomalyDetectionPage from "@/pages/AnomalyDetectionPage";
 import RecommendationsPage from "@/pages/RecommendationsPage";
+import DigitalTwinPage from "@/pages/DigitalTwinPage";
 
 // Note: dashboard routes will use the DashboardLayout inside pages
 
@@ -44,8 +45,10 @@ function App() {
           <Route path="/health-alerts" element={<HealthAlertsPage />} />
           <Route path="/anomalies" element={<AnomalyDetectionPage />} />
           <Route path="/recommendations" element={<RecommendationsPage />} />
+          <Route path="/digital-twin" element={<DigitalTwinPage />} />
           <Route path="/explainability" element={<ExplainabilityPage />} />
         </Route>
+
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
