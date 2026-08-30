@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.core.supabase import supabase
@@ -76,9 +76,20 @@ class AuthService:
         user_id = getattr(user_data, "id", None)
         email = getattr(user_data, "email", None)
         if not user_id or not email:
+            # pyrefly: ignore [invalid-syntax]
             return
 
+        has_changes = False
+
         existing = self.db.scalar(select(User).where(User.id == user_id))
+
+        if existing is None:
+            existing = self.db.scalar(select(User).where(User.email == email))
+            if existing is not None:
+                self._migrate_user_id(existing.id, user_id, email)
+                existing = self.db.scalar(select(User).where(User.id == user_id))
+                has_changes = True
+
         if existing is None:
             existing = User(
                 id=user_id,
@@ -89,16 +100,37 @@ class AuthService:
                 is_superuser=False,
             )
             self.db.add(existing)
+            has_changes = True
         else:
-            existing.email = email
-            existing.full_name = full_name or existing.full_name or getattr(user_data, "user_metadata", {}).get("full_name") or email
-            existing.avatar_url = getattr(user_data, "avatar_url", None)
-            existing.is_active = True
+            if existing.email != email:
+                existing.email = email
+                has_changes = True
 
-        self._ensure_default_preferences(existing)
-        self.db.commit()
+            expected_full_name = (
+                full_name
+                or existing.full_name
+                or getattr(user_data, "user_metadata", {}).get("full_name")
+                or email
+            )
+            if existing.full_name != expected_full_name:
+                existing.full_name = expected_full_name
+                has_changes = True
 
-    def _ensure_default_preferences(self, user: User) -> None:
+            expected_avatar_url = getattr(user_data, "avatar_url", None)
+            if existing.avatar_url != expected_avatar_url:
+                existing.avatar_url = expected_avatar_url
+                has_changes = True
+
+            if not existing.is_active:
+                existing.is_active = True
+                has_changes = True
+
+        pref_created = self._ensure_default_preferences(existing)
+
+        if has_changes or pref_created:
+            self.db.commit()
+
+    def _ensure_default_preferences(self, user: User) -> bool:
         existing_preference = self.db.scalar(select(UserPreference).where(UserPreference.user_id == user.id))
         if existing_preference is None:
             self.db.add(
@@ -110,6 +142,79 @@ class AuthService:
                     show_local_names=True,
                 )
             )
+            return True
+        return False
+
+    def _migrate_user_id(self, old_id: str, new_id: str, email: str) -> None:
+        from sqlalchemy import update, delete
+        from app.models import (
+            User, Farm, Cow, MilkPrediction, DailyObservation, ActivityLog,
+            FarmMember, WeatherLog, UserPreference, HealthAlert, Recommendation
+        )
+
+        # 1. Update old user's email to a temporary email to satisfy the UNIQUE constraint
+        self.db.execute(
+            update(User)
+            .where(User.id == old_id)
+            .values(email=f"{email}_temp_sync")
+        )
+
+        # 2. Get old user metadata using ORM
+        old_user = self.db.get(User, old_id)
+        if not old_user:
+            return
+
+        # 3. Insert new user record with the new ID
+        new_user = User(
+            id=new_id,
+            email=email,
+            full_name=old_user.full_name,
+            avatar_url=old_user.avatar_url,
+            is_active=old_user.is_active,
+            is_superuser=old_user.is_superuser
+        )
+        self.db.add(new_user)
+        self.db.flush()
+
+        # 4. Update all dependent tables referencing the user ID using SQLAlchemy update construct
+        updates = [
+            (Farm, Farm.created_by),
+            (Cow, Cow.created_by),
+            (Cow, Cow.owner_id),
+            (MilkPrediction, MilkPrediction.owner_id),
+            (DailyObservation, DailyObservation.observed_by),
+            (DailyObservation, DailyObservation.owner_id),
+            (ActivityLog, ActivityLog.user_id),
+            (ActivityLog, ActivityLog.owner_id),
+            (FarmMember, FarmMember.user_id),
+            (FarmMember, FarmMember.invited_by),
+            (WeatherLog, WeatherLog.owner_id),
+            (UserPreference, UserPreference.user_id),
+            (HealthAlert, HealthAlert.owner_id),
+            (Recommendation, Recommendation.owner_id),
+        ]
+
+        for model, column in updates:
+            try:
+                self.db.execute(
+                    update(model)
+                    .where(column == old_id)
+                    .values({column.key: new_id})
+                )
+            except Exception as e:
+                logger.warning("Failed to update user ID in table %s: %s", model.__tablename__, str(e))
+
+        # 5. Delete old user preference record if it exists
+        try:
+            self.db.execute(
+                delete(UserPreference).where(UserPreference.user_id == old_id)
+            )
+        except Exception:
+            pass
+
+        # 6. Delete old user record
+        self.db.delete(old_user)
+        self.db.flush()
 
     def _build_auth_response(self, user_data: object, session: Optional[object] = None) -> AuthResponse:
         auth_user = self._build_auth_user(user_data)
@@ -130,7 +235,7 @@ class AuthService:
             detail = "The supplied password does not meet the current authentication requirements."
         elif "already" in lowered and "registered" in lowered:
             detail = "An account already exists for this email address."
-        elif action == "me" and "jwt" in lowered:
+        elif "jwt" in lowered or "expired" in lowered or "invalid claims" in lowered or "signature" in lowered:
             detail = "The provided authentication token is invalid or expired."
         else:
             detail = f"Supabase authentication failed during {action}."

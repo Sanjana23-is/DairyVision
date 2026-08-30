@@ -68,7 +68,6 @@ def test_persistence(db_session: Session):
     user, farm, cow, obs = _create_owner_entities(db_session)
     svc = HealthAlertService(db_session)
     res = svc.evaluate_and_create(user.id, cow.id, observation_id=obs.id)
-    reloaded = db_session.query(HealthAlert).get(res.id)
-    assert reloaded is not None
+    reloaded = db_session.get(HealthAlert, res.id)
     assert float(reloaded.confidence) == float(res.confidence)
     assert 'confidence=' not in (reloaded.description or '')

@@ -3,7 +3,22 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
+
+COW_STATUS_VALUES = ("active", "dry", "sick", "deceased", "sold")
+
+
+class BreedResponse(BaseModel):
+    id: str
+    canonical_name: str
+    breed_category: Optional[str] = None
+    species: Optional[str] = None
+    origin_region: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_featured: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CowBase(BaseModel):
@@ -22,6 +37,20 @@ class CowBase(BaseModel):
 class CowCreate(CowBase):
     status: str
 
+    @field_validator("tag_id")
+    @classmethod
+    def tag_id_must_not_be_blank(cls, value: str) -> str:
+        if not value or not value.strip():
+            raise ValueError("tag_id must not be blank")
+        return value
+
+    @field_validator("status")
+    @classmethod
+    def status_must_be_valid(cls, value: str) -> str:
+        if value not in COW_STATUS_VALUES:
+            raise ValueError(f"status must be one of {COW_STATUS_VALUES}")
+        return value
+
 
 class CowUpdate(BaseModel):
     name: Optional[str] = None
@@ -32,6 +61,13 @@ class CowUpdate(BaseModel):
     weight_kg: Optional[float] = None
     lactation_number: Optional[int] = None
     notes: Optional[str] = None
+
+    @field_validator("status")
+    @classmethod
+    def status_must_be_valid(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and value not in COW_STATUS_VALUES:
+            raise ValueError(f"status must be one of {COW_STATUS_VALUES}")
+        return value
 
 
 class CowResponse(CowBase):
@@ -133,6 +169,8 @@ class MilkPredictionBase(BaseModel):
     model_version: str
     confidence_score: Optional[float] = None
 
+    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
+
 
 class MilkPredictionCreate(MilkPredictionBase):
     pass
@@ -143,6 +181,8 @@ class MilkPredictionUpdate(BaseModel):
     predicted_milk_yield: Optional[float] = None
     model_version: Optional[str] = None
     confidence_score: Optional[float] = None
+
+    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
 
 
 class MilkPredictionResponse(MilkPredictionBase):
@@ -164,6 +204,7 @@ class RecommendationBase(BaseModel):
     category: str
     priority: str
     recommendation_type: str
+    completed: Optional[bool] = False
 
 
 class RecommendationCreate(RecommendationBase):

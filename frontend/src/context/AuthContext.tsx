@@ -19,6 +19,20 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+export function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const decodedPayload = JSON.parse(window.atob(payloadBase64));
+    const exp = decodedPayload.exp;
+    if (typeof exp !== "number") return false;
+    return Date.now() >= exp * 1000;
+  } catch (e) {
+    return true;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -38,6 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // (debug logs removed)
 
     if (storedToken && storedUser) {
+      if (isTokenExpired(storedToken)) {
+        localStorage.removeItem("dairyvision_access_token");
+        localStorage.removeItem("dairyvision_user");
+        localStorage.removeItem("current_farm_id");
+        localStorage.removeItem("current_farm_name");
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+        }));
+        return;
+      }
+
       setAuthState({
         user: JSON.parse(storedUser) as AuthUser,
         accessToken: storedToken,
@@ -141,15 +170,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (payload: LoginPayload) => {
+    localStorage.removeItem("dairyvision_access_token");
+    localStorage.removeItem("dairyvision_user");
+    setAuthState((prev) => ({
+      ...prev,
+      accessToken: null,
+      user: null,
+      isAuthenticated: false,
+    }));
+
     const response = await api.post("/api/v1/auth/login", payload);
     const { access_token, user } = response.data;
 
     localStorage.setItem("dairyvision_access_token", access_token);
     localStorage.setItem("dairyvision_user", JSON.stringify(user));
 
-    const farms = await fetchFarms();
-    const selectedFarm = farms[0] ?? null;
-    setCurrentFarm(selectedFarm?.id ?? null, selectedFarm?.name ?? null);
+    let selectedFarm = null;
+    try {
+      const farms = await fetchFarms();
+      selectedFarm = farms[0] ?? null;
+      setCurrentFarm(selectedFarm?.id ?? null, selectedFarm?.name ?? null);
+    } catch (e) {
+      // Gracefully handle farm fetch failure (e.g. empty DB or network issue)
+    }
 
     setAuthState({
       user,
@@ -162,15 +205,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (payload: RegisterPayload) => {
+    localStorage.removeItem("dairyvision_access_token");
+    localStorage.removeItem("dairyvision_user");
+    setAuthState((prev) => ({
+      ...prev,
+      accessToken: null,
+      user: null,
+      isAuthenticated: false,
+    }));
+
     const response = await api.post("/api/v1/auth/signup", payload);
     const { access_token, user } = response.data;
 
     localStorage.setItem("dairyvision_access_token", access_token);
     localStorage.setItem("dairyvision_user", JSON.stringify(user));
 
-    const farms = await fetchFarms();
-    const selectedFarm = farms[0] ?? null;
-    setCurrentFarm(selectedFarm?.id ?? null, selectedFarm?.name ?? null);
+    let selectedFarm = null;
+    try {
+      const farms = await fetchFarms();
+      selectedFarm = farms[0] ?? null;
+      setCurrentFarm(selectedFarm?.id ?? null, selectedFarm?.name ?? null);
+    } catch (e) {
+      // Gracefully handle farm fetch failure
+    }
 
     setAuthState({
       user,

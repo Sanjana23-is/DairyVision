@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.schemas.explainability import ExplainabilityResponse
 from app.schemas.feature import FeatureVector
@@ -12,6 +12,8 @@ from app.schemas.health_alert import HealthAlertResponse
 class WhatIfPredictionResult(BaseModel):
     predicted_milk_yield: float
     model_version: str
+
+    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
 
 
 class RecommendationItem(BaseModel):

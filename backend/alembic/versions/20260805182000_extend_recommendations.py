@@ -22,9 +22,9 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('farm_id', sa.UUID(as_uuid=False), nullable=True))
         batch_op.add_column(sa.Column('category', sa.String(length=100), nullable=False, server_default='General Farm Management'))
         batch_op.add_column(sa.Column('priority', sa.String(length=20), nullable=False, server_default='Low'))
-        batch_op.create_foreign_key('fk_recommendations_prediction_id', 'recommendations', 'milk_predictions', ['prediction_id'], ['id'], ondelete='SET NULL')
-        batch_op.create_foreign_key('fk_recommendations_observation_id', 'recommendations', 'daily_observations', ['observation_id'], ['id'], ondelete='SET NULL')
-        batch_op.create_foreign_key('fk_recommendations_farm_id', 'recommendations', 'farms', ['farm_id'], ['id'], ondelete='SET NULL')
+        batch_op.create_foreign_key('fk_recommendations_prediction_id', 'milk_predictions', ['prediction_id'], ['id'], ondelete='SET NULL')
+        batch_op.create_foreign_key('fk_recommendations_observation_id', 'daily_observations', ['observation_id'], ['id'], ondelete='SET NULL')
+        batch_op.create_foreign_key('fk_recommendations_farm_id', 'farms', ['farm_id'], ['id'], ondelete='SET NULL')
 
     op.create_index('idx_recommendations_prediction_id', 'recommendations', ['prediction_id'])
     op.create_index('idx_recommendations_observation_id', 'recommendations', ['observation_id'])

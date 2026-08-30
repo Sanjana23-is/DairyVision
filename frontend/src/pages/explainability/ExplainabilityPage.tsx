@@ -1,18 +1,21 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchPredictions } from "@/services/prediction";
+import { fetchPredictions, type MilkPrediction } from "@/services/prediction";
 import { fetchExplainabilityByPrediction } from "@/services/explainability";
 import FeatureImportanceChart from "@/components/explainability/FeatureImportanceChart";
 import TopContributorsCard from "@/components/explainability/TopContributorsCard";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ExplainabilityPage() {
   const [search] = useSearchParams();
   const queryPredId = search.get("predictionId");
+  const { currentFarmId } = useAuth();
 
-  const { data: predictions = [] } = useQuery({
-    queryKey: ["predictions"],
-    queryFn: fetchPredictions,
+  const { data: predictions = [] } = useQuery<MilkPrediction[], Error>({
+    queryKey: ["predictions", currentFarmId],
+    queryFn: () => fetchPredictions(currentFarmId as string),
+    enabled: !!currentFarmId,
   });
 
   const predictionId = queryPredId ?? predictions[0]?.id ?? null;

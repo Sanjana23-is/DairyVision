@@ -11,10 +11,13 @@ import numpy as np
 
 from sqlalchemy.orm import Session
 
+from app.exceptions import ExplainabilityNotFound, ExplainabilityValidationError
 from app.repositories.explainability_repository import ExplainabilityRepository
+from app.repositories.ownership import ensure_record_accessible
 from app.schemas.feature import FeatureVector
 from app.models import MilkPrediction, DailyObservation, Cow, Farm
 from app.models.explainability_result import ExplainabilityResult
+from app.services.feature_engineering_service import FeatureEngineeringService
 
 
 class ExplainabilityService:
@@ -27,6 +30,8 @@ class ExplainabilityService:
     def _load_model(self):
         if self._model is None:
             if self.model_path is None:
+                from app.core.project_paths import ensure_project_root_on_path
+                ensure_project_root_on_path()
                 from config import MODEL_PATH as CP_MODEL_PATH
 
                 self.model_path = CP_MODEL_PATH
@@ -36,15 +41,20 @@ class ExplainabilityService:
         return self._model
 
     def _feature_order(self, fv: FeatureVector) -> List[float]:
-        ordered = []
-        try:
-            from config import ALL_FEATURES as CF
-        except Exception:
-            CF = []
-        for feat in CF:
-            val = getattr(fv, feat, None)
-            ordered.append(float(val) if val is not None else np.nan)
-        return ordered
+        from app.core.project_paths import ensure_project_root_on_path
+        ensure_project_root_on_path()
+        from config import ALL_FEATURES as CF
+
+        missing = [feat for feat in CF if getattr(fv, feat, None) is None]
+        if missing:
+            raise ExplainabilityValidationError(
+                "Cannot generate an explanation: missing required data for "
+                + ", ".join(missing)
+                + ". Record a complete observation (including feed and weather-dependent "
+                "values) before generating an explanation."
+            )
+
+        return [float(getattr(fv, feat)) for feat in CF]
 
     def _fingerprint(self, model_version: str, values: List[float]) -> str:
         m = hashlib.sha1()
@@ -67,43 +77,68 @@ class ExplainabilityService:
         prediction = None
 
         if prediction_id:
-            prediction = self.db.query(MilkPrediction).get(prediction_id)
+            prediction = self.db.get(MilkPrediction, prediction_id)
             if prediction is None:
-                raise ValueError("Prediction not found")
+                raise ExplainabilityNotFound("Prediction not found")
             if prediction.owner_id != user_id:
                 raise PermissionError("User does not own this prediction")
-            obs = None
-            if getattr(prediction, 'observation_id', None):
-                obs = self.db.query(DailyObservation).get(prediction.observation_id)
-            if obs:
-                cow = self.db.query(Cow).get(obs.cow_id)
-                farm = self.db.query(Farm).get(cow.farm_id)
+
+            # Fast path: reuse an already-computed explanation for this
+            # prediction if one exists, avoiding redundant SHAP computation.
+            cached_by_prediction = self.repo.get_by_prediction_id(prediction_id)
+            if cached_by_prediction is not None:
+                return cached_by_prediction
+
+            if getattr(prediction, 'observation_id', None) is None:
+                raise ExplainabilityValidationError(
+                    "Prediction has no linked observation and no feature_vector provided"
+                )
+            obs = self.db.get(DailyObservation, prediction.observation_id)
+            if obs is None:
+                raise ExplainabilityNotFound("Observation not found")
+            cow = self.db.get(Cow, obs.cow_id)
+            if cow is None:
+                raise ExplainabilityNotFound("Cow not found")
+            if cow.owner_id != user_id:
+                raise PermissionError("User does not own this cow")
+            farm = self.db.get(Farm, cow.farm_id)
+            if farm is None:
+                raise ExplainabilityNotFound("Farm not found")
+            ensure_record_accessible(farm, user_id)
+
+            if feature_vector is None:
+                # Derive the feature vector server-side from the prediction's
+                # linked observation -- the caller is not required to supply
+                # a complete feature vector to explain an existing prediction.
+                feature_vector = FeatureEngineeringService(self.db).build_features_for_observation(
+                    user_id, obs.id
+                )
 
         else:
             if feature_vector is None:
-                raise ValueError("Either prediction_id or feature_vector must be provided")
+                raise ExplainabilityValidationError("Either prediction_id or feature_vector must be provided")
             obs_id = getattr(feature_vector, 'observation_id', None)
             if obs_id is None:
-                raise ValueError("feature_vector must include observation_id when no prediction_id provided")
-            obs = self.db.query(DailyObservation).get(obs_id)
+                raise ExplainabilityValidationError(
+                    "feature_vector must include observation_id when no prediction_id provided"
+                )
+            obs = self.db.get(DailyObservation, obs_id)
             if obs is None:
-                raise ValueError("Observation not found")
+                raise ExplainabilityNotFound("Observation not found")
             if obs.owner_id != user_id:
                 raise PermissionError("User does not own this observation")
-            cow = self.db.query(Cow).get(obs.cow_id)
-            farm = self.db.query(Farm).get(cow.farm_id)
+            cow = self.db.get(Cow, obs.cow_id)
+            if cow is None:
+                raise ExplainabilityNotFound("Cow not found")
+            if cow.owner_id != user_id:
+                raise PermissionError("User does not own this cow")
+            farm = self.db.get(Farm, cow.farm_id)
+            if farm is None:
+                raise ExplainabilityNotFound("Farm not found")
+            ensure_record_accessible(farm, user_id)
 
         model = self._load_model()
         model_version = getattr(model, '__version__', os.path.basename(self.model_path))
-
-        # Build feature vector ordered
-        if prediction is not None and feature_vector is None:
-            # try to reconstruct feature vector from prediction's observation link
-            if getattr(prediction, 'observation_id', None) is None:
-                raise ValueError("Prediction has no linked observation and no feature_vector provided")
-            obs2 = self.db.query(DailyObservation).get(prediction.observation_id)
-            # Best-effort: client should supply feature_vector; for now raise if missing
-            raise ValueError("Explain by prediction_id requires a supplied feature_vector in this implementation")
 
         fv = feature_vector
         ordered = self._feature_order(fv)
@@ -131,18 +166,15 @@ class ExplainabilityService:
         vals = shap_values[0] if shap_values.ndim == 2 else shap_values
 
         # map features
-        try:
-            from config import ALL_FEATURES as CF
-        except Exception:
-            CF = []
+        from app.core.project_paths import ensure_project_root_on_path
+        ensure_project_root_on_path()
+        from config import ALL_FEATURES as CF
 
         features = []
         for i, feat in enumerate(CF):
-            v = None
-            try:
-                v = float(getattr(fv, feat, None))
-            except Exception:
-                v = None
+            # _feature_order already guarantees every field is present, so
+            # no defensive None-handling is needed here.
+            v = float(getattr(fv, feat))
             sv = float(vals[i]) if i < len(vals) else 0.0
             features.append({"feature": feat, "value": v, "shap_value": sv})
 
@@ -158,7 +190,7 @@ class ExplainabilityService:
             prediction_id=prediction_id,
             fingerprint=fingerprint,
             owner_id=user_id,
-            observation_id=getattr(feature_vector, 'observation_id', None),
+            observation_id=obs.id if obs is not None else None,
             cow_id=getattr(cow, 'id', None),
             farm_id=getattr(farm, 'id', None),
             model_version=str(model_version),

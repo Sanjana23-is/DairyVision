@@ -34,9 +34,9 @@ function mapCowFromApi(cow: Cow) {
 }
 
 export async function fetchCows(farmId: string) {
-  const res = await api.get<Cow[]>('/api/v1/cows');
+  const res = await api.get<Cow[]>('/api/v1/cows', { params: { farm_id: farmId } });
   const cows = res.data || [];
-  return cows.map(mapCowFromApi).filter((cow) => cow.farm_id === farmId);
+  return cows.map(mapCowFromApi);
 }
 
 export async function fetchCow(cowId: string) {

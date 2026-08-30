@@ -86,3 +86,76 @@ def test_what_if_service_runs_with_scenario(db_session: Session, tmp_path):
     assert isinstance(result.scenario_recommendations, list)
     assert result.current_prediction.predicted_milk_yield == result.current_prediction.predicted_milk_yield
     assert result.scenario_prediction.predicted_milk_yield == result.scenario_prediction.predicted_milk_yield
+
+
+def test_what_if_partial_scenario_produces_complete_feature_vector(db_session: Session, tmp_path):
+    # Regression test: a scenario that only overrides temperature/humidity/thi
+    # must not fail PredictionService's missing-feature validation. The
+    # resulting scenario_features must contain every field in
+    # config.ALL_FEATURES, with unset fields inherited from the observation's
+    # baseline and overridden fields' dependent engineered features
+    # recomputed -- not left NaN or defaulted.
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    model = DummyRegressor(strategy='mean')
+    X = np.zeros((2, 13))
+    y = np.array([12.0, 10.0])
+    model.fit(X, y)
+    model_path = tmp_path / 'what_if_model.pkl'
+    joblib.dump(model, model_path)
+
+    weather = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        owner_id=user.id,
+        temperature=30.0,
+        humidity=60.0,
+        thi=76.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(weather)
+    db_session.commit()
+    obs.weather_log_id = weather.id
+    db_session.add(obs)
+    db_session.commit()
+
+    request = WhatIfRequest(
+        observation_id=obs.id,
+        scenario=FeatureVector(observation_id=obs.id, temperature=25.0, humidity=50.0, thi=65.0),
+        include_explainability=False,
+        include_health_alert=False,
+        include_recommendations=False,
+    )
+
+    service = WhatIfService(db_session, model_path=str(model_path))
+    # Must not raise PredictionValidationError for "missing" age/weight/feed --
+    # those must come from the observation's baseline, not the scenario override.
+    result = service.run_what_if(user.id, request)
+
+    from config import ALL_FEATURES as CF
+    missing = [f for f in CF if getattr(result.scenario_features, f, None) is None]
+    assert missing == [], f"scenario_features missing required fields: {missing}"
+
+    # Unset fields inherited from the observation's baseline.
+    assert result.scenario_features.age == result.current_features.age
+    assert result.scenario_features.weight == result.current_features.weight
+    assert result.scenario_features.health_status == result.current_features.health_status
+    assert result.scenario_features.feed == result.current_features.feed
+
+    # Overridden fields applied as given.
+    assert result.scenario_features.temperature == 25.0
+    assert result.scenario_features.humidity == 50.0
+    assert result.scenario_features.thi == 65.0
+
+    # Dependent engineered features recomputed from the overridden values,
+    # not left as the baseline's stale values.
+    assert result.scenario_features.temp_humidity == 25.0 * 50.0
+    assert result.scenario_features.thi_squared == 65.0 * 65.0
+    assert result.scenario_features.feed_thi_interaction == result.current_features.feed * 65.0
+
+    # observation_id preserved and the baseline itself untouched.
+    assert result.scenario_features.observation_id == obs.id
+    assert result.current_features.temperature == 30.0
+    assert result.current_features.humidity == 60.0
+
+    # The prediction itself must have actually succeeded.
+    assert result.scenario_prediction.predicted_milk_yield == result.scenario_prediction.predicted_milk_yield

@@ -18,8 +18,8 @@ class ObservationService:
         self.repository = ObservationRepository(db)
         self.weather_service = WeatherService(db)
 
-    def list_observations(self, user_id: str) -> list[DailyObservation]:
-        return self.repository.list_for_user(user_id)
+    def list_observations(self, user_id: str, farm_id: Optional[str] = None) -> list[DailyObservation]:
+        return self.repository.list_for_user(user_id, farm_id=farm_id)
 
     def get_observation(self, user_id: str, observation_id: str) -> Optional[DailyObservation]:
         return self.repository.get_for_user(user_id, observation_id)

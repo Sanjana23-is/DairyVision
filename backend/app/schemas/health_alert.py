@@ -26,6 +26,7 @@ class HealthAlertResponse(BaseModel):
     alert_type: str
     description: Optional[str]
     confidence: float
+    resolved: bool
     owner_id: str
     created_at: datetime
 

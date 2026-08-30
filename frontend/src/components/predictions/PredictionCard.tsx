@@ -23,7 +23,6 @@ export default function PredictionCard({
             ? `${(prediction.confidence_score * 100).toFixed(1)}%`
             : "N/A"}
         </div>
-        <div>Health status: {prediction.health_status ?? "N/A"}</div>
         <div>Model: {prediction.model_version}</div>
         <div>
           Predicted at:{" "}

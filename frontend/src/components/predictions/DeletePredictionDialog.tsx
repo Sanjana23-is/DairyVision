@@ -1,5 +1,6 @@
 export default function DeletePredictionDialog({
   prediction,
+  cowName,
   open = true,
   onClose,
   onDelete,
@@ -8,9 +9,9 @@ export default function DeletePredictionDialog({
   prediction: {
     id: string;
     prediction_timestamp: string;
-    cow?: { name?: string };
     cow_id: string;
   };
+  cowName?: string;
   open?: boolean;
   onClose: () => void;
   onDelete: (id: string) => void;
@@ -24,7 +25,7 @@ export default function DeletePredictionDialog({
         <h3 className="text-lg font-semibold">Delete Prediction</h3>
         <p className="mt-3 text-sm text-slate-600">
           Are you sure you want to delete the prediction for{" "}
-          <strong>{prediction.cow?.name ?? prediction.cow_id}</strong> on{" "}
+          <strong>{cowName ?? prediction.cow_id}</strong> on{" "}
           <strong>
             {new Date(prediction.prediction_timestamp).toLocaleString()}
           </strong>

@@ -1,5 +1,6 @@
 export default function DeleteObservationDialog({
   observation,
+  cowName,
   open = true,
   onClose,
   onDelete,
@@ -8,9 +9,9 @@ export default function DeleteObservationDialog({
   observation: {
     id: string;
     observation_date: string;
-    cow?: { name?: string };
     cow_id: string;
   };
+  cowName?: string;
   open?: boolean;
   onClose: () => void;
   onDelete: (id: string) => void;
@@ -23,7 +24,7 @@ export default function DeleteObservationDialog({
         <h3 className="text-lg font-semibold">Delete Observation</h3>
         <p className="mt-3 text-sm text-slate-600">
           Are you sure you want to delete the observation for{" "}
-          <strong>{observation.cow?.name ?? observation.cow_id}</strong> on{" "}
+          <strong>{cowName ?? observation.cow_id}</strong> on{" "}
           <strong>{observation.observation_date}</strong>?
         </p>
         <div className="mt-6 flex justify-end gap-3">

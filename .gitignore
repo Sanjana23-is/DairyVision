@@ -6,7 +6,7 @@ __pycache__/
 # Outputs
 outputs/
 logs/
-models/
+/models/
 
 # Datasets (optional if large/private)
 datasets/
@@ -15,6 +15,13 @@ datasets/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.env
+
+# Backend environment files
+backend/.env
+
+# Root environment files
+.env
 
 # VS Code
 .vscode/
@@ -25,10 +32,7 @@ frontend/.vite/
 # macOS
 .DS_Store
 
-*.tsbuildinfo
-
-
 backend/.env
-/.env
+.env
 
 node_modules/

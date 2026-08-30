@@ -1,17 +1,20 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchPredictions,
   deletePrediction,
   type MilkPrediction,
 } from "@/services/prediction";
+import { fetchCows, Cow } from "@/services/cow";
+import { useAuth } from "@/context/AuthContext";
 import DeletePredictionDialog from "@/components/predictions/DeletePredictionDialog";
 import PredictionHistoryTable from "@/components/predictions/PredictionHistoryTable";
 import PredictionDetailsModal from "@/components/predictions/PredictionDetailsModal";
 
 export default function PredictionHistoryPage() {
   const qc = useQueryClient();
+  const { currentFarmId } = useAuth();
   const [detailsPrediction, setDetailsPrediction] =
     useState<MilkPrediction | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MilkPrediction | null>(null);
@@ -26,14 +29,27 @@ export default function PredictionHistoryPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["predictions"],
-    queryFn: fetchPredictions,
+    queryKey: ["predictions", currentFarmId],
+    queryFn: () => fetchPredictions(currentFarmId as string),
+    enabled: !!currentFarmId,
   });
+
+  const { data: cows = [] } = useQuery<Cow[], Error>({
+    queryKey: ["cows", currentFarmId],
+    queryFn: () => fetchCows(currentFarmId as string),
+    enabled: !!currentFarmId,
+  });
+
+  const cowNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    return map;
+  }, [cows]);
 
   const deleteMutation = useMutation<void, any, string>({
     mutationFn: deletePrediction,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["predictions"] });
+      qc.invalidateQueries({ queryKey: ["predictions", currentFarmId] });
       setToast({
         type: "success",
         message: "Prediction deleted successfully.",
@@ -92,6 +108,7 @@ export default function PredictionHistoryPage() {
           ) : (
             <PredictionHistoryTable
               data={data}
+              cowNameById={cowNameById}
               onOpenDetails={setDetailsPrediction}
               onRequestDelete={handleDeleteConfirmation}
               deletingId={deleteMutation.variables}
@@ -110,6 +127,7 @@ export default function PredictionHistoryPage() {
       {deleteTarget ? (
         <DeletePredictionDialog
           prediction={deleteTarget}
+          cowName={cowNameById.get(deleteTarget.cow_id) ?? deleteTarget.cow_id}
           open={true}
           loading={deleteMutation.isPending}
           onClose={() => setDeleteTarget(null)}

@@ -3,16 +3,20 @@ import { MilkPrediction } from "@/services/prediction";
 
 export default function PredictionHistoryTable({
   data,
+  cowNameById,
   onOpenDetails,
   onRequestDelete,
   deletingId,
 }: {
   data: MilkPrediction[];
+  cowNameById?: Map<string, string>;
   onOpenDetails: (prediction: MilkPrediction) => void;
   onRequestDelete: (prediction: MilkPrediction) => void;
   deletingId?: string;
 }) {
   const navigate = useNavigate();
+  const cowName = (id?: string) =>
+    id ? (cowNameById?.get(id) ?? id) : "—";
 
   if (!data || data.length === 0) {
     return (
@@ -39,7 +43,7 @@ export default function PredictionHistoryTable({
           {data.map((p) => (
             <tr key={p.id} className="border-t">
               <td className="px-4 py-3">{p.observation_id ?? "—"}</td>
-              <td className="px-4 py-3">{p.cow?.name ?? p.cow_id ?? "—"}</td>
+              <td className="px-4 py-3">{cowName(p.cow_id)}</td>
               <td className="px-4 py-3">
                 {p.predicted_milk_yield.toFixed(2)} L
               </td>

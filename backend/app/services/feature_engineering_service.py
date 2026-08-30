@@ -6,7 +6,9 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.exceptions import PredictionNotFound
 from app.repositories.feature_repository import FeatureRepository
+from app.repositories.ownership import ensure_record_accessible
 from app.schemas.feature import FeatureVector
 
 
@@ -53,7 +55,7 @@ class FeatureEngineeringService:
     def build_features_for_observation(self, user_id: str, observation_id: str) -> FeatureVector:
         obs = self.repo.get_observation(observation_id)
         if obs is None:
-            raise ValueError("Observation not found")
+            raise PredictionNotFound("Observation not found")
 
         # ownership checks
         if obs.owner_id != user_id:
@@ -61,15 +63,14 @@ class FeatureEngineeringService:
 
         cow = self.repo.get_cow(obs.cow_id)
         if cow is None:
-            raise ValueError("Cow not found")
+            raise PredictionNotFound("Cow not found")
         if cow.owner_id != user_id:
             raise PermissionError("User does not own the cow")
 
         farm = self.repo.get_farm(cow.farm_id)
         if farm is None:
-            raise ValueError("Farm not found")
-        if farm.created_by != user_id and getattr(farm, "owner_id", None) not in (None, user_id):
-            raise PermissionError("User does not own the farm")
+            raise PredictionNotFound("Farm not found")
+        ensure_record_accessible(farm, user_id)
 
         weather = None
         if obs.weather_log_id:
@@ -99,12 +100,16 @@ class FeatureEngineeringService:
 
         # body condition and health
         bcs_cat = self.defaults.get("bcs_category")
-        # health_status: encode based on symptoms or cow status (0 healthy, 1 diseased)
+        # health_status: match training-time encoding exactly
+        # (data_loader.py: health_status = (Disease_Status != "Healthy").astype(int))
+        # i.e. Healthy -> 0, anything else -> 1. Not a 3-way encoding.
         health_status = 0
         try:
-            if getattr(obs, "symptoms", None):
-                if isinstance(obs.symptoms, dict) and len(obs.symptoms) > 0:
-                    health_status = 1
+            condition = None
+            if isinstance(getattr(obs, "symptoms", None), dict):
+                condition = obs.symptoms.get("condition")
+            if condition is not None and str(condition).lower() != "healthy":
+                health_status = 1
             if getattr(cow, "status", "active") != "active":
                 health_status = 1
         except Exception:

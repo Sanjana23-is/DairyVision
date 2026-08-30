@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,17 +16,31 @@ export default function AddFarmDialog({
   onClose,
   onCreate,
   loading,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
   onCreate: (payload: FormData) => void;
   loading?: boolean;
+  error?: string;
 }) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: "",
+        description: "",
+        location_city: "",
+        location_country: "",
+      });
+    }
+  }, [open, reset]);
 
   if (!open) return null;
 
@@ -74,17 +89,21 @@ export default function AddFarmDialog({
             />
           </div>
 
+          {error && <div className="text-rose-600 text-sm mt-1">{error}</div>}
+
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
               className="rounded border px-3 py-1"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="rounded bg-sky-600 px-3 py-1 text-white"
+              disabled={loading}
             >
               {loading ? "Creating..." : "Create"}
             </button>

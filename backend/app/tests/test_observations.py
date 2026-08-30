@@ -49,7 +49,6 @@ def test_create_observation_succeeds_for_valid_cow_and_farm(db_session: Session)
         milk_produced_liters=10.5,
         feed_quantity_kg=12.0,
         notes="Routine check",
-        image_url="https://example.com/observation.jpg",
     )
 
     observation = service.create_observation(user_id, payload)
@@ -62,7 +61,6 @@ def test_create_observation_succeeds_for_valid_cow_and_farm(db_session: Session)
     assert observation.milk_produced_liters == 10.5
     assert observation.feed_quantity_kg == 12.0
     assert observation.notes == "Routine check"
-    assert observation.image_url == "https://example.com/observation.jpg"
 
 
 def test_create_observation_rejects_unknown_cow(db_session: Session) -> None:

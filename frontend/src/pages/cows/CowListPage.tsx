@@ -8,11 +8,21 @@ import {
   updateCow,
   deleteCow,
 } from "@/services/cow";
+import { fetchBreeds } from "@/services/breed";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
 import AddCowDialog from "@/components/cows/AddCowDialog";
 import EditCowDialog from "@/components/cows/EditCowDialog";
 import DeleteCowDialog from "@/components/cows/DeleteCowDialog";
+
+function errorMessage(error: unknown): string {
+  const anyErr = error as any;
+  return (
+    anyErr?.response?.data?.detail ??
+    anyErr?.message ??
+    "Something went wrong. Please try again."
+  );
+}
 
 export default function CowListPage() {
   const { currentFarmId } = useAuth();
@@ -36,6 +46,20 @@ export default function CowListPage() {
     enabled: !!farmId,
   });
 
+  const { data: breedList = [] } = useQuery({
+    queryKey: ["breeds"],
+    queryFn: fetchBreeds,
+  });
+
+  const breedNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    breedList.forEach((b) => map.set(b.id, b.canonical_name));
+    return map;
+  }, [breedList]);
+
+  const breedName = (idOrName?: string) =>
+    idOrName ? (breedNameById.get(idOrName) ?? idOrName) : undefined;
+
   const filteredCows = useMemo(() => {
     return cows.filter((cow) => {
       const queryTerm = search.trim().toLowerCase();
@@ -52,8 +76,10 @@ export default function CowListPage() {
   const breeds = useMemo(() => {
     const set = new Set<string>();
     cows.forEach((c) => c.breed && set.add(c.breed));
-    return Array.from(set).sort();
-  }, [cows]);
+    return Array.from(set).sort((a, b) =>
+      (breedName(a) ?? a).localeCompare(breedName(b) ?? b),
+    );
+  }, [cows, breedNameById]);
 
   const createMut = useMutation<Cow, Error, Partial<Cow>>({
     mutationFn: (payload: Partial<Cow>) => createCow(farmId as string, payload),
@@ -99,7 +125,10 @@ export default function CowListPage() {
           <h2 className="text-lg font-semibold">Cows</h2>
           <div>
             <button
-              onClick={() => setAdding(true)}
+              onClick={() => {
+                createMut.reset();
+                setAdding(true);
+              }}
               className="rounded bg-sky-600 px-3 py-1 text-white"
             >
               Add Cow
@@ -122,7 +151,7 @@ export default function CowListPage() {
             <option value="">All breeds</option>
             {breeds.map((b) => (
               <option key={b} value={b}>
-                {b}
+                {breedName(b)}
               </option>
             ))}
           </select>
@@ -142,7 +171,10 @@ export default function CowListPage() {
                 Add a new cow or adjust your search and filter criteria.
               </p>
               <button
-                onClick={() => setAdding(true)}
+                onClick={() => {
+                  createMut.reset();
+                  setAdding(true);
+                }}
                 className="rounded bg-sky-600 px-4 py-2 text-white"
               >
                 Add Cow
@@ -167,15 +199,17 @@ export default function CowListPage() {
                       <div className="text-xs text-slate-500">ID: {c.id}</div>
                     </td>
                     <td className="px-4 py-4">{c.tag ?? "—"}</td>
-                    <td className="px-4 py-4">{c.breed ?? "—"}</td>
+                    <td className="px-4 py-4">{breedName(c.breed) ?? "—"}</td>
                     <td className="px-4 py-4">
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
                           c.status === "active"
                             ? "bg-emerald-100 text-emerald-700"
-                            : c.status === "inactive"
+                            : c.status === "dry" || c.status === "sick"
                               ? "bg-amber-100 text-amber-700"
-                              : "bg-slate-100 text-slate-600"
+                              : c.status === "deceased" || c.status === "sold"
+                                ? "bg-slate-200 text-slate-700"
+                                : "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {c.status ?? "unknown"}
@@ -188,13 +222,19 @@ export default function CowListPage() {
                         </summary>
                         <div className="absolute right-0 z-10 mt-2 w-40 rounded border border-slate-200 bg-white shadow-lg">
                           <button
-                            onClick={() => setEditing(c)}
+                            onClick={() => {
+                              updateMut.reset();
+                              setEditing(c);
+                            }}
                             className="w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => setDeleting(c)}
+                            onClick={() => {
+                              deleteMut.reset();
+                              setDeleting(c);
+                            }}
                             className="w-full px-4 py-2 text-left text-rose-700 hover:bg-slate-50"
                           >
                             Delete
@@ -217,21 +257,37 @@ export default function CowListPage() {
 
         <AddCowDialog
           open={adding}
-          onClose={() => setAdding(false)}
+          onClose={() => {
+            createMut.reset();
+            setAdding(false);
+          }}
           onCreate={(p) => createMut.mutate(p)}
+          isSubmitting={createMut.isPending}
+          submitError={createMut.isError ? errorMessage(createMut.error) : null}
         />
         {editing && (
           <EditCowDialog
             cow={editing}
-            onClose={() => setEditing(null)}
+            open={Boolean(editing)}
+            onClose={() => {
+              updateMut.reset();
+              setEditing(null);
+            }}
             onSave={(id, data) => updateMut.mutate({ id, data })}
+            isSubmitting={updateMut.isPending}
+            submitError={updateMut.isError ? errorMessage(updateMut.error) : null}
           />
         )}
         {deleting && (
           <DeleteCowDialog
             cow={deleting}
-            onClose={() => setDeleting(null)}
+            onClose={() => {
+              deleteMut.reset();
+              setDeleting(null);
+            }}
             onDelete={(id) => deleteMut.mutate(id)}
+            isSubmitting={deleteMut.isPending}
+            submitError={deleteMut.isError ? errorMessage(deleteMut.error) : null}
           />
         )}
       </div>

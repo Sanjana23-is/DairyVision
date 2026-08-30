@@ -1,42 +1,38 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
 from app.models import (
     ActivityLog,
     Cow,
-    DailyObservation,
     Farm,
-    HealthAlert,
     MilkPrediction,
     Recommendation,
     UserPreference,
 )
+from app.exceptions import ObservationForbidden, ObservationValidationError
+from app.repositories.breed_repository import list_active_breeds
+from app.repositories.ownership import scope_query
 from app.schemas.crud import (
     ActivityLogCreate,
     ActivityLogResponse,
     ActivityLogUpdate,
+    BreedResponse,
     CowCreate,
     CowResponse,
     CowUpdate,
-    DailyObservationCreate,
-    DailyObservationResponse,
-    DailyObservationUpdate,
     FarmCreate,
     FarmResponse,
     FarmUpdate,
-    HealthAlertCreate,
-    HealthAlertResponse,
-    HealthAlertUpdate,
-    MilkPredictionCreate,
     MilkPredictionResponse,
-    MilkPredictionUpdate,
     RecommendationCreate,
     RecommendationResponse,
     RecommendationUpdate,
@@ -44,7 +40,9 @@ from app.schemas.crud import (
     UserPreferenceResponse,
     UserPreferenceUpdate,
 )
+from app.schemas.observation import ObservationCreate, ObservationResponse, ObservationUpdate
 from app.services.crud_service import CRUDService
+from app.services.observation_service import ObservationService
 
 router = APIRouter()
 
@@ -95,7 +93,7 @@ def update_farm(
     return farm
 
 
-@router.delete("/farms/{farm_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/farms/{farm_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_farm(
     farm_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -111,16 +109,36 @@ def create_cow(
     payload: CowCreate,
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
+    db: Session = Depends(get_db),
 ) -> CowResponse:
-    return service.create_owned(Cow, user_id, **payload.model_dump(exclude_none=True))
+    try:
+        return service.create_owned(Cow, user_id, **payload.model_dump(exclude_none=True))
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"A cow with tag '{payload.tag_id}' already exists.",
+        )
 
 
 @router.get("/cows", response_model=list[CowResponse])
 def list_cows(
+    farm_id: Optional[str] = Query(default=None),
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
 ) -> list[CowResponse]:
-    return service.list_owned(Cow, user_id)
+    cows = service.list_owned(Cow, user_id)
+    if farm_id is not None:
+        cows = [cow for cow in cows if cow.farm_id == farm_id]
+    return cows
+
+
+@router.get("/breeds", response_model=list[BreedResponse])
+def list_breeds(
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> list[BreedResponse]:
+    return list_active_breeds(db)
 
 
 @router.get("/cows/{cow_id}", response_model=CowResponse)
@@ -141,14 +159,22 @@ def update_cow(
     payload: CowUpdate,
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
+    db: Session = Depends(get_db),
 ) -> CowResponse:
-    cow = service.update_owned(Cow, user_id, cow_id, **payload.model_dump(exclude_unset=True))
+    try:
+        cow = service.update_owned(Cow, user_id, cow_id, **payload.model_dump(exclude_unset=True))
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Update violates a data constraint (e.g. invalid weight or lactation number).",
+        )
     if cow is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cow not found")
     return cow
 
 
-@router.delete("/cows/{cow_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/cows/{cow_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_cow(
     cow_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -159,55 +185,71 @@ def delete_cow(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cow not found")
 
 
-@router.post("/daily-observations", response_model=DailyObservationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/daily-observations", response_model=ObservationResponse, status_code=status.HTTP_201_CREATED)
 def create_daily_observation(
-    payload: DailyObservationCreate,
+    payload: ObservationCreate,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> DailyObservationResponse:
-    return service.create_owned(DailyObservation, user_id, **payload.model_dump(exclude_none=True))
+    db: Session = Depends(get_db),
+) -> ObservationResponse:
+    service = ObservationService(db)
+    try:
+        return service.create_observation(user_id, payload)
+    except ObservationForbidden as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+    except ObservationValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
-@router.get("/daily-observations", response_model=list[DailyObservationResponse])
+@router.get("/daily-observations", response_model=list[ObservationResponse])
 def list_daily_observations(
+    farm_id: Optional[str] = Query(default=None),
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> list[DailyObservationResponse]:
-    return service.list_owned(DailyObservation, user_id)
+    db: Session = Depends(get_db),
+) -> list[ObservationResponse]:
+    service = ObservationService(db)
+    return service.list_observations(user_id, farm_id=farm_id)
 
 
-@router.get("/daily-observations/{observation_id}", response_model=DailyObservationResponse)
+@router.get("/daily-observations/{observation_id}", response_model=ObservationResponse)
 def get_daily_observation(
     observation_id: str,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> DailyObservationResponse:
-    observation = service.get_owned(DailyObservation, user_id, observation_id)
+    db: Session = Depends(get_db),
+) -> ObservationResponse:
+    service = ObservationService(db)
+    observation = service.get_observation(user_id, observation_id)
     if observation is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily observation not found")
     return observation
 
 
-@router.patch("/daily-observations/{observation_id}", response_model=DailyObservationResponse)
+@router.patch("/daily-observations/{observation_id}", response_model=ObservationResponse)
 def update_daily_observation(
     observation_id: str,
-    payload: DailyObservationUpdate,
+    payload: ObservationUpdate,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> DailyObservationResponse:
-    observation = service.update_owned(DailyObservation, user_id, observation_id, **payload.model_dump(exclude_unset=True))
+    db: Session = Depends(get_db),
+) -> ObservationResponse:
+    service = ObservationService(db)
+    try:
+        observation = service.update_observation(user_id, observation_id, payload)
+    except ObservationForbidden as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+    except ObservationValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     if observation is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily observation not found")
     return observation
 
 
-@router.delete("/daily-observations/{observation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/daily-observations/{observation_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_daily_observation(
     observation_id: str,
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
+    db: Session = Depends(get_db),
 ) -> None:
-    deleted = service.delete_owned(DailyObservation, user_id, observation_id)
+    service = ObservationService(db)
+    deleted = service.delete_observation(user_id, observation_id)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily observation not found")
 
@@ -254,7 +296,7 @@ def update_activity_log(
     return activity_log
 
 
-@router.delete("/activity-logs/{activity_log_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/activity-logs/{activity_log_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_activity_log(
     activity_log_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -265,74 +307,20 @@ def delete_activity_log(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity log not found")
 
 
-@router.post("/health-alerts", response_model=HealthAlertResponse, status_code=status.HTTP_201_CREATED)
-def create_health_alert(
-    payload: HealthAlertCreate,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> HealthAlertResponse:
-    return service.create_owned(HealthAlert, user_id, **payload.model_dump(exclude_none=True))
-
-
-@router.get("/health-alerts", response_model=list[HealthAlertResponse])
-def list_health_alerts(
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> list[HealthAlertResponse]:
-    return service.list_owned(HealthAlert, user_id)
-
-
-@router.get("/health-alerts/{alert_id}", response_model=HealthAlertResponse)
-def get_health_alert(
-    alert_id: str,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> HealthAlertResponse:
-    alert = service.get_owned(HealthAlert, user_id, alert_id)
-    if alert is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health alert not found")
-    return alert
-
-
-@router.patch("/health-alerts/{alert_id}", response_model=HealthAlertResponse)
-def update_health_alert(
-    alert_id: str,
-    payload: HealthAlertUpdate,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> HealthAlertResponse:
-    alert = service.update_owned(HealthAlert, user_id, alert_id, **payload.model_dump(exclude_unset=True))
-    if alert is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health alert not found")
-    return alert
-
-
-@router.delete("/health-alerts/{alert_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_health_alert(
-    alert_id: str,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> None:
-    deleted = service.delete_owned(HealthAlert, user_id, alert_id)
-    if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health alert not found")
-
-
-@router.post("/milk-predictions", response_model=MilkPredictionResponse, status_code=status.HTTP_201_CREATED)
-def create_milk_prediction(
-    payload: MilkPredictionCreate,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> MilkPredictionResponse:
-    return service.create_owned(MilkPrediction, user_id, **payload.model_dump(exclude_none=True))
 
 
 @router.get("/milk-predictions", response_model=list[MilkPredictionResponse])
 def list_milk_predictions(
+    farm_id: Optional[str] = Query(default=None),
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
+    db: Session = Depends(get_db),
 ) -> list[MilkPredictionResponse]:
-    return service.list_owned(MilkPrediction, user_id)
+    predictions = service.list_owned(MilkPrediction, user_id)
+    if farm_id is not None:
+        cow_ids = {cow.id for cow in db.query(Cow).filter(Cow.farm_id == farm_id).all()}
+        predictions = [p for p in predictions if p.cow_id in cow_ids]
+    return predictions
 
 
 @router.get("/milk-predictions/{prediction_id}", response_model=MilkPredictionResponse)
@@ -347,20 +335,7 @@ def get_milk_prediction(
     return prediction
 
 
-@router.patch("/milk-predictions/{prediction_id}", response_model=MilkPredictionResponse)
-def update_milk_prediction(
-    prediction_id: str,
-    payload: MilkPredictionUpdate,
-    user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
-) -> MilkPredictionResponse:
-    prediction = service.update_owned(MilkPrediction, user_id, prediction_id, **payload.model_dump(exclude_unset=True))
-    if prediction is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milk prediction not found")
-    return prediction
-
-
-@router.delete("/milk-predictions/{prediction_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/milk-predictions/{prediction_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_milk_prediction(
     prediction_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -382,10 +357,33 @@ def create_recommendation(
 
 @router.get("/recommendations", response_model=list[RecommendationResponse])
 def list_recommendations(
+    category: Optional[str] = Query(None),
+    priority: Optional[str] = Query(None),
+    completed: Optional[bool] = Query(None),
+    search: Optional[str] = Query(None),
     user_id: str = Depends(get_current_user_id),
-    service: CRUDService = Depends(get_crud_service),
+    db: Session = Depends(get_db),
 ) -> list[RecommendationResponse]:
-    return service.list_owned(Recommendation, user_id)
+    query = scope_query(db.query(Recommendation), Recommendation, user_id)
+
+    if category is not None:
+        query = query.filter(Recommendation.category == category)
+    if priority is not None:
+        query = query.filter(Recommendation.priority == priority)
+    if completed is not None:
+        query = query.filter(Recommendation.completed.is_(completed))
+    if search is not None and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                Recommendation.title.ilike(term),
+                Recommendation.description.ilike(term),
+                Recommendation.category.ilike(term),
+                Recommendation.priority.ilike(term),
+            )
+        )
+
+    return query.order_by(Recommendation.created_at.desc()).all()
 
 
 @router.get("/recommendations/{recommendation_id}", response_model=RecommendationResponse)
@@ -413,7 +411,7 @@ def update_recommendation(
     return recommendation
 
 
-@router.delete("/recommendations/{recommendation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/recommendations/{recommendation_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_recommendation(
     recommendation_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -457,7 +455,7 @@ def update_preference(
     return preference
 
 
-@router.delete("/preferences", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/preferences", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_preference(
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),

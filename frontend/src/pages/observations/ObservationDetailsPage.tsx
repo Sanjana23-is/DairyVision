@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { fetchObservation } from "@/services/observation";
+import { fetchCow } from "@/services/cow";
 
 export default function ObservationDetailsPage() {
   const { id } = useParams();
@@ -16,6 +17,12 @@ export default function ObservationDetailsPage() {
     queryKey: ["observation", id],
     queryFn: () => fetchObservation(id as string),
     enabled: !!id,
+  });
+
+  const { data: cow } = useQuery({
+    queryKey: ["cow", observation?.cow_id],
+    queryFn: () => fetchCow(observation!.cow_id),
+    enabled: !!observation?.cow_id,
   });
 
   const symptomList = (() => {
@@ -58,7 +65,7 @@ export default function ObservationDetailsPage() {
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-sm text-slate-500">Cow</div>
                 <div className="font-medium text-slate-900">
-                  {observation.cow?.name ?? observation.cow_id}
+                  {cow?.name ?? observation.cow_id}
                 </div>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">

@@ -18,12 +18,14 @@ export default function EditFarmDialog({
   farm,
   onSave,
   loading,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
   farm: Farm | null;
   onSave: (id: string, payload: Partial<FormData>) => void;
   loading?: boolean;
+  error?: string;
 }) {
   const {
     register,
@@ -32,17 +34,19 @@ export default function EditFarmDialog({
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  if (!open || !farm) return null;
-
   // populate when farm changes
   React.useEffect(() => {
-    reset({
-      name: farm.name,
-      description: farm.description ?? undefined,
-      location_city: farm.location_city ?? undefined,
-      location_country: farm.location_country ?? undefined,
-    });
+    if (farm) {
+      reset({
+        name: farm.name,
+        description: farm.description ?? undefined,
+        location_city: farm.location_city ?? undefined,
+        location_country: farm.location_country ?? undefined,
+      });
+    }
   }, [farm, reset]);
+
+  if (!open || !farm) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -89,17 +93,21 @@ export default function EditFarmDialog({
             />
           </div>
 
+          {error && <div className="text-rose-600 text-sm mt-1">{error}</div>}
+
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
               className="rounded border px-3 py-1"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="rounded bg-sky-600 px-3 py-1 text-white"
+              disabled={loading}
             >
               {loading ? "Saving..." : "Save"}
             </button>

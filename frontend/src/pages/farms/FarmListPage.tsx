@@ -14,6 +14,16 @@ import AddFarmDialog from "@/components/farms/AddFarmDialog";
 import EditFarmDialog from "@/components/farms/EditFarmDialog";
 import DeleteFarmDialog from "@/components/farms/DeleteFarmDialog";
 
+const getErrorMessage = (error: any): string | undefined => {
+  if (!error) return undefined;
+  if (error.response?.data?.detail) {
+    const detail = error.response.data.detail;
+    if (typeof detail === "string") return detail;
+    return JSON.stringify(detail);
+  }
+  return error.message ?? "An unexpected error occurred";
+};
+
 export default function FarmListPage() {
   const { currentFarmId, setCurrentFarm } = useAuth();
   const queryClient = useQueryClient();
@@ -38,14 +48,16 @@ export default function FarmListPage() {
       navigate("/dashboard");
       setCreating(false);
     },
-    onError: () => setCreating(false),
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Partial<any> }) =>
       updateFarm(id, payload),
-    onSuccess: () => {
+    onSuccess: (updatedFarm: Farm) => {
       queryClient.invalidateQueries({ queryKey: ["farms"] });
+      if (currentFarmId === updatedFarm.id) {
+        setCurrentFarm(updatedFarm.id, updatedFarm.name ?? null);
+      }
       setEditingFarm(null);
     },
   });
@@ -153,10 +165,13 @@ export default function FarmListPage() {
 
         <AddFarmDialog
           open={creating}
-          onClose={() => setCreating(false)}
+          onClose={() => {
+            createMut.reset();
+            setCreating(false);
+          }}
           loading={createMut.status === "pending"}
+          error={getErrorMessage(createMut.error)}
           onCreate={(payload) => {
-            setCreating(true);
             createMut.mutate(payload);
           }}
         />
@@ -164,16 +179,24 @@ export default function FarmListPage() {
         <EditFarmDialog
           open={Boolean(editingFarm)}
           farm={editingFarm}
-          onClose={() => setEditingFarm(null)}
+          onClose={() => {
+            updateMut.reset();
+            setEditingFarm(null);
+          }}
           loading={updateMut.status === "pending"}
+          error={getErrorMessage(updateMut.error)}
           onSave={(id, payload) => updateMut.mutate({ id, payload })}
         />
 
         <DeleteFarmDialog
           open={Boolean(deletingFarm)}
           farmName={deletingFarm?.name ?? null}
-          onClose={() => setDeletingFarm(null)}
+          onClose={() => {
+            deleteMut.reset();
+            setDeletingFarm(null);
+          }}
           loading={deleteMut.status === "pending"}
+          error={getErrorMessage(deleteMut.error)}
           onDelete={() => deletingFarm && deleteMut.mutate(deletingFarm.id)}
         />
       </div>

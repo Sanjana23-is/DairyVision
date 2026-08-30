@@ -1,7 +1,8 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchObservations } from "@/services/observation";
+import { fetchCows, Cow } from "@/services/cow";
 import {
   createPredictionForObservation,
   fetchPredictions,
@@ -20,13 +21,27 @@ export default function PredictionPage() {
     isError,
   } = useQuery({
     queryKey: ["observations", currentFarmId],
-    queryFn: fetchObservations,
+    queryFn: () => fetchObservations(currentFarmId as string),
     enabled: !!currentFarmId,
   });
 
+  const { data: cows = [] } = useQuery<Cow[], Error>({
+    queryKey: ["cows", currentFarmId],
+    queryFn: () => fetchCows(currentFarmId as string),
+    enabled: !!currentFarmId,
+  });
+
+  const cowNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    return map;
+  }, [cows]);
+
+  const cowName = (id: string) => cowNameById.get(id) ?? id;
+
   const { data: predictions = [] } = useQuery({
-    queryKey: ["predictions"],
-    queryFn: fetchPredictions,
+    queryKey: ["predictions", currentFarmId],
+    queryFn: () => fetchPredictions(currentFarmId as string),
     enabled: !!currentFarmId,
   });
 
@@ -39,12 +54,9 @@ export default function PredictionPage() {
   } | null>(null);
 
   const mutation = useMutation<MilkPrediction, any, string>({
-    mutationFn: (obsId: string) =>
-      createPredictionForObservation(obsId, {
-        farm_id: currentFarmId ?? undefined,
-      }),
+    mutationFn: (obsId: string) => createPredictionForObservation(obsId),
     onSuccess: (data) => {
-      qc.invalidateQueries({ queryKey: ["predictions"] });
+      qc.invalidateQueries({ queryKey: ["predictions", currentFarmId] });
       setLatestPrediction(data);
       setToast({
         type: "success",
@@ -123,7 +135,7 @@ export default function PredictionPage() {
                     <option value="">Pick an observation</option>
                     {observations.map((o: any) => (
                       <option key={o.id} value={o.id}>
-                        {o.observation_date} — {o.cow?.name ?? o.cow_id}
+                        {o.observation_date} — {cowName(o.cow_id)}
                       </option>
                     ))}
                   </select>

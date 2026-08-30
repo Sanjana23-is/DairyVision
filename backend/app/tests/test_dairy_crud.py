@@ -45,12 +45,12 @@ def test_cow_crud_ownership(session: Session) -> None:
     assert fetched.tag_id == cow_payload.tag_id
     assert fetched.owner_id == user_id
 
-    updated = session.query(Cow).get(fetched.id)
+    updated = session.get(Cow, fetched.id)
     assert updated is not None
     updated.status = "dry"
     session.commit()
 
-    reloaded = session.query(Cow).get(fetched.id)
+    reloaded = session.get(Cow, fetched.id)
     assert reloaded.status == "dry"
 
     session.delete(reloaded)

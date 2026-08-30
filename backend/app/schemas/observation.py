@@ -14,7 +14,6 @@ class ObservationBase(BaseModel):
     feed_quantity_kg: Optional[float] = None
     symptoms: Optional[dict[str, Any]] = None
     notes: Optional[str] = None
-    image_url: Optional[str] = None
 
     @field_validator("milk_produced_liters", "feed_quantity_kg")
     @classmethod
@@ -36,7 +35,6 @@ class ObservationUpdate(BaseModel):
     feed_quantity_kg: Optional[float] = None
     symptoms: Optional[dict[str, Any]] = None
     notes: Optional[str] = None
-    image_url: Optional[str] = None
 
     @field_validator("milk_produced_liters", "feed_quantity_kg")
     @classmethod

@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Observation } from "@/services/observation";
 
-// Zod schema and helpers
 const positiveNumberOrEmpty = z.preprocess((val) => {
   if (val === "" || val === null || val === undefined) return undefined;
   const n = Number(val);
@@ -14,13 +13,16 @@ const positiveNumberOrEmpty = z.preprocess((val) => {
 const schema = z.object({
   cow_id: z.string().min(1, "Select a cow"),
   observation_date: z.string().min(1, "Select a date"),
-  morning_milk: positiveNumberOrEmpty,
-  evening_milk: positiveNumberOrEmpty,
-  dry_fodder_kg: positiveNumberOrEmpty,
-  green_fodder_kg: positiveNumberOrEmpty,
-  concentrate_feed_kg: positiveNumberOrEmpty,
-  body_weight_kg: positiveNumberOrEmpty,
-  condition: z.enum(["healthy", "slightly_abnormal", "abnormal"]),
+  milk_produced_liters: z.preprocess((val) => {
+    if (val === "" || val === null || val === undefined) return undefined;
+    const n = Number(val);
+    return Number.isNaN(n) ? undefined : n;
+  }, z.number().min(0, "Must be at least 0")),
+  feed_quantity_kg: positiveNumberOrEmpty,
+  condition: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : val),
+    z.enum(["healthy", "slightly_abnormal", "abnormal"]).optional(),
+  ),
   notes: z.string().max(2000).optional(),
 });
 
@@ -45,20 +47,15 @@ export default function ObservationForm({
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver,
     defaultValues: {
       cow_id: "",
       observation_date: new Date().toISOString().slice(0, 10),
-      morning_milk: undefined,
-      evening_milk: undefined,
-      dry_fodder_kg: undefined,
-      green_fodder_kg: undefined,
-      concentrate_feed_kg: undefined,
-      body_weight_kg: undefined,
-      condition: "healthy",
+      milk_produced_liters: undefined,
+      feed_quantity_kg: undefined,
+      condition: undefined,
       notes: undefined,
     },
   });
@@ -66,80 +63,31 @@ export default function ObservationForm({
   useEffect(() => {
     if (!open) return;
     if (observation) {
-      // Map observation to form fields. observation may store condition/body_weight inside `symptoms`.
-      const cond =
-        observation.symptoms?.condition ?? observation.symptoms?.condition;
-      const bw =
-        observation.symptoms?.body_weight_kg ??
-        observation.symptoms?.body_weight_kg;
-
+      const cond = observation.symptoms?.condition;
       reset({
         cow_id: observation.cow_id ?? "",
         observation_date:
           observation.observation_date ?? new Date().toISOString().slice(0, 10),
-        // backend does not store morning_milk/evening_milk; keep form inputs empty for editing
-        morning_milk: undefined,
-        evening_milk: undefined,
-        dry_fodder_kg: undefined,
-        green_fodder_kg: undefined,
-        concentrate_feed_kg: undefined,
-        body_weight_kg: typeof bw === "number" ? bw : undefined,
+        milk_produced_liters: observation.milk_produced_liters ?? undefined,
+        feed_quantity_kg: observation.feed_quantity_kg ?? undefined,
         condition:
           typeof cond === "string" &&
           ["healthy", "slightly_abnormal", "abnormal"].includes(cond)
             ? (cond as any)
-            : "healthy",
+            : undefined,
         notes: observation.notes ?? undefined,
       });
     } else {
       reset({
         cow_id: "",
         observation_date: new Date().toISOString().slice(0, 10),
-        morning_milk: undefined,
-        evening_milk: undefined,
-        dry_fodder_kg: undefined,
-        green_fodder_kg: undefined,
-        concentrate_feed_kg: undefined,
-        body_weight_kg: undefined,
-        condition: "healthy",
+        milk_produced_liters: undefined,
+        feed_quantity_kg: undefined,
+        condition: undefined,
         notes: undefined,
       });
     }
   }, [open, observation, reset]);
-
-  const watched = watch([
-    "morning_milk",
-    "evening_milk",
-    "dry_fodder_kg",
-    "green_fodder_kg",
-    "concentrate_feed_kg",
-  ]);
-
-  const totalMilk = useMemo(() => {
-    const morning = watched[0];
-    const evening = watched[1];
-    if (morning === undefined && evening === undefined) {
-      return undefined;
-    }
-    const m = Number(morning ?? 0);
-    const e = Number(evening ?? 0);
-    return (isFinite(m) ? m : 0) + (isFinite(e) ? e : 0);
-  }, [watched]);
-
-  const totalFeed = useMemo(() => {
-    const dry = watched[2];
-    const green = watched[3];
-    const concentrate = watched[4];
-    if (dry === undefined && green === undefined && concentrate === undefined) {
-      return undefined;
-    }
-    const d = Number(dry ?? 0);
-    const g = Number(green ?? 0);
-    const c = Number(concentrate ?? 0);
-    return (
-      (isFinite(d) ? d : 0) + (isFinite(g) ? g : 0) + (isFinite(c) ? c : 0)
-    );
-  }, [watched]);
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -153,16 +101,9 @@ export default function ObservationForm({
       const payload: Partial<Observation> = {
         cow_id: values.cow_id,
         observation_date: values.observation_date,
-        // include summary fields the backend expects
-        milk_produced_liters: totalMilk || undefined,
-        dry_fodder_kg: values.dry_fodder_kg,
-        green_fodder_kg: values.green_fodder_kg,
-        concentrate_feed_kg: values.concentrate_feed_kg,
-        feed_quantity_kg: totalFeed || undefined,
-        symptoms: {
-          condition: values.condition,
-          body_weight_kg: values.body_weight_kg ?? undefined,
-        },
+        milk_produced_liters: values.milk_produced_liters,
+        feed_quantity_kg: values.feed_quantity_kg,
+        symptoms: values.condition ? { condition: values.condition } : undefined,
         notes: values.notes,
       } as any;
 
@@ -182,7 +123,7 @@ export default function ObservationForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
       <form
         onSubmit={handleSubmit(submit)}
-        className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl"
+        className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -190,7 +131,7 @@ export default function ObservationForm({
               {observation ? "Edit Observation" : "New Observation"}
             </h3>
             <p className="text-sm text-slate-500">
-              Minimal, touch-friendly observation form.
+              Quick daily observation — under 30 seconds.
             </p>
           </div>
           <button
@@ -246,115 +187,54 @@ export default function ObservationForm({
           </label>
         </div>
 
-        <div className="mt-6 rounded-2xl border bg-slate-50 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Milk</p>
-              <p className="text-xs text-slate-500">
-                Morning & evening — total computed
-              </p>
-            </div>
-            <div className="text-sm font-semibold">
-              Total: {totalMilk !== undefined ? totalMilk.toFixed(1) : "—"} L
-            </div>
-          </div>
-
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="text-sm font-medium">Total milk produced (L)</span>
             <input
               type="number"
               step="0.1"
               inputMode="decimal"
-              {...register("morning_milk")}
-              placeholder="Morning (L)"
-              className="h-12 rounded-2xl border px-3"
+              {...register("milk_produced_liters")}
+              placeholder="e.g. 12.5"
+              className="h-12 w-full rounded-2xl border px-4"
             />
-            <input
-              type="number"
-              step="0.1"
-              inputMode="decimal"
-              {...register("evening_milk")}
-              placeholder="Evening (L)"
-              className="h-12 rounded-2xl border px-3"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 rounded-2xl border bg-slate-50 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold">Feed</p>
-              <p className="text-xs text-slate-500">
-                Dry, green, concentrate — total computed
-              </p>
-            </div>
-            <div className="text-sm font-semibold">
-              Total: {totalFeed !== undefined ? totalFeed.toFixed(1) : "—"} kg
-            </div>
-          </div>
-
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <input
-              type="number"
-              step="0.1"
-              inputMode="decimal"
-              {...register("dry_fodder_kg")}
-              placeholder="Dry (kg)"
-              className="h-12 rounded-2xl border px-3"
-            />
-            <input
-              type="number"
-              step="0.1"
-              inputMode="decimal"
-              {...register("green_fodder_kg")}
-              placeholder="Green (kg)"
-              className="h-12 rounded-2xl border px-3"
-            />
-            <input
-              type="number"
-              step="0.1"
-              inputMode="decimal"
-              {...register("concentrate_feed_kg")}
-              placeholder="Concentrate (kg)"
-              className="h-12 rounded-2xl border px-3"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 rounded-2xl border bg-slate-50 p-4">
-          <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
-            <label className="space-y-1">
-              <span className="text-sm font-medium">Observed condition</span>
-              <select
-                {...register("condition")}
-                className="h-12 w-full rounded-2xl border px-3"
-              >
-                <option value="healthy">Healthy</option>
-                <option value="slightly_abnormal">Slightly Abnormal</option>
-                <option value="abnormal">Abnormal</option>
-              </select>
-            </label>
-
-            <div className="rounded-2xl bg-white p-3 text-sm text-slate-700">
-              <div className="font-semibold text-xs uppercase tracking-wide text-slate-500">
-                Weather
+            {errors.milk_produced_liters && (
+              <div className="text-rose-600 text-xs">
+                {errors.milk_produced_liters.message}
               </div>
-              <div className="mt-2">
-                Weather will be attached automatically.
-              </div>
-            </div>
-          </div>
+            )}
+          </label>
 
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="text-sm font-medium">Total feed quantity (kg)</span>
             <input
               type="number"
               step="0.1"
               inputMode="decimal"
-              {...register("body_weight_kg")}
-              placeholder="Body weight (kg)"
-              className="h-12 rounded-2xl border px-3"
+              {...register("feed_quantity_kg")}
+              placeholder="Optional"
+              className="h-12 w-full rounded-2xl border px-4"
             />
-          </div>
+            {errors.feed_quantity_kg && (
+              <div className="text-rose-600 text-xs">
+                {errors.feed_quantity_kg.message}
+              </div>
+            )}
+          </label>
         </div>
+
+        <label className="mt-4 block space-y-1">
+          <span className="text-sm font-medium">Condition (optional)</span>
+          <select
+            {...register("condition")}
+            className="h-12 w-full rounded-2xl border px-4"
+          >
+            <option value="">Not specified</option>
+            <option value="healthy">Healthy</option>
+            <option value="slightly_abnormal">Slightly Abnormal</option>
+            <option value="abnormal">Abnormal</option>
+          </select>
+        </label>
 
         <label className="mt-4 block">
           <span className="text-sm font-medium">Notes</span>

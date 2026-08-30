@@ -1,15 +1,24 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
+from app.exceptions import ExplainabilityNotFound, ExplainabilityValidationError
 from app.schemas.explainability import ExplainabilityResponse
 from app.schemas.feature import FeatureVector
 from app.services.explainability_service import ExplainabilityService
 
 router = APIRouter()
+
+
+class ExplainabilityRequest(BaseModel):
+    prediction_id: Optional[str] = None
+    feature_vector: Optional[FeatureVector] = None
 
 
 def get_explainability_service(db: Session = Depends(get_db)) -> ExplainabilityService:
@@ -18,21 +27,18 @@ def get_explainability_service(db: Session = Depends(get_db)) -> ExplainabilityS
 
 @router.post("/explainability", response_model=ExplainabilityResponse)
 def explain(
-    payload: dict,
+    payload: ExplainabilityRequest,
     user_id: str = Depends(get_current_user_id),
     service: ExplainabilityService = Depends(get_explainability_service),
 ):
-    # payload must contain either prediction_id or feature_vector
-    pred_id = payload.get("prediction_id")
-    fv_payload = payload.get("feature_vector")
+    if payload.prediction_id is None and payload.feature_vector is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing input")
     try:
-        if pred_id:
-            res = service.explain(user_id, prediction_id=pred_id)
-        else:
-            if fv_payload is None:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing input")
-            fv = FeatureVector(**fv_payload)
-            res = service.explain(user_id, feature_vector=fv)
+        res = service.explain(
+            user_id,
+            prediction_id=payload.prediction_id,
+            feature_vector=payload.feature_vector,
+        )
 
         # build response
         features = [
@@ -62,7 +68,13 @@ def explain(
         }
     except PermissionError:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    except ValueError as ve:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve))
+    except ExplainabilityNotFound as enf:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(enf))
+    except (ExplainabilityValidationError, ValueError) as ve:
+        # Covers both our own explicit validation (e.g. missing required
+        # features) and any ValueError the model/SHAP itself raises --
+        # neither is a "resource not found" condition, so neither should be
+        # reported as a 404.
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(ve))
     except RuntimeError as re:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(re))

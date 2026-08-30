@@ -1,5 +1,4 @@
 import api from "./api";
-import { Cow } from "./cow";
 
 export type Observation = {
   id: string;
@@ -18,11 +17,12 @@ export type Observation = {
   owner_id: string;
   created_at: string;
   updated_at?: string;
-  cow?: Cow;
 };
 
-export async function fetchObservations() {
-  const res = await api.get<Observation[]>("/api/v1/daily-observations");
+export async function fetchObservations(farmId?: string) {
+  const res = await api.get<Observation[]>("/api/v1/daily-observations", {
+    params: farmId ? { farm_id: farmId } : undefined,
+  });
   return res.data || [];
 }
 

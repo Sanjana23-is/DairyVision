@@ -38,7 +38,7 @@ export default function ObservationListPage() {
     error,
   } = useQuery<Observation[], Error>({
     queryKey: ["observations", farmId],
-    queryFn: () => fetchObservations(),
+    queryFn: () => fetchObservations(farmId as string),
     enabled: !!farmId,
     refetchInterval: 15000,
   });
@@ -50,18 +50,26 @@ export default function ObservationListPage() {
     refetchInterval: 30000,
   });
 
+  const cowNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.id));
+    return map;
+  }, [cows]);
+
+  const cowName = (id: string) => cowNameById.get(id) ?? id;
+
   const filteredObservations = useMemo(() => {
     const term = search.trim().toLowerCase();
     return observations.filter((obs) => {
       const matchesCow = selectedCow ? obs.cow_id === selectedCow : true;
       const matchesSearch = term
-        ? [obs.notes, obs.observation_date, obs.cow?.name]
+        ? [obs.notes, obs.observation_date, cowName(obs.cow_id)]
             .filter(Boolean)
             .some((value) => String(value).toLowerCase().includes(term))
         : true;
       return matchesCow && matchesSearch;
     });
-  }, [observations, search, selectedCow]);
+  }, [observations, search, selectedCow, cowNameById]);
 
   const createMut = useMutation<Observation, Error, Partial<Observation>>({
     mutationFn: (payload) => createObservation(payload),
@@ -253,7 +261,7 @@ export default function ObservationListPage() {
                 {filteredObservations.map((obs) => (
                   <tr key={obs.id} className="border-t hover:bg-slate-50">
                     <td className="px-4 py-4">{obs.observation_date}</td>
-                    <td className="px-4 py-4">{obs.cow?.name ?? obs.cow_id}</td>
+                    <td className="px-4 py-4">{cowName(obs.cow_id)}</td>
                     <td className="px-4 py-4">
                       {obs.milk_produced_liters ?? "—"}
                     </td>
@@ -319,6 +327,7 @@ export default function ObservationListPage() {
         {deleting && (
           <DeleteObservationDialog
             observation={deleting}
+            cowName={cowName(deleting.cow_id)}
             open={Boolean(deleting)}
             onClose={() => setDeleting(null)}
             onDelete={(id) => deleteMut.mutate(id)}

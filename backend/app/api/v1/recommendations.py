@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
 from app.schemas.crud import RecommendationResponse
 from app.schemas.recommendation import RecommendationGenerateRequest

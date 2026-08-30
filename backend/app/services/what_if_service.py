@@ -29,7 +29,7 @@ class WhatIfService:
         self.recommendation_service = RecommendationService(db)
 
     def _validate_observation(self, user_id: str, observation_id: str) -> DailyObservation:
-        observation = self.db.query(DailyObservation).get(observation_id)
+        observation = self.db.get(DailyObservation, observation_id)
         if observation is None:
             raise ValueError("Observation not found")
         if observation.owner_id != user_id:
@@ -37,30 +37,65 @@ class WhatIfService:
         return observation
 
     def _validate_cow_and_farm(self, user_id: str, cow_id: str) -> tuple[ Cow, Farm]:
-        cow = self.db.query(Cow).get(cow_id)
+        cow = self.db.get(Cow, cow_id)
         if cow is None:
             raise ValueError("Cow not found")
         if cow.owner_id != user_id:
             raise PermissionError("User does not own this cow")
-        farm = self.db.query(Farm).get(cow.farm_id)
+        farm = self.db.get(Farm, cow.farm_id)
         if farm is None:
             raise ValueError("Farm not found")
         if getattr(farm, "created_by", None) != user_id and getattr(farm, "owner_id", None) not in (None, user_id):
             raise PermissionError("User does not own this farm")
         return cow, farm
 
+    def _apply_scenario_overrides(self, baseline: FeatureVector, scenario: FeatureVector) -> FeatureVector:
+        """Build the scenario feature vector starting from the observation's
+        complete baseline, overriding only the fields the caller explicitly
+        supplied (non-None), then recomputing every engineered feature from
+        the resulting base values using the same formulas already
+        implemented in FeatureEngineeringService. This guarantees
+        scenario_features contains every field in config.ALL_FEATURES before
+        it reaches PredictionService.predict_value(), without using NaN or
+        arbitrary defaults to bypass its validation."""
+        merged = baseline.model_copy()
+
+        base_fields = ("age", "weight", "health_status", "feed", "temperature", "humidity", "thi")
+        for field in base_fields:
+            value = getattr(scenario, field, None)
+            if value is not None:
+                setattr(merged, field, value)
+
+        if merged.feed is not None and merged.weight not in (None, 0):
+            merged.feed_weight_ratio = merged.feed / merged.weight
+            merged.feed_per_weight = merged.feed_weight_ratio
+        if merged.temperature is not None and merged.humidity is not None:
+            merged.temp_humidity = merged.temperature * merged.humidity
+        if merged.thi is not None:
+            merged.thi_squared = merged.thi * merged.thi
+            if merged.feed is not None:
+                merged.feed_thi_interaction = merged.feed * merged.thi
+        if merged.age is not None and merged.weight not in (None, 0):
+            merged.age_weight_ratio = merged.age / merged.weight
+
+        merged.observation_id = baseline.observation_id
+        return merged
+
     def run_what_if(self, user_id: str, request: WhatIfRequest) -> WhatIfResponse:
         observation = self._validate_observation(user_id, request.observation_id)
-        cow = self.db.query(Cow).get(observation.cow_id)
+        cow = self.db.get(Cow, observation.cow_id)
         if cow is None:
             raise ValueError("Cow not found")
         self._validate_cow_and_farm(user_id, cow.id)
 
         current_features = self.feature_service.build_features_for_observation(user_id, request.observation_id)
-        # scenario feature payload may include modified values and observation_id for metadata
-        scenario_features = request.scenario
-        if scenario_features.observation_id is None:
-            scenario_features.observation_id = observation.id
+        # The scenario starts from the complete baseline feature vector,
+        # overriding only the fields the caller actually supplied. This is
+        # required because PredictionService._feature_order() validates that
+        # every config.ALL_FEATURES value is present -- the caller is not
+        # required to send a complete feature vector, only the fields they
+        # want to hypothesize about.
+        scenario_features = self._apply_scenario_overrides(current_features, request.scenario)
 
         current_prediction = self.prediction_service.predict_value(current_features)
         scenario_prediction = self.prediction_service.predict_value(scenario_features)
@@ -107,7 +142,7 @@ class WhatIfService:
                 prediction=None,
                 explainability=current_explainability,
                 observation=observation,
-                weather=self.db.query(WeatherLog).get(observation.weather_log_id) if observation.weather_log_id else None,
+                weather=self.db.get(WeatherLog, observation.weather_log_id) if observation.weather_log_id else None,
                 thi_override=current_features.thi,
             )]
             scenario_recommendations = [RecommendationItem(**rec) for rec in self.recommendation_service.generate_recommendations_for_context(
@@ -116,7 +151,7 @@ class WhatIfService:
                 prediction=None,
                 explainability=scenario_explainability,
                 observation=observation,
-                weather=self.db.query(WeatherLog).get(observation.weather_log_id) if observation.weather_log_id else None,
+                weather=self.db.get(WeatherLog, observation.weather_log_id) if observation.weather_log_id else None,
                 thi_override=scenario_features.thi,
             )]
 

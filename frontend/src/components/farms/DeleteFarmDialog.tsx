@@ -4,12 +4,14 @@ export default function DeleteFarmDialog({
   onDelete,
   loading,
   farmName,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
   onDelete: () => void;
   loading?: boolean;
   farmName?: string | null;
+  error?: string;
 }) {
   if (!open) return null;
 
@@ -22,13 +24,21 @@ export default function DeleteFarmDialog({
           <strong>{farmName ?? "this farm"}</strong>? This action cannot be
           undone.
         </p>
+
+        {error && <div className="text-rose-600 text-sm mb-4">{error}</div>}
+
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="rounded border px-3 py-1">
+          <button
+            onClick={onClose}
+            className="rounded border px-3 py-1"
+            disabled={loading}
+          >
             Cancel
           </button>
           <button
             onClick={onDelete}
             className="rounded bg-rose-600 px-3 py-1 text-white"
+            disabled={loading}
           >
             {loading ? "Deleting..." : "Delete"}
           </button>

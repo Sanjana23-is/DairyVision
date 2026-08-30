@@ -51,39 +51,14 @@ export default function PredictionDetailsModal({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border bg-slate-50 p-4">
-              <div className="text-sm font-medium text-slate-600">
-                Prediction Time
-              </div>
-              <div className="mt-2 text-sm text-slate-700">
-                {prediction.prediction_timestamp
-                  ? new Date(prediction.prediction_timestamp).toLocaleString()
-                  : "N/A"}
-              </div>
-            </div>
-            <div className="rounded-2xl border bg-slate-50 p-4">
-              <div className="text-sm font-medium text-slate-600">
-                Health Status
-              </div>
-              <div className="mt-2 text-sm text-slate-700">
-                {prediction.health_status != null
-                  ? prediction.health_status
-                  : "N/A"}
-              </div>
-            </div>
-          </div>
-
           <div className="rounded-2xl border bg-slate-50 p-4">
             <div className="text-sm font-medium text-slate-600">
-              Recommendation Summary
+              Prediction Time
             </div>
             <div className="mt-2 text-sm text-slate-700">
-              {prediction.recommendation_summary
-                ? prediction.recommendation_summary
-                : prediction.recommendations?.length
-                  ? prediction.recommendations.join("; ")
-                  : "No recommendations available."}
+              {prediction.prediction_timestamp
+                ? new Date(prediction.prediction_timestamp).toLocaleString()
+                : "N/A"}
             </div>
           </div>
 

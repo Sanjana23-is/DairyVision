@@ -251,7 +251,32 @@ class RecommendationService:
             weather=weather,
         )
 
-        return results
+        recommendation_objects: list[Recommendation] = []
+        for item in results:
+            recommendation = Recommendation(
+                cow_id=(
+                    getattr(health_alert, "cow_id", None)
+                    or getattr(observation, "cow_id", None)
+                    or getattr(prediction, "cow_id", None)
+                ),
+                alert_id=getattr(health_alert, "id", None),
+                prediction_id=getattr(prediction, "id", None),
+                observation_id=getattr(observation, "id", None),
+                farm_id=(
+                    getattr(health_alert, "farm_id", None)
+                    or getattr(observation, "farm_id", None)
+                    or getattr(weather, "farm_id", None)
+                ),
+                title=item["title"],
+                description=item.get("description"),
+                category=item["category"],
+                priority=item["priority"],
+                recommendation_type=item.get("recommendation_type", "generated"),
+                owner_id=user_id,
+            )
+            recommendation_objects.append(self.repo.save(recommendation))
+
+        return recommendation_objects
 
     def generate_recommendations_for_context(
         self,

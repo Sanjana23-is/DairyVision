@@ -31,13 +31,62 @@ smart_dairy_twin/
 
 ## Quick start
 
-### 1. Install dependencies
+### 1. Install backend dependencies
 
 ```bash
-pip install scikit-learn xgboost pandas numpy plotly scipy joblib requests kaleido
+python3 -m pip install -r backend/requirements.txt
 ```
 
-### 2. Place datasets
+### 2. Install frontend dependencies
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### 3. Configure environment
+
+Copy the sample environment files and provide production values:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Update `backend/.env` with your database URL, Alembic URL, Supabase credentials, and CORS origins.
+Update `frontend/.env` with the production backend API URL.
+
+### 4. Run the backend
+
+```bash
+cd backend
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### 5. Run the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+### 6. Build for production
+
+```bash
+cd frontend
+npm run build
+cd ../backend
+python3 -m alembic upgrade head
+```
+
+### 7. Run the full pipeline (research mode)
+
+```bash
+python run_pipeline.py
+```
+
+### 8. Place datasets
 
 Copy your two CSV files into `datasets/`:
 
