@@ -10,6 +10,7 @@ from .farm_member import FarmMember
 from .farm_settings import FarmSettings
 from .health_alert import HealthAlert
 from .milk_prediction import MilkPrediction
+from .anomaly_record import AnomalyRecord
 from .explainability_result import ExplainabilityResult
 from .recommendation import Recommendation
 from .user import User
@@ -18,6 +19,7 @@ from .weather_log import WeatherLog
 
 __all__ = [
     "ActivityLog",
+    "AnomalyRecord",
     "BreedAlias",
     "BreedMaster",
     "Cow",
@@ -33,3 +35,4 @@ __all__ = [
     "UserPreference",
     "WeatherLog",
 ]
+

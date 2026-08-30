@@ -96,6 +96,22 @@ class ObservationService:
                 str(exc),
             )
 
+        try:
+            from app.services.anomaly_detection_service import AnomalyDetectionService
+            anom_svc = AnomalyDetectionService(self.db)
+            anom_svc.detect_for_observation(
+                user_id=user_id,
+                observation_id=observation.id,
+                persist=True,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Anomaly detection failed for observation %s: %s",
+                observation.id,
+                str(exc),
+            )
+
+
 
     def update_observation(self, user_id: str, observation_id: str, payload: ObservationUpdate) -> Optional[DailyObservation]:
         update_data = payload.model_dump(exclude_unset=True)

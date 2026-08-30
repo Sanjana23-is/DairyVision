@@ -38,9 +38,10 @@ export default function FeatureImportanceChart({
       const sorted = [...features].sort(
         (a, b) => Math.abs(b.shap_value ?? 0) - Math.abs(a.shap_value ?? 0),
       );
-      const names = sorted.map((f) => f.feature);
+      const names = sorted.map((f) => f.display_name || f.feature);
       const values = sorted.map((f) => f.shap_value ?? 0);
       const colors = values.map((v) => (v >= 0 ? "#0ea5e9" : "#fb7185"));
+
 
       const data = [
         {

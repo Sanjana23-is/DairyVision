@@ -165,3 +165,41 @@ def test_explain_by_feature_vector(db_session: Session, tmp_path):
     res = svc.explain(user.id, feature_vector=fv)
     assert res.owner_id == user.id
     assert isinstance(res.top_positive, list)
+
+
+def test_explain_anomaly(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    from app.models import AnomalyRecord
+    anom = AnomalyRecord(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        observation_id=obs.id,
+        farm_id=farm.id,
+        owner_id=user.id,
+        anomaly_score=0.85,
+        severity="Critical",
+        anomaly_type="composite",
+        issue_tags=["Abnormal Milk Drop", "Extreme Heat Stress"],
+        details={"milk_produced_liters": 4.0, "thi": 79.5},
+    )
+    db_session.add(anom)
+    db_session.commit()
+
+    svc = ExplainabilityService(db_session)
+    res = svc.explain_anomaly(user.id, anom.id)
+
+    assert res["cow_name"] == "T1"
+    assert res["anomaly_severity"] == "Critical"
+    assert "Abnormal Milk Drop" in res["summary_narrative"]
+    assert len(res["features"]) >= 2
+
+
+def test_feature_translation_formatting():
+    from app.services.explainability_service import get_display_feature_name, format_feature_value, format_impact_description
+
+    assert get_display_feature_name("thi") == "Heat Stress Index (THI)"
+    assert format_feature_value("thi", 78.5) == "78.5 THI"
+    assert format_feature_value("feed", 15.0) == "15.0 kg"
+    assert "+1.50 L yield boost" in format_impact_description(1.5)
+    assert "-1.20 L yield penalty" in format_impact_description(-1.2)
+

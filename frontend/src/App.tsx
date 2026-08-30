@@ -14,6 +14,7 @@ import PredictionHistoryPage from "@/pages/predictions/PredictionHistoryPage";
 import ExplainabilityPage from "@/pages/explainability/ExplainabilityPage";
 import FarmListPage from "@/pages/farms/FarmListPage";
 import HealthAlertsPage from "@/pages/HealthAlertsPage";
+import AnomalyDetectionPage from "@/pages/AnomalyDetectionPage";
 import RecommendationsPage from "@/pages/RecommendationsPage";
 
 // Note: dashboard routes will use the DashboardLayout inside pages
@@ -41,9 +42,11 @@ function App() {
             element={<PredictionHistoryPage />}
           />
           <Route path="/health-alerts" element={<HealthAlertsPage />} />
+          <Route path="/anomalies" element={<AnomalyDetectionPage />} />
           <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="/explainability" element={<ExplainabilityPage />} />
         </Route>
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </AuthProvider>

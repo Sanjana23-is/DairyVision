@@ -7,6 +7,7 @@ import {
   Gauge,
   Sparkles,
   Bell,
+  Activity,
   Repeat,
 } from "lucide-react";
 
@@ -18,8 +19,10 @@ const items = [
   { to: "/predictions", label: "Predictions", icon: Gauge },
   { to: "/explainability", label: "SHAP Explainability", icon: Sparkles },
   { to: "/health-alerts", label: "Health Alerts", icon: Bell },
+  { to: "/anomalies", label: "Anomaly Detection", icon: Activity },
   { to: "/recommendations", label: "Recommendations", icon: Repeat },
 ];
+
 
 export default function Sidebar() {
   return (
