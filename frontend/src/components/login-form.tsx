@@ -40,7 +40,7 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
       if (onSuccess) {
         onSuccess();
       } else {
-        navigate("/dashboard");
+        navigate("/select-farm");
       }
     } catch (err) {
       setError("Invalid credentials. Please verify your email and password.");

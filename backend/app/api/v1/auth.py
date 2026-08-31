@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.auth import get_current_user, get_optional_auth_service
-from app.schemas.auth import AuthResponse, LoginRequest, LogoutResponse, MeResponse, SignupRequest
+from app.schemas.auth import AuthResponse, LoginRequest, LogoutResponse, MeResponse, SignupRequest, UpdateUserRequest
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -47,4 +47,16 @@ def logout(
 
 @router.get("/me", response_model=MeResponse)
 def me(current_user: Annotated[MeResponse, Depends(get_current_user)]) -> MeResponse:
+    return current_user
+
+
+@router.put("/me", response_model=MeResponse)
+def update_me(
+    payload: UpdateUserRequest,
+    current_user: Annotated[MeResponse, Depends(get_current_user)],
+    auth_service: Annotated[AuthService, Depends(get_optional_auth_service)],
+) -> MeResponse:
+    if payload.full_name:
+        updated_auth_user = auth_service.update_profile(current_user.user.id, payload.full_name)
+        return MeResponse(user=updated_auth_user)
     return current_user

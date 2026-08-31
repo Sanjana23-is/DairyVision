@@ -29,6 +29,7 @@ export type HealthAlertFilter = {
   alert_level?: string;
   resolved?: boolean;
   cow_id?: string;
+  farm_id?: string;
   prediction_id?: string;
   search?: string;
 };
@@ -36,6 +37,9 @@ export type HealthAlertFilter = {
 export async function fetchHealthAlerts(filters: HealthAlertFilter = {}) {
   const params: Record<string, string | boolean> = {};
 
+  if (filters.farm_id) {
+    params.farm_id = filters.farm_id;
+  }
   if (filters.alert_level) {
     params.alert_level = filters.alert_level;
   }

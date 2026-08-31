@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import { TrendingUp, Calendar } from "lucide-react";
 
 export type MilkChartPoint = {
   date: string;
@@ -29,45 +30,46 @@ function CustomTooltip({ active, payload, label }: any) {
   const diff = actualVal !== null && predVal !== null ? actualVal - predVal : null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md text-xs text-slate-800 space-y-1.5 min-w-[160px]">
-      <div className="font-semibold text-slate-900 border-b border-slate-100 pb-1">
-        {label}
+    <div className="rounded-xl border border-slate-200/90 bg-white/95 p-3.5 shadow-xl backdrop-blur-md text-xs text-slate-800 space-y-2 min-w-[170px] select-none">
+      <div className="font-bold text-slate-900 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+        <span>{label}</span>
+        <span className="text-[10px] text-slate-400 font-normal">Daily Yield</span>
       </div>
 
       {actualVal !== null ? (
         <div className="flex items-center justify-between gap-4">
-          <span className="flex items-center gap-1.5 text-slate-600">
-            <span className="h-2 w-2 rounded-full bg-sky-600 inline-block" />
+          <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-600 inline-block" />
             Actual Milk:
           </span>
-          <span className="font-semibold text-sky-700">{actualVal.toFixed(1)} L</span>
+          <span className="font-bold text-slate-950">{actualVal.toFixed(1)} L</span>
         </div>
       ) : (
         <div className="flex items-center justify-between text-slate-400">
           <span>Actual Milk:</span>
-          <span>No log</span>
+          <span className="italic">No log</span>
         </div>
       )}
 
       {predVal !== null ? (
         <div className="flex items-center justify-between gap-4">
-          <span className="flex items-center gap-1.5 text-slate-600">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+          <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+            <span className="h-2 w-2 rounded-full bg-sky-500 inline-block" />
             Predicted Target:
           </span>
-          <span className="font-semibold text-emerald-700">{predVal.toFixed(1)} L</span>
+          <span className="font-bold text-sky-700">{predVal.toFixed(1)} L</span>
         </div>
       ) : (
         <div className="flex items-center justify-between text-slate-400">
           <span>Predicted Target:</span>
-          <span>No target</span>
+          <span className="italic">No target</span>
         </div>
       )}
 
       {diff !== null && (
         <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 text-[11px]">
-          <span className="text-slate-500">Variance:</span>
-          <span className={`font-semibold ${diff >= 0 ? "text-emerald-600" : "text-amber-600"}`}>
+          <span className="text-slate-500 font-medium">Variance:</span>
+          <span className={`font-bold ${diff >= 0 ? "text-emerald-600" : "text-amber-600"}`}>
             {diff >= 0 ? `+${diff.toFixed(1)} L` : `${diff.toFixed(1)} L`}
           </span>
         </div>
@@ -86,42 +88,52 @@ export default function MilkProductionChart({
   const displayedPoints = points.slice(-range);
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow duration-200">
+      {/* Header Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
         <div>
-          <h3 className="text-lg font-semibold text-slate-800">
-            Milk Production Overview
-          </h3>
-          <p className="text-xs text-slate-500">
-            Actual vs expected milk production
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Milk Production Overview
+            </h2>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            Actual daily output vs AI-predicted yield targets
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 font-medium text-slate-700">
-              <span className="h-2.5 w-2.5 rounded-full bg-sky-600"></span>
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Legend */}
+          <div className="flex items-center gap-3 text-xs font-semibold">
+            <span className="flex items-center gap-1.5 text-slate-700">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
               Actual Milk
             </span>
-            <span className="flex items-center gap-1.5 font-medium text-slate-700">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 border border-emerald-600"></span>
+            <span className="flex items-center gap-1.5 text-slate-700">
+              <span className="h-2.5 w-2.5 rounded-full bg-sky-500 border border-sky-600"></span>
               Predicted Target
             </span>
           </div>
 
-          <div className="flex items-center rounded-xl bg-slate-100 p-1 text-xs font-medium text-slate-600">
+          {/* Timeframe Toggle */}
+          <div className="flex items-center rounded-xl bg-slate-100/90 p-1 text-xs font-bold text-slate-600">
             <button
+              type="button"
               onClick={() => setRange(7)}
-              className={`rounded-lg px-2.5 py-1 transition ${
-                range === 7 ? "bg-white text-slate-900 shadow-sm" : "hover:text-slate-900"
+              className={`rounded-lg px-3 py-1 transition-all duration-150 ${
+                range === 7 ? "bg-white text-slate-950 shadow-2xs font-bold" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               7 Days
             </button>
             <button
+              type="button"
               onClick={() => setRange(30)}
-              className={`rounded-lg px-2.5 py-1 transition ${
-                range === 30 ? "bg-white text-slate-900 shadow-sm" : "hover:text-slate-900"
+              className={`rounded-lg px-3 py-1 transition-all duration-150 ${
+                range === 30 ? "bg-white text-slate-950 shadow-2xs font-bold" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               30 Days
@@ -130,22 +142,23 @@ export default function MilkProductionChart({
         </div>
       </div>
 
-      <div className="h-64 w-full">
+      {/* Chart Canvas Area */}
+      <div className="h-72 w-full">
         {displayedPoints.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-slate-400">
-            No milk production history available for this timeframe.
+          <div className="flex h-full items-center justify-center text-xs text-slate-400 font-medium">
+            No milk production data available for this timeframe.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={displayedPoints} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0284c7" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="#0284c7" stopOpacity={0.0} />
+                  <stop offset="0%" stopColor="#059669" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="predGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="0%" stopColor="#0284c7" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#0284c7" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
 
@@ -170,7 +183,7 @@ export default function MilkProductionChart({
                 type="monotone"
                 dataKey="predicted"
                 name="Predicted Target"
-                stroke="#10b981"
+                stroke="#0284c7"
                 strokeWidth={2}
                 strokeDasharray="4 4"
                 fill="url(#predGradient)"
@@ -182,7 +195,7 @@ export default function MilkProductionChart({
                 type="monotone"
                 dataKey="actual"
                 name="Actual Milk"
-                stroke="#0284c7"
+                stroke="#059669"
                 strokeWidth={2.5}
                 fill="url(#actualGradient)"
                 isAnimationActive={true}
@@ -192,17 +205,19 @@ export default function MilkProductionChart({
         )}
       </div>
 
+      {/* Footer Summary */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
-        <div>
-          Showing last <span className="font-semibold text-slate-700">{displayedPoints.length} days</span>
+        <div className="flex items-center gap-1.5">
+          <Calendar className="h-3.5 w-3.5 text-slate-400" />
+          <span>Showing last <strong className="text-slate-800">{displayedPoints.length} days</strong></span>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4 text-xs">
           {displayedPoints.slice(-4).map((p) => (
             <div key={p.label} className="truncate">
-              <span className="font-semibold text-slate-700">{p.label}:</span>{" "}
-              <span className="text-sky-700 font-medium">{p.actual !== null ? `${p.actual}L` : "-"} actual</span>{" "}
-              <span className="text-slate-400">/</span>{" "}
-              <span className="text-emerald-700 font-medium">{p.predicted !== null ? `${p.predicted}L` : "-"} exp</span>
+              <span className="font-bold text-slate-800">{p.label}:</span>{" "}
+              <span className="text-emerald-700 font-bold">{p.actual !== null ? `${p.actual}L` : "-"}</span>{" "}
+              <span className="text-slate-300">/</span>{" "}
+              <span className="text-sky-700 font-semibold">{p.predicted !== null ? `${p.predicted}L` : "-"}</span>
             </div>
           ))}
         </div>

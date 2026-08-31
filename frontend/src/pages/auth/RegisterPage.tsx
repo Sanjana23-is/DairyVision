@@ -30,7 +30,7 @@ export function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register({ email, password, full_name: fullName });
-      navigate("/dashboard");
+      navigate("/select-farm");
     } catch (err) {
       setError("We could not create your account right now.");
     } finally {

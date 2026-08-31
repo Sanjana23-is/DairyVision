@@ -292,15 +292,42 @@ class AuthService:
         logger.warning("Supabase auth error for action=%s email=%s message=%s", action, email, message)
         return AuthUnauthorized(detail)
 
-    def _build_auth_user(self, user_data: object) -> AuthUser:
-        user_metadata = getattr(user_data, "user_metadata", {}) or {}
+    def update_profile(self, user_id: str, full_name: str) -> AuthUser:
+        db_user = self.db.scalar(select(User).where(User.id == user_id))
+        if db_user is None:
+            raise AuthUnauthorized("User not found")
+
+        db_user.full_name = full_name.strip()
+        self.db.commit()
+        self.db.refresh(db_user)
+
         return AuthUser(
-            id=str(getattr(user_data, "id", "")),
+            id=db_user.id,
+            email=db_user.email,
+            full_name=db_user.full_name,
+            avatar_url=db_user.avatar_url,
+            is_active=db_user.is_active,
+            is_superuser=db_user.is_superuser,
+        )
+
+    def _build_auth_user(self, user_data: object) -> AuthUser:
+        user_id = str(getattr(user_data, "id", ""))
+        db_user = self.db.scalar(select(User).where(User.id == user_id)) if user_id else None
+
+        user_metadata = getattr(user_data, "user_metadata", {}) or {}
+        full_name = (
+            (db_user.full_name if db_user and db_user.full_name else None)
+            or user_metadata.get("full_name")
+            or getattr(user_data, "full_name", None)
+        )
+
+        return AuthUser(
+            id=user_id,
             email=str(getattr(user_data, "email", "")),
-            full_name=user_metadata.get("full_name") or getattr(user_data, "full_name", None),
+            full_name=full_name,
             avatar_url=getattr(user_data, "avatar_url", None),
-            is_active=True,
-            is_superuser=False,
+            is_active=db_user.is_active if db_user else True,
+            is_superuser=db_user.is_superuser if db_user else False,
         )
 
 
