@@ -59,10 +59,10 @@ def format_feature_value(feat_key: str, value: Optional[float]) -> str:
 def format_impact_description(shap_val: float) -> str:
     abs_val = abs(shap_val)
     if shap_val > 0.05:
-        return f"+{abs_val:.2f} L yield boost"
+        return f"+{abs_val:.2f} L/day model-estimated contribution"
     elif shap_val < -0.05:
-        return f"-{abs_val:.2f} L yield penalty"
-    return "Neutral impact"
+        return f"-{abs_val:.2f} L/day model-estimated contribution"
+    return "Neutral model contribution"
 
 
 class ExplainabilityService:
@@ -115,28 +115,46 @@ class ExplainabilityService:
         cow_name: Optional[str] = None,
     ) -> str:
         subject = f"For cow '{cow_name}'" if cow_name else "For this cow"
-        pred_str = f"predicted yield of {predicted_yield:.1f} L/day" if predicted_yield else "milk yield prediction"
+        
+        if top_negative and abs(top_negative[0]["shap_value"]) > 0.05:
+            top_neg = top_negative[0]
+            val_str = f" ({top_neg['value_formatted']})" if top_neg.get("value_formatted") else ""
+            return (
+                f"{top_neg['display_name']}{val_str} is the strongest factor lowering the model's predicted yield, "
+                f"contributing approximately {top_neg['shap_value']:.1f} L/day relative to the model baseline."
+            )
+        elif top_positive and top_positive[0]["shap_value"] > 0.05:
+            top_pos = top_positive[0]
+            val_str = f" ({top_pos['value_formatted']})" if top_pos.get("value_formatted") else ""
+            return (
+                f"{top_pos['display_name']}{val_str} is the strongest factor supporting the model's predicted yield, "
+                f"contributing approximately +{top_pos['shap_value']:.1f} L/day relative to the model baseline."
+            )
 
-        pos_parts = []
-        for p in top_positive[:2]:
-            pos_parts.append(f"{p['display_name']} ({p['impact_description']})")
+        return (
+            f"{subject}, predicted yield matches normal baseline production expectations with no major "
+            "model-estimated environmental or feed penalties."
+        )
 
-        neg_parts = []
-        for n in top_negative[:2]:
-            neg_parts.append(f"{n['display_name']} ({n['impact_description']})")
+    def _generate_actionable_advice(self, top_negative: List[dict]) -> str:
+        if not top_negative or abs(top_negative[0]["shap_value"]) <= 0.05:
+            return (
+                "Production is currently within the model's expected range. "
+                "Continue monitoring feed, health, and environmental conditions."
+            )
 
-        narrative = f"{subject}, the {pred_str} is "
-        if pos_parts:
-            narrative += f"driven upward by {', '.join(pos_parts)}"
-        else:
-            narrative += "matching baseline production expectations"
+        top_feat = top_negative[0].get("feature", "").lower()
 
-        if neg_parts:
-            narrative += f", but constrained by {', '.join(neg_parts)}."
-        else:
-            narrative += " with no major environmental or feed penalties."
+        if top_feat in ("thi", "temperature", "humidity", "temp_humidity_interaction", "thi_squared", "feed_thi_interaction"):
+            return "Review cooling conditions during the hottest part of the day and ensure adequate access to fresh water and shade."
+        elif top_feat in ("feed", "feed_quantity_kg"):
+            return "Review the current feed intake and ration consistency with the farm's feeding plan."
+        elif top_feat in ("body_condition_score", "weight", "age"):
+            return "Monitor body condition and review whether the current nutrition plan is appropriate for the lactation stage."
+        elif top_feat in ("body_temperature_c", "health_condition", "symptoms"):
+            return "Check the cow for signs of discomfort or health stress and consider a closer herd health assessment."
 
-        return narrative
+        return "Continue monitoring herd conditions. No specific management action was identified from the available model information."
 
     def explain(
         self,
@@ -268,6 +286,7 @@ class ExplainabilityService:
         cow_name = cow.name or cow.tag_id if cow else None
         pred_yield = float(prediction.predicted_milk_yield) if prediction else None
         narrative = self._generate_narrative(pred_yield, top_positive, top_negative, cow_name)
+        advice = self._generate_actionable_advice(top_negative)
 
         result = ExplainabilityResult(
             prediction_id=prediction_id,
@@ -280,6 +299,7 @@ class ExplainabilityService:
             details={
                 "features": features_sorted,
                 "summary_narrative": narrative,
+                "actionable_advice": advice,
                 "cow_name": cow_name,
                 "observation_date": obs.observation_date.strftime("%Y-%m-%d") if obs and obs.observation_date else None,
                 "predicted_yield": pred_yield,
@@ -339,6 +359,8 @@ class ExplainabilityService:
             else f"Cow '{cow_name}' shows normal behavior patterns."
         )
 
+        top_neg = [f for f in features if f["impact_direction"] == "Negative"]
+        advice = self._generate_actionable_advice(top_neg)
 
         return {
             "id": anomaly.id,
@@ -349,7 +371,8 @@ class ExplainabilityService:
             "anomaly_severity": anomaly.severity,
             "computed_at": anomaly.detected_at,
             "summary_narrative": narrative,
+            "actionable_advice": advice,
             "features": features,
             "top_positive": [f for f in features if f["impact_direction"] == "Positive"],
-            "top_negative": [f for f in features if f["impact_direction"] == "Negative"],
+            "top_negative": top_neg,
         }

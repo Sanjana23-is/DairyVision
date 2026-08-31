@@ -9,6 +9,7 @@ import {
   type Recommendation,
 } from "@/services/recommendation";
 import { fetchCows } from "@/services/cow";
+import { fetchObservations } from "@/services/observation";
 import RecommendationsTable from "@/components/recommendations/RecommendationsTable";
 import RecommendationDetailsModal from "@/components/recommendations/RecommendationDetailsModal";
 import DeleteRecommendationDialog from "@/components/recommendations/DeleteRecommendationDialog";
@@ -53,7 +54,6 @@ export default function RecommendationsPage() {
     [currentFarmId, category, priority, completion, search],
   );
 
-
   const { data: cows = [] } = useQuery({
     queryKey: ["cows", currentFarmId],
     queryFn: () => fetchCows(currentFarmId || undefined),
@@ -68,7 +68,6 @@ export default function RecommendationsPage() {
     return map;
   }, [cows]);
 
-
   const {
     data = [],
     isLoading,
@@ -77,19 +76,15 @@ export default function RecommendationsPage() {
   } = useQuery({
     queryKey: ["recommendations", filters, currentFarmId],
     queryFn: () => fetchRecommendations(filters),
-    enabled: !!currentFarmId,
     staleTime: 1000 * 30,
   });
 
   const generateMutation = useMutation({
     mutationFn: async () => {
-      // Trigger auto-recommendation generation for latest farm observations
-      const res = await api.get<{ id: string }[]>('/api/v1/observations', {
-        params: { farm_id: currentFarmId, limit: 10 },
-      });
-      const obsList = res.data || [];
+      // Fetch latest farm observations and generate recommendations
+      const obsList = await fetchObservations(currentFarmId || undefined);
       let count = 0;
-      for (const obs of obsList.slice(0, 5)) {
+      for (const obs of (obsList || []).slice(0, 5)) {
         try {
           await api.post('/api/v1/recommendations/generate', { observation_id: obs.id });
           count++;
@@ -182,7 +177,7 @@ export default function RecommendationsPage() {
             disabled={generateMutation.isPending}
             className="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 disabled:opacity-50"
           >
-            {generateMutation.isPending ? "Evaluating Herd..." : "💡 Generate Herd Recommendations"}
+            {generateMutation.isPending ? "Evaluating Herd..." : "💡 Evaluate Herd Recommendations"}
           </button>
         </div>
 
@@ -318,7 +313,6 @@ export default function RecommendationsPage() {
           onClose={() => setDetailsRecommendation(null)}
         />
       ) : null}
-
 
       {deleteRecommendationTarget ? (
         <DeleteRecommendationDialog

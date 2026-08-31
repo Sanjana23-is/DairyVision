@@ -31,7 +31,8 @@ export default function RecommendationsTable({
     return "Herd / General";
   }
 
-  function getCategoryIcon(cat: string): string {
+  function getCategoryIcon(cat?: string | null): string {
+    if (!cat) return "💡";
     if (cat.includes("Water") || cat.includes("Heat")) return "🚰";
     if (cat.includes("Feed") || cat.includes("Nutrition")) return "🌾";
     if (cat.includes("Veterinary")) return "🩺";
@@ -39,16 +40,18 @@ export default function RecommendationsTable({
     return "💡";
   }
 
-  function formatDate(isoString: string): string {
+  function formatDate(isoString?: string | null): string {
+    if (!isoString) return "—";
     try {
       const d = new Date(isoString);
+      if (isNaN(d.getTime())) return String(isoString);
       return d.toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric",
       });
     } catch {
-      return isoString;
+      return String(isoString);
     }
   }
 
@@ -70,15 +73,16 @@ export default function RecommendationsTable({
           {data.map((rec) => {
             const isHigh = rec.priority === "High" || rec.priority === "Critical";
             const isMed = rec.priority === "Medium";
+            const categoryText = rec.category || "General Farm Management";
             return (
               <tr key={rec.id} className="hover:bg-slate-50">
                 <td className="px-4 py-4 font-semibold text-slate-900">
-                  {rec.title}
+                  {rec.title || "Advisory Action"}
                 </td>
                 <td className="px-4 py-4">
                   <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                    <span>{getCategoryIcon(rec.category)}</span>
-                    <span>{rec.category}</span>
+                    <span>{getCategoryIcon(categoryText)}</span>
+                    <span>{categoryText}</span>
                   </span>
                 </td>
                 <td className="px-4 py-4">
@@ -91,7 +95,7 @@ export default function RecommendationsTable({
                         : "bg-slate-100 text-slate-700"
                     }`}
                   >
-                    {rec.priority}
+                    {rec.priority || "Medium"}
                   </span>
                 </td>
                 <td className="px-4 py-4 font-medium text-slate-800">

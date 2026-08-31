@@ -13,6 +13,8 @@ import {
 import { fetchCows, Cow } from "@/services/cow";
 import DeleteObservationDialog from "@/components/observations/DeleteObservationDialog";
 import ObservationForm from "@/components/observations/ObservationForm";
+import BulkUploadModal from "@/components/observations/BulkUploadModal";
+import { FileSpreadsheet, Plus } from "lucide-react";
 
 type ToastMessage = {
   type: "success" | "error";
@@ -26,6 +28,7 @@ export default function ObservationListPage() {
   const [selectedCow, setSelectedCow] = useState<string>("");
   const [editing, setEditing] = useState<Observation | null>(null);
   const [adding, setAdding] = useState(false);
+  const [bulkUploading, setBulkUploading] = useState(false);
   const [deleting, setDeleting] = useState<Observation | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
@@ -57,7 +60,6 @@ export default function ObservationListPage() {
   }, [cows]);
 
   const cowName = (id: string) => cowNameById.get(id) ?? "Unknown cow";
-
 
   const filteredObservations = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -139,11 +141,9 @@ export default function ObservationListPage() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [cows]);
 
-
   const clearToast = () => setToast(null);
 
   if (!farmId) {
-    // If no farm is selected, try to fetch farms to determine if we should prompt creation
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-7xl rounded-2xl border border-amber-100 bg-amber-50 p-6 shadow-sm text-amber-900">
@@ -176,12 +176,22 @@ export default function ObservationListPage() {
               Track cow performance and health observations over time.
             </p>
           </div>
-          <button
-            onClick={() => setAdding(true)}
-            className="rounded bg-sky-600 px-4 py-2 text-white"
-          >
-            Add Observation
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setBulkUploading(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-800 hover:bg-sky-100 transition shadow-sm"
+            >
+              <FileSpreadsheet className="h-4 w-4 text-sky-600" />
+              Bulk Import CSV
+            </button>
+            <button
+              onClick={() => setAdding(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Add Observation
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -189,12 +199,12 @@ export default function ObservationListPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search notes, date, or cow"
-            className="rounded border px-3 py-2"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           />
           <select
             value={selectedCow}
             onChange={(e) => setSelectedCow(e.target.value)}
-            className="rounded border px-3 py-2"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
           >
             <option value="">All cows</option>
             {cowOptions.map((cow) => (
@@ -208,153 +218,137 @@ export default function ObservationListPage() {
         <div className="mt-6 overflow-x-auto">
           {toast && (
             <div
-              className="mb-4 rounded-2xl border px-4 py-3 text-sm shadow-sm"
-              style={{
-                backgroundColor:
-                  toast.type === "success" ? "#ecfdf5" : "#fee2e2",
-                borderColor: toast.type === "success" ? "#a7f3d0" : "#fecaca",
-                color: toast.type === "success" ? "#14532d" : "#991b1b",
-              }}
+              className={`mb-4 rounded-xl border p-4 text-sm font-semibold flex items-center justify-between ${
+                toast.type === "success"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                  : "border-rose-200 bg-rose-50 text-rose-900"
+              }`}
             >
-              <div className="flex items-center justify-between gap-4">
-                <span>{toast.message}</span>
-                <button
-                  type="button"
-                  onClick={clearToast}
-                  className="text-sm font-semibold underline"
-                >
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          )}
-          {isLoading ? (
-            <div className="p-6">Loading observations...</div>
-          ) : isError ? (
-            <div className="p-6 text-rose-600">
-              Error: {(error as any)?.message ?? "Failed to load observations"}
-            </div>
-          ) : filteredObservations.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center text-slate-700">
-              <p className="mb-3 text-lg font-medium">No observations found</p>
-              <p className="mb-4 text-sm text-slate-500">
-                Create an observation to start tracking daily cow data.
-              </p>
+              <div>{toast.message}</div>
               <button
-                onClick={() => setAdding(true)}
-                className="rounded bg-sky-600 px-4 py-2 text-white"
+                onClick={clearToast}
+                className="text-xs opacity-70 hover:opacity-100 font-bold"
               >
-                Add Observation
+                Dismiss
               </button>
             </div>
+          )}
+
+          {isLoading ? (
+            <div className="p-8 text-center text-sm text-slate-500">
+              Loading observations…
+            </div>
+          ) : isError ? (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+              Error loading observations: {error?.message}
+            </div>
+          ) : filteredObservations.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500">
+              No daily observations found. Use <strong className="text-slate-800">Add Observation</strong> or <strong className="text-slate-800">Bulk Import CSV</strong> to create records.
+            </div>
           ) : (
-            <table className="w-full min-w-[720px] table-auto rounded-2xl border border-slate-200 bg-white text-sm shadow-sm">
-              <thead>
-                <tr className="bg-slate-50 text-left text-slate-500">
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Cow</th>
-                  <th className="px-4 py-3">Milk Yield</th>
-                  <th className="px-4 py-3">Feed Intake</th>
-                  <th className="px-4 py-3">Health Condition</th>
-                  <th className="px-4 py-3">Notes</th>
-                  <th className="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredObservations.map((obs) => {
-                  const cond = (obs.health_condition || obs.symptoms?.condition || "normal").toLowerCase();
-                  const isHealthy = cond === "normal" || cond === "healthy";
-                  return (
-                    <tr key={obs.id} className="border-t hover:bg-slate-50">
-                      <td className="px-4 py-4">{obs.observation_date}</td>
-                      <td className="px-4 py-4">{cowName(obs.cow_id)}</td>
-                      <td className="px-4 py-4">
-                        {obs.milk_produced_liters ?? "—"}
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="p-3.5">Date</th>
+                    <th className="p-3.5">Cow</th>
+                    <th className="p-3.5">Milk Yield</th>
+                    <th className="p-3.5">Feed (kg)</th>
+                    <th className="p-3.5">Health Condition</th>
+                    <th className="p-3.5">Notes</th>
+                    <th className="p-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-800">
+                  {filteredObservations.map((obs) => (
+                    <tr key={obs.id} className="hover:bg-slate-50/80 transition">
+                      <td className="p-3.5 font-bold text-slate-900">{obs.observation_date}</td>
+                      <td className="p-3.5 font-bold text-sky-900">
+                        {cowName(obs.cow_id)}
                       </td>
-                      <td className="px-4 py-4">{obs.feed_quantity_kg ?? "—"}</td>
-                      <td className="px-4 py-4">
+                      <td className="p-3.5 font-black text-slate-950">
+                        {obs.milk_produced_liters != null ? `${obs.milk_produced_liters.toFixed(1)} L` : "-"}
+                      </td>
+                      <td className="p-3.5 text-slate-700">
+                        {obs.feed_quantity_kg != null ? `${obs.feed_quantity_kg.toFixed(1)} kg` : "-"}
+                      </td>
+                      <td className="p-3.5">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            isHealthy
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-amber-100 text-amber-800"
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold capitalize ${
+                            obs.health_condition === "fever" || obs.health_condition === "mastitis"
+                              ? "bg-rose-100 text-rose-800"
+                              : obs.health_condition === "lameness"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-emerald-100 text-emerald-800"
                           }`}
                         >
-                          {cond.charAt(0).toUpperCase() + cond.slice(1)}
+                          {obs.health_condition || "normal"}
                         </span>
                       </td>
-                      <td className="px-4 py-4">
-                        {obs.notes ? obs.notes.slice(0, 40) : "—"}
+                      <td className="p-3.5 text-slate-500 max-w-xs truncate">
+                        {obs.notes || obs.health_notes || "-"}
                       </td>
-
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap gap-2">
-                        <Link
-                          to={`/observations/${obs.id}`}
-                          className="rounded border border-sky-200 bg-sky-50 px-3 py-1 text-sky-700"
-                        >
-                          View
-                        </Link>
+                      <td className="p-3.5 text-right space-x-2">
                         <button
                           onClick={() => setEditing(obs)}
-                          className="rounded border border-slate-200 bg-slate-100 px-3 py-1 text-slate-700"
+                          className="font-bold text-sky-700 hover:text-sky-900"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => setDeleting(obs)}
-                          className="rounded border border-rose-200 bg-rose-50 px-3 py-1 text-rose-700"
-                          disabled={
-                            deleteMut.isPending && deleting?.id === obs.id
-                          }
+                          className="font-bold text-rose-600 hover:text-rose-800"
                         >
                           Delete
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              </tbody>
-
-            </table>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
-        {adding && (
-          <ObservationForm
-            open={adding}
-            cowOptions={cowOptions}
-            onClose={() => setAdding(false)}
-            onSave={(payload) =>
-              createMut.mutateAsync({ ...payload, farm_id: farmId as string })
-            }
-          />
-        )}
+        {/* Modals */}
+        <ObservationForm
+          open={adding}
+          cowOptions={cowOptions}
+          onClose={() => setAdding(false)}
+          onSave={(data) => createMut.mutateAsync({ ...data, farm_id: farmId })}
+        />
 
-        {editing && (
-          <ObservationForm
-            open={Boolean(editing)}
-            cowOptions={cowOptions}
-            observation={editing}
-            onClose={() => setEditing(null)}
-            onSave={(payload) =>
-              updateMut.mutateAsync({ id: editing.id, data: payload })
-            }
-          />
-        )}
+        <ObservationForm
+          open={!!editing}
+          observation={editing}
+          cowOptions={cowOptions}
+          onClose={() => setEditing(null)}
+          onSave={(data) =>
+            editing && updateMut.mutateAsync({ id: editing.id, data })
+          }
+        />
 
         {deleting && (
           <DeleteObservationDialog
+            open={!!deleting}
             observation={deleting}
             cowName={cowName(deleting.cow_id)}
-            open={Boolean(deleting)}
             onClose={() => setDeleting(null)}
             onDelete={(id) => deleteMut.mutate(id)}
             loading={deleteMut.isPending}
           />
         )}
+
+        <BulkUploadModal
+          open={bulkUploading}
+          farmId={farmId}
+          cows={cows}
+          onClose={() => setBulkUploading(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["observations", farmId] });
+          }}
+        />
       </div>
     </DashboardLayout>
   );

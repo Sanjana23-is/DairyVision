@@ -1,4 +1,13 @@
-import { useState, useId } from "react";
+import { useState } from "react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 export type MilkChartPoint = {
   date: string;
@@ -7,53 +16,78 @@ export type MilkChartPoint = {
   predicted: number | null;
 };
 
+// Custom Glassmorphism Hover Tooltip
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload || !payload.length) return null;
+
+  const actualObj = payload.find((p: any) => p.dataKey === "actual");
+  const predObj = payload.find((p: any) => p.dataKey === "predicted");
+
+  const actualVal = actualObj?.value !== undefined && actualObj?.value !== null ? Number(actualObj.value) : null;
+  const predVal = predObj?.value !== undefined && predObj?.value !== null ? Number(predObj.value) : null;
+
+  const diff = actualVal !== null && predVal !== null ? actualVal - predVal : null;
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md text-xs text-slate-800 space-y-1.5 min-w-[160px]">
+      <div className="font-semibold text-slate-900 border-b border-slate-100 pb-1">
+        {label}
+      </div>
+
+      {actualVal !== null ? (
+        <div className="flex items-center justify-between gap-4">
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <span className="h-2 w-2 rounded-full bg-sky-600 inline-block" />
+            Actual Milk:
+          </span>
+          <span className="font-semibold text-sky-700">{actualVal.toFixed(1)} L</span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between text-slate-400">
+          <span>Actual Milk:</span>
+          <span>No log</span>
+        </div>
+      )}
+
+      {predVal !== null ? (
+        <div className="flex items-center justify-between gap-4">
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+            Predicted Target:
+          </span>
+          <span className="font-semibold text-emerald-700">{predVal.toFixed(1)} L</span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between text-slate-400">
+          <span>Predicted Target:</span>
+          <span>No target</span>
+        </div>
+      )}
+
+      {diff !== null && (
+        <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 text-[11px]">
+          <span className="text-slate-500">Variance:</span>
+          <span className={`font-semibold ${diff >= 0 ? "text-emerald-600" : "text-amber-600"}`}>
+            {diff >= 0 ? `+${diff.toFixed(1)} L` : `${diff.toFixed(1)} L`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MilkProductionChart({
   points,
 }: {
   points: MilkChartPoint[];
 }) {
   const [range, setRange] = useState<7 | 30>(7);
-  const actualGradientId = `grad-actual-${useId()}`;
-  const predGradientId = `grad-pred-${useId()}`;
 
   const displayedPoints = points.slice(-range);
 
-  const actualValues = displayedPoints.map((p) => p.actual ?? 0);
-  const predValues = displayedPoints.map((p) => p.predicted ?? 0);
-  const allValues = [...actualValues, ...predValues];
-
-  const maxVal = Math.max(...allValues, 10);
-  const minVal = Math.min(...allValues, 0);
-
-  const coords = displayedPoints.map((p, idx) => {
-    const x =
-      displayedPoints.length > 1
-        ? (idx / (displayedPoints.length - 1)) * 100
-        : 50;
-    const actY =
-      p.actual !== null
-        ? 90 - (((p.actual ?? 0) - minVal) / (maxVal - minVal || 1)) * 80
-        : null;
-    const predY =
-      p.predicted !== null
-        ? 90 - (((p.predicted ?? 0) - minVal) / (maxVal - minVal || 1)) * 80
-        : null;
-    return { x, actY, predY, label: p.label, actual: p.actual, predicted: p.predicted };
-  });
-
-  const actualPath = coords
-    .filter((c) => c.actY !== null)
-    .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.actY}`)
-    .join(" ");
-
-  const predPath = coords
-    .filter((c) => c.predY !== null)
-    .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.predY}`)
-    .join(" ");
-
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-slate-800">
             Milk Production Overview
@@ -62,7 +96,6 @@ export default function MilkProductionChart({
             Actual vs expected milk production
           </p>
         </div>
-
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 text-xs">
@@ -97,84 +130,65 @@ export default function MilkProductionChart({
         </div>
       </div>
 
-      <div className="mt-6 h-64 overflow-hidden">
+      <div className="h-64 w-full">
         {displayedPoints.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-slate-400">
             No milk production history available for this timeframe.
           </div>
         ) : (
-          <svg
-            viewBox="0 0 100 100"
-            className="h-full w-full"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient id={actualGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0284c7" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.0" />
-              </linearGradient>
-              <linearGradient id={predGradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={displayedPoints} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0284c7" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="#0284c7" stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id="predGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
 
-            {actualPath && (
-              <path
-                d={`${actualPath} L 100 95 L 0 95 Z`}
-                fill={`url(#${actualGradientId})`}
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11, fill: "#64748b" }}
+                dy={6}
               />
-            )}
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11, fill: "#64748b" }}
+                unit="L"
+              />
+              <Tooltip content={<CustomTooltip />} />
 
-            {/* Predicted Line (Dashed Emerald) */}
-            {predPath && (
-              <path
-                d={predPath}
-                fill="none"
+              {/* Predicted Target Area & Dashed Line */}
+              <Area
+                type="monotone"
+                dataKey="predicted"
+                name="Predicted Target"
                 stroke="#10b981"
-                strokeWidth="2"
-                strokeDasharray="3 3"
-                strokeLinecap="round"
+                strokeWidth={2}
+                strokeDasharray="4 4"
+                fill="url(#predGradient)"
+                isAnimationActive={true}
               />
-            )}
 
-            {/* Actual Line (Solid Sky Blue) */}
-            {actualPath && (
-              <path
-                d={actualPath}
-                fill="none"
+              {/* Actual Milk Area & Solid Line */}
+              <Area
+                type="monotone"
+                dataKey="actual"
+                name="Actual Milk"
                 stroke="#0284c7"
-                strokeWidth="2.5"
-                strokeLinecap="round"
+                strokeWidth={2.5}
+                fill="url(#actualGradient)"
+                isAnimationActive={true}
               />
-            )}
-
-            {/* Data Points */}
-            {coords.map((c, i) => (
-              <g key={`${c.label}-${i}`}>
-                {c.actY !== null && (
-                  <circle
-                    cx={c.x}
-                    cy={c.actY}
-                    r="1.8"
-                    fill="#0284c7"
-                    stroke="#ffffff"
-                    strokeWidth="1"
-                  />
-                )}
-                {c.predY !== null && (
-                  <circle
-                    cx={c.x}
-                    cy={c.predY}
-                    r="1.6"
-                    fill="#10b981"
-                    stroke="#ffffff"
-                    strokeWidth="1"
-                  />
-                )}
-              </g>
-            ))}
-          </svg>
+            </AreaChart>
+          </ResponsiveContainer>
         )}
       </div>
 
@@ -186,9 +200,9 @@ export default function MilkProductionChart({
           {displayedPoints.slice(-4).map((p) => (
             <div key={p.label} className="truncate">
               <span className="font-semibold text-slate-700">{p.label}:</span>{" "}
-              <span className="text-sky-700 font-medium">{p.actual ?? "-"}L actual</span>{" "}
+              <span className="text-sky-700 font-medium">{p.actual !== null ? `${p.actual}L` : "-"} actual</span>{" "}
               <span className="text-slate-400">/</span>{" "}
-              <span className="text-emerald-700 font-medium">{p.predicted ?? "-"}L exp</span>
+              <span className="text-emerald-700 font-medium">{p.predicted !== null ? `${p.predicted}L` : "-"} exp</span>
             </div>
           ))}
         </div>

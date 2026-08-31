@@ -9,6 +9,7 @@ import {
   HerdWhatIfResponse,
   CowWhatIfResponse,
   SimulationInput,
+  FinancialImpact,
 } from "@/services/simulation";
 import {
   FlaskConical,
@@ -20,14 +21,132 @@ import {
   TrendingDown,
   Sparkles,
   RefreshCw,
-  Layers,
   ShieldAlert,
   User,
   Users,
   Activity,
   FileText,
+  Coins,
 } from "lucide-react";
 
+function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact: FinancialImpact; isHerd?: boolean; cowsCount?: number }) {
+  const isPositive = impact.decision_classification === "positive";
+  const isNegative = impact.decision_classification === "negative";
+
+  return (
+    <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50/60 via-white to-slate-50 p-6 shadow-sm space-y-4">
+      {/* Header with Classification Badge */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100 pb-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-sm">
+            ₹
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-900">
+              {isHerd ? "Herd Estimated Financial Impact" : "Estimated Financial Impact"}
+            </h3>
+            <p className="text-xs text-slate-500">
+              {isHerd ? `Aggregate economic return across ${cowsCount} active cows` : "Projected economic return based on yield & feed deltas"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-bold border ${
+              isPositive
+                ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                : isNegative
+                ? "bg-rose-100 text-rose-800 border-rose-200"
+                : "bg-amber-100 text-amber-800 border-amber-200"
+            }`}
+          >
+            {isPositive ? "Positive Financial Impact" : isNegative ? "Negative Financial Impact" : "Near Break-Even"}
+          </span>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 border border-slate-200">
+            {impact.currency}
+          </span>
+        </div>
+      </div>
+
+      {/* Big Net Impact Numbers */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className={`rounded-2xl border p-4 ${impact.daily_net_benefit >= 0 ? "border-emerald-200 bg-white" : "border-rose-200 bg-white"}`}>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+            {isHerd ? "Herd Estimated Daily Net Impact" : "Estimated Daily Net Impact"}
+          </span>
+          <span className={`text-2xl font-black mt-1 block ${impact.daily_net_benefit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+            {impact.daily_net_benefit >= 0 ? "+" : ""}₹{impact.daily_net_benefit.toFixed(2)}/day
+          </span>
+        </div>
+
+        <div className={`rounded-2xl border p-4 ${impact.monthly_net_benefit >= 0 ? "border-emerald-200 bg-white" : "border-rose-200 bg-white"}`}>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+            {isHerd ? "Herd Estimated Monthly Net Impact (30d)" : "Estimated Monthly Net Impact (30d)"}
+          </span>
+          <span className={`text-2xl font-black mt-1 block ${impact.monthly_net_benefit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+            {impact.monthly_net_benefit >= 0 ? "+" : ""}₹{impact.monthly_net_benefit.toFixed(2)}/month
+          </span>
+        </div>
+      </div>
+
+      {/* Financial Breakdown Table */}
+      <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-2 text-xs">
+        <div className="flex items-center justify-between text-slate-700">
+          <span>{isHerd ? "Herd Additional Milk Revenue" : "Additional Milk Revenue"} ({impact.delta_milk_liters >= 0 ? "+" : ""}{impact.delta_milk_liters} L @ ₹{impact.milk_price_per_liter}/L):</span>
+          <span className={`font-bold ${impact.daily_revenue_change >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+            {impact.daily_revenue_change >= 0 ? "+" : ""}₹{impact.daily_revenue_change.toFixed(2)}/day
+          </span>
+        </div>
+        <div className="flex items-center justify-between text-slate-700">
+          <span>{isHerd ? "Herd Additional Feed Cost" : "Additional Feed Cost"} ({impact.delta_feed_kg >= 0 ? "+" : ""}{impact.delta_feed_kg} kg @ ₹{impact.feed_cost_per_kg}/kg):</span>
+          <span className={`font-bold ${impact.daily_feed_cost_change <= 0 ? "text-emerald-700" : "text-amber-700"}`}>
+            {impact.daily_feed_cost_change > 0 ? "-" : ""}₹{Math.abs(impact.daily_feed_cost_change).toFixed(2)}/day
+          </span>
+        </div>
+        <div className="flex items-center justify-between border-t border-slate-100 pt-2 font-bold text-slate-900 text-sm">
+          <span>Net Estimated Benefit:</span>
+          <span className={impact.daily_net_benefit >= 0 ? "text-emerald-700" : "text-rose-700"}>
+            {impact.daily_net_benefit >= 0 ? "+" : ""}₹{impact.daily_net_benefit.toFixed(2)}/day
+          </span>
+        </div>
+
+        {/* Derived Metric: Revenue per ₹1 feed cost */}
+        {impact.revenue_per_feed_cost_ratio != null && (
+          <div className="border-t border-slate-100 pt-2 flex items-center justify-between text-slate-600 font-semibold text-[11.5px]">
+            <span>Revenue generated per ₹1 of additional feed cost:</span>
+            <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
+              ₹{impact.revenue_per_feed_cost_ratio.toFixed(2)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* WHY THIS IMPACT? Section */}
+      {impact.explanation_text && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-1.5">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+            <Coins className="h-4 w-4 text-emerald-700" />
+            Why This Impact?
+          </h4>
+          <p className="text-xs font-medium leading-relaxed text-emerald-950">
+            {impact.explanation_text}
+          </p>
+        </div>
+      )}
+
+      {/* Transparent Assumptions Badge */}
+      <div className="rounded-xl bg-slate-100/80 p-3 text-[11.5px] text-slate-600 flex items-center gap-2">
+        <span className="font-bold text-slate-700">Transparency Note:</span>
+        {impact.using_default_assumptions ? (
+          <span>Using default assumptions — Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg. Configure farm settings for custom rates.</span>
+        ) : (
+          <span>Based on configured economic rates — Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg.</span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function SimulationPage() {
   const { currentFarmId } = useAuth();
@@ -42,6 +161,11 @@ export default function SimulationPage() {
   const [humidity, setHumidity] = useState<number>(65);
   const [feed, setFeed] = useState<number>(24);
   const [coolingReduction, setCoolingReduction] = useState<number>(0);
+
+  // Optional Financial Override State
+  const [useCustomPrices, setUseCustomPrices] = useState<boolean>(false);
+  const [overrideMilkPrice, setOverrideMilkPrice] = useState<number>(42);
+  const [overrideFeedCost, setOverrideFeedCost] = useState<number>(24);
 
   // Fetch Cows for current farm
   const { data: cows = [] } = useQuery<Cow[]>({
@@ -71,6 +195,8 @@ export default function SimulationPage() {
       humidity_pct: humidity,
       feed_quantity_kg: feed,
       cooling_intervention_thi_reduction: coolingReduction,
+      override_milk_price_per_liter: useCustomPrices ? overrideMilkPrice : undefined,
+      override_feed_cost_per_kg: useCustomPrices ? overrideFeedCost : undefined,
     };
 
     if (mode === "cow") {
@@ -85,7 +211,7 @@ export default function SimulationPage() {
   // Run simulation on mode switch or cow selection change
   useEffect(() => {
     handleSimulate();
-  }, [mode, selectedCowId]);
+  }, [mode, selectedCowId, useCustomPrices, overrideMilkPrice, overrideFeedCost]);
 
   // Preset Scenario Handlers
   const applyHeatwavePreset = () => {
@@ -98,6 +224,8 @@ export default function SimulationPage() {
       humidity_pct: 75,
       feed_quantity_kg: 22,
       cooling_intervention_thi_reduction: 0,
+      override_milk_price_per_liter: useCustomPrices ? overrideMilkPrice : undefined,
+      override_feed_cost_per_kg: useCustomPrices ? overrideFeedCost : undefined,
     });
   };
 
@@ -111,6 +239,8 @@ export default function SimulationPage() {
       humidity_pct: 75,
       feed_quantity_kg: 24,
       cooling_intervention_thi_reduction: 6,
+      override_milk_price_per_liter: useCustomPrices ? overrideMilkPrice : undefined,
+      override_feed_cost_per_kg: useCustomPrices ? overrideFeedCost : undefined,
     });
   };
 
@@ -124,6 +254,8 @@ export default function SimulationPage() {
       humidity_pct: 60,
       feed_quantity_kg: 28,
       cooling_intervention_thi_reduction: 0,
+      override_milk_price_per_liter: useCustomPrices ? overrideMilkPrice : undefined,
+      override_feed_cost_per_kg: useCustomPrices ? overrideFeedCost : undefined,
     });
   };
 
@@ -137,6 +269,8 @@ export default function SimulationPage() {
       humidity_pct: 60,
       feed_quantity_kg: 24,
       cooling_intervention_thi_reduction: 0,
+      override_milk_price_per_liter: useCustomPrices ? overrideMilkPrice : undefined,
+      override_feed_cost_per_kg: useCustomPrices ? overrideFeedCost : undefined,
     });
   };
 
@@ -144,6 +278,7 @@ export default function SimulationPage() {
   const cowResult = cowMutation.data;
   const isLoading = mode === "cow" ? cowMutation.isPending : herdMutation.isPending;
   const extrapWarning = mode === "cow" ? cowResult?.extrapolation_warning : herdResult?.extrapolation_warning;
+  const activeFinImpact = mode === "cow" ? cowResult?.financial_impact : herdResult?.financial_impact;
 
   return (
     <DashboardLayout>
@@ -161,7 +296,7 @@ export default function SimulationPage() {
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Simulate environmental stress, feed ration adjustments, and cooling interventions for an individual cow or the entire herd.
+              Simulate environmental stress, feed ration adjustments, and cooling interventions with transparent financial impact.
             </p>
           </div>
 
@@ -201,7 +336,6 @@ export default function SimulationPage() {
               <p className="text-xs text-rose-800">
                 {((mode === "cow" ? cowMutation.error : herdMutation.error) as any)?.response?.data?.detail ||
                   (mode === "cow" ? cowMutation.error : herdMutation.error)?.message}
-
               </p>
             </div>
           </div>
@@ -214,12 +348,11 @@ export default function SimulationPage() {
             <div>
               <h4 className="text-sm font-bold">Extrapolation Boundary Notice</h4>
               <p className="text-xs text-amber-800">
-                Simulated parameters push beyond typical historical training bounds. Predictions reflect estimated trends but carry elevated uncertainty.
+                Simulated parameters push beyond typical historical training bounds. Predictions and financial estimates reflect trends but carry higher uncertainty.
               </p>
             </div>
           </div>
         )}
-
 
         {/* Preset Scenario Quick Action Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -302,17 +435,18 @@ export default function SimulationPage() {
                   <Thermometer className="h-4 w-4 text-rose-500" />
                   Ambient Temperature (°C)
                 </label>
-                <span className="text-sm font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-lg">
+                <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {temperature}°C
                 </span>
               </div>
               <input
                 type="range"
-                min={15}
-                max={45}
+                min="10"
+                max="45"
+                step="1"
                 value={temperature}
                 onChange={(e) => setTemperature(Number(e.target.value))}
-                className="w-full h-2 rounded-lg bg-slate-200 accent-rose-600 cursor-pointer"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
               />
             </div>
 
@@ -323,17 +457,18 @@ export default function SimulationPage() {
                   <Droplets className="h-4 w-4 text-sky-500" />
                   Relative Humidity (%)
                 </label>
-                <span className="text-sm font-black text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-lg">
+                <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {humidity}%
                 </span>
               </div>
               <input
                 type="range"
-                min={30}
-                max={95}
+                min="20"
+                max="95"
+                step="1"
                 value={humidity}
                 onChange={(e) => setHumidity(Number(e.target.value))}
-                className="w-full h-2 rounded-lg bg-slate-200 accent-sky-600 cursor-pointer"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
               />
             </div>
 
@@ -342,19 +477,20 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Wheat className="h-4 w-4 text-amber-500" />
-                  Daily Feed Quantity (kg/cow)
+                  Daily Feed Ration (kg/cow)
                 </label>
-                <span className="text-sm font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg">
+                <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {feed} kg
                 </span>
               </div>
               <input
                 type="range"
-                min={10}
-                max={40}
+                min="10"
+                max="40"
+                step="1"
                 value={feed}
                 onChange={(e) => setFeed(Number(e.target.value))}
-                className="w-full h-2 rounded-lg bg-slate-200 accent-amber-600 cursor-pointer"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
               />
             </div>
 
@@ -363,41 +499,93 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Fan className="h-4 w-4 text-emerald-500" />
-                  Active Cooling Fans / Sprinklers (- THI)
+                  Cooling THI Reduction (-THI)
                 </label>
-                <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg">
+                <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   -{coolingReduction} THI
                 </span>
               </div>
               <input
                 type="range"
-                min={0}
-                max={10}
+                min="0"
+                max="12"
+                step="1"
                 value={coolingReduction}
                 onChange={(e) => setCoolingReduction(Number(e.target.value))}
-                className="w-full h-2 rounded-lg bg-slate-200 accent-emerald-600 cursor-pointer"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
               />
             </div>
 
+            {/* Optional Scenario Economics Toggle & Controls */}
+            <div className="border-t border-slate-100 pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer">
+                  <Coins className="h-4 w-4 text-emerald-600" />
+                  Override Scenario Prices (₹)
+                </label>
+                <input
+                  type="checkbox"
+                  checked={useCustomPrices}
+                  onChange={(e) => setUseCustomPrices(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                />
+              </div>
+
+              {useCustomPrices && (
+                <div className="grid grid-cols-2 gap-3 pt-1 animate-in fade-in">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                      Milk Price (₹/L)
+                    </label>
+                    <input
+                      type="number"
+                      value={overrideMilkPrice}
+                      onChange={(e) => setOverrideMilkPrice(Number(e.target.value))}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-900 focus:bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                      Feed Cost (₹/kg)
+                    </label>
+                    <input
+                      type="number"
+                      value={overrideFeedCost}
+                      onChange={(e) => setOverrideFeedCost(Number(e.target.value))}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-900 focus:bg-white"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Run Simulation Action Button */}
             <button
               onClick={() => handleSimulate()}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-sky-700 disabled:opacity-50"
+              className="w-full rounded-2xl bg-sky-700 hover:bg-sky-800 text-white font-bold py-3 text-sm transition shadow-sm flex items-center justify-center gap-2"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-              {isLoading ? "Calculating Scenario…" : "Run What-If Simulation"}
+              {isLoading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Simulating Scenario…
+                </>
+              ) : (
+                <>
+                  <FlaskConical className="h-4 w-4" />
+                  Recalculate Scenario Impact
+                </>
+              )}
             </button>
           </div>
 
           {/* Results Column */}
           <div className="lg:col-span-7 space-y-6">
             {isLoading ? (
-              <div className="rounded-3xl border bg-white p-12 text-center text-slate-500 shadow-sm space-y-3">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 animate-pulse">
-                  <FlaskConical className="h-6 w-6" />
-                </div>
-                <p className="text-base font-bold text-slate-800">Calculating Read-Only Scenario Impacts…</p>
-                <p className="text-xs text-slate-500">Evaluating milk yield delta, thermal stress, and health risks.</p>
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-12 text-center h-full min-h-[400px]">
+                <RefreshCw className="h-8 w-8 animate-spin text-sky-600 mb-3" />
+                <h4 className="text-base font-bold text-slate-800">Calculating Digital Twin Scenario…</h4>
+                <p className="text-xs text-slate-500">Evaluating milk yield delta, thermal stress, and financial impact.</p>
               </div>
             ) : mode === "cow" && cowResult ? (
               <>
@@ -500,6 +688,11 @@ export default function SimulationPage() {
                   </div>
                 </div>
 
+                {/* Estimated Financial Impact Card */}
+                {activeFinImpact && (
+                  <FinancialImpactCard impact={activeFinImpact} isHerd={false} />
+                )}
+
                 {/* Individual Cow Recommendations */}
                 {cowResult.recommendations.length > 0 && (
                   <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
@@ -553,30 +746,92 @@ export default function SimulationPage() {
                         {herdResult.total_delta_l.toFixed(1)} L ({herdResult.total_percent_change.toFixed(1)}%)
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Baseline: {herdResult.baseline_total_yield_l.toFixed(1)} L across {herdResult.total_cows_simulated} cows
+                    <p className="mt-1.5 text-xs text-slate-500">
+                      Baseline Herd Yield: {herdResult.baseline_total_yield_l.toFixed(1)} L/day ({herdResult.total_cows_simulated} cows)
                     </p>
                   </div>
 
-                  <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
-                    <div className="text-xs font-bold uppercase tracking-wider text-sky-800">
-                      Herd Status Summary
+                  <div className="rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
+                    <div className="text-xs font-bold uppercase tracking-wider text-sky-900">
+                      Herd Scope Summary
                     </div>
-                    <div className="mt-3 text-2xl font-black text-sky-950">
-                      {herdResult.total_cows_simulated} Cows Evaluated
+                    <div className="mt-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-sky-950">
+                        {herdResult.total_cows_simulated} Cows
+                      </span>
+                      <span className="text-xs font-bold text-sky-800">
+                        Simulated Active Herd
+                      </span>
                     </div>
-                    <p className="mt-1 text-xs text-sky-700">
-                      100% read-only scenario simulation
+                    <p className="mt-1.5 text-xs text-sky-700">
+                      Farm-wide environmental & feed scenario
                     </p>
                   </div>
                 </div>
 
-                {/* Herd Scenario AI Recommendations */}
+                {/* Herd Estimated Financial Impact Card */}
+                {activeFinImpact && (
+                  <FinancialImpactCard impact={activeFinImpact} isHerd={true} cowsCount={herdResult.total_cows_simulated} />
+                )}
+
+                {/* Herd Comparisons Table */}
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-sky-600" />
+                    Individual Cow Scenario Breakdown
+                  </h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider">
+                          <th className="pb-3">Cow Name</th>
+                          <th className="pb-3">Baseline Yield</th>
+                          <th className="pb-3">Simulated Yield</th>
+                          <th className="pb-3">Delta (L)</th>
+                          <th className="pb-3">THI Shift</th>
+                          <th className="pb-3">Health Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {herdResult.cow_comparisons.map((c) => (
+                          <tr key={c.cow_id} className="hover:bg-slate-50/80 transition">
+                            <td className="py-3 font-bold text-slate-900">
+                              {c.cow_name} <span className="text-slate-400 font-normal">({c.tag_id})</span>
+                            </td>
+                            <td className="py-3 text-slate-600 font-medium">{c.baseline_yield_l.toFixed(1)} L</td>
+                            <td className="py-3 font-bold text-slate-900">{c.simulated_yield_l.toFixed(1)} L</td>
+                            <td className={`py-3 font-bold ${c.delta_yield_l >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                              {c.delta_yield_l >= 0 ? "+" : ""}{c.delta_yield_l.toFixed(1)} L ({c.percent_change.toFixed(1)}%)
+                            </td>
+                            <td className="py-3 text-slate-600 font-medium">
+                              {c.baseline_thi} → <span className="font-bold text-slate-900">{c.simulated_thi}</span>
+                            </td>
+                            <td className="py-3">
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                                  c.simulated_health_status === "Critical"
+                                    ? "bg-rose-100 text-rose-800"
+                                    : c.simulated_health_status === "Warning"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-emerald-100 text-emerald-800"
+                                }`}
+                              >
+                                {c.simulated_health_status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Herd Recommendations */}
                 {herdResult.herd_recommendations.length > 0 && (
                   <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                       <Sparkles className="h-4 w-4 text-sky-600" />
-                      Scenario AI Recommendations
+                      Herd Scenario AI Action Plan
                     </h4>
                     <div className="space-y-2">
                       {herdResult.herd_recommendations.map((rec, idx) => (
@@ -591,85 +846,10 @@ export default function SimulationPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Cow Comparisons Table */}
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-sky-600" />
-                    Individual Cow Scenario Impact List
-                  </h3>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                          <th className="pb-3 px-4">Cow</th>
-                          <th className="pb-3 px-4">Baseline Yield</th>
-                          <th className="pb-3 px-4">Simulated Yield</th>
-                          <th className="pb-3 px-4">Delta</th>
-                          <th className="pb-3 px-4">THI Shift</th>
-                          <th className="pb-3 px-4">Simulated Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
-                        {herdResult.cow_comparisons.map((c) => {
-                          const cowPositive = c.delta_yield_l >= 0;
-                          return (
-                            <tr key={c.cow_id} className="hover:bg-slate-50/80 transition">
-                              <td className="py-3.5 px-4 font-black text-slate-900">
-                                🐄 {c.cow_name}
-                                <span className="block text-xs font-normal text-slate-500">
-                                  Tag: {c.tag_id}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-4 text-slate-700">
-                                {c.baseline_yield_l} L
-                              </td>
-                              <td className="py-3.5 px-4 font-black text-slate-950">
-                                {c.simulated_yield_l} L
-                              </td>
-                              <td className="py-3.5 px-4">
-                                <span
-                                  className={`inline-flex items-center text-xs font-black ${
-                                    cowPositive ? "text-emerald-700" : "text-rose-700"
-                                  }`}
-                                >
-                                  {cowPositive ? "+" : ""}{c.delta_yield_l} L ({c.percent_change}%)
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-4 text-slate-700">
-                                {c.baseline_thi} → <strong className="text-slate-900">{c.simulated_thi}</strong>
-                              </td>
-                              <td className="py-3.5 px-4">
-                                <span
-                                  className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                                    c.simulated_health_status === "Critical"
-                                      ? "bg-rose-100 text-rose-800"
-                                      : c.simulated_health_status === "Warning"
-                                      ? "bg-amber-100 text-amber-800"
-                                      : "bg-emerald-100 text-emerald-800"
-                                  }`}
-                                >
-                                  {c.simulated_health_status}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               </>
             ) : (
-              <div className="rounded-3xl border bg-white p-12 text-center text-slate-500 shadow-sm space-y-3">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-                  <FlaskConical className="h-6 w-6" />
-                </div>
-                <p className="text-base font-bold text-slate-800">Adjust Controls & Click "Run What-If Simulation"</p>
-                <p className="text-xs text-slate-500">
-                  Use the preset buttons or adjust temperature, humidity, and feed sliders to see read-only scenario impacts.
-                </p>
+              <div className="flex items-center justify-center rounded-3xl border border-slate-200 bg-white p-12 text-slate-400 text-sm">
+                Select parameters to run what-if simulation.
               </div>
             )}
           </div>

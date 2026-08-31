@@ -72,6 +72,71 @@ class PredictionService:
         pred = model.predict(x)
         return float(pred[0])
 
+    def _compute_confidence_interval(
+        self,
+        farm_id: str,
+        predicted_yield: float,
+    ) -> tuple[float, float, float, str]:
+        """
+        Estimates prediction uncertainty bounds from historical prediction residuals for the farm.
+        Returns: (confidence_score, confidence_lower, confidence_upper, confidence_data_status)
+        """
+        try:
+            pairs = (
+                self.db.query(
+                    MilkPrediction.predicted_milk_yield,
+                    DailyObservation.milk_produced_liters,
+                )
+                .join(Cow, Cow.id == MilkPrediction.cow_id)
+                .join(DailyObservation, DailyObservation.id == MilkPrediction.observation_id)
+                .filter(
+                    Cow.farm_id == farm_id,
+                    DailyObservation.milk_produced_liters.isnot(None),
+                    DailyObservation.milk_produced_liters > 0,
+                )
+                .limit(100)
+                .all()
+            )
+
+            residuals = [
+                float(obs_milk) - float(pred_milk)
+                for pred_milk, obs_milk in pairs
+                if pred_milk is not None and obs_milk is not None
+            ]
+
+            n = len(residuals)
+            if n >= 3:
+                mean_r = sum(residuals) / n
+                var_r = sum((r - mean_r) ** 2 for r in residuals) / (n - 1)
+                std_err = float(np.sqrt(max(0.01, var_r)))
+                if std_err < 0.2:
+                    std_err = 0.5
+
+                err_margin = 1.96 * std_err
+                conf_lower = round(max(0.0, min(predicted_yield, predicted_yield - err_margin)), 2)
+                conf_upper = round(max(predicted_yield, predicted_yield + err_margin), 2)
+                conf_score = round(max(0.50, min(0.99, 1.0 - (std_err / max(predicted_yield, 1.0)))), 2)
+                status = "historical"
+            else:
+                std_err = 1.50
+                err_margin = 1.96 * std_err
+                conf_lower = round(max(0.0, min(predicted_yield, predicted_yield - err_margin)), 2)
+                conf_upper = round(max(predicted_yield, predicted_yield + err_margin), 2)
+                conf_score = round(max(0.50, min(0.85, 1.0 - (std_err / max(predicted_yield, 1.0)))), 2)
+                status = "limited_data"
+
+            conf_lower = max(0.0, min(conf_lower, predicted_yield))
+            conf_upper = max(predicted_yield, conf_upper)
+
+            return conf_score, conf_lower, conf_upper, status
+        except Exception:
+            std_err = 1.50
+            err_margin = 1.96 * std_err
+            conf_lower = round(max(0.0, min(predicted_yield, predicted_yield - err_margin)), 2)
+            conf_upper = round(max(predicted_yield, predicted_yield + err_margin), 2)
+            conf_score = 0.75
+            return conf_score, conf_lower, conf_upper, "limited_data"
+
     def predict_for_observation(self, user_id: str, observation_id: str) -> MilkPrediction:
         # validate observation and ownership
         obs = self.db.get(DailyObservation, observation_id)
@@ -92,7 +157,6 @@ class PredictionService:
         ensure_record_accessible(farm, user_id)
 
         # Derive the feature vector server-side from observation/cow/weather
-        # data rather than trusting client-supplied values (Issue 3).
         feature_vector = FeatureEngineeringService(self.db).build_features_for_observation(
             user_id, observation_id
         )
@@ -100,14 +164,22 @@ class PredictionService:
         predicted = self.predict_value(feature_vector)
         model_version = getattr(self._load_model(), "__version__", os.path.basename(self.model_path))
 
+        conf_score, conf_lower, conf_upper, conf_status = self._compute_confidence_interval(
+            farm.id, predicted
+        )
+
         mp = MilkPrediction(
             cow_id=cow.id,
             observation_id=obs.id,
             predicted_milk_yield=predicted,
+            confidence_score=conf_score,
             model_version=str(model_version),
             owner_id=user_id,
             prediction_timestamp=datetime.now(timezone.utc),
         )
 
         saved = self.repo.save(mp)
+        setattr(saved, "confidence_lower", conf_lower)
+        setattr(saved, "confidence_upper", conf_upper)
+        setattr(saved, "confidence_data_status", conf_status)
         return saved

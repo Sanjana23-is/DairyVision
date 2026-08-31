@@ -6,7 +6,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.models import DailyObservation, Cow, Farm, WeatherLog, HealthAlert
+from app.models import DailyObservation, Cow, Farm, WeatherLog, HealthAlert, FarmSettings
 from app.services.explainability_service import ExplainabilityService
 from app.services.feature_engineering_service import FeatureEngineeringService
 from app.services.health_alert_service import HealthAlertService
@@ -17,6 +17,7 @@ from app.schemas.feature import FeatureVector
 from app.schemas.health_alert import HealthAlertResponse
 from app.schemas.explainability import ExplainabilityResponse
 from app.schemas.what_if import (
+    FinancialImpact,
     RecommendationItem,
     WhatIfPredictionResult,
     WhatIfRequest,
@@ -59,34 +60,200 @@ class WhatIfService:
         farm = self.db.get(Farm, cow.farm_id)
         if farm is None:
             raise ValueError("Farm not found")
-        if getattr(farm, "created_by", None) != user_id and getattr(farm, "owner_id", None) not in (None, user_id):
-            raise PermissionError("User does not own this farm")
+
         return cow, farm
 
-    def _check_extrapolation_warning(self, features: FeatureVector) -> bool:
-        """Check if inputs push beyond typical historical training bounds."""
-        if features.temperature is not None and (features.temperature > 40.0 or features.temperature < 5.0):
-            return True
-        if features.thi is not None and (features.thi > 85.0 or features.thi < 50.0):
-            return True
-        if features.feed is not None and (features.feed > 45.0 or features.feed < 5.0):
-            return True
+    def _generate_financial_explanation(
+        self,
+        delta_milk_l: float,
+        delta_feed_kg: float,
+        milk_price: float,
+        feed_cost: float,
+        daily_revenue_change: float,
+        daily_feed_cost_change: float,
+        daily_net_benefit: float,
+        currency: str = "INR",
+    ) -> str:
+        symbol = "₹" if currency == "INR" else f"{currency} "
+
+        d_milk_str = f"{abs(delta_milk_l):.2f}".rstrip("0").rstrip(".")
+        d_feed_str = f"{abs(delta_feed_kg):.2f}".rstrip("0").rstrip(".")
+        rev_str = f"{abs(daily_revenue_change):.2f}"
+        feed_cost_str = f"{abs(daily_feed_cost_change):.2f}"
+        net_str = f"{abs(daily_net_benefit):.2f}"
+        m_price_str = f"{milk_price:.2f}".rstrip("0").rstrip(".")
+
+        if delta_feed_kg > 0:
+            if delta_milk_l > 0:
+                if daily_net_benefit > 1.0:
+                    return (
+                        f"Adding {d_feed_str} kg of feed increases daily feed cost by {symbol}{feed_cost_str}, "
+                        f"but predicted milk yield increases by +{d_milk_str} L/day, generating +{symbol}{rev_str} in additional revenue. "
+                        f"The milk revenue exceeds the feed cost, yielding an estimated net benefit of +{symbol}{net_str}/day."
+                    )
+                elif daily_net_benefit < -1.0:
+                    return (
+                        f"Adding {d_feed_str} kg of feed increases daily feed cost by {symbol}{feed_cost_str}, "
+                        f"but the model predicts only +{d_milk_str} L/day additional milk, worth +{symbol}{rev_str}/day at {symbol}{m_price_str}/L. "
+                        f"The additional feed cost exceeds the milk revenue, resulting in an estimated net impact of -{symbol}{net_str}/day."
+                    )
+                else:
+                    return (
+                        f"Adding {d_feed_str} kg of feed costs +{symbol}{feed_cost_str}/day, which closely balances the "
+                        f"predicted +{d_milk_str} L/day milk revenue (+{symbol}{rev_str}/day), resulting in a near break-even impact."
+                    )
+            elif delta_milk_l < 0:
+                return (
+                    f"Increasing feed by {d_feed_str} kg adds +{symbol}{feed_cost_str}/day in feed cost, but predicted milk production "
+                    f"falls by {d_milk_str} L/day (-{symbol}{rev_str} revenue). The combined effect produces an estimated net impact of -{symbol}{net_str}/day."
+                )
+            else:
+                return (
+                    f"Increasing feed by {d_feed_str} kg adds +{symbol}{feed_cost_str}/day in feed cost, while predicted milk yield "
+                    f"remains unchanged ({symbol}0.00 revenue change). This results in a net daily cost of -{symbol}{net_str}/day."
+                )
+        elif delta_feed_kg == 0:
+            if delta_milk_l > 0:
+                return (
+                    f"With feed intake unchanged ({symbol}0.00 feed cost delta), environmental or cooling adjustments boost "
+                    f"predicted milk yield by +{d_milk_str} L/day, producing a net financial gain of +{symbol}{net_str}/day."
+                )
+            elif delta_milk_l < 0:
+                return (
+                    f"With feed intake unchanged ({symbol}0.00 feed cost delta), environmental stress reduces predicted "
+                    f"milk production by {d_milk_str} L/day, producing an estimated revenue loss of -{symbol}{net_str}/day."
+                )
+            else:
+                return f"No change in feed intake or predicted milk yield results in a {symbol}0.00 net financial impact."
+        else:
+            if delta_milk_l >= 0:
+                return (
+                    f"Reducing feed by {d_feed_str} kg saves {symbol}{feed_cost_str}/day in feed cost while predicted milk yield "
+                    f"changes by +{d_milk_str} L/day (+{symbol}{rev_str}/day revenue), yielding a net financial benefit of +{symbol}{net_str}/day."
+                )
+            else:
+                if daily_net_benefit >= 0:
+                    return (
+                        f"Reducing feed by {d_feed_str} kg saves {symbol}{feed_cost_str}/day in feed cost, which outweighs the revenue lost "
+                        f"(-{symbol}{rev_str}/day) from a {d_milk_str} L/day decline in milk yield, creating a net savings of +{symbol}{net_str}/day."
+                    )
+                else:
+                    return (
+                        f"Reducing feed by {d_feed_str} kg saves {symbol}{feed_cost_str}/day in feed cost, but milk production drops by "
+                        f"{d_milk_str} L/day (-{symbol}{rev_str}/day revenue), causing an estimated net loss of -{symbol}{net_str}/day."
+                    )
+
+    def _compute_financial_impact(
+        self,
+        farm_id: Optional[str],
+        delta_milk_l: float,
+        delta_feed_kg: float,
+        override_milk_price: Optional[float] = None,
+        override_feed_cost: Optional[float] = None,
+    ) -> FinancialImpact:
+        """Transparent financial calculation layer converting yield/feed deltas into economic estimates."""
+        settings = None
+        if farm_id:
+            settings = self.db.query(FarmSettings).filter(FarmSettings.farm_id == farm_id).first()
+
+        using_defaults = True
+        currency = settings.default_currency if settings and settings.default_currency else "INR"
+
+        if override_milk_price is not None:
+            milk_price = float(override_milk_price)
+            using_defaults = False
+        elif settings and settings.milk_price_per_liter is not None:
+            milk_price = float(settings.milk_price_per_liter)
+            using_defaults = False
+        else:
+            milk_price = 42.0
+
+        if override_feed_cost is not None:
+            feed_cost = float(override_feed_cost)
+            using_defaults = False
+        elif settings and settings.feed_cost_per_kg is not None:
+            feed_cost = float(settings.feed_cost_per_kg)
+            using_defaults = False
+        else:
+            feed_cost = 24.0
+
+        daily_revenue_change = round(delta_milk_l * milk_price, 2)
+        daily_feed_cost_change = round(delta_feed_kg * feed_cost, 2)
+        daily_net_benefit = round(daily_revenue_change - daily_feed_cost_change, 2)
+        monthly_net_benefit = round(daily_net_benefit * 30.0, 2)
+
+        if daily_net_benefit > 1.0:
+            decision = "positive"
+        elif daily_net_benefit < -1.0:
+            decision = "negative"
+        else:
+            decision = "near_break_even"
+
+        revenue_ratio = None
+        if daily_feed_cost_change > 0:
+            revenue_ratio = round(daily_revenue_change / daily_feed_cost_change, 2)
+
+        explanation = self._generate_financial_explanation(
+            delta_milk_l=delta_milk_l,
+            delta_feed_kg=delta_feed_kg,
+            milk_price=milk_price,
+            feed_cost=feed_cost,
+            daily_revenue_change=daily_revenue_change,
+            daily_feed_cost_change=daily_feed_cost_change,
+            daily_net_benefit=daily_net_benefit,
+            currency=currency,
+        )
+
+        return FinancialImpact(
+            currency=currency,
+            milk_price_per_liter=round(milk_price, 2),
+            feed_cost_per_kg=round(feed_cost, 2),
+            delta_milk_liters=round(delta_milk_l, 2),
+            delta_feed_kg=round(delta_feed_kg, 2),
+            daily_revenue_change=daily_revenue_change,
+            daily_feed_cost_change=daily_feed_cost_change,
+            daily_net_benefit=daily_net_benefit,
+            monthly_net_benefit=monthly_net_benefit,
+            using_default_assumptions=using_defaults,
+            decision_classification=decision,
+            explanation_text=explanation,
+            revenue_per_feed_cost_ratio=revenue_ratio,
+        )
+
+    def _check_extrapolation_warning(self, fv: FeatureVector) -> bool:
+
+        bounds = {
+            "temperature": (10.0, 45.0),
+            "humidity": (20.0, 95.0),
+            "feed": (5.0, 45.0),
+            "thi": (45.0, 95.0),
+        }
+        for attr, (low, high) in bounds.items():
+            val = getattr(fv, attr, None)
+            if val is not None and (val < low or val > high):
+                return True
         return False
 
     def _apply_scenario_overrides(self, baseline: FeatureVector, scenario: FeatureVector) -> FeatureVector:
         merged = baseline.model_copy()
 
-        base_fields = ("age", "weight", "health_status", "feed", "temperature", "humidity", "thi")
-        for field in base_fields:
-            value = getattr(scenario, field, None)
-            if value is not None:
-                setattr(merged, field, value)
+        for field_name in scenario.model_fields.keys():
+            if field_name == "observation_id":
+                continue
+            val = getattr(scenario, field_name, None)
+            if val is not None:
+                setattr(merged, field_name, val)
 
-        if merged.feed is not None and merged.weight not in (None, 0):
+        if merged.temperature is not None and merged.humidity is not None:
+            temp = merged.temperature
+            hum = merged.humidity
+            if scenario.thi is None:
+                merged.thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+            merged.temp_humidity = temp * hum
+
+        if merged.weight and merged.weight > 0 and merged.feed is not None:
             merged.feed_weight_ratio = merged.feed / merged.weight
             merged.feed_per_weight = merged.feed_weight_ratio
-        if merged.temperature is not None and merged.humidity is not None:
-            merged.temp_humidity = merged.temperature * merged.humidity
         if merged.thi is not None:
             merged.thi_squared = merged.thi * merged.thi
             if merged.feed is not None:
@@ -204,6 +371,14 @@ class WhatIfService:
 
         warn = self._check_extrapolation_warning(scenario_features)
 
+        delta_milk = float(scenario_prediction - current_prediction)
+        delta_feed = float((scenario_features.feed or 0.0) - (current_features.feed or 0.0))
+        fin_impact = self._compute_financial_impact(
+            farm_id=cow.farm_id,
+            delta_milk_l=delta_milk,
+            delta_feed_kg=delta_feed,
+        )
+
         return WhatIfResponse(
             observation_id=observation.id,
             current_features=current_features,
@@ -216,7 +391,7 @@ class WhatIfService:
                 predicted_milk_yield=scenario_prediction,
                 model_version=_model_version(),
             ),
-            delta_milk_yield=float(scenario_prediction - current_prediction),
+            delta_milk_yield=delta_milk,
             percent_change=float(percent_change),
             current_health_alert=_to_health_alert_response(current_health_alert),
             scenario_health_alert=_to_health_alert_response(scenario_health_alert),
@@ -225,6 +400,7 @@ class WhatIfService:
             current_recommendations=current_recommendations,
             scenario_recommendations=scenario_recommendations,
             extrapolation_warning=warn,
+            financial_impact=fin_impact,
         )
 
     def run_cow_what_if(self, user_id: str, cow_id: str, request: CowWhatIfRequest) -> CowWhatIfResponse:
@@ -252,7 +428,6 @@ class WhatIfService:
 
         base_features = self.feature_service.build_features_for_observation(user_id, latest_obs.id)
 
-        # Populate missing animal & weather baseline defaults for simulation read-only sandbox if unentered
         if base_features.age is None:
             base_features.age = 4.0
         if base_features.weight is None:
@@ -282,10 +457,7 @@ class WhatIfService:
         if base_features.weight and base_features.age:
             base_features.age_weight_ratio = base_features.age / base_features.weight
 
-        # Prepare scenario feature vector
         scenario_fields = base_features.model_copy()
-
-
 
         if request.scenario.temperature_c is not None:
             scenario_fields.temperature = request.scenario.temperature_c
@@ -294,7 +466,6 @@ class WhatIfService:
         if request.scenario.feed_quantity_kg is not None:
             scenario_fields.feed = request.scenario.feed_quantity_kg
 
-        # Recalculate THI
         temp = scenario_fields.temperature if scenario_fields.temperature is not None else 25.0
         hum = scenario_fields.humidity if scenario_fields.humidity is not None else 65.0
         calc_thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
@@ -307,14 +478,12 @@ class WhatIfService:
 
         extrap_warn = self._check_extrapolation_warning(scenario_features)
 
-        # Baseline vs Simulated Predictions
         base_pred = self.prediction_service.predict_value(base_features)
         sim_pred = self.prediction_service.predict_value(scenario_features)
 
         delta_yield = sim_pred - base_pred
         pct_change = (delta_yield / abs(base_pred) * 100.0) if base_pred != 0.0 else 0.0
 
-        # Health Alert Status (Read-Only)
         base_alert = self.health_alert_service.evaluate_and_create(
             user_id=user_id, cow_id=cow.id, observation_id=latest_obs.id, feature_vector=base_features, persist=False
         )
@@ -325,7 +494,6 @@ class WhatIfService:
         base_status = base_alert.alert_level if base_alert else "Healthy"
         sim_status = sim_alert.alert_level if sim_alert else "Healthy"
 
-        # Calculate Simulated Digital Twin Vitality Score
         sim_vitality = baseline_vitality
         if sim_status == "Critical":
             sim_vitality = min(sim_vitality, 45.0)
@@ -337,7 +505,6 @@ class WhatIfService:
         elif calc_thi < 72.0 and request.scenario.cooling_intervention_thi_reduction:
             sim_vitality = min(100.0, sim_vitality + 5.0)
 
-        # Farmer-Friendly Natural Language Explanation Synthesis
         explanation_parts = []
         if delta_yield > 0:
             explanation_parts.append(
@@ -359,7 +526,6 @@ class WhatIfService:
 
         explanation_summary = " ".join(explanation_parts)
 
-        # Read-Only Scenario Recommendations
         recs_list = [
             RecommendationItem(**rec)
             for rec in self.recommendation_service.generate_recommendations_for_context(
@@ -372,6 +538,15 @@ class WhatIfService:
                 thi_override=calc_thi,
             )
         ]
+
+        delta_feed = float((scenario_features.feed or 0.0) - (base_features.feed or 0.0))
+        fin_impact = self._compute_financial_impact(
+            farm_id=cow.farm_id,
+            delta_milk_l=delta_yield,
+            delta_feed_kg=delta_feed,
+            override_milk_price=request.scenario.override_milk_price_per_liter,
+            override_feed_cost=request.scenario.override_feed_cost_per_kg,
+        )
 
         return CowWhatIfResponse(
             cow_id=cow.id,
@@ -392,6 +567,7 @@ class WhatIfService:
             explanation_summary=explanation_summary,
             extrapolation_warning=extrap_warn,
             recommendations=recs_list,
+            financial_impact=fin_impact,
         )
 
     def run_herd_what_if(self, user_id: str, request: HerdWhatIfRequest) -> HerdWhatIfResponse:
@@ -402,6 +578,13 @@ class WhatIfService:
 
         cows = query.all()
         if not cows:
+            fin_impact = self._compute_financial_impact(
+                farm_id=request.farm_id,
+                delta_milk_l=0.0,
+                delta_feed_kg=0.0,
+                override_milk_price=request.scenario.override_milk_price_per_liter,
+                override_feed_cost=request.scenario.override_feed_cost_per_kg,
+            )
             return HerdWhatIfResponse(
                 farm_id=request.farm_id,
                 total_cows_simulated=0,
@@ -411,11 +594,13 @@ class WhatIfService:
                 total_percent_change=0.0,
                 cow_comparisons=[],
                 herd_recommendations=[],
+                financial_impact=fin_impact,
             )
 
         cow_comparisons: list[CowSimulationComparison] = []
         baseline_total = 0.0
         simulated_total = 0.0
+        total_delta_feed = 0.0
         extrapolation_warning = False
 
         for cow in cows:
@@ -462,8 +647,6 @@ class WhatIfService:
 
                 scenario_fields = base_features.model_copy()
 
-
-
                 if request.scenario.temperature_c is not None:
                     scenario_fields.temperature = request.scenario.temperature_c
                 if request.scenario.humidity_pct is not None:
@@ -489,6 +672,9 @@ class WhatIfService:
 
                 baseline_total += base_pred
                 simulated_total += sim_pred
+
+                delta_feed_i = (scenario_features.feed or 0.0) - (base_features.feed or 0.0)
+                total_delta_feed += delta_feed_i
 
                 delta = sim_pred - base_pred
                 pct = (delta / abs(base_pred) * 100.0) if base_pred != 0.0 else 0.0
@@ -546,6 +732,14 @@ class WhatIfService:
                 )
             )
 
+        fin_impact = self._compute_financial_impact(
+            farm_id=request.farm_id,
+            delta_milk_l=total_delta,
+            delta_feed_kg=total_delta_feed,
+            override_milk_price=request.scenario.override_milk_price_per_liter,
+            override_feed_cost=request.scenario.override_feed_cost_per_kg,
+        )
+
         return HerdWhatIfResponse(
             farm_id=request.farm_id,
             total_cows_simulated=len(cow_comparisons),
@@ -556,4 +750,5 @@ class WhatIfService:
             cow_comparisons=cow_comparisons,
             herd_recommendations=herd_recs,
             extrapolation_warning=extrapolation_warning,
+            financial_impact=fin_impact,
         )

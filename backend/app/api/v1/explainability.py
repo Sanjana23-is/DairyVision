@@ -163,6 +163,7 @@ def explain(
             "computed_at": res.computed_at,
             "model_version": res.model_version,
             "summary_narrative": details.get("summary_narrative"),
+            "actionable_advice": details.get("actionable_advice"),
             "features": features,
             "top_positive": top_pos,
             "top_negative": top_neg,

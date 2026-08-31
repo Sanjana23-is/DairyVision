@@ -23,12 +23,30 @@ class RecommendationItem(BaseModel):
     recommendation_type: str
 
 
+class FinancialImpact(BaseModel):
+    currency: str = "INR"
+    milk_price_per_liter: float
+    feed_cost_per_kg: float
+    delta_milk_liters: float
+    delta_feed_kg: float
+    daily_revenue_change: float
+    daily_feed_cost_change: float
+    daily_net_benefit: float
+    monthly_net_benefit: float
+    using_default_assumptions: bool
+    decision_classification: str = "near_break_even"  # "positive" | "negative" | "near_break_even"
+    explanation_text: str = ""
+    revenue_per_feed_cost_ratio: Optional[float] = None
+
+
 class SimulationInput(BaseModel):
     temperature_c: Optional[float] = Field(None, ge=0.0, le=50.0, description="Ambient temperature in °C")
     humidity_pct: Optional[float] = Field(None, ge=0.0, le=100.0, description="Relative humidity in %")
     feed_quantity_kg: Optional[float] = Field(None, ge=0.0, le=60.0, description="Daily feed intake in kg")
     cooling_intervention_thi_reduction: Optional[float] = Field(0.0, ge=0.0, le=20.0, description="THI reduction from active cooling fans/sprinklers")
     body_condition_score: Optional[float] = Field(None, ge=1.0, le=5.0, description="Body condition score (1-5)")
+    override_milk_price_per_liter: Optional[float] = Field(None, ge=0.0, le=500.0, description="Optional scenario override for milk price (₹/L)")
+    override_feed_cost_per_kg: Optional[float] = Field(None, ge=0.0, le=500.0, description="Optional scenario override for feed cost (₹/kg)")
 
 
 class WhatIfRequest(BaseModel):
@@ -54,6 +72,7 @@ class WhatIfResponse(BaseModel):
     current_recommendations: Optional[List[RecommendationItem]] = None
     scenario_recommendations: Optional[List[RecommendationItem]] = None
     extrapolation_warning: bool = False
+    financial_impact: Optional[FinancialImpact] = None
 
 
 class HerdWhatIfRequest(BaseModel):
@@ -85,6 +104,7 @@ class HerdWhatIfResponse(BaseModel):
     cow_comparisons: List[CowSimulationComparison]
     herd_recommendations: List[RecommendationItem]
     extrapolation_warning: bool = False
+    financial_impact: Optional[FinancialImpact] = None
 
 
 class CowWhatIfRequest(BaseModel):
@@ -110,3 +130,4 @@ class CowWhatIfResponse(BaseModel):
     explanation_summary: str
     extrapolation_warning: bool = False
     recommendations: List[RecommendationItem]
+    financial_impact: Optional[FinancialImpact] = None

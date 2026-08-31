@@ -315,3 +315,79 @@ def test_route_missing_weather_explains_coordinates_required(db_session: Session
         assert exc.status_code == 422
         assert "missing required weather data" in exc.detail
         assert "latitude and longitude" in exc.detail
+
+
+def test_prediction_confidence_intervals_limited_data(db_session: Session, tmp_path):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    model_path = _make_dummy_model_path(tmp_path)
+    service = PredictionService(db_session, model_path=model_path)
+
+    saved = service.predict_for_observation(user.id, obs.id)
+    assert saved.confidence_score is not None
+    assert getattr(saved, "confidence_data_status") == "limited_data"
+    assert getattr(saved, "confidence_lower") >= 0.0
+    assert getattr(saved, "confidence_lower") <= saved.predicted_milk_yield <= getattr(saved, "confidence_upper")
+
+
+def test_prediction_confidence_intervals_historical_data(db_session: Session, tmp_path):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+
+    # Seed 3 historical predictions with matching observations
+    for i in range(3):
+        h_obs = DailyObservation(
+            id=str(uuid4()),
+            cow_id=cow.id,
+            observation_date=date.today(),
+            owner_id=user.id,
+            milk_produced_liters=20.0 + i,
+            feed_quantity_kg=20.0,
+        )
+        db_session.add(h_obs)
+        db_session.flush()
+
+        h_pred = MilkPrediction(
+            id=str(uuid4()),
+            cow_id=cow.id,
+            observation_id=h_obs.id,
+            predicted_milk_yield=19.5 + i,
+            confidence_score=0.85,
+            model_version="test",
+            owner_id=user.id,
+            prediction_timestamp=datetime.now(timezone.utc),
+        )
+        db_session.add(h_pred)
+    db_session.commit()
+
+    model_path = _make_dummy_model_path(tmp_path)
+    service = PredictionService(db_session, model_path=model_path)
+
+    saved = service.predict_for_observation(user.id, obs.id)
+    assert saved.confidence_score is not None
+    assert getattr(saved, "confidence_data_status") == "historical"
+    assert getattr(saved, "confidence_lower") >= 0.0
+    assert getattr(saved, "confidence_lower") <= saved.predicted_milk_yield <= getattr(saved, "confidence_upper")
+    assert 0.50 <= saved.confidence_score <= 0.99
+
+
+def test_list_milk_predictions_endpoint_serialization(db_session: Session, tmp_path):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    model_path = _make_dummy_model_path(tmp_path)
+    service = PredictionService(db_session, model_path=model_path)
+
+    saved = service.predict_for_observation(user.id, obs.id)
+
+    from app.api.v1.dairy import list_milk_predictions
+    from app.services.crud_service import CRUDService
+    from app.schemas.crud import MilkPredictionResponse
+    crud = CRUDService(db_session)
+
+    orm_list = list_milk_predictions(farm_id=farm.id, user_id=user.id, service=crud, db=db_session)
+    assert len(orm_list) >= 1
+    pydantic_item = MilkPredictionResponse.model_validate(orm_list[0])
+    assert pydantic_item.id == saved.id
+    assert pydantic_item.prediction_timestamp is not None
+    assert pydantic_item.created_at is not None
+    assert pydantic_item.confidence_score is not None
+    assert pydantic_item.confidence_data_status is not None
+
+

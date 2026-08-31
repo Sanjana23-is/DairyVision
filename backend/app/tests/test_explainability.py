@@ -200,6 +200,24 @@ def test_feature_translation_formatting():
     assert get_display_feature_name("thi") == "Heat Stress Index (THI)"
     assert format_feature_value("thi", 78.5) == "78.5 THI"
     assert format_feature_value("feed", 15.0) == "15.0 kg"
-    assert "+1.50 L yield boost" in format_impact_description(1.5)
-    assert "-1.20 L yield penalty" in format_impact_description(-1.2)
+    assert "+1.50 L/day model-estimated contribution" in format_impact_description(1.5)
+    assert "-1.20 L/day model-estimated contribution" in format_impact_description(-1.2)
+
+
+def test_actionable_advice_mapping():
+    from app.services.explainability_service import ExplainabilityService
+
+    svc = ExplainabilityService(None)
+    # THI top negative -> cooling advice
+    advice_thi = svc._generate_actionable_advice([{"feature": "thi", "shap_value": -1.5}])
+    assert "cooling conditions" in advice_thi.lower()
+
+    # Feed top negative -> feed advice
+    advice_feed = svc._generate_actionable_advice([{"feature": "feed", "shap_value": -1.2}])
+    assert "feed intake" in advice_feed.lower()
+
+    # Neutral/No negative -> baseline advice
+    advice_neutral = svc._generate_actionable_advice([{"feature": "feed", "shap_value": -0.01}])
+    assert "within the model's expected range" in advice_neutral.lower()
+
 

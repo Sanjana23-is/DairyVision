@@ -461,3 +461,120 @@ def test_auto_health_eval_prevents_duplicate_alerts(db_session: Session) -> None
     assert count_2 == 1  # Updated in place, no duplicate row added
 
 
+def test_bulk_observation_import_completely_valid(db_session: Session) -> None:
+    from app.schemas.observation import BulkObservationItem
+    from datetime import date
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    items = [
+        BulkObservationItem(
+            tag_id="TAG123",
+            observation_date=date(2026, 8, 30),
+            milk_produced_liters=20.0,
+            feed_quantity_kg=22.0,
+            health_condition="normal",
+            notes="Valid bulk entry 1",
+        )
+    ]
+
+    res = service.create_bulk_observations(user_id, farm_id, items)
+    assert res.total_rows == 1
+    assert res.imported_count == 1
+    assert res.failed_count == 0
+    assert res.duplicate_count == 0
+    assert len(res.errors) == 0
+
+
+def test_bulk_observation_unknown_tag_id(db_session: Session) -> None:
+    from app.schemas.observation import BulkObservationItem
+    user_id, farm_id, _ = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    items = [
+        BulkObservationItem(tag_id="UNKNOWN_TAG", milk_produced_liters=15.0)
+    ]
+
+    res = service.create_bulk_observations(user_id, farm_id, items)
+    assert res.total_rows == 1
+    assert res.imported_count == 0
+    assert res.failed_count == 1
+    assert res.errors[0].row == 1
+    assert "not found in farm" in res.errors[0].reason
+
+
+def test_bulk_observation_tag_belonging_to_another_farm(db_session: Session) -> None:
+    from app.schemas.observation import BulkObservationItem
+    user1_id, farm1_id, cow1_id = _create_user_farm_cow(db_session)
+    user2_id, farm2_id, cow2_id = _create_user_farm_cow(db_session)
+
+    service = ObservationService(db_session)
+
+    items = [
+        BulkObservationItem(tag_id="TAG123", milk_produced_liters=15.0)
+    ]
+
+    res1 = service.create_bulk_observations(user1_id, farm1_id, items)
+    assert res1.imported_count == 1
+
+    # User 1 cannot import observations for Farm 2
+    res_fake = service.create_bulk_observations(user1_id, farm2_id, items)
+    assert res_fake.imported_count == 0
+    assert res_fake.failed_count == 1
+
+
+def test_bulk_observation_duplicate_observation(db_session: Session) -> None:
+    from app.schemas.observation import BulkObservationItem
+    from datetime import date
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+    service = ObservationService(db_session)
+
+    today = date.today()
+    service.create_observation(
+        user_id,
+        ObservationCreate(farm_id=farm_id, cow_id=cow_id, observation_date=today, milk_produced_liters=12.0)
+    )
+
+    items = [
+        BulkObservationItem(tag_id="TAG123", observation_date=today, milk_produced_liters=14.0)
+    ]
+
+    res = service.create_bulk_observations(user_id, farm_id, items)
+    assert res.imported_count == 0
+    assert res.failed_count == 1
+    assert res.duplicate_count == 1
+    assert "already exists" in res.errors[0].reason
+
+
+def test_bulk_observation_mixed_valid_and_invalid(db_session: Session) -> None:
+    from app.schemas.observation import BulkObservationItem
+    from datetime import date
+    user_id, farm_id, cow_id = _create_user_farm_cow(db_session)
+
+    cow2 = Cow(
+        id=str(uuid4()),
+        farm_id=farm_id,
+        tag_id="TAG456",
+        status="active",
+        owner_id=user_id,
+        created_by=user_id,
+    )
+    db_session.add(cow2)
+    db_session.commit()
+
+    service = ObservationService(db_session)
+
+    items = [
+        BulkObservationItem(tag_id="TAG123", observation_date=date(2026, 8, 20), milk_produced_liters=18.0),
+        BulkObservationItem(tag_id="NON_EXISTENT", observation_date=date(2026, 8, 20), milk_produced_liters=15.0),
+        BulkObservationItem(tag_id="TAG456", observation_date=date(2026, 8, 20), milk_produced_liters=22.0),
+    ]
+
+    res = service.create_bulk_observations(user_id, farm_id, items)
+    assert res.total_rows == 3
+    assert res.imported_count == 2
+    assert res.failed_count == 1
+    assert res.errors[0].row == 2
+    assert res.errors[0].tag_id == "NON_EXISTENT"
+
+

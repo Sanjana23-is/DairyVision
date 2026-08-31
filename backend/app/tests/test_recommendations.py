@@ -340,3 +340,29 @@ def test_different_cows_and_types_deduplicated_separately(db_session: Session):
     assert (cow1.id, "Check ventilation") in titles_and_cows
     assert (cow2.id, "Check ventilation") in titles_and_cows
     assert (None, "Farm climate alert") in titles_and_cows
+
+
+def test_get_recommendations_endpoint_serialization(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    rec = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow.id,
+        title="Serialization Test Recommendation",
+        category="General Farm Management",
+        priority="Medium",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    db_session.add(rec)
+    db_session.commit()
+
+    from app.api.v1.dairy import list_recommendations
+    res = list_recommendations(farm_id=farm.id, completed=False, user_id=user.id, db=db_session)
+    assert len(res) >= 1
+    item = res[0]
+    assert item.id == rec.id
+    assert item.created_at is not None
+    assert not hasattr(item, "updated_at") or getattr(item, "updated_at", None) is None
+
