@@ -7,9 +7,6 @@ fastapi==0.115.0
 uvicorn==0.32.0
 starlette==0.38.6
 python-multipart==0.0.32
-pydantic==2.9.0
-pydantic-settings==2.2.0
-pydantic_core==2.23.2
 annotated-types==0.8.0
 
 # Database & ORM Migration Engine
@@ -27,14 +24,16 @@ requests==2.34.2
 httpx==0.28.1
 urllib3==2.7.0
 anyio==4.14.2
+pydantic==2.11.7
+pydantic-settings==2.10.1
 
 # Machine Learning, Explainability & Digital Twin Analytics
 numpy==2.4.6
 pandas==3.0.3
 scipy==1.17.1
 scikit-learn==1.9.0
-xgboost==3.3.0
-shap==0.52.0
+xgboost==3.2.0
+shap==0.51.0
 joblib==1.5.3
 matplotlib==3.11.0
 numba==0.66.0
