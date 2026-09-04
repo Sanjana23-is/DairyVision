@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 COW_STATUS_VALUES = ("active", "dry", "sick", "deceased", "sold")
 
@@ -61,6 +61,7 @@ class CowCreate(CowBase):
 
 
 class CowUpdate(BaseModel):
+    tag_id: Optional[str] = None
     name: Optional[str] = None
     breed_id: Optional[str] = None
     birth_date: Optional[date] = None
@@ -70,6 +71,13 @@ class CowUpdate(BaseModel):
     weight_kg: Optional[float] = None
     lactation_number: Optional[int] = None
     notes: Optional[str] = None
+
+    @field_validator("tag_id")
+    @classmethod
+    def tag_id_must_not_be_blank(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and not value.strip():
+            raise ValueError("tag_id must not be blank")
+        return value
 
     @field_validator("status")
     @classmethod
@@ -86,215 +94,27 @@ class CowUpdate(BaseModel):
         return value
 
 
-
 class CowResponse(CowBase):
     id: str
-    created_by: Optional[str] = None
-    owner_id: str
+    created_by: str
+    owner_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
-VALID_HEALTH_CONDITIONS = {
-    "normal",
-    "fever",
-    "mastitis",
-    "lameness",
-    "respiratory",
-    "digestive",
-    "other",
-}
-
-
-class DailyObservationBase(BaseModel):
-    cow_id: str
-    observation_date: date
-    milk_produced_liters: Optional[float] = None
-    feed_quantity_kg: Optional[float] = None
-    symptoms: Optional[dict[str, Any]] = None
-    health_condition: Optional[str] = None
-    body_temperature_c: Optional[float] = None
-    body_condition_score: Optional[float] = None
-    health_notes: Optional[str] = None
-    notes: Optional[str] = None
-
-    @field_validator("health_condition")
-    @classmethod
-    def validate_health_condition(cls, value: Optional[str]) -> Optional[str]:
-        if value is not None and value.strip().lower() not in VALID_HEALTH_CONDITIONS:
-            raise ValueError(f"health_condition must be one of: {', '.join(sorted(VALID_HEALTH_CONDITIONS))}")
-        return value.strip().lower() if value is not None else None
-
-    @field_validator("body_temperature_c")
-    @classmethod
-    def validate_body_temperature(cls, value: Optional[float]) -> Optional[float]:
-        if value is not None and value <= 0:
-            raise ValueError("body_temperature_c must be a positive number")
-        return value
-
-    @field_validator("body_condition_score")
-    @classmethod
-    def validate_body_condition_score(cls, value: Optional[float]) -> Optional[float]:
-        if value is not None and not (1.0 <= value <= 5.0):
-            raise ValueError("body_condition_score must be between 1.0 and 5.0")
-        return value
-
-
-class DailyObservationCreate(DailyObservationBase):
-    pass
-
-
-class DailyObservationUpdate(BaseModel):
-    milk_produced_liters: Optional[float] = None
-    feed_quantity_kg: Optional[float] = None
-    symptoms: Optional[dict[str, Any]] = None
-    health_condition: Optional[str] = None
-    body_temperature_c: Optional[float] = None
-    body_condition_score: Optional[float] = None
-    health_notes: Optional[str] = None
-    notes: Optional[str] = None
-
-    @field_validator("health_condition")
-    @classmethod
-    def validate_health_condition(cls, value: Optional[str]) -> Optional[str]:
-        if value is not None and value.strip().lower() not in VALID_HEALTH_CONDITIONS:
-            raise ValueError(f"health_condition must be one of: {', '.join(sorted(VALID_HEALTH_CONDITIONS))}")
-        return value.strip().lower() if value is not None else None
-
-    @field_validator("body_temperature_c")
-    @classmethod
-    def validate_body_temperature(cls, value: Optional[float]) -> Optional[float]:
-        if value is not None and value <= 0:
-            raise ValueError("body_temperature_c must be a positive number")
-        return value
-
-    @field_validator("body_condition_score")
-    @classmethod
-    def validate_body_condition_score(cls, value: Optional[float]) -> Optional[float]:
-        if value is not None and not (1.0 <= value <= 5.0):
-            raise ValueError("body_condition_score must be between 1.0 and 5.0")
-        return value
-
-
-class DailyObservationResponse(DailyObservationBase):
-    id: str
-    observed_by: Optional[str] = None
-    owner_id: str
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-
-class ActivityLogBase(BaseModel):
-    cow_id: Optional[str] = None
-    activity_type: str
-    description: Optional[str] = None
-
-
-class ActivityLogCreate(ActivityLogBase):
-    pass
-
-
-class ActivityLogUpdate(BaseModel):
-    cow_id: Optional[str] = None
-    activity_type: Optional[str] = None
-    description: Optional[str] = None
-
-
-class ActivityLogResponse(ActivityLogBase):
-    id: str
-    user_id: Optional[str] = None
-    owner_id: str
-    occurred_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class HealthAlertBase(BaseModel):
-    cow_id: str
-    alert_level: str
-    alert_type: str
-    description: Optional[str] = None
-    confidence: float = 0.0
-    resolved: Optional[bool] = False
-
-
-class HealthAlertCreate(HealthAlertBase):
-    pass
-
-
-class HealthAlertUpdate(BaseModel):
-    alert_level: Optional[str] = None
-    alert_type: Optional[str] = None
-    description: Optional[str] = None
-    resolved: Optional[bool] = None
-
-
-class HealthAlertResponse(HealthAlertBase):
-    id: str
-    owner_id: str
-    created_at: datetime
-
-    # Farmer-facing presentation fields
-    risk_display_name: Optional[str] = None
-    why_explanation: Optional[str] = None
-    evidence: Optional[dict[str, Any]] = None
-    cow_name: Optional[str] = None
-    observation_date: Optional[str] = None
-    recommended_actions: Optional[list[str]] = None
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-
-class MilkPredictionBase(BaseModel):
-    cow_id: str
-    observation_id: Optional[str] = None
-    predicted_milk_yield: float
-    model_version: str
-    confidence_score: Optional[float] = None
-
-    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
-
-
-class MilkPredictionCreate(MilkPredictionBase):
-    pass
-
-
-class MilkPredictionUpdate(BaseModel):
-    observation_id: Optional[str] = None
-    predicted_milk_yield: Optional[float] = None
-    model_version: Optional[str] = None
-    confidence_score: Optional[float] = None
-
-    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
-
-
-class MilkPredictionResponse(MilkPredictionBase):
-    id: str
-    owner_id: str
-    prediction_timestamp: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class RecommendationBase(BaseModel):
     cow_id: Optional[str] = None
-    alert_id: Optional[str] = None
-    prediction_id: Optional[str] = None
-    observation_id: Optional[str] = None
     anomaly_id: Optional[str] = None
-    farm_id: Optional[str] = None
     title: str
-    description: Optional[str] = None
     why_reason: Optional[str] = None
-    category: str
-    priority: str
     recommendation_type: str
-    completed: Optional[bool] = False
+    priority: str
+    description: Optional[str] = None
+    action_item: Optional[str] = None
+    is_completed: Optional[bool] = False
+    metadata_json: Optional[dict[str, Any]] = None
 
 
 class RecommendationCreate(RecommendationBase):
@@ -302,37 +122,97 @@ class RecommendationCreate(RecommendationBase):
 
 
 class RecommendationUpdate(BaseModel):
-    cow_id: Optional[str] = None
-    alert_id: Optional[str] = None
-    prediction_id: Optional[str] = None
-    observation_id: Optional[str] = None
-    anomaly_id: Optional[str] = None
-    farm_id: Optional[str] = None
     title: Optional[str] = None
-    description: Optional[str] = None
     why_reason: Optional[str] = None
-    category: Optional[str] = None
-    priority: Optional[str] = None
     recommendation_type: Optional[str] = None
-
+    priority: Optional[str] = None
+    description: Optional[str] = None
+    action_item: Optional[str] = None
+    is_completed: Optional[bool] = None
+    metadata_json: Optional[dict[str, Any]] = None
 
 
 class RecommendationResponse(RecommendationBase):
     id: str
-    owner_id: str
+    farm_id: Optional[str] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
+class HealthAlertUpdate(BaseModel):
+    resolved: Optional[bool] = None
+    alert_level: Optional[str] = None
+    alert_type: Optional[str] = None
+    description: Optional[str] = None
+    confidence: Optional[float] = None
+
+
+class ActivityLogBase(BaseModel):
+    farm_id: Optional[str] = None
+    action: str
+    entity_type: Optional[str] = None
+    entity_id: Optional[str] = None
+    details: Optional[dict[str, Any]] = None
+
+
+class ActivityLogCreate(ActivityLogBase):
+    pass
+
+
+class ActivityLogUpdate(BaseModel):
+    action: Optional[str] = None
+    entity_type: Optional[str] = None
+    entity_id: Optional[str] = None
+    details: Optional[dict[str, Any]] = None
+
+
+class ActivityLogResponse(ActivityLogBase):
+    id: str
+    user_id: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MilkPredictionBase(BaseModel):
+    cow_id: str
+    observation_id: Optional[str] = None
+    predicted_milk_yield: float
+    confidence_score: Optional[float] = None
+    confidence_lower: Optional[float] = None
+    confidence_upper: Optional[float] = None
+    confidence_data_status: Optional[str] = "limited_data"
+    model_version: Optional[str] = None
+    feature_snapshot: Optional[dict[str, Any]] = None
+
+    model_config = ConfigDict(protected_namespaces=())
+
+
+class MilkPredictionCreate(MilkPredictionBase):
+    pass
+
+
+class MilkPredictionResponse(MilkPredictionBase):
+    id: str
+    owner_id: Optional[str] = None
+    prediction_timestamp: datetime
+    created_at: Optional[datetime] = None
+
+    @model_validator(mode="after")
+    def set_created_at_fallback(self) -> MilkPredictionResponse:
+        if self.created_at is None and self.prediction_timestamp is not None:
+            self.created_at = self.prediction_timestamp
+        return self
+
+    model_config = ConfigDict(protected_namespaces=(), from_attributes=True)
+
+
 class FarmBase(BaseModel):
     name: str
-    description: Optional[str] = None
-    location_city: Optional[str] = None
-    location_country: Optional[str] = None
+    timezone: Optional[str] = "UTC"
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    timezone: Optional[str] = None
     is_active: Optional[bool] = True
 
 
@@ -342,19 +222,44 @@ class FarmCreate(FarmBase):
 
 class FarmUpdate(BaseModel):
     name: Optional[str] = None
-    description: Optional[str] = None
-    location_city: Optional[str] = None
-    location_country: Optional[str] = None
+    timezone: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    timezone: Optional[str] = None
     is_active: Optional[bool] = None
-
 
 
 class FarmResponse(FarmBase):
     id: str
     created_by: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FarmSettingsBase(BaseModel):
+    default_language: Optional[str] = "en"
+    default_currency: Optional[str] = "INR"
+    milk_price_per_liter: Optional[float] = None
+    feed_cost_per_kg: Optional[float] = None
+    timezone: Optional[str] = "Asia/Kolkata"
+    breed_display_mode: Optional[str] = "canonical"
+    use_local_breed_names: Optional[bool] = True
+
+
+class FarmSettingsUpdate(BaseModel):
+    default_language: Optional[str] = None
+    default_currency: Optional[str] = None
+    milk_price_per_liter: Optional[float] = None
+    feed_cost_per_kg: Optional[float] = None
+    timezone: Optional[str] = None
+    breed_display_mode: Optional[str] = None
+    use_local_breed_names: Optional[bool] = None
+
+
+class FarmSettingsResponse(FarmSettingsBase):
+    id: str
+    farm_id: str
     created_at: datetime
     updated_at: datetime
 

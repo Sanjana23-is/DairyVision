@@ -31,6 +31,7 @@ class ExplainabilityResponse(BaseModel):
     computed_at: datetime
     model_version: Optional[str] = None
     summary_narrative: Optional[str] = None
+    actionable_advice: Optional[str] = None
     features: List[ExplainabilityFeature]
     top_positive: List[ExplainabilityFeature]
     top_negative: List[ExplainabilityFeature]

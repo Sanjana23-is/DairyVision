@@ -25,6 +25,7 @@ export type ExplainabilityResponse = {
   computed_at: string;
   model_version?: string | null;
   summary_narrative?: string | null;
+  actionable_advice?: string | null;
   features: ExplainabilityFeature[];
   top_positive: ExplainabilityFeature[];
   top_negative: ExplainabilityFeature[];

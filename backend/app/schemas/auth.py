@@ -47,6 +47,20 @@ class LoginRequest(BaseModel):
         return normalized
 
 
+class UpdateUserRequest(BaseModel):
+    full_name: Optional[str] = None
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            normalized = value.strip()
+            if not normalized:
+                raise ValueError("full_name cannot be empty")
+            return normalized
+        return value
+
+
 class AuthUser(BaseModel):
     id: str
     email: str

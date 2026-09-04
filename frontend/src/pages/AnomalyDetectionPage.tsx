@@ -11,11 +11,13 @@ import {
   type AnomalyRecord,
 } from "@/services/anomaly";
 import { fetchCows } from "@/services/cow";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AnomalyDetectionPage() {
   const { currentFarmId } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [severityFilter, setSeverityFilter] = useState<string>("All");
   const [statusFilter, setStatusFilter] = useState<string>("unresolved");
@@ -142,10 +144,10 @@ export default function AnomalyDetectionPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">
-              Herd Anomaly Detection
+              {t("anomaly.title", "Herd Anomaly Detection")}
             </h2>
             <p className="text-sm text-slate-500">
-              AI & behavioral outlier monitoring for milk yield, feed intake, and heat stress.
+              {t("anomaly.subtitle", "AI & behavioral outlier monitoring for milk yield, feed intake, and heat stress.")}
             </p>
           </div>
           <button
@@ -154,7 +156,7 @@ export default function AnomalyDetectionPage() {
             disabled={scanMutation.isPending}
             className="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 disabled:opacity-50"
           >
-            {scanMutation.isPending ? "Scanning Herd..." : "🔍 Run Anomaly Scan"}
+            {scanMutation.isPending ? t("anomaly.scanning", "Scanning Herd...") : `🔍 ${t("anomaly.run_scan", "Run Anomaly Scan")}`}
           </button>
         </div>
 
@@ -180,35 +182,35 @@ export default function AnomalyDetectionPage() {
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="text-xs font-medium text-slate-500">Scanned Cows</div>
+            <div className="text-xs font-medium text-slate-500">{t("anomaly.scanned_cows", "Scanned Cows")}</div>
             <div className="mt-2 text-3xl font-bold text-slate-900">
               {isSummaryLoading ? "…" : summary.total_scanned}
             </div>
-            <p className="mt-1 text-xs text-slate-400">Total herd baseline</p>
+            <p className="mt-1 text-xs text-slate-400">{t("anomaly.total_baseline", "Total herd baseline")}</p>
           </div>
 
           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-emerald-800">Normal Patterns</div>
+            <div className="text-xs font-medium text-emerald-800">{t("anomaly.normal_patterns", "Normal Patterns")}</div>
             <div className="mt-2 text-3xl font-bold text-emerald-950">
               {isSummaryLoading ? "…" : summary.normal}
             </div>
-            <p className="mt-1 text-xs text-emerald-700">Expected baseline behavior</p>
+            <p className="mt-1 text-xs text-emerald-700">{t("anomaly.expected_behavior", "Expected baseline behavior")}</p>
           </div>
 
           <div className="rounded-2xl border border-amber-100 bg-amber-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-amber-800">Anomaly Warnings</div>
+            <div className="text-xs font-medium text-amber-800">{t("anomaly.warnings", "Anomaly Warnings")}</div>
             <div className="mt-2 text-3xl font-bold text-amber-950">
               {isSummaryLoading ? "…" : summary.warning}
             </div>
-            <p className="mt-1 text-xs text-amber-700">Moderate behavioral outliers</p>
+            <p className="mt-1 text-xs text-amber-700">{t("anomaly.moderate_outliers", "Moderate behavioral outliers")}</p>
           </div>
 
           <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-rose-800">Critical Anomalies</div>
+            <div className="text-xs font-medium text-rose-800">{t("anomaly.critical", "Critical Anomalies")}</div>
             <div className="mt-2 text-3xl font-bold text-rose-950">
               {isSummaryLoading ? "…" : summary.critical}
             </div>
-            <p className="mt-1 text-xs text-rose-700">High deviation outliers</p>
+            <p className="mt-1 text-xs text-rose-700">{t("anomaly.high_deviation", "High deviation outliers")}</p>
           </div>
         </div>
 
@@ -217,22 +219,22 @@ export default function AnomalyDetectionPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-slate-900">
-                Top Anomalous Cows
+                {t("anomaly.top_cows", "Top Anomalous Cows")}
               </h3>
               <p className="text-xs text-slate-500">
-                Cows showing significant productivity or heat stress deviations
+                {t("anomaly.top_cows_subtitle", "Cows showing significant productivity or heat stress deviations")}
               </p>
             </div>
             <Link to="/cows" className="text-xs font-medium text-sky-600 hover:underline">
-              View Herd →
+              {t("health.view_herd", "View Herd →")}
             </Link>
           </div>
 
           {topCows.length === 0 ? (
             <div className="rounded-xl border border-dashed p-6 text-center text-slate-500">
-              <p className="text-sm font-medium">🌾 No anomalies detected!</p>
+              <p className="text-sm font-medium">🌾 {t("anomaly.no_anomalies", "No anomalies detected!")}</p>
               <p className="text-xs text-slate-400 mt-1">
-                All cow productivity and behavior patterns match normal expectations.
+                {t("anomaly.all_normal", "All cow productivity and behavior patterns match normal expectations.")}
               </p>
             </div>
           ) : (
@@ -303,7 +305,7 @@ export default function AnomalyDetectionPage() {
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-slate-900">
-              Recent Anomaly Detections
+              {t("anomaly.recent", "Recent Anomaly Detections")}
             </h3>
             <div className="flex flex-wrap gap-2">
               <select
@@ -355,13 +357,13 @@ export default function AnomalyDetectionPage() {
               <table className="w-full table-auto">
                 <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                   <tr>
-                    <th className="px-4 py-3.5">Cow</th>
-                    <th className="px-4 py-3.5">Severity</th>
-                    <th className="px-4 py-3.5">Risk Score</th>
-                    <th className="px-4 py-3.5">Issue Tags</th>
-                    <th className="px-4 py-3.5">Detected Date</th>
-                    <th className="px-4 py-3.5">Status</th>
-                    <th className="px-4 py-3.5">Actions</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_cow", "Cow")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_severity", "Severity")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_risk_score", "Risk Score")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_issue_tags", "Issue Tags")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_date", "Detected Date")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_status", "Status")}</th>
+                    <th className="px-4 py-3.5">{t("anomaly.col_actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y text-sm text-slate-700">
@@ -392,12 +394,12 @@ export default function AnomalyDetectionPage() {
                         </td>
                         <td className="px-4 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {(a.issue_tags || []).map((t) => (
+                            {(a.issue_tags || []).map((tag) => (
                               <span
-                                key={t}
+                                key={tag}
                                 className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
                               >
-                                {t}
+                                {tag}
                               </span>
                             ))}
                           </div>
@@ -413,7 +415,7 @@ export default function AnomalyDetectionPage() {
                                 : "bg-sky-100 text-sky-800"
                             }`}
                           >
-                            {a.resolved ? "Resolved" : "Active"}
+                            {a.resolved ? t("anomaly.status_resolved", "Resolved") : t("anomaly.status_active", "Active")}
                           </span>
                         </td>
                         <td className="px-4 py-4">
@@ -423,7 +425,7 @@ export default function AnomalyDetectionPage() {
                               onClick={() => setSelectedRecord(a)}
                               className="rounded-2xl border bg-white px-3 py-1 text-xs text-slate-700 hover:bg-slate-50"
                             >
-                              Details
+                              {t("anomaly.details", "Details")}
                             </button>
                             {!a.resolved ? (
                               <button
@@ -432,7 +434,7 @@ export default function AnomalyDetectionPage() {
                                 disabled={resolveMutation.isPending}
                                 className="rounded-2xl border border-sky-600 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 hover:bg-sky-100"
                               >
-                                Resolve
+                                {t("anomaly.resolve", "Resolve")}
                               </button>
                             ) : null}
                           </div>
@@ -453,40 +455,40 @@ export default function AnomalyDetectionPage() {
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900">
-                Anomaly Details
+                {t("anomaly.anomaly_details", "Anomaly Details")}
               </h3>
               <button
                 type="button"
                 onClick={() => setSelectedRecord(null)}
                 className="text-sm text-slate-500"
               >
-                Close
+                {t("common.close", "Close")}
               </button>
             </div>
 
             <div className="space-y-3 text-sm text-slate-700">
               <div className="rounded-2xl border bg-slate-50 p-4 space-y-2">
                 <div>
-                  <span className="text-xs text-slate-400">Cow: </span>
+                  <span className="text-xs text-slate-400">{t("anomaly.col_cow", "Cow")}: </span>
                   <span className="font-semibold">{getCowDisplayName(selectedRecord.cow_id)}</span>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400">Severity: </span>
+                  <span className="text-xs text-slate-400">{t("anomaly.col_severity", "Severity")}: </span>
                   <span className="font-semibold">{selectedRecord.severity}</span>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400">Score: </span>
+                  <span className="text-xs text-slate-400">{t("anomaly.risk_score", "Score")}: </span>
                   <span className="font-semibold">{Math.round(selectedRecord.anomaly_score * 100)}%</span>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400">Description: </span>
-                  <p className="mt-1 font-medium">{selectedRecord.description || "No description."}</p>
+                  <span className="text-xs text-slate-400">{t("anomaly.description", "Description")}: </span>
+                  <p className="mt-1 font-medium">{selectedRecord.description || t("anomaly.no_description", "No description.")}</p>
                 </div>
               </div>
 
               {selectedRecord.details ? (
                 <div className="rounded-2xl border bg-slate-50 p-4 space-y-1">
-                  <div className="text-xs font-semibold text-slate-500 mb-2">Metrics Snapshot</div>
+                  <div className="text-xs font-semibold text-slate-500 mb-2">{t("anomaly.metrics_snapshot", "Metrics Snapshot")}</div>
                   {Object.entries(selectedRecord.details).map(([k, v]) => (
                     <div key={k} className="flex justify-between text-xs">
                       <span className="text-slate-500">{k}:</span>
@@ -505,7 +507,7 @@ export default function AnomalyDetectionPage() {
                   disabled={resolveMutation.isPending}
                   className="rounded-2xl bg-sky-600 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-700"
                 >
-                  Mark as Resolved
+                  {t("anomaly.mark_resolved", "Mark as Resolved")}
                 </button>
               ) : null}
               <button

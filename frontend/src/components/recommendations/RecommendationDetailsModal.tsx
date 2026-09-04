@@ -11,7 +11,7 @@ export default function RecommendationDetailsModal({
   open?: boolean;
   onClose: () => void;
 }) {
-  if (!open) return null;
+  if (!open || !recommendation) return null;
 
   function getCowDisplayName(rec: Recommendation): string {
     if (rec.cow?.name) return rec.cow.name;
@@ -20,7 +20,8 @@ export default function RecommendationDetailsModal({
     return "Herd / General";
   }
 
-  function getCategoryIcon(cat: string): string {
+  function getCategoryIcon(cat?: string | null): string {
+    if (!cat) return "💡";
     if (cat.includes("Water") || cat.includes("Heat")) return "🚰";
     if (cat.includes("Feed") || cat.includes("Nutrition")) return "🌾";
     if (cat.includes("Veterinary")) return "🩺";
@@ -28,9 +29,11 @@ export default function RecommendationDetailsModal({
     return "💡";
   }
 
-  function formatDate(isoString: string): string {
+  function formatDate(isoString?: string | null): string {
+    if (!isoString) return "—";
     try {
       const d = new Date(isoString);
+      if (isNaN(d.getTime())) return String(isoString);
       return d.toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
@@ -39,19 +42,19 @@ export default function RecommendationDetailsModal({
         minute: "2-digit",
       });
     } catch {
-      return isoString;
+      return String(isoString);
     }
   }
 
-  // Construct intelligent fallback explanation if backend why_reason is not present
   function getWhyExplanation(rec: Recommendation): string {
     if (rec.why_reason && rec.why_reason.trim()) {
       return rec.why_reason;
     }
-    const cat = rec.category.toLowerCase();
+    const cat = (rec.category || "").toLowerCase();
+    const title = (rec.title || "").toLowerCase();
     const cowName = getCowDisplayName(rec);
 
-    if (cat.includes("veterinary") || rec.title.toLowerCase().includes("veterinary")) {
+    if (cat.includes("veterinary") || title.includes("veterinary")) {
       return `The cow (${cowName}) was recorded with an abnormal health condition or temperature elevation during recent monitoring. This may indicate an illness that should be diagnosed promptly.`;
     }
     if (cat.includes("heat")) {
@@ -63,8 +66,11 @@ export default function RecommendationDetailsModal({
     return `Automated farm monitoring identified operational or environmental metrics requiring advisory attention for ${cowName}.`;
   }
 
-  const isHigh = recommendation.priority === "High" || recommendation.priority === "Critical";
-  const isMed = recommendation.priority === "Medium";
+  const priorityVal = recommendation.priority || "Medium";
+  const categoryText = recommendation.category || "General Farm Management";
+  const titleText = recommendation.title || "Advisory Action";
+  const isHigh = priorityVal === "High" || priorityVal === "Critical";
+  const isMed = priorityVal === "Medium";
   const cowDisplayName = getCowDisplayName(recommendation);
   const whyText = getWhyExplanation(recommendation);
 
@@ -75,9 +81,9 @@ export default function RecommendationDetailsModal({
         <div className="flex items-center justify-between border-b px-6 py-5 bg-slate-50/50">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">{getCategoryIcon(recommendation.category)}</span>
+              <span className="text-xl">{getCategoryIcon(categoryText)}</span>
               <h3 className="text-lg font-bold text-slate-900">
-                {recommendation.title}
+                {titleText}
               </h3>
             </div>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -134,8 +140,8 @@ export default function RecommendationDetailsModal({
                 Category
               </div>
               <div className="mt-1.5 text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-                <span>{getCategoryIcon(recommendation.category)}</span>
-                <span>{recommendation.category}</span>
+                <span>{getCategoryIcon(categoryText)}</span>
+                <span>{categoryText}</span>
               </div>
             </div>
 
@@ -153,7 +159,7 @@ export default function RecommendationDetailsModal({
                       : "bg-slate-100 text-slate-700"
                   }`}
                 >
-                  {recommendation.priority} Priority
+                  {priorityVal} Priority
                 </span>
               </div>
             </div>

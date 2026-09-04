@@ -1,11 +1,29 @@
 import api from "./api";
 
+export type FinancialImpact = {
+  currency: string;
+  milk_price_per_liter: number;
+  feed_cost_per_kg: number;
+  delta_milk_liters: number;
+  delta_feed_kg: number;
+  daily_revenue_change: number;
+  daily_feed_cost_change: number;
+  daily_net_benefit: number;
+  monthly_net_benefit: number;
+  using_default_assumptions: boolean;
+  decision_classification: "positive" | "negative" | "near_break_even";
+  explanation_text: string;
+  revenue_per_feed_cost_ratio?: number | null;
+};
+
 export type SimulationInput = {
   temperature_c?: number | null;
   humidity_pct?: number | null;
   feed_quantity_kg?: number | null;
   cooling_intervention_thi_reduction?: number | null;
   body_condition_score?: number | null;
+  override_milk_price_per_liter?: number | null;
+  override_feed_cost_per_kg?: number | null;
 };
 
 export type CowSimulationComparison = {
@@ -40,6 +58,7 @@ export type HerdWhatIfResponse = {
   cow_comparisons: CowSimulationComparison[];
   herd_recommendations: RecommendationItem[];
   extrapolation_warning: boolean;
+  financial_impact?: FinancialImpact | null;
 };
 
 export type CowWhatIfResponse = {
@@ -61,6 +80,7 @@ export type CowWhatIfResponse = {
   explanation_summary: string;
   extrapolation_warning: boolean;
   recommendations: RecommendationItem[];
+  financial_impact?: FinancialImpact | null;
 };
 
 export async function runHerdSimulation(

@@ -20,9 +20,11 @@ import {
   Sparkles,
   GitBranch,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function GeneticsPage() {
   const { currentFarmId } = useAuth();
+  const { t } = useLanguage();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
   const [activeTab, setActiveTab] = useState<"sires" | "cows">("sires");
   const [selectedCow, setSelectedCow] = useState<CowGeneticProfile | null>(null);
@@ -52,7 +54,7 @@ export default function GeneticsPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                Genetics & Breeding Potential
+                {t("genetics.title", "Genetics & Breeding Potential")}
               </h1>
               <span className="flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700 border border-purple-200">
                 <Dna className="h-3.5 w-3.5" />
@@ -60,7 +62,7 @@ export default function GeneticsPage() {
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Sire rankings, herd genetic merit evaluations, pedigree lineage, and breeding potential insights.
+              {t("genetics.subtitle", "Sire rankings, herd genetic merit evaluations, pedigree lineage, and breeding potential insights.")}
             </p>
           </div>
         </div>
@@ -69,7 +71,7 @@ export default function GeneticsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-purple-800 uppercase tracking-wider flex items-center justify-between">
-              <span>Herd Genetic Index</span>
+              <span>{t("genetics.herd_index", "Herd Genetic Index")}</span>
               <Award className="h-4 w-4 text-purple-600" />
             </div>
             <div className="mt-3 flex items-baseline gap-2">
@@ -84,7 +86,7 @@ export default function GeneticsPage() {
 
           <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-between">
-              <span>Pedigree Coverage</span>
+              <span>{t("genetics.pedigree_coverage", "Pedigree Coverage")}</span>
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
             </div>
             <div className="mt-3 flex items-baseline gap-2">
@@ -102,7 +104,7 @@ export default function GeneticsPage() {
 
           <div className="rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center justify-between">
-              <span>Top Sire Line</span>
+              <span>{t("genetics.top_sire", "Top Sire Line")}</span>
               <Sparkles className="h-4 w-4 text-amber-600" />
             </div>
             <div className="mt-3 text-xl font-black text-amber-950 truncate">
@@ -115,7 +117,7 @@ export default function GeneticsPage() {
 
           <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-sky-800 uppercase tracking-wider flex items-center justify-between">
-              <span>Sires Evaluated</span>
+              <span>{t("genetics.sires_evaluated", "Sires Evaluated")}</span>
               <TrendingUp className="h-4 w-4 text-sky-600" />
             </div>
             <div className="mt-3 flex items-baseline gap-2">
@@ -140,7 +142,7 @@ export default function GeneticsPage() {
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
-            Sire Leaderboard & Performance ({sires.length})
+            {t("genetics.sire_leaderboard", "Sire Leaderboard & Performance")} ({sires.length})
           </button>
           <button
             onClick={() => setActiveTab("cows")}
@@ -150,7 +152,7 @@ export default function GeneticsPage() {
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
-            Herd Cow Genetic Profiles ({cowProfiles.length})
+            {t("genetics.cow_profiles", "Herd Cow Genetic Profiles")} ({cowProfiles.length})
           </button>
         </div>
 
@@ -161,10 +163,10 @@ export default function GeneticsPage() {
               <div>
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <Award className="h-4 w-4 text-purple-600" />
-                  Canonical Sire Merit Leaderboard
+                  {t("genetics.canonical_leaderboard", "Canonical Sire Merit Leaderboard")}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Ranks superior dairy bulls based on 305-day lactation yield ratings and genetic merit index.
+                  {t("genetics.leaderboard_desc", "Ranks superior dairy bulls based on 305-day lactation yield ratings and genetic merit index.")}
                 </p>
               </div>
             </div>
@@ -178,13 +180,13 @@ export default function GeneticsPage() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      <th className="pb-3 px-4">Rank</th>
-                      <th className="pb-3 px-4">Sire Name</th>
-                      <th className="pb-3 px-4">Code</th>
-                      <th className="pb-3 px-4">Peak Yield</th>
-                      <th className="pb-3 px-4">Lactation Length</th>
-                      <th className="pb-3 px-4">305-Day Yield Rating</th>
-                      <th className="pb-3 px-4">Genetic Merit Rating</th>
+                      <th className="pb-3 px-4">{t("genetics.col_rank", "Rank")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_sire_name", "Sire Name")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_code", "Code")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_peak_yield", "Peak Yield")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_lactation_length", "Lactation Length")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_305_yield", "305-Day Yield Rating")}</th>
+                      <th className="pb-3 px-4">{t("genetics.col_genetic_merit", "Genetic Merit Rating")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">

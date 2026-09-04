@@ -12,9 +12,15 @@ from app.exceptions import (
     ObservationValidationError,
     WeatherNotFound,
 )
-from app.models import ActivityLog, DailyObservation
+from app.models import ActivityLog, Cow, DailyObservation
 from app.repositories.observation_repository import ObservationRepository
-from app.schemas.observation import ObservationCreate, ObservationUpdate
+from app.schemas.observation import (
+    BulkObservationItem,
+    BulkObservationResponse,
+    BulkRowError,
+    ObservationCreate,
+    ObservationUpdate,
+)
 from app.services.weather_service import WeatherService
 
 logger = logging.getLogger(__name__)
@@ -62,6 +68,97 @@ class ObservationService:
         self._log_activity(user_id, cow_id, "observation.created", f"Created observation {observation.id}")
         self._auto_evaluate_health(user_id, observation)
         return observation
+
+    def create_bulk_observations(
+        self,
+        user_id: str,
+        farm_id: str,
+        items: list[BulkObservationItem],
+    ) -> BulkObservationResponse:
+        """Process bulk observation import for a farm with row-by-row transaction safety."""
+        # 1. Resolve cows belonging strictly to current farm & owner
+        cows = (
+            self.db.query(Cow)
+            .filter(Cow.owner_id == user_id, Cow.farm_id == farm_id)
+            .all()
+        )
+        cow_by_tag: dict[str, Cow] = {c.tag_id.strip().lower(): c for c in cows if c.tag_id}
+
+        errors: list[BulkRowError] = []
+        imported_count = 0
+        failed_count = 0
+        duplicate_count = 0
+
+        for index, item in enumerate(items, start=1):
+            tag_key = item.tag_id.strip().lower() if item.tag_id else ""
+            if not tag_key or tag_key not in cow_by_tag:
+                failed_count += 1
+                errors.append(
+                    BulkRowError(
+                        row=index,
+                        tag_id=item.tag_id,
+                        reason=f"Tag ID '{item.tag_id}' not found in farm",
+                    )
+                )
+                continue
+
+            cow = cow_by_tag[tag_key]
+            obs_date = item.observation_date or date.today()
+
+            # Check duplicate observation for cow + date
+            existing_obs = (
+                self.db.query(DailyObservation)
+                .filter(
+                    DailyObservation.cow_id == cow.id,
+                    DailyObservation.observation_date == obs_date,
+                )
+                .first()
+            )
+            if existing_obs:
+                failed_count += 1
+                duplicate_count += 1
+                errors.append(
+                    BulkRowError(
+                        row=index,
+                        tag_id=item.tag_id,
+                        reason=f"Observation already exists for cow '{item.tag_id}' on date {obs_date}",
+                    )
+                )
+                continue
+
+            payload = ObservationCreate(
+                farm_id=farm_id,
+                cow_id=cow.id,
+                observation_date=obs_date,
+                milk_produced_liters=item.milk_produced_liters,
+                feed_quantity_kg=item.feed_quantity_kg,
+                health_condition=item.health_condition,
+                body_temperature_c=item.body_temperature_c,
+                body_condition_score=item.body_condition_score,
+                notes=item.notes,
+            )
+
+            try:
+                self.create_observation(user_id, payload)
+                imported_count += 1
+            except Exception as exc:
+                self.db.rollback()
+                failed_count += 1
+                errors.append(
+                    BulkRowError(
+                        row=index,
+                        tag_id=item.tag_id,
+                        reason=str(exc),
+                    )
+                )
+
+        return BulkObservationResponse(
+            total_rows=len(items),
+            imported_count=imported_count,
+            failed_count=failed_count,
+            duplicate_count=duplicate_count,
+            errors=errors,
+        )
 
     def _auto_evaluate_health(self, user_id: str, observation: DailyObservation) -> None:
         prediction_id = None

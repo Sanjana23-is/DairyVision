@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     String,
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class FarmSettings(Base):
-    """Stores farm-level localization and display preferences."""
+    """Stores farm-level localization, economic settings, and display preferences."""
 
     __tablename__ = "farm_settings"
 
@@ -52,6 +53,16 @@ class FarmSettings(Base):
         nullable=False,
         default="INR",
         doc="Default currency for the farm.",
+    )
+    milk_price_per_liter: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+        doc="Configured farm milk price per liter.",
+    )
+    feed_cost_per_kg: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+        doc="Configured farm feed cost per kg.",
     )
     timezone: Mapped[str] = mapped_column(
         String(100),

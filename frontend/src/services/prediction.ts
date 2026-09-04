@@ -6,7 +6,10 @@ export type MilkPrediction = {
   observation_id?: string | null;
   predicted_milk_yield: number;
   model_version: string;
-  confidence_score?: number;
+  confidence_score?: number | null;
+  confidence_lower?: number | null;
+  confidence_upper?: number | null;
+  confidence_data_status?: "historical" | "limited_data" | string;
   prediction_timestamp: string;
   owner_id?: string;
 };

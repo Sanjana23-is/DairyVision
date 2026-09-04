@@ -6,7 +6,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
 from app.exceptions import ObservationForbidden, ObservationValidationError
-from app.schemas.observation import ObservationCreate, ObservationResponse, ObservationUpdate
+from app.schemas.observation import (
+    BulkObservationRequest,
+    BulkObservationResponse,
+    ObservationCreate,
+    ObservationResponse,
+    ObservationUpdate,
+)
 from app.services.observation_service import ObservationService
 
 router = APIRouter(prefix="/observations", tags=["observations"])
@@ -28,6 +34,24 @@ def create_observation(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except ObservationForbidden as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
+
+
+@router.post("/bulk", response_model=BulkObservationResponse, status_code=status.HTTP_200_OK)
+def create_bulk_observations(
+    payload: BulkObservationRequest,
+    user_id: str = Depends(get_current_user_id),
+    service: ObservationService = Depends(get_observation_service),
+    db: Session = Depends(get_db),
+) -> BulkObservationResponse:
+    farm_id = payload.farm_id
+    if not farm_id:
+        from app.models import Farm
+        farm = db.query(Farm).filter(Farm.created_by == user_id).first()
+        if not farm:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No farm found for current user")
+        farm_id = farm.id
+
+    return service.create_bulk_observations(user_id, farm_id, payload.items)
 
 
 @router.get("", response_model=list[ObservationResponse])
