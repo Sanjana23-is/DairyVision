@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchCows,
@@ -10,9 +10,9 @@ import {
 } from "@/services/cow";
 import { fetchBreeds } from "@/services/breed";
 import { fetchHealthAlerts } from "@/services/healthAlert";
-import { fetchFarms } from "@/services/farm";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import AddCowDialog from "@/components/cows/AddCowDialog";
 import EditCowDialog from "@/components/cows/EditCowDialog";
 import DeleteCowDialog from "@/components/cows/DeleteCowDialog";
@@ -57,30 +57,23 @@ function errorMessage(error: unknown): string {
 }
 
 export default function CowListPage() {
-  const [searchParams] = useSearchParams();
-  const queryFarmId = searchParams.get("farm_id");
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { currentFarmId, currentFarmName } = useAuth();
-  const farmId = queryFarmId || currentFarmId || localStorage.getItem("current_farm_id");
+  const { t } = useLanguage();
+  const farmId = currentFarmId || localStorage.getItem("current_farm_id");
 
   const [search, setSearch] = useState("");
   const [breedFilter, setBreedFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Cow | null>(null);
   const [deleting, setDeleting] = useState<Cow | null>(null);
-  const [adding, setAdding] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const displayedFarmName = currentFarmName || "Luna Farm";
 
-  const { data: farms = [] } = useQuery({
-    queryKey: ["farms"],
-    queryFn: fetchFarms,
-  });
-
-  const selectedFarmObj = farms.find((f) => f.id === farmId);
-  const displayedFarmName = selectedFarmObj?.name || currentFarmName || "Selected Farm";
-
+  // Data Queries
   const {
     data: cows = [],
     isLoading,
@@ -90,33 +83,38 @@ export default function CowListPage() {
     queryKey: ["cows", farmId],
     queryFn: () => fetchCows(farmId as string),
     enabled: !!farmId,
+    staleTime: 1000 * 30,
+  });
+
+  const { data: breedsList = [] } = useQuery({
+    queryKey: ["breeds"],
+    queryFn: fetchBreeds,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: alerts = [] } = useQuery({
     queryKey: ["healthAlerts", farmId],
     queryFn: () => fetchHealthAlerts({ farm_id: farmId as string }),
     enabled: !!farmId,
-  });
-
-  const { data: breedList = [] } = useQuery({
-    queryKey: ["breeds"],
-    queryFn: fetchBreeds,
+    staleTime: 1000 * 30,
   });
 
   const breedNameById = useMemo(() => {
     const map = new Map<string, string>();
-    breedList.forEach((b) => map.set(b.id, b.canonical_name));
+    breedsList.forEach((b: any) => map.set(b.id, b.name));
     return map;
-  }, [breedList]);
+  }, [breedsList]);
 
-  const breedName = (idOrName?: string) =>
-    idOrName ? (breedNameById.get(idOrName) ?? idOrName) : undefined;
+  const breedName = (b?: string | null) => {
+    if (!b) return null;
+    return breedNameById.get(b) ?? b;
+  };
 
   const filteredCows = useMemo(() => {
+    const queryTerm = search.trim().toLowerCase();
     return cows.filter((cow) => {
-      const queryTerm = search.trim().toLowerCase();
       const matchesSearch = queryTerm
-        ? [cow.name, cow.tag]
+        ? [cow.name, cow.tag, cow.id]
             .filter(Boolean)
             .some((value) => String(value).toLowerCase().includes(queryTerm))
         : true;
@@ -187,10 +185,10 @@ export default function CowListPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-              🐄 Cattle Herd
+              🐄 {t("cows.title", "Cattle Herd")}
             </h1>
             <p className="text-sm text-slate-500">
-              Manage cattle in <strong className="text-slate-800">{displayedFarmName}</strong>.
+              {t("cows.subtitle", "Manage cattle in")} <strong className="text-slate-800">{displayedFarmName}</strong>.
             </p>
           </div>
           <button
@@ -199,49 +197,49 @@ export default function CowListPage() {
               createMut.reset();
               setAdding(true);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Cow</span>
+            <span>{t("cows.add_cow", "Add Cow")}</span>
           </button>
         </div>
 
         {/* Real Metric Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-3xl border border-sky-100 bg-sky-50/40 p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-sky-800 uppercase tracking-wider">Total Cows</div>
-              <div className="mt-1 text-3xl font-black text-sky-950">{cows.length}</div>
-              <p className="mt-1 text-xs text-sky-700">Tracked in farm herd</p>
+              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{t("cows.total_cows", "TOTAL COWS")}</div>
+              <div className="mt-1 text-3xl font-black text-emerald-950">{cows.length}</div>
+              <p className="mt-1 text-xs text-emerald-700">{t("cows.tracked_in_herd", "Tracked in farm herd")}</p>
             </div>
-            <Users className="h-7 w-7 text-sky-600/40" />
+            <Users className="h-7 w-7 text-emerald-600/40" />
           </div>
 
           <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Active Animals</div>
+              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{t("cows.active_animals", "ACTIVE ANIMALS")}</div>
               <div className="mt-1 text-3xl font-black text-emerald-950">{activeCount}</div>
-              <p className="mt-1 text-xs text-emerald-700">In active production</p>
+              <p className="mt-1 text-xs text-emerald-700">{t("cows.in_active_production", "In active production")}</p>
             </div>
             <CheckCircle2 className="h-7 w-7 text-emerald-600/40" />
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg Weight</div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t("cows.avg_weight", "AVG WEIGHT")}</div>
               <div className="mt-1 text-3xl font-black text-slate-900">
                 {avgWeight ? `${avgWeight} kg` : "—"}
               </div>
-              <p className="mt-1 text-xs text-slate-400">Herd weight estimate</p>
+              <p className="mt-1 text-xs text-slate-400">{t("cows.herd_weight_estimate", "Herd weight estimate")}</p>
             </div>
             <Scale className="h-7 w-7 text-slate-400/40" />
           </div>
 
           <div className="rounded-3xl border border-amber-100 bg-amber-50/40 p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-amber-800 uppercase tracking-wider">Active Alerts</div>
+              <div className="text-xs font-bold text-amber-800 uppercase tracking-wider">{t("cows.active_alerts", "ACTIVE ALERTS")}</div>
               <div className="mt-1 text-3xl font-black text-amber-950">{activeAlertsCount}</div>
-              <p className="mt-1 text-xs text-amber-700">Health issues flagged</p>
+              <p className="mt-1 text-xs text-amber-700">{t("cows.health_issues_flagged", "Health issues flagged")}</p>
             </div>
             <AlertTriangle className="h-7 w-7 text-amber-600/40" />
           </div>
@@ -254,17 +252,17 @@ export default function CowListPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search cow name or tag ID..."
-              className="w-full rounded-2xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-sky-500"
+              placeholder={t("cows.search_placeholder", "Search cow name or tag ID...")}
+              className="w-full rounded-2xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
           <select
             value={breedFilter}
             onChange={(e) => setBreedFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">All Breeds</option>
+            <option value="">{t("cows.all_breeds", "All Breeds")}</option>
             {breeds.map((b) => (
               <option key={b} value={b}>
                 {breedName(b)}
@@ -275,9 +273,9 @@ export default function CowListPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">All Statuses</option>
+            <option value="">{t("cows.all_statuses", "All Statuses")}</option>
             <option value="active">Active</option>
             <option value="dry">Dry</option>
             <option value="sick">Sick</option>
@@ -306,22 +304,22 @@ export default function CowListPage() {
                   createMut.reset();
                   setAdding(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-2xl bg-sky-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-sky-700"
+                className="inline-flex items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700"
               >
                 <Plus className="h-4 w-4" />
-                <span>Add Cow</span>
+                <span>{t("cows.add_cow", "Add Cow")}</span>
               </button>
             </div>
           ) : (
             <table className="w-full table-auto">
               <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <tr>
-                  <th className="px-5 py-3.5">Cow / Tag ID</th>
-                  <th className="px-4 py-3.5">Breed</th>
-                  <th className="px-4 py-3.5">Weight</th>
-                  <th className="px-4 py-3.5">Age</th>
-                  <th className="px-4 py-3.5">Status</th>
-                  <th className="px-4 py-3.5 text-right">Action</th>
+                  <th className="px-5 py-3.5">{t("cows.cow_tag_id", "COW / TAG ID")}</th>
+                  <th className="px-4 py-3.5">{t("cows.breed", "BREED")}</th>
+                  <th className="px-4 py-3.5">{t("cows.weight", "WEIGHT")}</th>
+                  <th className="px-4 py-3.5">{t("cows.age", "AGE")}</th>
+                  <th className="px-4 py-3.5">{t("cows.status", "STATUS")}</th>
+                  <th className="px-4 py-3.5 text-right">{t("cows.action", "ACTION")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs text-slate-700">

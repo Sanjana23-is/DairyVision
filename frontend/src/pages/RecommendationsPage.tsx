@@ -14,6 +14,7 @@ import RecommendationsTable from "@/components/recommendations/RecommendationsTa
 import RecommendationDetailsModal from "@/components/recommendations/RecommendationDetailsModal";
 import DeleteRecommendationDialog from "@/components/recommendations/DeleteRecommendationDialog";
 import api from "@/services/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 const categories = [
   "All",
@@ -30,6 +31,7 @@ const completionStates = ["all", "pending", "completed"] as const;
 export default function RecommendationsPage() {
   const { currentFarmId } = useAuth();
   const qc = useQueryClient();
+  const { t } = useLanguage();
   const [category, setCategory] = useState("All");
   const [priority, setPriority] = useState("All");
   const [completion, setCompletion] = useState("pending");
@@ -165,10 +167,10 @@ export default function RecommendationsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">
-              Actionable Herd Recommendations
+              {t("rec.title", "Actionable Herd Recommendations")}
             </h2>
             <p className="text-sm text-slate-500">
-              AI-guided advisory actions for heat stress, ration adjustments, and veterinary care.
+              {t("rec.subtitle", "AI-guided advisory actions for heat stress, ration adjustments, and veterinary care.")}
             </p>
           </div>
           <button
@@ -177,7 +179,7 @@ export default function RecommendationsPage() {
             disabled={generateMutation.isPending}
             className="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 disabled:opacity-50"
           >
-            {generateMutation.isPending ? "Evaluating Herd..." : "💡 Evaluate Herd Recommendations"}
+            {generateMutation.isPending ? t("rec.evaluating", "Evaluating Herd...") : `💡 ${t("rec.evaluate", "Evaluate Herd Recommendations")}`}
           </button>
         </div>
 
@@ -203,35 +205,35 @@ export default function RecommendationsPage() {
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-sky-800">Pending Actions</div>
+            <div className="text-xs font-medium text-sky-800">{t("rec.pending", "Pending Actions")}</div>
             <div className="mt-2 text-3xl font-bold text-sky-950">
               {counts.pending}
             </div>
-            <p className="mt-1 text-xs text-sky-700">Advisory items needing attention</p>
+            <p className="mt-1 text-xs text-sky-700">{t("rec.pending_subtitle", "Advisory items needing attention")}</p>
           </div>
 
           <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-rose-800">High Priority</div>
+            <div className="text-xs font-medium text-rose-800">{t("rec.high_priority", "High Priority")}</div>
             <div className="mt-2 text-3xl font-bold text-rose-950">
               {counts.high}
             </div>
-            <p className="mt-1 text-xs text-rose-700">Urgent health & feed actions</p>
+            <p className="mt-1 text-xs text-rose-700">{t("rec.high_subtitle", "Urgent health & feed actions")}</p>
           </div>
 
           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-sm">
-            <div className="text-xs font-medium text-emerald-800">Completed Actions</div>
+            <div className="text-xs font-medium text-emerald-800">{t("rec.completed", "Completed Actions")}</div>
             <div className="mt-2 text-3xl font-bold text-emerald-950">
               {counts.completed}
             </div>
-            <p className="mt-1 text-xs text-emerald-700">Actioned herd advisories</p>
+            <p className="mt-1 text-xs text-emerald-700">{t("rec.completed_subtitle", "Actioned herd advisories")}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="text-xs font-medium text-slate-500">Total Advisories</div>
+            <div className="text-xs font-medium text-slate-500">{t("rec.total", "Total Advisories")}</div>
             <div className="mt-2 text-3xl font-bold text-slate-900">
               {counts.total}
             </div>
-            <p className="mt-1 text-xs text-slate-400">Total recommendations tracked</p>
+            <p className="mt-1 text-xs text-slate-400">{t("rec.total_subtitle", "Total recommendations tracked")}</p>
           </div>
         </div>
 

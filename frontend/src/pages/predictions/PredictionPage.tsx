@@ -18,10 +18,12 @@ import {
 import PredictionCard from "@/components/predictions/PredictionCard";
 import PredictionListSkeleton from "@/components/predictions/PredictionListSkeleton";
 import { HelpCircle, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PredictionPage() {
   const qc = useQueryClient();
   const { currentFarmId } = useAuth();
+  const { t } = useLanguage();
 
   const {
     data: observations = [],
@@ -137,10 +139,10 @@ export default function PredictionPage() {
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-emerald-600" />
-              Milk Production AI Prediction
+              {t("pred.title", "Milk Production AI Prediction")}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Generate AI-driven daily milk yield forecasts and inspect model feature attributions.
+              {t("pred.subtitle", "Generate AI-driven daily milk yield forecasts and inspect model feature attributions.")}
             </p>
           </div>
         </div>
@@ -171,7 +173,7 @@ export default function PredictionPage() {
             <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 sm:p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-slate-300 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                 <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Select Daily Observation
+                  {t("pred.select_observation", "Select Daily Observation")}
                 </h2>
                 <span className="text-[11px] text-slate-400 font-medium">
                   {observations.length} observations recorded
@@ -192,14 +194,14 @@ export default function PredictionPage() {
               ) : (
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700">
-                    Observation Context:
+                    {t("pred.observation_context", "Observation Context:")}
                   </label>
                   <select
                     className="h-10 w-full rounded-xl border border-slate-200 px-3 text-xs text-slate-900 font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white"
                     value={selected ?? ""}
                     onChange={(e) => setSelected(e.target.value)}
                   >
-                    <option value="">Pick an observation to forecast...</option>
+                    <option value="">{t("pred.pick_observation", "Pick an observation to forecast...")}</option>
                     {observations.map((o: any) => (
                       <option key={o.id} value={o.id}>
                         {o.observation_date} — {cowName(o.cow_id)} (Yield: {o.milk_produced_liters ?? "—"} L)
@@ -217,7 +219,7 @@ export default function PredictionPage() {
                   className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 active:bg-emerald-800 transition disabled:opacity-50 border-0 cursor-pointer"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>{mutation.isPending ? "Generating Forecast..." : "Generate Prediction"}</span>
+                  <span>{mutation.isPending ? t("pred.generating", "Generating Forecast...") : t("pred.generate", "Generate Prediction")}</span>
                 </button>
               </div>
             </div>
@@ -228,15 +230,15 @@ export default function PredictionPage() {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <div className="flex items-center gap-2">
                     <HelpCircle className="h-4 w-4 text-emerald-600" />
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Why this prediction?</h3>
+                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">{t("pred.why_prediction", "Why this prediction?")}</h3>
                   </div>
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
-                    SHAP Attribution
+                    {t("pred.shap_attribution", "SHAP Attribution")}
                   </span>
                 </div>
 
                 <p className="text-[11px] text-slate-500 font-medium leading-tight">
-                  Yield forecast factors derived from herd measurements, feed intake, health, and weather.
+                  {t("pred.shap_subtitle", "Yield forecast factors derived from herd measurements, feed intake, health, and weather.")}
                 </p>
 
                 {/* Plain-Language Narrative */}
@@ -249,12 +251,12 @@ export default function PredictionPage() {
                 {/* Top Influential Factors Horizontal Contribution Visualization */}
                 {isExplainLoading ? (
                   <div className="py-3 text-center text-xs text-slate-400 font-medium">
-                    Calculating model feature importance...
+                    {t("pred.calculating", "Calculating model feature importance...")}
                   </div>
                 ) : topFeatures.length > 0 ? (
                   <div className="space-y-2.5 pt-0.5">
                     <div className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                      Key Influential Factors
+                      {t("pred.key_factors", "Key Influential Factors")}
                     </div>
                     <div className="space-y-2">
                       {topFeatures.map((f: ExplainabilityFeature, idx: number) => {
@@ -306,7 +308,7 @@ export default function PredictionPage() {
                     to={`/explainability?predictionId=${latest.id}`}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900 transition"
                   >
-                    <span>View detailed SHAP explanation</span>
+                    <span>{t("pred.view_shap", "View detailed SHAP explanation")}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
@@ -318,7 +320,7 @@ export default function PredictionPage() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 sm:p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-slate-300 space-y-3">
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2">
-                Latest Prediction Result
+                {t("pred.latest_result", "Latest Prediction Result")}
               </div>
               <div>
                 {latest ? (
@@ -329,7 +331,7 @@ export default function PredictionPage() {
                   />
                 ) : (
                   <div className="rounded-xl border border-slate-100 bg-slate-50 p-5 text-center text-xs text-slate-500 font-medium">
-                    No prediction generated yet. Select an observation to generate your first forecast.
+                    {t("pred.no_prediction", "No prediction generated yet. Select an observation to generate your first forecast.")}
                   </div>
                 )}
               </div>

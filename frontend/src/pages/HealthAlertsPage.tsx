@@ -13,11 +13,13 @@ import { fetchCows } from "@/services/cow";
 import HealthAlertsTable from "@/components/healthAlerts/HealthAlertsTable";
 import HealthAlertDetailsModal from "@/components/healthAlerts/HealthAlertDetailsModal";
 import ResolveHealthAlertDialog from "@/components/healthAlerts/ResolveHealthAlertDialog";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function HealthAlertsPage() {
   const { currentFarmId } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const queryPredictionId = searchParams.get("predictionId");
 
@@ -117,10 +119,10 @@ export default function HealthAlertsPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">
-              Herd Health Overview
+              {t("health.title", "Herd Health Overview")}
             </h2>
             <p className="text-sm text-slate-500">
-              Real-time health status, risk alerts, and herd monitoring.
+              {t("health.subtitle", "Real-time health status, risk alerts, and herd monitoring.")}
             </p>
           </div>
         </div>
@@ -149,78 +151,78 @@ export default function HealthAlertsPage() {
           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-emerald-800">
-                🐄 Healthy
+                🐄 {t("health.healthy", "Healthy")}
               </span>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
-                Normal
+                {t("health.normal", "Normal")}
               </span>
             </div>
             <div className="mt-3 text-3xl font-bold text-emerald-950">
               {isSummaryLoading ? "…" : summary.healthy}
             </div>
             <p className="mt-1 text-xs text-emerald-700">
-              Verified recent health data
+              {t("health.verified_data", "Verified recent health data")}
             </p>
           </div>
 
           <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-amber-800">
-                ⚠️ Warning
+                ⚠️ {t("health.warning", "Warning")}
               </span>
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                Moderate Risk
+                {t("health.moderate_risk", "Moderate Risk")}
               </span>
             </div>
             <div className="mt-3 text-3xl font-bold text-amber-950">
               {isSummaryLoading ? "…" : summary.warning}
             </div>
-            <p className="mt-1 text-xs text-amber-700">Cows require monitoring</p>
+            <p className="mt-1 text-xs text-amber-700">{t("health.cows_monitoring", "Cows require monitoring")}</p>
           </div>
 
           <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-rose-800">
-                🔴 Critical
+                🔴 {t("health.critical", "Critical")}
               </span>
               <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800">
-                Action Required
+                {t("health.action_required", "Action Required")}
               </span>
             </div>
             <div className="mt-3 text-3xl font-bold text-rose-950">
               {isSummaryLoading ? "…" : summary.critical}
             </div>
-            <p className="mt-1 text-xs text-rose-700">High severity health risks</p>
+            <p className="mt-1 text-xs text-rose-700">{t("health.high_severity", "High severity health risks")}</p>
           </div>
 
           <div className="rounded-2xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-sky-800">
-                🩺 Needs Attention
+                🩺 {t("health.needs_attention", "Needs Attention")}
               </span>
               <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800">
-                Total
+                {t("health.total", "Total")}
               </span>
             </div>
             <div className="mt-3 text-3xl font-bold text-sky-950">
               {isSummaryLoading ? "…" : summary.needs_attention}
             </div>
-            <p className="mt-1 text-xs text-sky-700">Warning + Critical cows</p>
+            <p className="mt-1 text-xs text-sky-700">{t("health.warning_critical", "Warning + Critical cows")}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-700">
-                ❓ No Recent Data
+                ❓ {t("health.no_recent", "No Recent Data")}
               </span>
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                Unverified
+                {t("health.unverified", "Unverified")}
               </span>
             </div>
             <div className="mt-3 text-3xl font-bold text-slate-900">
               {isSummaryLoading ? "…" : summary.no_recent_data}
             </div>
-            <p className="mt-1 text-xs text-slate-500">No observation in 14 days</p>
+            <p className="mt-1 text-xs text-slate-500">{t("health.no_observation", "No observation in 14 days")}</p>
           </div>
         </div>
 
@@ -230,10 +232,10 @@ export default function HealthAlertsPage() {
           {/* Health Risk Breakdown Card */}
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <h3 className="text-base font-semibold text-slate-900">
-              Health Risks
+              {t("health.risks", "Health Risks")}
             </h3>
             <p className="text-xs text-slate-500 mb-4">
-              Current active health alert breakdown
+              {t("health.risks_subtitle", "Current active health alert breakdown")}
             </p>
             <div className="space-y-3">
               {riskBreakdown.map((r) => {
@@ -267,25 +269,25 @@ export default function HealthAlertsPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Cows Needing Attention
+                  {t("health.cows_attention", "Cows Needing Attention")}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Cows currently flagged with health alerts
+                  {t("health.cows_attention_subtitle", "Cows currently flagged with health alerts")}
                 </p>
               </div>
               <Link
                 to="/cows"
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
-                View Herd →
+                {t("health.view_herd", "View Herd →")}
               </Link>
             </div>
 
             {attentionCows.length === 0 ? (
               <div className="rounded-xl border border-dashed p-6 text-center text-slate-500">
-                <p className="text-sm font-medium">🌱 All cows look healthy!</p>
+                <p className="text-sm font-medium">🌱 {t("health.all_healthy", "All cows look healthy!")}</p>
                 <p className="text-xs text-slate-400 mt-1">
-                  No cows currently require health attention.
+                  {t("health.no_attention", "No cows currently require health attention.")}
                 </p>
               </div>
             ) : (
@@ -329,7 +331,7 @@ export default function HealthAlertsPage() {
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-slate-900">
-              Recent Health Alerts
+              {t("health.recent_alerts", "Recent Health Alerts")}
             </h3>
             <div className="flex flex-wrap gap-2">
               <select

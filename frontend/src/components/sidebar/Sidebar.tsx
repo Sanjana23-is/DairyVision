@@ -13,50 +13,52 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface NavSection {
-  title: string;
+  titleKey: string;
   items: {
     to: string;
-    label: string;
+    labelKey: string;
     icon: any;
   }[];
 }
 
 const navSections: NavSection[] = [
   {
-    title: "Overview",
-    items: [{ to: "/dashboard", label: "Dashboard", icon: Home }],
+    titleKey: "nav.overview",
+    items: [{ to: "/dashboard", labelKey: "nav.dashboard", icon: Home }],
   },
   {
-    title: "Farm Management",
+    titleKey: "nav.farm_management",
     items: [
-      { to: "/cows", label: "Cows", icon: MousePointer },
-      { to: "/observations", label: "Daily Observations", icon: Calendar },
+      { to: "/cows", labelKey: "nav.cows", icon: MousePointer },
+      { to: "/observations", labelKey: "nav.daily_observations", icon: Calendar },
     ],
   },
   {
-    title: "Animal Intelligence",
+    titleKey: "nav.animal_intelligence",
     items: [
-      { to: "/predictions", label: "Predictions", icon: Gauge },
-      { to: "/health-alerts", label: "Health Alerts", icon: Bell },
-      { to: "/anomalies", label: "Anomaly Detection", icon: Activity },
-      { to: "/recommendations", label: "Recommendations", icon: Repeat },
+      { to: "/predictions", labelKey: "nav.predictions", icon: Gauge },
+      { to: "/health-alerts", labelKey: "nav.health_alerts", icon: Bell },
+      { to: "/anomalies", labelKey: "nav.anomaly_detection", icon: Activity },
+      { to: "/recommendations", labelKey: "nav.recommendations", icon: Repeat },
     ],
   },
   {
-    title: "Analysis & Twin",
+    titleKey: "nav.analysis_twin",
     items: [
-      { to: "/digital-twin", label: "Digital Twin", icon: Layers },
-      { to: "/simulation", label: "What-If Simulation", icon: FlaskConical },
-      { to: "/explainability", label: "Explainability", icon: Sparkles },
-      { to: "/genetics", label: "Genetics", icon: Dna },
+      { to: "/digital-twin", labelKey: "nav.digital_twin", icon: Layers },
+      { to: "/simulation", labelKey: "nav.simulation", icon: FlaskConical },
+      { to: "/explainability", labelKey: "nav.explainability", icon: Sparkles },
+      { to: "/genetics", labelKey: "nav.genetics", icon: Dna },
     ],
   },
 ];
 
 export default function Sidebar() {
   const { currentFarmName } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <div className="w-64 h-screen border-r border-slate-200/80 bg-white px-3 py-5 flex flex-col overflow-y-auto select-none font-sans">
@@ -82,7 +84,7 @@ export default function Sidebar() {
         <span className="text-base">🌾</span>
         <div className="truncate">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 block leading-none">
-            Active Farm
+            {t("status.active_farm", "Active Farm")}
           </span>
           <span className="font-semibold text-slate-900 truncate block mt-0.5">
             {currentFarmName || "No Farm Selected"}
@@ -93,9 +95,9 @@ export default function Sidebar() {
       {/* Navigation Groups */}
       <nav className="flex-1 space-y-4" aria-label="Primary navigation">
         {navSections.map((section) => (
-          <div key={section.title} className="space-y-1">
+          <div key={section.titleKey} className="space-y-1">
             <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              {section.title}
+              {t(section.titleKey)}
             </div>
             <div className="space-y-0.5 mt-1">
               {section.items.map((it) => (
@@ -111,7 +113,7 @@ export default function Sidebar() {
                   }
                 >
                   <it.icon className="h-4 w-4 shrink-0 transition-colors duration-150 text-slate-400 group-hover:text-slate-600" />
-                  <span className="truncate">{it.label}</span>
+                  <span className="truncate">{t(it.labelKey)}</span>
                 </NavLink>
               ))}
             </div>

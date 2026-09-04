@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import StatCard from "@/components/cards/StatCard";
 import MilkProductionChart, { type MilkChartPoint } from "@/components/charts/MilkProductionChart";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   fetchDashboardSummary,
   fetchDashboardTrends,
@@ -17,17 +18,8 @@ import {
   TrendingUp,
   Bell,
   FileText,
-  Thermometer,
-  CloudSun,
   Activity,
   ArrowRight,
-  Sparkles,
-  MousePointer,
-  Gauge,
-  Layers,
-  FlaskConical,
-  Dna,
-  Repeat,
 } from "lucide-react";
 
 function formatTrendLabel(dateString: string) {
@@ -43,15 +35,9 @@ function formatTrendLabel(dateString: string) {
   }
 }
 
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-};
-
 export function DashboardPage() {
   const { user, currentFarmId, currentFarmName } = useAuth();
+  const { t } = useLanguage();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
   const [executiveReportOpen, setExecutiveReportOpen] = useState(false);
   const navigate = useNavigate();
@@ -59,6 +45,13 @@ export function DashboardPage() {
   if (!farmId) {
     return <Navigate to="/select-farm" replace />;
   }
+
+  const getGreetingText = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t("dashboard.good_morning", "Good morning");
+    if (hour < 18) return t("dashboard.good_afternoon", "Good afternoon");
+    return t("dashboard.good_evening", "Good evening");
+  };
 
   // 1. Dashboard Summary Query
   const {
@@ -156,14 +149,14 @@ export function DashboardPage() {
       if (actualMilkToday >= expectedMilkToday) {
         insights.push({
           icon: "🥛",
-          title: "Milk production",
-          text: "Performing on target",
+          title: t("nav.predictions", "Milk production"),
+          text: t("dashboard.performing_target", "Performing on target"),
           link: "/predictions",
         });
       } else {
         insights.push({
           icon: "🥛",
-          title: "Milk production",
+          title: t("nav.predictions", "Milk production"),
           text: "Slightly below expected target",
           link: "/predictions",
         });
@@ -171,7 +164,7 @@ export function DashboardPage() {
     } else {
       insights.push({
         icon: "🥛",
-        title: "Milk production",
+        title: t("nav.predictions", "Milk production"),
         text: `Active herd of ${activeCowCount} cows monitored`,
         link: "/predictions",
       });
@@ -184,15 +177,15 @@ export function DashboardPage() {
     if (thi >= 79) {
       insights.push({
         icon: "🌡️",
-        title: "Thermal conditions",
+        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
         text: "Heat stress alert zone (THI high)",
         link: "/explainability",
       });
     } else {
       insights.push({
         icon: "🌡️",
-        title: "Thermal conditions",
-        text: "THI within comfortable zone",
+        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
+        text: t("dashboard.thi_comfortable", "THI within comfortable zone"),
         link: "/explainability",
       });
     }
@@ -200,46 +193,44 @@ export function DashboardPage() {
     if (activeAlertsCount > 0) {
       insights.push({
         icon: "🐄",
-        title: "Herd health",
-        text: `${activeAlertsCount} ${activeAlertsCount === 1 ? "cow requires" : "cows require"} monitoring`,
+        title: t("dashboard.herd_health", "Herd Health"),
+        text: `${activeAlertsCount} ${t("dashboard.cows_monitoring", "cows require monitoring")}`,
         link: "/health-alerts",
       });
     } else {
       insights.push({
         icon: "🐄",
-        title: "Herd health",
+        title: t("dashboard.herd_health", "Herd Health"),
         text: "All cows pass health checks",
         link: "/health-alerts",
       });
     }
 
     return insights;
-  }, [actualMilkToday, expectedMilkToday, activeCowCount, summary, activeAlertsCount]);
+  }, [actualMilkToday, expectedMilkToday, activeCowCount, summary, activeAlertsCount, t]);
 
   const displayedFarmName = currentFarmName || summary?.farm?.name || "Luna Farm";
   const displayedUserName = user?.full_name || "Farm Manager";
 
   const temp = summary?.todays_weather?.temperature ?? 26.0;
   const humidity = summary?.todays_weather?.humidity ?? 60.0;
-  const thiValue = summary?.todays_weather?.thi ?? ((1.8 * temp + 32.0) - ((0.55 - 0.0055 * humidity) * (1.8 * temp - 26.0)));
-  const thiStatus = thiValue >= 79 ? "Heat Stress" : thiValue >= 72 ? "Mild Stress" : "Comfortable";
 
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-12 select-none">
         
-        {/* ================================================== */}
-        {/* SECTION 1 — FARM INTELLIGENCE (UNTOUCHED)         */}
-        {/* ================================================== */}
+        {/* SECTION 1 — FARM INTELLIGENCE */}
         <section className="space-y-6">
           {/* Header & Greeting */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {getGreeting()}, {displayedUserName} 👋
+                {getGreetingText()}, {displayedUserName} 👋
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Here's what's happening at <strong className="text-slate-800 font-bold">{displayedFarmName}</strong> today.
+                {t("dashboard.heres_happening", "Here's what's happening at")}{" "}
+                <strong className="text-slate-800 font-bold">{displayedFarmName}</strong>{" "}
+                {t("dashboard.today", "today.")}
               </p>
             </div>
 
@@ -250,7 +241,7 @@ export function DashboardPage() {
                 className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/90 bg-emerald-50/70 px-4 py-2.5 text-xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200"
               >
                 <FileText className="h-4 w-4 text-emerald-600" />
-                <span>Executive Report & Export</span>
+                <span>{t("dashboard.executive_report", "Executive Report & Export")}</span>
               </button>
             </div>
           </div>
@@ -269,39 +260,39 @@ export function DashboardPage() {
               {/* Four KPI Cards */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
-                  title="TOTAL COWS"
+                  title={t("dashboard.total_cows", "TOTAL COWS")}
                   value={activeCowCount}
-                  delta="Active herd in workspace"
+                  delta={t("dashboard.active_herd", "Active herd in workspace")}
                   icon={<Users className="h-5 w-5" />}
                   onClick={() => navigate("/cows")}
                 />
 
                 <StatCard
-                  title="MILK PRODUCED TODAY"
+                  title={t("dashboard.milk_today", "MILK PRODUCED TODAY")}
                   value={`${actualMilkToday.toFixed(1)} L`}
-                  delta="Today's actual yield"
+                  delta={t("dashboard.today_actual", "Today's actual yield")}
                   icon={<Droplet className="h-5 w-5" />}
                   onClick={() => navigate("/observations")}
                 />
 
                 <StatCard
-                  title="EXPECTED YIELD TODAY"
+                  title={t("dashboard.expected_yield", "EXPECTED YIELD TODAY")}
                   value={`${expectedMilkToday.toFixed(1)} L`}
-                  delta="AI model yield target"
+                  delta={t("dashboard.ai_yield_target", "AI model yield target")}
                   icon={<TrendingUp className="h-5 w-5" />}
                   onClick={() => navigate("/predictions")}
                 />
 
                 <StatCard
-                  title="ACTIVE HEALTH ALERTS"
+                  title={t("dashboard.active_alerts", "ACTIVE HEALTH ALERTS")}
                   value={activeAlertsCount}
-                  delta={activeAlertsCount > 0 ? `${activeAlertsCount} require attention` : "All checks normal"}
+                  delta={activeAlertsCount > 0 ? `${activeAlertsCount} ${t("dashboard.require_attention", "require attention")}` : t("status.normal", "Normal")}
                   icon={<Bell className="h-5 w-5" />}
                   onClick={() => navigate("/health-alerts")}
                 />
               </div>
 
-              {/* Milk Production Overview (Visual Hero) & Live Farm Insights */}
+              {/* Milk Production Overview & Live Farm Insights */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 {/* Visual Hero Chart (8 cols) */}
                 <div className="lg:col-span-8">
@@ -316,11 +307,11 @@ export function DashboardPage() {
                         <Activity className="h-4 w-4" />
                       </div>
                       <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                        LIVE FARM INSIGHTS
+                        {t("dashboard.live_insights", "LIVE FARM INSIGHTS")}
                       </h2>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      Real-time AI monitoring & thermal conditions
+                      {t("dashboard.realtime_monitoring", "Real-time AI monitoring & thermal conditions")}
                     </p>
 
                     <div className="mt-5 space-y-3">
@@ -358,252 +349,16 @@ export function DashboardPage() {
             </>
           )}
         </section>
-
-        {/* ================================================== */}
-        {/* SECTION 2 — FARM ENVIRONMENT, ACTIONS & WORKSPACE */}
-        {/* Realistic Agricultural Photographic Atmosphere     */}
-        {/* ================================================== */}
-        <section className="relative w-full rounded-3xl pt-8 pb-10 px-6 sm:px-8 space-y-8 transition-all duration-300 overflow-hidden">
-          
-          {/* Realistic Dairy Farm Pasture Photography Background Layer */}
-          <div
-            className="absolute -top-24 inset-x-0 bottom-0 bg-cover bg-center bg-no-repeat opacity-[0.28] saturate-[0.85] pointer-events-none z-0"
-            style={{
-              backgroundImage: `url('/images/dairy_farm_pasture_bg.jpg')`,
-            }}
-          />
-
-          {/* Soft White & Warm Fade Overlays at top and across background */}
-          <div className="absolute -top-24 inset-x-0 bottom-0 bg-gradient-to-b from-slate-50/95 via-slate-50/75 to-slate-50/90 pointer-events-none z-0" />
-          <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-slate-50 via-slate-50/90 to-transparent pointer-events-none z-0" />
-
-          <div className="relative z-10 space-y-8">
-            
-            {/* Section 2 Header */}
-            <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-                FARM ENVIRONMENT & ACTIONS
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
-                Live Environmental Monitoring & AI Guidance
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-                Real-time thermal metrics, active health risks, and intelligent action recommendations.
-              </p>
-            </div>
-
-            {/* Farm Environment Panel (Crisp White Card Surface) */}
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <CloudSun className="h-5 w-5 text-emerald-600" />
-                    FARM ENVIRONMENT
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Live conditions at {displayedFarmName}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-100">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  LIVE METRICS
-                </span>
-              </div>
-
-              {/* Real Environmental Metrics Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-1">
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-emerald-300 hover:shadow-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                    <Thermometer className="h-4 w-4 text-amber-600" />
-                    <span>Temperature</span>
-                  </div>
-                  <div className="mt-2.5 text-2xl font-black text-slate-900">{temp.toFixed(1)}°C</div>
-                </div>
-
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-emerald-300 hover:shadow-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                    <CloudSun className="h-4 w-4 text-sky-600" />
-                    <span>Humidity</span>
-                  </div>
-                  <div className="mt-2.5 text-2xl font-black text-slate-900">{humidity.toFixed(0)}%</div>
-                </div>
-
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-emerald-300 hover:shadow-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                    <Activity className="h-4 w-4 text-purple-600" />
-                    <span>THI Status</span>
-                  </div>
-                  <div className="mt-2.5 text-xl font-black text-slate-900 truncate">{thiStatus}</div>
-                </div>
-
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:border-emerald-300 hover:shadow-xs">
-                  <div className="flex items-center gap-1.5 text-slate-600 font-bold">
-                    <Users className="h-4 w-4 text-emerald-600" />
-                    <span>Active Cows</span>
-                  </div>
-                  <div className="mt-2.5 text-2xl font-black text-slate-900">{activeCowCount}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Health Alerts & AI Action Recommendations Grid */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              
-              {/* Active Health Alerts Card */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Bell className="h-4 w-4 text-amber-500" />
-                    Active Health Alerts ({healthAlerts.length})
-                  </h3>
-                  <Link
-                    to="/health-alerts"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900"
-                  >
-                    <span>View All</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-
-                {healthAlerts.length === 0 ? (
-                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-5 text-center text-xs font-bold text-emerald-900">
-                    ✓ All cows passed health & thermal stress evaluation.
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {healthAlerts.slice(0, 3).map((alert) => (
-                      <div
-                        key={alert.id}
-                        onClick={() => navigate("/health-alerts")}
-                        className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 text-xs hover:bg-white hover:border-emerald-300 hover:shadow-xs transition-all duration-200 cursor-pointer"
-                      >
-                        <div>
-                          <div className="font-bold text-slate-900 group-hover:text-emerald-950 transition-colors">
-                            {alert.alert_type}
-                          </div>
-                          <div className="text-slate-500 mt-0.5">
-                            {alert.description || "Health check alert"}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 font-extrabold text-[11px] ${
-                              alert.alert_level === "Critical"
-                                ? "bg-rose-100 text-rose-800"
-                                : alert.alert_level === "Warning"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-emerald-100 text-emerald-800"
-                            }`}
-                          >
-                            {alert.alert_level}
-                          </span>
-                          <ArrowRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* AI Action Recommendations Card */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-emerald-600" />
-                      What should you do next?
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">AI Action Recommendations</p>
-                  </div>
-                  <Link
-                    to="/recommendations"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900"
-                  >
-                    <span>View All</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-
-                {!summary?.recent_recommendations || summary.recent_recommendations.length === 0 ? (
-                  <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-5 text-center text-xs text-slate-500 font-medium">
-                    No active recommendations generated yet.
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {summary.recent_recommendations.slice(0, 3).map((rec, idx) => (
-                      <div
-                        key={rec.id}
-                        onClick={() => navigate("/recommendations")}
-                        className="group flex items-start justify-between rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 text-xs hover:bg-white hover:border-emerald-300 hover:shadow-xs transition-all duration-200 cursor-pointer"
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-[11px] font-extrabold text-emerald-900">
-                            0{idx + 1}
-                          </span>
-                          <div>
-                            <div className="font-bold text-slate-900 group-hover:text-emerald-950 transition-colors">
-                              {rec.title}
-                            </div>
-                            <div className="text-slate-600 mt-0.5 leading-snug">
-                              {rec.description}
-                            </div>
-                          </div>
-                        </div>
-
-                        <ArrowRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 shrink-0 mt-1" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Access Workspace Tiles */}
-            <div className="space-y-3 pt-2">
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
-                QUICK ACCESS WORKSPACE TILES
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-                {[
-                  { label: "Cows", icon: MousePointer, to: "/cows" },
-                  { label: "Predictions", icon: Gauge, to: "/predictions" },
-                  { label: "Alerts", icon: Bell, to: "/health-alerts" },
-                  { label: "Digital Twin", icon: Layers, to: "/digital-twin" },
-                  { label: "Simulation", icon: FlaskConical, to: "/simulation" },
-                  { label: "Explainability", icon: Sparkles, to: "/explainability" },
-                  { label: "Genetics", icon: Dna, to: "/genetics" },
-                  { label: "Recommendations", icon: Repeat, to: "/recommendations" },
-                ].map((tile) => (
-                  <button
-                    key={tile.to}
-                    type="button"
-                    onClick={() => navigate(tile.to)}
-                    className="group flex flex-col items-center justify-center rounded-xl border border-slate-200/90 bg-white p-3 text-center shadow-2xs hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-xs transition-all duration-200"
-                  >
-                    <tile.icon className="h-4 w-4 text-slate-600 group-hover:text-emerald-600 transition-colors" />
-                    <span className="mt-1.5 text-[11px] font-bold text-slate-800 group-hover:text-emerald-950 transition-colors truncate w-full">
-                      {tile.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Executive Report Modal */}
-        <ExecutiveReportModal
-          open={executiveReportOpen}
-          farmId={farmId}
-          summary={summary}
-          trends={trends}
-          healthAlerts={healthAlerts}
-          onClose={() => setExecutiveReportOpen(false)}
-        />
       </div>
+
+      {/* Executive Report Modal */}
+      <ExecutiveReportModal
+        open={executiveReportOpen}
+        onClose={() => setExecutiveReportOpen(false)}
+        farmId={farmId}
+        summary={summary}
+        healthAlerts={healthAlerts}
+      />
     </DashboardLayout>
   );
 }

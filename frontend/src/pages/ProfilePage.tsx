@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { LANGUAGE_OPTIONS, SupportedLanguage } from "@/i18n/translations";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { User, Shield, Building, LogOut, ArrowLeft, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Shield, Building, LogOut, ArrowLeft, Save, CheckCircle2, AlertCircle, Globe } from "lucide-react";
 
 export function ProfilePage() {
   const { user, currentFarmName, logout, updateUserProfile } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,7 +35,7 @@ export function ProfilePage() {
 
     try {
       await updateUserProfile(fullName.trim());
-      setFeedback({ type: "success", message: "Profile name updated successfully!" });
+      setFeedback({ type: "success", message: "Profile updated successfully!" });
     } catch (err: any) {
       setFeedback({
         type: "error",
@@ -41,8 +45,6 @@ export function ProfilePage() {
       setIsSubmitting(false);
     }
   };
-
-  const queryClient = useQueryClient();
 
   const handleSignOut = () => {
     queryClient.clear();
@@ -151,6 +153,30 @@ export function ProfilePage() {
                 </p>
               </div>
 
+              {/* Language Preference Field */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="block font-bold text-slate-700">
+                  Language Preference
+                </label>
+                <div className="relative">
+                  <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-emerald-600 pointer-events-none" />
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                    className="h-11 w-full rounded-xl border border-slate-200 pl-10 pr-3.5 text-xs text-slate-900 font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white"
+                  >
+                    {LANGUAGE_OPTIONS.map((opt) => (
+                      <option key={opt.code} value={opt.code}>
+                        {opt.flag} {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  Select your preferred language for navigation, buttons, and AI explainability labels.
+                </p>
+              </div>
+
               {/* Active Workspace Info */}
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4 space-y-1">
                 <div className="flex items-center gap-2 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
@@ -183,7 +209,7 @@ export function ProfilePage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 active:bg-emerald-800 transition disabled:opacity-50 border-0 cursor-pointer"
               >
                 <Save className="h-4 w-4" />
-                <span>{isSubmitting ? "Saving Changes..." : "Save Changes"}</span>
+                <span>{t("action.save_changes", "Save Changes")}</span>
               </button>
 
               <button
@@ -192,7 +218,7 @@ export function ProfilePage() {
                 className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
+                <span>{t("action.sign_out", "Sign Out")}</span>
               </button>
             </div>
           </form>

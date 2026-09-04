@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, User, ChevronDown, Check, Plus, LogOut, UserCheck } from "lucide-react";
+import { Bell, User, ChevronDown, Check, Plus, LogOut, UserCheck, Globe } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { LANGUAGE_OPTIONS } from "@/i18n/translations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFarms, Farm, createFarm } from "@/services/farm";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
 
 export default function Navbar() {
   const { user, currentFarmId, currentFarmName, setCurrentFarm, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [isFarmOpen, setIsFarmOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -20,6 +24,7 @@ export default function Navbar() {
       if (e.key === "Escape") {
         setIsFarmOpen(false);
         setIsUserMenuOpen(false);
+        setIsLangOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -63,9 +68,10 @@ export default function Navbar() {
   };
 
   const initialLetter = user?.full_name ? user.full_name.charAt(0).toUpperCase() : null;
+  const activeLangOption = LANGUAGE_OPTIONS.find((l) => l.code === language) || LANGUAGE_OPTIONS[0];
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 select-none border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-30">
+    <div className="flex items-center justify-between px-6 py-3 select-none border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-30 font-sans">
       {/* Farm Selector Dropdown */}
       <div className="flex items-center gap-4">
         <div className="relative">
@@ -73,13 +79,14 @@ export default function Navbar() {
             type="button"
             onClick={() => {
               setIsUserMenuOpen(false);
+              setIsLangOpen(false);
               setIsFarmOpen(!isFarmOpen);
             }}
             className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-800 shadow-2xs hover:border-emerald-300 hover:bg-slate-50 transition"
           >
             <span>🌾</span>
             <span className="max-w-[180px] truncate">
-              {currentFarmName ?? "Select Farm"}
+              {currentFarmName ?? t("action.select_farm", "Select Farm")}
             </span>
             <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${isFarmOpen ? "rotate-180" : ""}`} />
           </button>
@@ -137,8 +144,58 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Right User Profile Bar */}
-      <div className="flex items-center gap-4">
+      {/* Right Actions & User Profile Bar */}
+      <div className="flex items-center gap-3">
+        {/* Language Switcher Dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setIsFarmOpen(false);
+              setIsUserMenuOpen(false);
+              setIsLangOpen(!isLangOpen);
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:border-emerald-300 hover:bg-slate-50 transition shadow-2xs"
+            title="Switch Language"
+          >
+            <Globe className="h-3.5 w-3.5 text-emerald-600" />
+            <span>{activeLangOption.code.toUpperCase()}</span>
+            <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${isLangOpen ? "rotate-180 text-emerald-600" : ""}`} />
+          </button>
+
+          {isLangOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
+              <div className="absolute right-0 top-11 z-50 w-44 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl text-xs space-y-0.5 select-none">
+                <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Select Language
+                </div>
+                {LANGUAGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => {
+                      setLanguage(opt.code);
+                      setIsLangOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-left font-semibold transition ${
+                      language === opt.code
+                        ? "bg-emerald-50 text-emerald-900 font-bold"
+                        : "text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{opt.flag}</span>
+                      <span>{opt.label}</span>
+                    </span>
+                    {language === opt.code && <Check className="h-3.5 w-3.5 text-emerald-600" />}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
         {/* Notification Icon */}
         <button
           type="button"
@@ -151,7 +208,7 @@ export default function Navbar() {
         </button>
 
         {/* User Account Popover Dropdown */}
-        <div className="relative border-l border-slate-200 pl-4">
+        <div className="relative border-l border-slate-200 pl-3">
           <button
             type="button"
             tabIndex={0}
@@ -159,6 +216,7 @@ export default function Navbar() {
             aria-expanded={isUserMenuOpen}
             onClick={() => {
               setIsFarmOpen(false);
+              setIsLangOpen(false);
               setIsUserMenuOpen(!isUserMenuOpen);
             }}
             className="group flex items-center gap-2.5 rounded-full p-1 transition-all duration-150 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
@@ -191,7 +249,7 @@ export default function Navbar() {
                     {initialLetter || <User className="h-5 w-5 text-emerald-600" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-extrabold text-slate-900 truncate">
+                    <p className="font-bold text-slate-900 truncate">
                       {user?.full_name || "Farm Manager"}
                     </p>
                     <p className="text-[11px] text-slate-500 truncate font-medium mt-0.5">
@@ -210,7 +268,7 @@ export default function Navbar() {
                   className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left font-bold text-slate-700 hover:bg-emerald-50/70 hover:text-emerald-800 transition duration-150"
                 >
                   <UserCheck className="h-4 w-4 text-emerald-600" />
-                  <span>Profile & Account</span>
+                  <span>{t("action.profile", "Profile & Account")}</span>
                 </button>
 
                 <div className="border-t border-slate-100" />
@@ -223,7 +281,7 @@ export default function Navbar() {
                   className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left font-bold text-rose-600 hover:bg-rose-50 transition duration-150"
                 >
                   <LogOut className="h-4 w-4 text-rose-500" />
-                  <span>Sign Out</span>
+                  <span>{t("action.sign_out", "Sign Out")}</span>
                 </button>
               </div>
             </>

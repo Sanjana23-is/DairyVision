@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 import { TrendingUp, Calendar } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type MilkChartPoint = {
   date: string;
@@ -84,11 +85,12 @@ export default function MilkProductionChart({
   points: MilkChartPoint[];
 }) {
   const [range, setRange] = useState<7 | 30>(7);
+  const { t } = useLanguage();
 
   const displayedPoints = points.slice(-range);
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow duration-200">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow duration-200 font-sans">
       {/* Header Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
         <div>
@@ -97,11 +99,11 @@ export default function MilkProductionChart({
               <TrendingUp className="h-4 w-4" />
             </div>
             <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              Milk Production Overview
+              {t("dashboard.milk_overview", "Milk Production Overview")}
             </h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Actual daily output vs AI-predicted yield targets
+            {t("dashboard.actual_vs_predicted", "Actual daily output vs AI-predicted yield targets")}
           </p>
         </div>
 
@@ -209,7 +211,7 @@ export default function MilkProductionChart({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
         <div className="flex items-center gap-1.5">
           <Calendar className="h-3.5 w-3.5 text-slate-400" />
-          <span>Showing last <strong className="text-slate-800">{displayedPoints.length} days</strong></span>
+          <span>{t("dashboard.showing_last", "Showing last")} <strong className="text-slate-800">{displayedPoints.length} {t("dashboard.days", "days")}</strong></span>
         </div>
         <div className="flex flex-wrap gap-4 text-xs">
           {displayedPoints.slice(-4).map((p) => (

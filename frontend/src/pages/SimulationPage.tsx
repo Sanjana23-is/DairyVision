@@ -28,6 +28,7 @@ import {
   FileText,
   Coins,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact: FinancialImpact; isHerd?: boolean; cowsCount?: number }) {
   const isPositive = impact.decision_classification === "positive";
@@ -150,6 +151,7 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
 
 export default function SimulationPage() {
   const { currentFarmId } = useAuth();
+  const { t } = useLanguage();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
 
   // Mode Switcher state: 'cow' | 'herd'
@@ -288,15 +290,15 @@ export default function SimulationPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                What-If & Scenario Simulation
+                {t("sim.title", "What-If & Scenario Simulation")}
               </h1>
               <span className="flex items-center gap-1 rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700 border border-sky-200">
                 <FlaskConical className="h-3.5 w-3.5" />
-                Read-Only Sandbox
+                {t("sim.sandbox", "Read-Only Sandbox")}
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Simulate environmental stress, feed ration adjustments, and cooling interventions with transparent financial impact.
+              {t("sim.subtitle", "Simulate environmental stress, feed ration adjustments, and cooling interventions with transparent financial impact.")}
             </p>
           </div>
 
@@ -311,7 +313,7 @@ export default function SimulationPage() {
               }`}
             >
               <User className="h-4 w-4 text-sky-600" />
-              🐄 Individual Cow
+              🐄 {t("sim.individual_cow", "Individual Cow")}
             </button>
             <button
               onClick={() => setMode("herd")}
@@ -322,7 +324,7 @@ export default function SimulationPage() {
               }`}
             >
               <Users className="h-4 w-4 text-sky-600" />
-              🐄🐄 Herd
+              🐄🐄 {t("sim.herd", "Herd")}
             </button>
           </div>
         </div>
@@ -358,32 +360,32 @@ export default function SimulationPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
             <Sparkles className="h-4 w-4 text-sky-600" />
-            Quick Presets:
+            {t("sim.quick_presets", "Quick Presets:")}
           </span>
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={applyHeatwavePreset}
               className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-bold text-rose-800 transition hover:bg-rose-100"
             >
-              ☀️ Severe Heatwave (+36°C)
+              ☀️ {t("sim.severe_heatwave", "Severe Heatwave (+36°C)")}
             </button>
             <button
               onClick={applyCoolingPreset}
               className="rounded-xl border border-sky-200 bg-sky-50 px-3.5 py-1.5 text-xs font-bold text-sky-800 transition hover:bg-sky-100"
             >
-              ❄️ Active Cooling (-6 THI)
+              ❄️ {t("sim.active_cooling", "Active Cooling (-6 THI)")}
             </button>
             <button
               onClick={applyOptimizedFeedPreset}
               className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
             >
-              🌾 High-Energy Ration (+4kg)
+              🌾 {t("sim.high_energy_ration", "High-Energy Ration (+4kg)")}
             </button>
             <button
               onClick={resetBaseline}
               className="rounded-xl border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
             >
-              🔄 Reset Baseline
+              🔄 {t("sim.reset_baseline", "Reset Baseline")}
             </button>
           </div>
         </div>
@@ -394,11 +396,11 @@ export default function SimulationPage() {
           <div className="lg:col-span-5 space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="border-b border-slate-100 pb-4">
               <h3 className="text-base font-bold text-slate-900">
-                Scenario Control Panel
+                {t("sim.scenario_panel", "Scenario Control Panel")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 {mode === "cow"
-                  ? "Select an individual cow and adjust scenario parameters."
+                  ? t("sim.scenario_panel_desc", "Select an individual cow and adjust scenario parameters.")
                   : "Adjust environmental and feeding sliders for herd simulation."}
               </p>
             </div>
@@ -408,7 +410,7 @@ export default function SimulationPage() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <User className="h-4 w-4 text-sky-600" />
-                  Select Subject Cow
+                  {t("sim.select_cow", "Select Subject Cow")}
                 </label>
                 <select
                   value={selectedCowId}
@@ -433,7 +435,7 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Thermometer className="h-4 w-4 text-rose-500" />
-                  Ambient Temperature (°C)
+                  {t("sim.ambient_temp", "Ambient Temperature (°C)")}
                 </label>
                 <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {temperature}°C
@@ -455,7 +457,7 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Droplets className="h-4 w-4 text-sky-500" />
-                  Relative Humidity (%)
+                  {t("sim.relative_humidity", "Relative Humidity (%)")}
                 </label>
                 <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {humidity}%
@@ -477,7 +479,7 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Wheat className="h-4 w-4 text-amber-500" />
-                  Daily Feed Ration (kg/cow)
+                  {t("sim.feed_ration", "Daily Feed Ration (kg/cow)")}
                 </label>
                 <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   {feed} kg
@@ -499,7 +501,7 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Fan className="h-4 w-4 text-emerald-500" />
-                  Cooling THI Reduction (-THI)
+                  {t("sim.cooling_reduction", "Cooling THI Reduction (-THI)")}
                 </label>
                 <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg">
                   -{coolingReduction} THI
@@ -521,7 +523,7 @@ export default function SimulationPage() {
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5 cursor-pointer">
                   <Coins className="h-4 w-4 text-emerald-600" />
-                  Override Scenario Prices (₹)
+                  {t("sim.override_prices", "Override Scenario Prices (₹)")}
                 </label>
                 <input
                   type="checkbox"
@@ -568,12 +570,12 @@ export default function SimulationPage() {
               {isLoading ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  Simulating Scenario…
+                  {t("sim.simulating", "Simulating Scenario…")}
                 </>
               ) : (
                 <>
                   <FlaskConical className="h-4 w-4" />
-                  Recalculate Scenario Impact
+                  {t("sim.recalculate", "Recalculate Scenario Impact")}
                 </>
               )}
             </button>
@@ -584,8 +586,8 @@ export default function SimulationPage() {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-12 text-center h-full min-h-[400px]">
                 <RefreshCw className="h-8 w-8 animate-spin text-sky-600 mb-3" />
-                <h4 className="text-base font-bold text-slate-800">Calculating Digital Twin Scenario…</h4>
-                <p className="text-xs text-slate-500">Evaluating milk yield delta, thermal stress, and financial impact.</p>
+                <h4 className="text-base font-bold text-slate-800">{t("sim.calculating", "Calculating Digital Twin Scenario…")}</h4>
+                <p className="text-xs text-slate-500">{t("sim.calculating_desc", "Evaluating milk yield delta, thermal stress, and financial impact.")}</p>
               </div>
             ) : mode === "cow" && cowResult ? (
               <>

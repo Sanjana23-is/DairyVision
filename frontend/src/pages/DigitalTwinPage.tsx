@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { fetchHerdDigitalTwin, HerdDigitalTwin, CowDigitalTwin } from "@/services/digitalTwin";
 import DigitalTwinCowCard from "@/components/digitalTwin/DigitalTwinCowCard";
 import { AlertTriangle, Layers, RefreshCw, SortAsc } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 
 type FilterType = "all" | "attention" | "critical" | "heat";
@@ -12,6 +13,7 @@ type SortType = "vitality_asc" | "vitality_desc" | "yield_desc" | "name";
 
 export default function DigitalTwinPage() {
   const { currentFarmId } = useAuth();
+  const { t } = useLanguage();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
   const [selectedCowId, setSelectedCowId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<FilterType>("all");
@@ -76,15 +78,15 @@ export default function DigitalTwinPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                Digital Twin
+                {t("twin.title", "Digital Twin")}
               </h1>
               <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Real-Time Live
+                {t("twin.realtime", "Real-Time Live")}
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Dynamic AI representation combining observations, predictions, health, weather, feed, and key production drivers.
+              {t("twin.subtitle", "Dynamic AI representation combining observations, predictions, health, weather, feed, and key production drivers.")}
             </p>
           </div>
 
@@ -95,7 +97,7 @@ export default function DigitalTwinPage() {
               className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin text-sky-600" : "text-slate-500"}`} />
-              {isRefetching ? "Updating..." : "Refresh Herd State"}
+              {isRefetching ? t("twin.updating", "Updating...") : t("twin.refresh", "Refresh Herd State")}
             </button>
           </div>
         </div>
@@ -109,10 +111,10 @@ export default function DigitalTwinPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-amber-950">
-                  {attentionCount} {attentionCount === 1 ? "Cow Requires" : "Cows Require"} Immediate Monitoring
+                  {attentionCount} {attentionCount === 1 ? t("twin.cow_requires", "Cow Requires") : t("twin.cows_require", "Cows Require")} Immediate Monitoring
                 </h4>
                 <p className="text-xs text-amber-800">
-                  Flagged due to active health warnings, critical risk status, or high ambient heat stress.
+                  {t("twin.flagged_reason", "Flagged due to active health warnings, critical risk status, or high ambient heat stress.")}
                 </p>
               </div>
             </div>
@@ -120,7 +122,7 @@ export default function DigitalTwinPage() {
               onClick={() => setFilterCategory("attention")}
               className="rounded-xl bg-amber-900 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-amber-950"
             >
-              Filter Flagged Cows
+              {t("twin.filter_flagged", "Filter Flagged Cows")}
             </button>
           </div>
         )}
@@ -129,22 +131,22 @@ export default function DigitalTwinPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-sky-800 uppercase tracking-wider">
-              Herd Vitality Index
+              {t("twin.vitality_index", "Herd Vitality Index")}
             </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-3xl font-black text-sky-950">
                 {isLoading ? "…" : `${herdSummary?.average_vitality_score.toFixed(0)}%`}
               </span>
-              <span className="text-xs font-semibold text-sky-700">Herd Avg</span>
+              <span className="text-xs font-semibold text-sky-700">{t("twin.herd_avg", "Herd Avg")}</span>
             </div>
             <p className="mt-1 text-xs text-sky-700">
-              Overall health & environmental comfort
+              {t("twin.vitality_subtitle", "Overall health & environmental comfort")}
             </p>
           </div>
 
           <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-              Daily Milk Production
+              {t("twin.daily_milk", "Daily Milk Production")}
             </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-3xl font-black text-emerald-950">
@@ -155,13 +157,13 @@ export default function DigitalTwinPage() {
               </span>
             </div>
             <p className="mt-1 text-xs text-emerald-700">
-              Combined herd milk output vs AI baseline
+              {t("twin.milk_subtitle", "Combined herd milk output vs AI baseline")}
             </p>
           </div>
 
           <div className="rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-amber-800 uppercase tracking-wider">
-              Health Distribution
+              {t("twin.health_dist", "Health Distribution")}
             </div>
             <div className="mt-3 flex items-center gap-3">
               <span className="text-2xl font-black text-emerald-700">
@@ -174,19 +176,19 @@ export default function DigitalTwinPage() {
               </span>
             </div>
             <p className="mt-1 text-xs text-amber-700">
-              Distinct cows requiring monitoring
+              {t("twin.health_subtitle", "Distinct cows requiring monitoring")}
             </p>
           </div>
 
           <div className="rounded-3xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-5 shadow-sm">
             <div className="text-xs font-bold text-purple-800 uppercase tracking-wider">
-              Total Active Cows
+              {t("twin.total_active", "Total Active Cows")}
             </div>
             <div className="mt-3 text-3xl font-black text-purple-950">
               {isLoading ? "…" : herdSummary?.total_cows}
             </div>
             <p className="mt-1 text-xs text-purple-700">
-              Digital Twin active models
+              {t("twin.active_subtitle", "Digital Twin active models")}
             </p>
           </div>
         </div>
@@ -197,10 +199,10 @@ export default function DigitalTwinPage() {
             <div>
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="h-4 w-4 text-sky-600" />
-                Real-Time Herd Triage Grid
+                {t("twin.triage_grid", "Real-Time Herd Triage Grid")}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Click any cow card below to inspect its detailed Digital Twin state.
+                {t("twin.triage_subtitle", "Click any cow card below to inspect its detailed Digital Twin state.")}
               </p>
             </div>
 
@@ -379,7 +381,7 @@ export default function DigitalTwinPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900">
-                Detailed Digital Twin State — {currentCowState.cow_name}
+                {t("twin.detailed_state", "Detailed Digital Twin State")} — {currentCowState.cow_name}
               </h2>
             </div>
             <DigitalTwinCowCard cowTwin={currentCowState} />
