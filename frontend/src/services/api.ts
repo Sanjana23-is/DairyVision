@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8001',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
 function isTokenExpired(token: string): boolean {
+  if (!token || token === "null" || token === "undefined") return true;
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return true;
@@ -49,15 +50,24 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response && err.response.status === 401) {
-      const isLoginRequest = err.config && err.config.url && err.config.url.includes("/auth/login");
-      if (!isLoginRequest) {
+      const url = err.config && err.config.url ? err.config.url : "";
+      const isAuthRequest =
+        url.includes("/auth/login") ||
+        url.includes("/auth/signup") ||
+        url.includes("/auth/forgot-password");
+
+      const currentPath = window.location.pathname;
+      const isAuthPage =
+        currentPath === "/login" ||
+        currentPath === "/register" ||
+        currentPath === "/forgot-password";
+
+      if (!isAuthRequest && !isAuthPage) {
         localStorage.removeItem("dairyvision_access_token");
         localStorage.removeItem("dairyvision_user");
         localStorage.removeItem("current_farm_id");
         localStorage.removeItem("current_farm_name");
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
-        }
+        window.location.href = "/login";
       }
     }
     return Promise.reject(err);

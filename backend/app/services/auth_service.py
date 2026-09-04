@@ -23,33 +23,85 @@ class AuthService:
         self.db = db or SessionLocal()
 
     def signup(self, payload: SignupRequest) -> AuthResponse:
+        email_str = str(payload.email).strip().lower()
         try:
-            response = supabase.auth.sign_up(
-                {
-                    "email": str(payload.email),
-                    "password": payload.password,
-                    "options": {"data": {"full_name": payload.full_name}},
-                }
-            )
+            user_data = None
+            try:
+                admin_response = supabase.auth.admin.create_user(
+                    {
+                        "email": email_str,
+                        "password": payload.password,
+                        "email_confirm": True,
+                        "user_metadata": {"full_name": payload.full_name},
+                    }
+                )
+                user_data = getattr(admin_response, "user", None)
+            except Exception as admin_exc:
+                admin_msg = str(admin_exc).lower()
+                if "already" in admin_msg and "registered" in admin_msg:
+                    raise self._format_supabase_error(admin_exc, action="signup", email=email_str) from admin_exc
+                logger.warning("Admin create_user fallback to sign_up: %s", admin_exc)
+                response = supabase.auth.sign_up(
+                    {
+                        "email": email_str,
+                        "password": payload.password,
+                        "options": {"data": {"full_name": payload.full_name}},
+                    }
+                )
+                user_data = getattr(response, "user", None)
+                if user_data:
+                    try:
+                        supabase.auth.admin.update_user_by_id(user_data.id, {"email_confirm": True})
+                    except Exception:
+                        pass
+
+            if user_data is None:
+                raise RuntimeError("Supabase signup did not return a user")
+
+            self._sync_local_user(user_data, payload.full_name)
+
+            # Sign in immediately with password to obtain active access_token session
+            session = None
+            try:
+                sign_in_res = supabase.auth.sign_in_with_password(
+                    {"email": email_str, "password": payload.password}
+                )
+                session = getattr(sign_in_res, "session", None)
+            except Exception as sign_in_exc:
+                logger.warning("Immediate post-signup sign_in failed: %s", sign_in_exc)
+
+            return self._build_auth_response(user_data, session)
         except Exception as exc:
-            logger.exception("Supabase signup failed for %s", payload.email)
-            raise self._format_supabase_error(exc, action="signup", email=payload.email) from exc
-
-        user_data = getattr(response, "user", None)
-        if user_data is None:
-            raise RuntimeError("Supabase signup did not return a user")
-
-        self._sync_local_user(user_data, payload.full_name)
-        return self._build_auth_response(user_data, getattr(response, "session", None))
+            logger.exception("Supabase signup failed for %s", email_str)
+            raise self._format_supabase_error(exc, action="signup", email=email_str) from exc
 
     def login(self, payload: LoginRequest) -> AuthResponse:
+        email_str = str(payload.email).strip().lower()
         try:
-            response = supabase.auth.sign_in_with_password(
-                {"email": str(payload.email), "password": payload.password}
-            )
+            try:
+                response = supabase.auth.sign_in_with_password(
+                    {"email": email_str, "password": payload.password}
+                )
+            except Exception as login_exc:
+                if "email not confirmed" in str(login_exc).lower():
+                    logger.info("User %s email not confirmed in Supabase. Attempting auto-confirmation...", email_str)
+                    try:
+                        admin_users = supabase.auth.admin.list_users()
+                        target = next((u for u in admin_users if u.email and u.email.lower() == email_str), None)
+                        if target:
+                            supabase.auth.admin.update_user_by_id(target.id, {"email_confirm": True})
+                            response = supabase.auth.sign_in_with_password(
+                                {"email": email_str, "password": payload.password}
+                            )
+                        else:
+                            raise login_exc
+                    except Exception:
+                        raise login_exc
+                else:
+                    raise login_exc
         except Exception as exc:
-            logger.exception("Supabase login failed for %s", payload.email)
-            raise self._format_supabase_error(exc, action="login", email=payload.email) from exc
+            logger.exception("Supabase login failed for %s", email_str)
+            raise self._format_supabase_error(exc, action="login", email=email_str) from exc
 
         user_data = getattr(response, "user", None)
         if user_data is None:

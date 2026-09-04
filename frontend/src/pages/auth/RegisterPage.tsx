@@ -1,100 +1,123 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthShell } from "@/components/auth/AuthShell";
-import { AuthForm } from "@/components/auth/AuthForm";
-import { useAuth } from "@/context/AuthContext";
+import { DairyVideoBackground } from "@/components/auth/DairyVideoBackground";
+import { RegisterForm } from "@/components/register-form";
+import { Activity, BarChart3, Calendar } from "lucide-react";
 
 export function RegisterPage() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError("");
-
-    if (!fullName.trim() || !email.trim() || !password.trim()) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await register({ email, password, full_name: fullName });
-      navigate("/select-farm");
-    } catch (err) {
-      setError("We could not create your account right now.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <AuthShell
-      title="Get started"
-      subtitle="Create your DairyVision AI workspace in minutes."
-    >
-      <AuthForm
-        title="Register"
-        subtitle="Set up your account to access the platform."
-        onSubmit={handleSubmit}
-        submitLabel={isSubmitting ? "Creating account..." : "Create account"}
-      >
-        {error ? (
-          <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-            {error}
+    <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 font-sans text-slate-100 flex items-center justify-center">
+      {/* 1. CINEMATIC FULL-VIEWPORT BACKGROUND VIDEO */}
+      <DairyVideoBackground />
+
+      {/* 2. MAIN TWO-COLUMN CONTAINER (MAX-WIDTH 1440PX) */}
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-8 sm:px-12 lg:px-16 min-h-screen py-8 lg:py-12 flex flex-col justify-between">
+        
+        {/* TOP BRAND HEADER */}
+        <div className="w-full flex items-center justify-between pt-2">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
+                <svg
+                  className="h-5 w-5 text-emerald-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 6c0 0 2-2 5-2s5 2 5 2" />
+                  <path d="M20 6c0 0-2-2-5-2s-5 2-5 2" />
+                  <path d="M7 10h10" />
+                  <path d="M6 8c0 4.5 2 11 6 11s6-6.5 6-11" />
+                  <circle cx="9" cy="14" r="1" fill="currentColor" />
+                  <circle cx="15" cy="14" r="1" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold tracking-tight text-white">
+                DairyVision <span className="text-emerald-400">AI</span>
+              </span>
+            </div>
+            <p className="text-xs text-slate-300/80 pl-10 font-normal">
+              Smarter decisions. Healthier herds. Better farms.
+            </p>
+          </div>
+        </div>
+
+        {/* MIDDLE TWO-COLUMN CONTENT */}
+        <div className="w-full my-auto py-8 grid lg:grid-cols-[1fr_440px] items-center justify-between gap-16 lg:gap-24">
+          
+          {/* LEFT LARGE HERO PANEL (MAX-WIDTH 660PX) */}
+          <div className="w-full max-w-[660px] flex flex-col items-start text-left">
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-[52px] lg:text-[58px] xl:text-[62px] font-bold tracking-tight text-white leading-[1.1] mb-5">
+              Start your smart dairy journey<br />
+              with <span className="text-emerald-400">predictive AI.</span>
+            </h1>
+            
+            {/* Supporting Description */}
+            <p className="text-lg lg:text-[20px] font-normal text-slate-100/95 leading-relaxed max-w-[560px] mb-10">
+              Create your workspace in seconds to unlock real-time cow health monitoring, milk production forecasts, and smart recommendations.
+            </p>
+
+            {/* 3 Larger Feature Rows with High-Impact Typography & Contrast */}
+            <div className="space-y-6 w-full">
+              {/* Row 1 */}
+              <div className="flex items-center gap-4.5">
+                <div className="flex h-11 w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-950/75 border border-emerald-500/40 text-emerald-400 backdrop-blur-md">
+                  <Activity className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">Herd Health Monitoring</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Real-time alerts for early disease prevention</p>
+                </div>
+              </div>
+
+              {/* Row 2 */}
+              <div className="flex items-center gap-4.5">
+                <div className="flex h-11 w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-950/75 border border-emerald-500/40 text-emerald-400 backdrop-blur-md">
+                  <BarChart3 className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">AI Milk Yield Predictions</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Accurate 7-day milk production forecasting</p>
+                </div>
+              </div>
+
+              {/* Row 3 */}
+              <div className="flex items-center gap-4.5">
+                <div className="flex h-11 w-11 lg:h-12 lg:w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-950/75 border border-emerald-500/40 text-emerald-400 backdrop-blur-md">
+                  <Calendar className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">Multi-Farm Management</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Manage multiple herds and pastures effortlessly</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN — LARGE CLEAN WHITE CARD */}
+          <div className="w-full max-w-[440px] flex flex-col items-center justify-center mx-auto">
+            <div className="w-full rounded-[20px] bg-white p-7 sm:p-8 shadow-2xl ring-1 ring-slate-900/5">
+              <RegisterForm />
+            </div>
+          </div>
+
+        </div>
+
+        {/* BOTTOM FOOTER / STATUS BAR */}
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pb-2 text-xs font-normal text-slate-300/80">
+          <div className="flex items-center gap-2 text-emerald-400 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live farm intelligence</span>
+          </div>
+
+          <p className="text-slate-300/70 font-normal">
+            &copy; {new Date().getFullYear()} DairyVision AI. All rights reserved.
           </p>
-        ) : null}
+        </div>
 
-        <label className="block text-sm font-medium text-slate-700">
-          <span className="mb-1.5 block">Full name</span>
-          <input
-            type="text"
-            value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-600"
-            placeholder="Ava Johnson"
-          />
-        </label>
-
-        <label className="block text-sm font-medium text-slate-700">
-          <span className="mb-1.5 block">Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-600"
-            placeholder="you@farm.com"
-          />
-        </label>
-
-        <label className="block text-sm font-medium text-slate-700">
-          <span className="mb-1.5 block">Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-600"
-            placeholder="Create a strong password"
-          />
-        </label>
-
-        <p className="text-sm text-slate-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-sky-700 hover:underline">
-            Sign in
-          </Link>
-        </p>
-      </AuthForm>
-    </AuthShell>
+      </div>
+    </div>
   );
 }

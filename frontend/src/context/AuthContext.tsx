@@ -21,6 +21,7 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function isTokenExpired(token: string): boolean {
+  if (!token || token === "null" || token === "undefined") return true;
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return true;
@@ -215,14 +216,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.post("/api/v1/auth/login", payload);
       const { access_token, user } = response.data;
 
-      localStorage.setItem("dairyvision_access_token", access_token);
-      localStorage.setItem("dairyvision_user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+      if (access_token) {
+        localStorage.setItem("dairyvision_access_token", access_token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+      }
+      if (user) {
+        localStorage.setItem("dairyvision_user", JSON.stringify(user));
+      }
 
       setAuthState({
-        user,
-        accessToken: access_token,
-        isAuthenticated: true,
+        user: user ?? null,
+        accessToken: access_token ?? null,
+        isAuthenticated: Boolean(access_token && user),
         isLoading: false,
         currentFarmId: null,
         currentFarmName: null,
@@ -257,14 +262,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.post("/api/v1/auth/signup", payload);
       const { access_token, user } = response.data;
 
-      localStorage.setItem("dairyvision_access_token", access_token);
-      localStorage.setItem("dairyvision_user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+      if (access_token) {
+        localStorage.setItem("dairyvision_access_token", access_token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+      }
+      if (user) {
+        localStorage.setItem("dairyvision_user", JSON.stringify(user));
+      }
 
       setAuthState({
-        user,
-        accessToken: access_token,
-        isAuthenticated: true,
+        user: user ?? null,
+        accessToken: access_token ?? null,
+        isAuthenticated: Boolean(access_token && user),
         isLoading: false,
         currentFarmId: null,
         currentFarmName: null,
