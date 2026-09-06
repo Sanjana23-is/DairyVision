@@ -114,6 +114,15 @@ class AuthService:
         supabase.auth.sign_out()
         return LogoutResponse(message="Logged out successfully")
 
+    def send_password_reset(self, email: str) -> None:
+        """Send a password reset email via Supabase. Raises on failure."""
+        email_str = email.strip().lower()
+        try:
+            supabase.auth.reset_password_email(email_str)
+        except Exception as exc:
+            logger.warning("Password reset email failed for %s: %s", email_str, exc)
+            raise
+
     @staticmethod
     def _is_transient_error(exc: Exception) -> bool:
         message = str(exc).lower()

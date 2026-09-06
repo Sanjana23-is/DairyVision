@@ -6,7 +6,16 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.auth import get_current_user, get_optional_auth_service
-from app.schemas.auth import AuthResponse, LoginRequest, LogoutResponse, MeResponse, SignupRequest, UpdateUserRequest
+from app.schemas.auth import (
+    AuthResponse,
+    LoginRequest,
+    LogoutResponse,
+    MeResponse,
+    SignupRequest,
+    UpdateUserRequest,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+)
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -35,6 +44,20 @@ def login(payload: LoginRequest, auth_service: Annotated[AuthService, Depends(ge
     except Exception as exc:
         logger.exception("Unexpected auth login error")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed during login") from exc
+
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    auth_service: Annotated[AuthService, Depends(get_optional_auth_service)],
+) -> ForgotPasswordResponse:
+    """Send a password reset email. Always returns success to prevent email enumeration."""
+    try:
+        auth_service.send_password_reset(payload.email)
+    except Exception:
+        # Silently swallow errors to prevent email enumeration attacks
+        logger.info("Password reset request processed for %s", payload.email)
+    return ForgotPasswordResponse(message="If an account exists with this email, a password reset link has been sent.")
 
 
 @router.post("/logout", response_model=LogoutResponse)

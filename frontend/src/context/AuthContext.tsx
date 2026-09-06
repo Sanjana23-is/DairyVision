@@ -203,14 +203,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearAuthStorage();
     delete api.defaults.headers.common["Authorization"];
 
-    setAuthState({
+    setAuthState((prev) => ({
+      ...prev,
       user: null,
       accessToken: null,
       isAuthenticated: false,
-      isLoading: true,
       currentFarmId: null,
       currentFarmName: null,
-    });
+    }));
 
     try {
       const response = await api.post("/api/v1/auth/login", payload);
@@ -249,14 +249,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearAuthStorage();
     delete api.defaults.headers.common["Authorization"];
 
-    setAuthState({
+    setAuthState((prev) => ({
+      ...prev,
       user: null,
       accessToken: null,
       isAuthenticated: false,
-      isLoading: true,
       currentFarmId: null,
       currentFarmName: null,
-    });
+    }));
 
     try {
       const response = await api.post("/api/v1/auth/signup", payload);

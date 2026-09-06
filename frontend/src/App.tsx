@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/common/ProtectedRoute";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
@@ -28,7 +29,8 @@ function App() {
   return (
     <AuthProvider>
       <LanguageProvider>
-        <Routes>
+        <ThemeProvider>
+          <Routes>
           {/* PUBLIC ONLY ROUTES (Redirect to /dashboard or /select-farm if authenticated) */}
           <Route element={<PublicOnlyRoute />}>
             <Route path="/login" element={<LoginPage />} />
@@ -60,7 +62,8 @@ function App() {
 
           {/* CATCH ALL FALLBACK */}
           <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+          </Routes>
+        </ThemeProvider>
       </LanguageProvider>
     </AuthProvider>
   );

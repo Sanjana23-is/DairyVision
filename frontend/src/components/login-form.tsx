@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Eye, EyeOff, Check, Mail, Lock } from "lucide-react";
 
 interface LoginFormProps extends React.ComponentProps<"form"> {
@@ -23,6 +24,7 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +32,7 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
     setError("");
 
     if (!email.trim() || !password.trim()) {
-      setError("Please enter both your email and password.");
+      setError(t("auth.error_empty", "Please enter both your email and password."));
       return;
     }
 
@@ -43,7 +45,7 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
         navigate("/select-farm");
       }
     } catch (err) {
-      setError("Invalid credentials. Please verify your email and password.");
+      setError(t("auth.error_invalid", "Invalid credentials. Please verify your email and password."));
     } finally {
       setIsSubmitting(false);
     }
@@ -54,13 +56,13 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
       <FieldGroup>
         <div className="flex flex-col text-left mb-2">
           <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600">
-            WELCOME BACK
+            {t("auth.welcome_back", "WELCOME BACK")}
           </span>
           <h2 className="text-[28px] lg:text-[31px] font-bold tracking-tight text-slate-900 mt-1 leading-snug">
-            Sign in to your account
+            {t("auth.sign_in", "Sign in to your account")}
           </h2>
           <p className="text-[15px] font-normal text-slate-500 mt-1">
-            Access your farm intelligence workspace.
+            {t("auth.access_workspace", "Access your farm intelligence workspace.")}
           </p>
         </div>
 
@@ -72,14 +74,14 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
 
         <Field>
           <FieldLabel htmlFor="email" className="text-[13px] font-medium text-slate-700 mb-1.5 block">
-            Email
+            {t("auth.email", "Email")}
           </FieldLabel>
           <div className="relative">
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               id="email"
               type="email"
-              placeholder="you@farm.com"
+              placeholder={t("auth.email_placeholder", "you@farm.com")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -91,14 +93,14 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
 
         <Field>
           <FieldLabel htmlFor="password" className="text-[13px] font-medium text-slate-700 mb-1.5 block">
-            Password
+            {t("auth.password", "Password")}
           </FieldLabel>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder={t("auth.password_placeholder", "Enter your password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -138,14 +140,14 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
                 {rememberMe && <Check className="h-3 w-3 stroke-[3]" />}
               </div>
             </div>
-            <span>Remember me</span>
+            <span>{t("auth.remember_me", "Remember me")}</span>
           </label>
 
           <Link
             to="/forgot-password"
             className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
           >
-            Forgot password?
+            {t("auth.forgot_password", "Forgot password?")}
           </Link>
         </div>
 
@@ -155,14 +157,14 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
             disabled={isSubmitting}
             className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[15px] rounded-xl shadow-sm transition-all duration-150 border-0"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? t("auth.signing_in", "Signing in…") : t("auth.sign_in_button", "Sign in")}
           </Button>
         </Field>
 
         <p className="text-center text-xs font-normal text-slate-500 pt-3">
-          Don't have an account?{" "}
+          {t("auth.dont_have_account", "Don't have an account?")}{" "}
           <Link to="/register" className="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
-            Create account
+            {t("auth.create_account", "Create account")}
           </Link>
         </p>
       </FieldGroup>

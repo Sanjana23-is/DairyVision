@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, User, ChevronDown, Check, Plus, LogOut, UserCheck, Globe } from "lucide-react";
+import { User, ChevronDown, Check, Plus, LogOut, UserCheck, Globe, Moon, Sun, Monitor } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 import { LANGUAGE_OPTIONS } from "@/i18n/translations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFarms, Farm, createFarm } from "@/services/farm";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
+import { NotificationDropdown } from "@/components/navbar/NotificationDropdown";
 
 export default function Navbar() {
   const { user, currentFarmId, currentFarmName, setCurrentFarm, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const [isFarmOpen, setIsFarmOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -196,16 +199,8 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Notification Icon */}
-        <button
-          type="button"
-          onClick={() => navigate("/health-alerts")}
-          className="relative rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
-          title="Notifications & Alerts"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-1.5 right-1.5 inline-flex h-2 w-2 rounded-full bg-rose-500" />
-        </button>
+        {/* Notification Dropdown */}
+        <NotificationDropdown />
 
         {/* User Account Popover Dropdown */}
         <div className="relative border-l border-slate-200 pl-3">
@@ -270,6 +265,41 @@ export default function Navbar() {
                   <UserCheck className="h-4 w-4 text-emerald-600" />
                   <span>{t("action.profile", "Profile & Account")}</span>
                 </button>
+
+                <div className="border-t border-slate-100" />
+
+                {/* Theme Selector */}
+                <div className="px-3 py-2">
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+                    {t("label.theme", "Theme")}
+                  </div>
+                  <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setTheme("light")}
+                      className={`flex-1 flex justify-center py-1.5 rounded-lg transition-all ${theme === "light" ? "bg-white shadow-sm text-emerald-600 font-bold" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}`}
+                      title={t("theme.light", "Light")}
+                    >
+                      <Sun className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTheme("dark")}
+                      className={`flex-1 flex justify-center py-1.5 rounded-lg transition-all ${theme === "dark" ? "bg-white shadow-sm text-emerald-600 font-bold" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}`}
+                      title={t("theme.dark", "Dark")}
+                    >
+                      <Moon className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTheme("system")}
+                      className={`flex-1 flex justify-center py-1.5 rounded-lg transition-all ${theme === "system" ? "bg-white shadow-sm text-emerald-600 font-bold" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}`}
+                      title={t("theme.system", "System")}
+                    >
+                      <Monitor className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
 
                 <div className="border-t border-slate-100" />
 

@@ -82,5 +82,30 @@ class LogoutResponse(BaseModel):
     message: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if "@" not in normalized or "." not in normalized.split("@", 1)[1]:
+            raise ValueError("email must be a valid email address")
+        return normalized
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
 class MeResponse(BaseModel):
     user: AuthUser
+
+
+class UserPreferenceSchema(BaseModel):
+    preferred_language: Optional[str] = None
+    preferred_currency: Optional[str] = None
+    breed_display_preference: Optional[str] = None
+    show_local_names: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)
