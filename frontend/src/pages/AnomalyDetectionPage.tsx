@@ -30,6 +30,7 @@ export default function AnomalyDetectionPage() {
 
   const filters = useMemo(() => {
     return {
+      farm_id: currentFarmId || undefined,
       severity: severityFilter !== "All" ? severityFilter : undefined,
       resolved:
         statusFilter === "all"
@@ -39,7 +40,7 @@ export default function AnomalyDetectionPage() {
           : false,
       search: search || undefined,
     };
-  }, [severityFilter, statusFilter, search]);
+  }, [currentFarmId, severityFilter, statusFilter, search]);
 
   const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
     queryKey: ["anomalySummary", currentFarmId],

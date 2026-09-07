@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -32,7 +32,7 @@ def get_anomaly_summary(
     farm_id: Optional[str] = Query(None),
     user_id: str = Depends(get_current_user_id),
     service: AnomalyDetectionService = Depends(get_anomaly_service),
-) -> AnomalySummaryResponse:
+) -> Any:
     return service.get_anomaly_summary(user_id=user_id, farm_id=farm_id)
 
 
@@ -48,15 +48,17 @@ def trigger_anomaly_scan(
 
 @router.get("/anomalies", response_model=list[AnomalyRecordResponse])
 def list_anomalies(
+    farm_id: Optional[str] = Query(None),
     severity: Optional[str] = Query(None),
     resolved: Optional[bool] = Query(None),
     cow_id: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     user_id: str = Depends(get_current_user_id),
     service: AnomalyDetectionService = Depends(get_anomaly_service),
-) -> list[AnomalyRecordResponse]:
+) -> Any:
     return service.list_anomalies(
         user_id=user_id,
+        farm_id=farm_id,
         severity=severity,
         resolved=resolved,
         cow_id=cow_id,
@@ -69,7 +71,7 @@ def get_anomaly(
     anomaly_id: str,
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
-) -> AnomalyRecordResponse:
+) -> Any:
     record = service.get_owned(AnomalyRecord, user_id, anomaly_id)
     if record is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anomaly record not found")
@@ -82,7 +84,7 @@ def update_anomaly(
     payload: AnomalyUpdate,
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
-) -> AnomalyRecordResponse:
+) -> Any:
     record = service.update_owned(AnomalyRecord, user_id, anomaly_id, **payload.model_dump(exclude_unset=True))
     if record is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anomaly record not found")

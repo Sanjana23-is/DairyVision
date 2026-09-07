@@ -20,13 +20,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "Animal Intelligence",
     "nav.predictions": "Predictions",
     "nav.health_alerts": "Health Alerts",
+    "nav.health_and_risk": "Health & Risk Center",
     "nav.anomaly_detection": "Anomaly Detection",
     "nav.recommendations": "Recommendations",
     "nav.analysis_twin": "Analysis & Twin",
     "nav.digital_twin": "Digital Twin",
     "nav.simulation": "What-If Simulation",
     "nav.explainability": "Explainability",
-    "nav.genetics": "Genetics",
 
     // Dashboard
     "dashboard.good_morning": "Good morning",
@@ -238,24 +238,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "Optional Technical Explanation (SHAP Attribution Waterfall)",
     "explain.advanced_detail": "Advanced Detail",
 
-    // Genetics Page
-    "genetics.title": "Genetics & Breeding Potential",
-    "genetics.subtitle": "Sire rankings, herd genetic merit evaluations, pedigree lineage, and breeding potential insights.",
-    "genetics.herd_index": "Herd Genetic Index",
-    "genetics.pedigree_coverage": "Pedigree Coverage",
-    "genetics.top_sire": "Top Sire Line",
-    "genetics.sires_evaluated": "Sires Evaluated",
-    "genetics.sire_leaderboard": "Sire Leaderboard & Performance",
-    "genetics.cow_profiles": "Herd Cow Genetic Profiles",
-    "genetics.canonical_leaderboard": "Canonical Sire Merit Leaderboard",
-    "genetics.leaderboard_desc": "Ranks superior dairy bulls based on 305-day lactation yield ratings and genetic merit index.",
-    "genetics.col_rank": "Rank",
-    "genetics.col_sire_name": "Sire Name",
-    "genetics.col_code": "Code",
-    "genetics.col_peak_yield": "Peak Yield",
-    "genetics.col_lactation_length": "Lactation Length",
-    "genetics.col_305_yield": "305-Day Yield Rating",
-    "genetics.col_genetic_merit": "Genetic Merit Rating",
 
     // Simulation Page
     "sim.title": "What-If & Scenario Simulation",
@@ -293,13 +275,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "पशु इंटेलिजेंस",
     "nav.predictions": "दूध उत्पादन अनुमान",
     "nav.health_alerts": "स्वास्थ्य अलर्ट",
+    "nav.health_and_risk": "स्वास्थ्य और जोखिम केंद्र",
     "nav.anomaly_detection": "असंगति पहचान",
     "nav.recommendations": "एआई सिफारिशें",
     "nav.analysis_twin": "विश्लेषण एवं डिजिटल ट्विन",
     "nav.digital_twin": "डिजिटल ट्विन",
     "nav.simulation": "सिमुलेशन परीक्षण",
     "nav.explainability": "एआई स्पष्टीकरण",
-    "nav.genetics": "आनुवंशिकी",
 
     // Dashboard
     "dashboard.good_morning": "शुभ प्रभात",
@@ -511,24 +493,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "वैकल्पिक तकनीकी विवरण (SHAP एट्रीब्यूशन वॉटरफॉल)",
     "explain.advanced_detail": "उन्नत विवरण",
 
-    // Genetics Page
-    "genetics.title": "आनुवंशिकी एवं प्रजनन क्षमता",
-    "genetics.subtitle": "सांड रैंकिंग, झुंड आनुवंशिक योग्यता मूल्यांकन, वंशावली और प्रजनन क्षमता इनसाइट्स।",
-    "genetics.herd_index": "झुंड आनुवंशिक सूचकांक",
-    "genetics.pedigree_coverage": "वंशावली कवरेज",
-    "genetics.top_sire": "शीर्ष सांड वंश",
-    "genetics.sires_evaluated": "मूल्यांकित सांड",
-    "genetics.sire_leaderboard": "सांड लीडरबोर्ड और प्रदर्शन",
-    "genetics.cow_profiles": "झुंड गाय आनुवंशिक प्रोफाइल",
-    "genetics.canonical_leaderboard": "प्रामाणिक सांड योग्यता लीडरबोर्ड",
-    "genetics.leaderboard_desc": "305-दिवसीय दुग्ध उपज और आनुवंशिक योग्यता सूचकांक पर आधारित श्रेष्ठ सांड रैंकिंग।",
-    "genetics.col_rank": "रैंक",
-    "genetics.col_sire_name": "सांड का नाम",
-    "genetics.col_code": "कोड",
-    "genetics.col_peak_yield": "अधिकतम उपज",
-    "genetics.col_lactation_length": "दुग्धपान अवधि",
-    "genetics.col_305_yield": "305-दिवसीय उपज रेटिंग",
-    "genetics.col_genetic_merit": "आनुवंशिक योग्यता रेटिंग",
 
     // Simulation Page
     "sim.title": "व्हाट-इफ एवं परिदृश्य सिमुलेशन",
@@ -566,13 +530,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "पशू बुद्धिमत्ता",
     "nav.predictions": "दूध उत्पादन अंदाज",
     "nav.health_alerts": "आरोग्य इशारे",
+    "nav.health_and_risk": "आरोग्य आणि जोखीम केंद्र",
     "nav.anomaly_detection": "विसंगत शोध",
     "nav.recommendations": "एआय शिफारसी",
     "nav.analysis_twin": "विश्लेषण आणि ट्विन",
     "nav.digital_twin": "डिजिटल ट्विन",
     "nav.simulation": "सिम्युलेशन चाचणी",
     "nav.explainability": "एआय स्पष्टीकरण",
-    "nav.genetics": "अनुवंशशास्त्र",
 
     // Dashboard
     "dashboard.good_morning": "शुभ सकाळ",
@@ -784,24 +748,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "वैकल्पिक तांत्रिक स्पष्टीकरण (SHAP एट्रिब्युशन वॉटरफॉल)",
     "explain.advanced_detail": "प्रगत तपशील",
 
-    // Genetics Page
-    "genetics.title": "अनुवंशशास्त्र आणि प्रजनन क्षमता",
-    "genetics.subtitle": "वळू रँकिंग, कळप अनुवांशिक गुणवत्ता मूल्यांकन, वंशावळ आणि प्रजनन अंतर्दृष्टी.",
-    "genetics.herd_index": "कळप अनुवांशिक निर्देशांक",
-    "genetics.pedigree_coverage": "वंशावळ कव्हरेज",
-    "genetics.top_sire": "अव्वल वळू वंश",
-    "genetics.sires_evaluated": "मूल्यांकन केलेले वळू",
-    "genetics.sire_leaderboard": "वळू लीडरबोर्ड आणि कामगिरी",
-    "genetics.cow_profiles": "कळप गाय अनुवांशिक प्रोफाइल",
-    "genetics.canonical_leaderboard": "प्रामाणिक वळू गुणवत्ता लीडरबोर्ड",
-    "genetics.leaderboard_desc": "305-दिवसीय दुग्ध उत्पादन आणि अनुवांशिक गुणवत्ता निर्देशांकावर आधारित अव्वल वळू रँकिंग.",
-    "genetics.col_rank": "रँक",
-    "genetics.col_sire_name": "वळूचे नाव",
-    "genetics.col_code": "कोड",
-    "genetics.col_peak_yield": "कमाल उत्पादन",
-    "genetics.col_lactation_length": "दुग्धपान कालावधी",
-    "genetics.col_305_yield": "305-दिवसीय उत्पादन रेटिंग",
-    "genetics.col_genetic_merit": "अनुवांशिक गुणवत्ता रेटिंग",
 
     // Simulation Page
     "sim.title": "व्हॉट-इफ आणि परिस्थिती सिम्युलेशन",
@@ -839,13 +785,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "ਪਸ਼ੂ ਇੰਟੈਲੀਜੈਂਸ",
     "nav.predictions": "ਦੁੱਧ ਉਤਪਾਦਨ ਅਨੁਮਾਨ",
     "nav.health_alerts": "ਸਿਹਤ ਅਲਰਟ",
+    "nav.health_and_risk": "ਸਿਹਤ ਅਤੇ ਜੋਖਮ ਕੇਂਦਰ",
     "nav.anomaly_detection": "ਗੜਬੜ ਦੀ ਪਛਾਣ",
     "nav.recommendations": "ਏਆਈ ਸਿਫ਼ਾਰਸ਼ਾਂ",
     "nav.analysis_twin": "ਵਿਸ਼ਲੇਸ਼ਣ ਅਤੇ ਡਿਜੀਟਲ ਟਵਿਨ",
     "nav.digital_twin": "ਡਿਜੀਟਲ ਟਵਿਨ",
     "nav.simulation": "ਸਿਮੂਲੇਸ਼ਨ ਪ੍ਰੀਖਣ",
     "nav.explainability": "ਏਆਈ ਵੇਰਵਾ",
-    "nav.genetics": "ਜੈਨੇਟਿਕਸ",
 
     // Dashboard
     "dashboard.good_morning": "ਸ਼ੁਭ ਸਵੇਰ",
@@ -1057,24 +1003,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "ਵਿਕਲਪਿਕ ਤਕਨੀਕੀ ਵਿਆਖਿਆ (SHAP ਐਟਰੀਬਿਊਸ਼ਨ ਵਾਟਰਫਾਲ)",
     "explain.advanced_detail": "ਉੱਨਤ ਵੇਰਵਾ",
 
-    // Genetics Page
-    "genetics.title": "ਜੈਨੇਟਿਕਸ ਅਤੇ ਪ੍ਰਜਨਨ ਸਮਰੱਥਾ",
-    "genetics.subtitle": "ਸਾਂਡ ਦਰਜਾਬੰਦੀ, ਝੁੰਡ ਜੈਨੇਟਿਕ ਯੋਗਤਾ ਮੁਲਾਂਕਣ, ਵੰਸ਼ਾਵਲੀ ਅਤੇ ਪ੍ਰਜਨਨ ਸਮਰੱਥਾ ਇਨਸਾਈਟਸ.",
-    "genetics.herd_index": "ਝੁੰਡ ਜੈਨੇਟਿਕ ਸੂਚਕਾਂਕ",
-    "genetics.pedigree_coverage": "ਵੰਸ਼ਾਵਲੀ ਕਵਰੇਜ",
-    "genetics.top_sire": "ਸਿਖਰਲਾ ਸਾਂਡ ਵੰਸ਼",
-    "genetics.sires_evaluated": "ਮੁਲਾਂਕਣ ਕੀਤੇ ਗਏ ਸਾਂਡ",
-    "genetics.sire_leaderboard": "ਸਾਂਡ ਲੀਡਰਬੋਰਡ ਅਤੇ ਕਾਰਗੁਜ਼ਾਰੀ",
-    "genetics.cow_profiles": "ਝੁੰਡ ਗਾਂ ਜੈਨੇਟਿਕ ਪ੍ਰੋਫਾਈਲ",
-    "genetics.canonical_leaderboard": "ਪ੍ਰਮਾਣਿਕ ਸਾਂਡ ਯੋਗਤਾ ਲੀਡਰਬੋਰਡ",
-    "genetics.leaderboard_desc": "305-ਦਿਨਾ ਦੁੱਧ ਉਤਪਾਦਨ ਅਤੇ ਜੈਨੇਟਿਕ ਮੈਰਿਟ ਇੰਡੈਕਸ 'ਤੇ ਆਧਾਰਿਤ ਉੱਤਮ ਸਾਂਡ ਰੈਂਕਿੰਗ.",
-    "genetics.col_rank": "ਰੈਂਕ",
-    "genetics.col_sire_name": "ਸਾਂਡ ਦਾ ਨਾਮ",
-    "genetics.col_code": "ਕੋਡ",
-    "genetics.col_peak_yield": "ਸਿਖਰ ਉਤਪਾਦਨ",
-    "genetics.col_lactation_length": "ਦੁੱਧ ਚੁੰਘਾਉਣ ਦੀ ਮਿਆਦ",
-    "genetics.col_305_yield": "305-ਦਿਨ ਉਤਪਾਦਨ ਰੇਟਿੰਗ",
-    "genetics.col_genetic_merit": "ਜੈਨੇਟਿਕ ਮੈਰਿਟ ਰੇਟਿੰਗ",
 
     // Simulation Page
     "sim.title": "ਵਟ-ਇਫ ਅਤੇ ਸਥਿਤੀ ਸਿਮੂਲੇਸ਼ਨ",
@@ -1112,13 +1040,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "પશુ ઈન્ટેલિજન્સ",
     "nav.predictions": "દૂધ ઉત્પાદન અંદાજ",
     "nav.health_alerts": "આરોગ્ય એલર્ટ",
+    "nav.health_and_risk": "આરોગ્ય અને જોખમ કેન્દ્ર",
     "nav.anomaly_detection": "અનિયમિતતા ની ઓળખ",
     "nav.recommendations": "એઆઈ ભલામણો",
     "nav.analysis_twin": "વિશ્લેષણ અને ડિજિટલ ટ્વિન",
     "nav.digital_twin": "ડિજિટલ ટ્વિન",
     "nav.simulation": "સિગ્મ્યુલેશન ટેસ્ટ",
     "nav.explainability": "એઆઈ વિગત",
-    "nav.genetics": "જેનેટિક્સ",
 
     // Dashboard
     "dashboard.good_morning": "શુભ સવાર",
@@ -1330,24 +1258,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "વૈકલ્પિક તકનીકી સમજૂતી (SHAP એટ્રિબ્યુશન વૉટરફૉલ)",
     "explain.advanced_detail": "અદ્યતન વિગતો",
 
-    // Genetics Page
-    "genetics.title": "આનુવંશિકતા અને સંવર્ધન ક્ષમતા",
-    "genetics.subtitle": "આખલા રેન્કિંગ, ટોળાની આનુવંશિક ગુણવત્તા મૂલ્યાંકન, વંશાવળી અને સંવર્ધન ક્ષમતા વિશ્લેષણ.",
-    "genetics.herd_index": "ટોળા આનુવંશિક સૂચકાંક",
-    "genetics.pedigree_coverage": "વંશાવળી કવરેજ",
-    "genetics.top_sire": "ટોચનો આખલો વંશ",
-    "genetics.sires_evaluated": "મૂલ્યાંકન કરાયેલ આખલા",
-    "genetics.sire_leaderboard": "આખલા લીડરબોર્ડ અને કામગીરી",
-    "genetics.cow_profiles": "ટોળાની ગાય આનુવંશિક પ્રોફાઇલ",
-    "genetics.canonical_leaderboard": "પ્રમાણિક આખલા યોગ્યતા લીડરબોર્ડ",
-    "genetics.leaderboard_desc": "305-દિવસીય દૂધ ઉત્પાદન અને આનુવંશિક યોગ્યતા સૂચકાંક પર આધારિત શ્રેષ્ઠ આખલા રેન્કિંગ.",
-    "genetics.col_rank": "રેન્ક",
-    "genetics.col_sire_name": "આખલાનું નામ",
-    "genetics.col_code": "કોડ",
-    "genetics.col_peak_yield": "મહત્તમ ઉત્પાદન",
-    "genetics.col_lactation_length": "સ્તનપાન સમયગાળો",
-    "genetics.col_305_yield": "305-દિવસ ઉત્પાદન રેટિંગ",
-    "genetics.col_genetic_merit": "આનુવંશિક યોગ્યતા રેટિંગ",
 
     // Simulation Page
     "sim.title": "વૉટ-ઇફ અને પરિસ્થિતિ સિમ્યુલેશન",
@@ -1385,13 +1295,13 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "nav.animal_intelligence": "ಪಶು ಬುದ್ಧಿವಂತಿಕೆ",
     "nav.predictions": "ಹಾಲು ಉತ್ಪಾದನೆ ಅಂದಾಜು",
     "nav.health_alerts": "ಆರೋಗ್ಯ ಎಚ್ಚರಿಕೆಗಳು",
+    "nav.health_and_risk": "ಆರೋಗ್ಯ ಮತ್ತು ಅಪಾಯ ಕೇಂದ್ರ",
     "nav.anomaly_detection": "ಅಸಂಗತತೆ ಪತ್ತೆ",
     "nav.recommendations": "AI ಶಿಫಾರಸುಗಳು",
     "nav.analysis_twin": "ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ಟ್ವಿನ್",
     "nav.digital_twin": "ಡಿಜಿಟಲ್ ಟ್ವಿನ್",
     "nav.simulation": "ಸಿಮ್ಯುಲೇಶನ್ ಪರೀಕ್ಷೆ",
     "nav.explainability": "AI ವಿವರಣೆ",
-    "nav.genetics": "ತಳಿಶಾಸ್ತ್ರ",
 
     // Dashboard
     "dashboard.good_morning": "ಶುಭ ಮುಂಜಾನೆ",
@@ -1603,24 +1513,6 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     "explain.tech_exp": "ಐಚ್ಛಿಕ ತಾಂತ್ರಿಕ ವಿವರಣೆ (SHAP ಗುಣಲಕ್ಷಣ ಜಲಪಾತ)",
     "explain.advanced_detail": "ಸುಧಾರಿತ ವಿವರ",
 
-    // Genetics Page
-    "genetics.title": "ಆನುವಂಶಿಕತೆ ಮತ್ತು ತಳಿ ಸಾಮರ್ಥ್ಯ",
-    "genetics.subtitle": "ಹೋರಿ ಶ್ರೇಯಾಂಕಗಳು, ಹಿಂಡಿನ ಆನುವಂಶಿಕ ಅರ್ಹತೆ ಮೌಲ್ಯಮಾಪನ, ವಂಶಾವಳಿ ಮತ್ತು ತಳಿ ಒಳನೋಟಗಳು.",
-    "genetics.herd_index": "ಹಿಂಡಿನ ಆನುವಂಶಿಕ ಸೂಚ್ಯಂಕ",
-    "genetics.pedigree_coverage": "ವಂಶಾವಳಿ ವ್ಯಾಪ್ತಿ",
-    "genetics.top_sire": "ಅಗ್ರ ಹೋರಿ ವಂಶ",
-    "genetics.sires_evaluated": "ಮೌಲ್ಯಮಾಪನ ಮಾಡಿದ ಹೋರಿಗಳು",
-    "genetics.sire_leaderboard": "ಹೋರಿ ಲೀಡರ್‌ಬೋರ್ಡ್ ಮತ್ತು ಕಾರ್ಯಕ್ಷಮತೆ",
-    "genetics.cow_profiles": "ಹಿಂಡಿನ ಹಸುವಿನ ಆನುವಂಶಿಕ ಪ್ರೊಫೈಲ್‌ಗಳು",
-    "genetics.canonical_leaderboard": "ಪ್ರಾಮಾಣಿಕ ಹೋರಿ ಅರ್ಹತಾ ಲೀಡರ್‌ಬೋರ್ಡ್",
-    "genetics.leaderboard_desc": "305-ದಿನಗಳ ಹಾಲಿನ ಇಳುವರಿ ರೇಟಿಂಗ್‌ಗಳು ಮತ್ತು ಆನುವಂಶಿಕ ಅರ್ಹತಾ ಸೂಚ್ಯಂಕದ ಆಧಾರದ ಮೇಲೆ ಶ್ರೇಷ್ಠ ಹೋರಿ ಶ್ರೇಯಾಂಕ.",
-    "genetics.col_rank": "ಶ್ರೇಣಿ",
-    "genetics.col_sire_name": "ಹೋರಿಯ ಹೆಸರು",
-    "genetics.col_code": "ಕೋಡ್",
-    "genetics.col_peak_yield": "ಗರಿಷ್ಠ ಇಳುವರಿ",
-    "genetics.col_lactation_length": "ಹಾಲುಣಿಸುವ ಅವಧಿ",
-    "genetics.col_305_yield": "305-ದಿನ ಇಳುವರಿ ರೇಟಿಂಗ್",
-    "genetics.col_genetic_merit": "ಆನುವಂಶಿಕ ಅರ್ಹತಾ ರೇಟಿಂಗ್",
 
     // Simulation Page
     "sim.title": "ವಾಟ್-ಇಫ್ ಮತ್ತು ಸನ್ನಿವೇಶ ಸಿಮ್ಯುಲೇಶನ್",

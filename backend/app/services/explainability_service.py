@@ -219,7 +219,7 @@ class ExplainabilityService:
             ensure_record_accessible(farm, user_id)
 
         model = self._load_model()
-        model_version = getattr(model, "__version__", os.path.basename(self.model_path))
+        model_version = getattr(model, "__version__", os.path.basename(self.model_path or "best_milk_model.pkl"))
 
         fv = feature_vector
         ordered = self._feature_order(fv)
@@ -246,7 +246,7 @@ class ExplainabilityService:
                 else:
                     explainer = shap.Explainer(model, np.zeros((1, len(ordered))))
                     shap_values = explainer(np.array([ordered]))
-                    vals = shap_values.values[0]
+                    vals = getattr(shap_values, "values", shap_values)[0]
         except Exception as e:
             logger.warning(f"SHAP explanation fallback used: {e}")
             if hasattr(model, "coef_") and len(model.coef_) == len(ordered):
@@ -262,7 +262,11 @@ class ExplainabilityService:
         features = []
         for i, feat in enumerate(CF):
             v = float(getattr(fv, feat))
-            sv = float(vals[i]) if i < len(vals) else 0.0
+            try:
+                raw_sv = vals[i] if (vals is not None and i < len(vals)) else 0.0
+                sv = float(raw_sv)  # type: ignore[arg-type]
+            except Exception:
+                sv = 0.0
             direction = "Positive" if sv > 0.01 else ("Negative" if sv < -0.01 else "Neutral")
             features.append(
                 {

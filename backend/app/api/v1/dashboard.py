@@ -14,6 +14,8 @@ from app.schemas.dashboard import (
 from app.services.dashboard_service import DashboardService
 import logging
 
+from typing import Any
+
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
@@ -26,7 +28,7 @@ def get_dashboard_summary(
     farm_id: str,
     user_id: str = Depends(get_current_user_id),
     service: DashboardService = Depends(get_dashboard_service),
-) -> DashboardSummaryResponse:
+) -> Any:
     try:
         summary = service.get_dashboard_summary(user_id, farm_id)
         return summary
@@ -44,7 +46,7 @@ def get_dashboard_trends(
     farm_id: str,
     user_id: str = Depends(get_current_user_id),
     service: DashboardService = Depends(get_dashboard_service),
-) -> TrendsResponse:
+) -> Any:
     try:
         service.ensure_farm_accessible(user_id, farm_id)
         return {
@@ -71,7 +73,7 @@ def get_observation_history(
     payload: ObservationHistoryRequest,
     user_id: str = Depends(get_current_user_id),
     service: DashboardService = Depends(get_dashboard_service),
-) -> ObservationHistoryResponse:
+) -> Any:
     try:
         return {"observations": service.get_observation_history(user_id, farm_id, payload.limit)}
     except ValueError as exc:

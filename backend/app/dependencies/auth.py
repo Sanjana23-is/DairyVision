@@ -32,8 +32,8 @@ def get_bearer_token(
 
 
 def get_current_user(
-    token: Annotated[str, Depends(get_bearer_token)] = None,
-    db: Annotated[Session, Depends(get_db)] = None,
+    token: Annotated[str, Depends(get_bearer_token)],
+    db: Annotated[Session, Depends(get_db)],
 ) -> MeResponse:
     auth_service = AuthService(db=db)
     try:

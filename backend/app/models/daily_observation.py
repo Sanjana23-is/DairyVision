@@ -23,6 +23,8 @@ from ..database.types import GUID
 
 if TYPE_CHECKING:
     from .cow import Cow
+    from .weather_log import WeatherLog
+    from .user import User
     from .user import User
 
 

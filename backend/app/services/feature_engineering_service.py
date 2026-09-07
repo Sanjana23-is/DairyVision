@@ -103,13 +103,32 @@ class FeatureEngineeringService:
         # derived animal features
         age = None
         if getattr(cow, "age_months", None) is not None:
-            age = float(cow.age_months) / 12.0
-        elif getattr(cow, "birth_date", None) is not None:
-            age_days = (obs.observation_date - cow.birth_date).days
-            age = float(age_days) / 365.25
+            try:
+                age = float(getattr(cow, "age_months")) / 12.0
+            except (TypeError, ValueError):
+                pass
+        elif getattr(cow, "birth_date", None) is not None and getattr(obs, "observation_date", None) is not None:
+            try:
+                obs_d = getattr(obs, "observation_date")
+                birth_d = getattr(cow, "birth_date")
+                age_days = (obs_d - birth_d).days
+                age = float(age_days) / 365.25
+            except (TypeError, ValueError, AttributeError):
+                pass
 
-        weight = float(cow.weight_kg) if cow.weight_kg is not None else None
-        feed = float(obs.feed_quantity_kg) if getattr(obs, "feed_quantity_kg", None) is not None else None
+        weight = None
+        if getattr(cow, "weight_kg", None) is not None:
+            try:
+                weight = float(getattr(cow, "weight_kg"))
+            except (TypeError, ValueError):
+                pass
+
+        feed = None
+        if getattr(obs, "feed_quantity_kg", None) is not None:
+            try:
+                feed = float(getattr(obs, "feed_quantity_kg"))
+            except (TypeError, ValueError):
+                pass
 
         # days in milk and lactation stage not available without calving/lactation dates
         days_in_milk = None
@@ -120,8 +139,9 @@ class FeatureEngineeringService:
         health_status = 0
         try:
             condition = None
-            if isinstance(getattr(obs, "symptoms", None), dict):
-                condition = obs.symptoms.get("condition")
+            symp = getattr(obs, "symptoms", None)
+            if isinstance(symp, dict):
+                condition = symp.get("condition")
             if condition is not None and str(condition).lower() != "healthy":
                 health_status = 1
             if getattr(cow, "status", "active") != "active":

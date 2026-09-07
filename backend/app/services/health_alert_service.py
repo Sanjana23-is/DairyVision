@@ -86,26 +86,39 @@ class HealthAlertService:
         evidence: dict[str, Any] = {}
 
         if weather and getattr(weather, "thi", None) is not None:
-            thi_num = float(weather.thi)
-            thi_label = "High Heat Stress" if thi_num >= 78.0 else ("Moderate Heat Stress" if thi_num >= 75.0 else "Mild Stress")
-            evidence["Heat Stress Index (THI)"] = f"{thi_num:.1f} ({thi_label})"
+            try:
+                thi_num = float(getattr(weather, "thi"))
+                thi_label = "High Heat Stress" if thi_num >= 78.0 else ("Moderate Heat Stress" if thi_num >= 75.0 else "Mild Stress")
+                evidence["Heat Stress Index (THI)"] = f"{thi_num:.1f} ({thi_label})"
+            except (TypeError, ValueError):
+                pass
 
         if obs and getattr(obs, "body_temperature_c", None) is not None:
-            evidence["Body Temperature"] = f"{float(obs.body_temperature_c):.1f} °C"
+            try:
+                evidence["Body Temperature"] = f"{float(getattr(obs, 'body_temperature_c')):.1f} °C"
+            except (TypeError, ValueError):
+                pass
 
         if obs and getattr(obs, "milk_produced_liters", None) is not None:
-            evidence["Milk Yield"] = f"{float(obs.milk_produced_liters):.1f} L/day"
+            try:
+                evidence["Milk Yield"] = f"{float(getattr(obs, 'milk_produced_liters')):.1f} L/day"
+            except (TypeError, ValueError):
+                pass
 
-        if pred and pred.predicted_milk_yield and obs and obs.milk_produced_liters is not None:
-            expected = float(pred.predicted_milk_yield)
-            observed = float(obs.milk_produced_liters)
-            if expected > 0:
-                drop_pct = int(((expected - observed) / expected) * 100)
-                if drop_pct > 0:
-                    evidence["Production vs Expected"] = f"{drop_pct}% below expected ({expected:.1f} L/day baseline)"
+        if pred and getattr(pred, "predicted_milk_yield", None) is not None and obs and getattr(obs, "milk_produced_liters", None) is not None:
+            try:
+                expected = float(getattr(pred, "predicted_milk_yield"))
+                observed = float(getattr(obs, "milk_produced_liters"))
+                if expected > 0:
+                    drop_pct = int(((expected - observed) / expected) * 100)
+                    if drop_pct > 0:
+                        evidence["Production vs Expected"] = f"{drop_pct}% below expected ({expected:.1f} L/day baseline)"
+            except (TypeError, ValueError):
+                pass
 
-        if obs and getattr(obs, "health_condition", None) and obs.health_condition != "normal":
-            evidence["Health Condition"] = obs.health_condition.capitalize()
+        cond = getattr(obs, "health_condition", None) if obs else None
+        if isinstance(cond, str) and cond.strip() and cond.lower() != "normal":
+            evidence["Health Condition"] = cond.capitalize()
 
         if obs and getattr(obs, "symptoms", None) and isinstance(obs.symptoms, dict) and len(obs.symptoms) > 0:
             evidence["Recorded Symptoms"] = ", ".join(obs.symptoms.keys()).capitalize()
@@ -257,11 +270,11 @@ class HealthAlertService:
                     milk_drop_readings.append(drop)
 
         current_thi = None
-        if feature_vector and getattr(feature_vector, 'thi', None) is not None:
+        if feature_vector and feature_vector.thi is not None:
             current_thi = float(feature_vector.thi)
-        elif weather and getattr(weather, 'thi', None) is not None:
+        elif weather and weather.thi is not None:
             current_thi = float(weather.thi)
-        elif current_obs and current_obs.weather_log and current_obs.weather_log.thi:
+        elif current_obs and current_obs.weather_log and current_obs.weather_log.thi is not None:
             current_thi = float(current_obs.weather_log.thi)
 
         if current_thi and current_thi >= 75.0 and current_obs not in heat_readings:
@@ -415,6 +428,7 @@ class HealthAlertService:
     def list_health_alerts(
         self,
         user_id: str,
+        farm_id: Optional[str] = None,
         alert_level: Optional[str] = None,
         resolved: Optional[bool] = None,
         cow_id: Optional[str] = None,
@@ -423,6 +437,9 @@ class HealthAlertService:
     ) -> list[HealthAlertResponse]:
         query = self.db.query(HealthAlert)
         query = query.filter(HealthAlert.owner_id == user_id)
+
+        if farm_id is not None:
+            query = query.filter(HealthAlert.farm_id == farm_id)
 
         if alert_level is not None:
             query = query.filter(HealthAlert.alert_level == alert_level)

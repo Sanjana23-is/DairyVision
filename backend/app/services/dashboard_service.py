@@ -348,7 +348,7 @@ class DashboardService:
             .all()
         )
 
-        return [{"category": row.category, "count": int(row.count)} for row in rows]
+        return [{"category": row.category, "count": int(row[1])} for row in rows]
 
     def get_health_alert_distribution(self, user_id: str, farm_id: str) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke
@@ -364,7 +364,7 @@ class DashboardService:
             .all()
         )
 
-        return [{"category": row.category, "count": int(row.count)} for row in rows]
+        return [{"category": row.category, "count": int(row[1])} for row in rows]
 
     def get_cow_health_status_distribution(self, user_id: str, farm_id: str) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke
@@ -380,7 +380,7 @@ class DashboardService:
             .all()
         )
 
-        return [{"category": row.category, "count": int(row.count)} for row in rows]
+        return [{"category": row.category, "count": int(row[1])} for row in rows]
 
     def get_weather_trends(self, user_id: str, farm_id: str, days: int = 7) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke

@@ -51,7 +51,11 @@ class WeatherService:
                 raise WeatherValidationError(str(exc)) from exc
             payload_data = self._merge_snapshot(payload_data, snapshot)
 
-        thi = self.calculate_thi(payload_data.get("temperature"), payload_data.get("humidity"))
+        temp_val = payload_data.get("temperature")
+        hum_val = payload_data.get("humidity")
+        t_float = float(temp_val) if isinstance(temp_val, (int, float, str)) else None
+        h_float = float(hum_val) if isinstance(hum_val, (int, float, str)) else None
+        thi = self.calculate_thi(t_float, h_float)
         payload_data["thi"] = thi
         try:
             return self.repository.create(user_id, **payload_data)

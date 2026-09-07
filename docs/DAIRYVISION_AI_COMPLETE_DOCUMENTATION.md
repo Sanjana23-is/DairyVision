@@ -13,9 +13,8 @@ The system integrates:
 - A FastAPI backend architected around clean domain boundaries, SQLAlchemy ORM, and Supabase PostgreSQL persistence with strict user-level farm tenant isolation ([ownership.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/repositories/ownership.py)).
 - An automated ML pipeline incorporating **XGBoost** milk yield regression, **USDA/NRC (2001) Temperature-Humidity Index (THI)** heat stress analytics, **Isolation Forest** multi-feature anomaly detection, **TreeSHAP** local interpretability, and **Quantile Random Forest** prediction intervals for risk simulation.
 - Live ambient weather integration via **Open-Meteo Geocoding and Forecast/Archive APIs** ([weather_provider.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/weather_provider.py)).
-- Genetic sire rankings and lactation curve modeling ([genetics_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/genetics_service.py)).
 
-All 136 backend unit and integration tests pass cleanly (`pytest backend/app/tests`), and the frontend compiles to production with zero TypeScript or build errors.
+All 132 backend unit and integration tests pass cleanly (`pytest backend/app/tests`), and the frontend compiles to production with zero TypeScript or build errors.
 
 ---
 
@@ -95,9 +94,7 @@ The following diagram traces the end-to-end lifecycle of a user interacting with
          │
          ├──► [6. Explainability] ─────► TreeSHAP Waterfall & Feature Contribution Analysis
          │
-         ├──► [7. Genetics] ───────────► Sire Rankings, Lactation Curves, Breeding Merit
-         │
-         └──► [8. Profile & i18n] ─────► Language Selector (EN, HI, MR, PA, GU, KN) & Dark Mode
+         └──► [7. Profile & i18n] ─────► Language Selector (EN, HI, MR, PA, GU, KN) & Dark Mode
 ```
 
 ### Step-by-Step Data Flow
@@ -141,10 +138,10 @@ The following diagram traces the end-to-end lifecycle of a user interacting with
 |    • Natural language why|    • Real-time stress gauges    |    • Economic margin (₹/day)  |
 |    • Clinical evidence   |    • 7-day trend trajectory     |    • Extrapolation guardrails |
 +──────────────────────────┼─────────────────────────────────┼───────────────────────────────+
-| 10. TreeSHAP Explanations| 11. Genetics & Breeding         | 12. Multilingual Engine       |
-|    • Local feature impact|    • Sire ranking & merit       |    • 6 Languages (i18n)       |
-|    • Waterfall plots     |    • Lactation curve modeling   |    • Instant UI switching     |
-|    • Farmer summaries    |    • Breed compatibility        |    • Backend preference sync  |
+| 10. TreeSHAP Explanations| 11. Multilingual Engine       | 12. Farm Health & Risk        |
+|    • Local feature impact|    • 6 Languages (i18n)       |    • Herd Risk Center         |
+|    • Waterfall plots     |    • Instant UI switching     |    • Aggregated cow triage    |
+|    • Farmer summaries    |    • Backend preference sync  |    • Clinical evidence trees  |
 +──────────────────────────┴─────────────────────────────────┴───────────────────────────────+
 ```
 
@@ -207,12 +204,6 @@ The following diagram traces the end-to-end lifecycle of a user interacting with
 - **Frontend**: [ExplainabilityPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/explainability/ExplainabilityPage.tsx).
 - **Backend APIs**: `GET /api/v1/explainability/observation/{observation_id}`.
 - **Functionality**: Uses TreeSHAP to calculate exact additive feature contributions ($\phi_i$) for each input and generates human-readable explanations.
-
-### 11. Genetics & Sire Ranking
-- **Purpose**: Guide selective breeding decisions to improve herd productivity.
-- **Frontend**: [GeneticsPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/GeneticsPage.tsx).
-- **Backend APIs**: `GET /api/v1/genetics/sires/ranking`, `GET /api/v1/genetics/cows/{cow_id}/profile`, `GET /api/v1/genetics/herd/summary`.
-- **Functionality**: Evaluates sire breeding merit, displays canonical sire performance tables, and calculates genetic potential ratings for individual cows.
 
 ---
 
@@ -371,16 +362,6 @@ $$\text{Net Daily Benefit} = \Delta\text{Revenue} - \Delta\text{Feed Cost}$$
 
 ---
 
-### 6. Genetics & Sire Breeding Analytics
-The genetics service ([genetics_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/genetics_service.py)) evaluates sire merit and lactation performance:
-- Features: Peak milk yield ($\text{kg}$), days to peak lactation, and total lactation length ($\text{days}$).
-- Benchmark Models ([genetics_test_metrics.csv](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/outputs/genetics/genetics_test_metrics.csv)):
-  - **Linear Regression**: $R^2 = 0.9092$, $\text{MAE} = 104.71\text{ kg}$, $\text{RMSE} = 132.57\text{ kg}$
-  - **XGBoost Regressor**: $R^2 = 0.8193$, $\text{MAE} = 180.19\text{ kg}$, $\text{RMSE} = 187.04\text{ kg}$
-  - **Random Forest**: $R^2 = 0.5212$, $\text{MAE} = 236.07\text{ kg}$, $\text{RMSE} = 304.47\text{ kg}$
-
----
-
 ## 5. Technical Architecture
 
 ```
@@ -397,7 +378,7 @@ The genetics service ([genetics_service.py](file:///Users/sanjana/Downloads/Smar
 | • FastAPI (Asynchronous Python 3.12) + Pydantic v2 Validation                            |
 | • CORS Middleware + Centralized Exception & Validation Handling                          |
 | • Domain Routers: Auth, Farms, Cows, Observations, Predictions, Health Alerts,           |
-|                   Anomalies, Recommendations, Digital Twin, What-If, Genetics, Dashboard |
+|                   Anomalies, Recommendations, Digital Twin, What-If, Dashboard           |
 +────────────────────────────────────────────┬─────────────────────────────────────────────+
                                              │
                       ┌──────────────────────┴──────────────────────┐
@@ -524,8 +505,6 @@ The database schema is managed via SQLAlchemy ORM and versioned with Alembic mig
 | | `/api/v1/what-if/cow/{cow_id}/simulate` | `POST` | Runs scenario simulation on a specific cow |
 | | `/api/v1/what-if/herd/simulate` | `POST` | Runs herd-wide nutritional/cooling scenario |
 | **Explainability** | `/api/v1/explainability/observation/{id}` | `GET` | Computes TreeSHAP feature attributions |
-| **Genetics** | `/api/v1/genetics/sires/ranking` | `GET` | Returns ranked sire breeding merit list |
-| | `/api/v1/genetics/cows/{cow_id}/profile` | `GET` | Returns genetic profile for cow |
 | **Dashboard** | `/api/v1/dashboard/overview` | `GET` | Aggregates KPIs, alerts, and production trends |
 
 ---
@@ -585,7 +564,6 @@ SUPABASE_URL="https://example.supabase.co" SUPABASE_SECRET_KEY="dummy" PYTHONPAT
   - `test_explainability.py`: 6 tests
   - `test_farms_api.py`: 3 tests
   - `test_feature_engineering.py`: 4 tests
-  - `test_genetics.py`: 4 tests
   - `test_health_alerts.py`: 17 tests
   - `test_observations.py`: 26 tests
   - `test_ownership.py`: 4 tests
@@ -762,7 +740,6 @@ Before applying for state AgTech funding (such as Karnataka Innovation & Technol
 | **Digital Twin Vitality** | [DigitalTwinPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/DigitalTwinPage.tsx), [digital_twin_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/digital_twin_service.py) | **Implemented & Tested** |
 | **What-If Financial Sim** | [SimulationPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/SimulationPage.tsx), [what_if_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/what_if_service.py) | **Implemented & Tested** |
 | **TreeSHAP Interpretability** | [ExplainabilityPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/explainability/ExplainabilityPage.tsx), [explainability_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/explainability_service.py) | **Implemented & Tested** |
-| **Sire Ranking & Genetics** | [GeneticsPage.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/pages/GeneticsPage.tsx), [genetics_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/genetics_service.py) | **Implemented & Tested** |
 | **6-Language i18n Engine** | [LanguageContext.tsx](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/context/LanguageContext.tsx), [translations.ts](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/frontend/src/i18n/translations.ts) | **Implemented & Tested** |
 | **Live Weather Ingestion** | [weather_service.py](file:///Users/sanjana/Downloads/Smart_dairyvisionAI-antigravity/backend/app/services/weather_service.py), Open-Meteo REST API | **Implemented & Tested** |
 | **IoT Sensor Telemetry** | Automated streaming ingestion pipeline | **Future Scope** |

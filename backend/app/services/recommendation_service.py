@@ -83,16 +83,16 @@ class RecommendationService:
 
         thi = None
         if weather is not None and getattr(weather, "thi", None) is not None:
-            thi = float(weather.thi)
+            thi = float(getattr(weather, "thi"))
         elif thi_override is not None:
             thi = float(thi_override)
 
         milk_drop = 0.0
         expected_yield = None
         observed_yield = None
-        if prediction is not None and observation is not None and getattr(observation, "milk_produced_liters", None) is not None:
-            expected_yield = float(prediction.predicted_milk_yield)
-            observed_yield = float(observation.milk_produced_liters)
+        if prediction is not None and getattr(prediction, "predicted_milk_yield", None) is not None and observation is not None and getattr(observation, "milk_produced_liters", None) is not None:
+            expected_yield = float(getattr(prediction, "predicted_milk_yield"))
+            observed_yield = float(getattr(observation, "milk_produced_liters"))
             if expected_yield > 0:
                 milk_drop = max(0.0, (expected_yield - observed_yield) / expected_yield)
 

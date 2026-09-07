@@ -18,10 +18,8 @@ import FarmListPage from "@/pages/farms/FarmListPage";
 import FarmWorkspacePage from "@/pages/farms/FarmWorkspacePage";
 import SelectFarmPage from "@/pages/farms/SelectFarmPage";
 import HealthAlertsPage from "@/pages/HealthAlertsPage";
-import AnomalyDetectionPage from "@/pages/AnomalyDetectionPage";
 import RecommendationsPage from "@/pages/RecommendationsPage";
 import DigitalTwinPage from "@/pages/DigitalTwinPage";
-import GeneticsPage from "@/pages/GeneticsPage";
 import SimulationPage from "@/pages/SimulationPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 
@@ -51,10 +49,10 @@ function App() {
             <Route path="/predictions" element={<PredictionPage />} />
             <Route path="/predictions/history" element={<PredictionHistoryPage />} />
             <Route path="/health-alerts" element={<HealthAlertsPage />} />
-            <Route path="/anomalies" element={<AnomalyDetectionPage />} />
+            <Route path="/anomalies" element={<Navigate to="/health-alerts" replace />} />
             <Route path="/recommendations" element={<RecommendationsPage />} />
             <Route path="/digital-twin" element={<DigitalTwinPage />} />
-            <Route path="/genetics" element={<GeneticsPage />} />
+            <Route path="/genetics" element={<Navigate to="/dashboard" replace />} />
             <Route path="/simulation" element={<SimulationPage />} />
             <Route path="/explainability" element={<ExplainabilityPage />} />
             <Route path="/profile" element={<ProfilePage />} />

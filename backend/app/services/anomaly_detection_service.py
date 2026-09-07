@@ -100,20 +100,22 @@ class AnomalyDetectionService:
         try:
             obs_history = (
                 self.db.query(DailyObservation)
-                .filter(DailyObservation.farm_id == farm.id)
+                .join(Cow, DailyObservation.cow_id == Cow.id)
+                .filter(Cow.farm_id == getattr(farm, "id", ""))
                 .limit(200)
                 .all()
             )
             data_rows = []
             for o in obs_history:
-                if o.milk_produced_liters is not None and o.feed_quantity_kg is not None:
-                    o_thi = float(o.weather_log.thi) if getattr(o, "weather_log", None) and o.weather_log.thi else 70.0
-                    data_rows.append([float(o.milk_produced_liters), float(o.feed_quantity_kg), o_thi])
+                if getattr(o, "milk_produced_liters", None) is not None and getattr(o, "feed_quantity_kg", None) is not None:
+                    w_log = getattr(o, "weather_log", None)
+                    o_thi = float(getattr(w_log, "thi")) if w_log and getattr(w_log, "thi", None) is not None else 70.0
+                    data_rows.append([float(getattr(o, "milk_produced_liters")), float(getattr(o, "feed_quantity_kg")), o_thi])
 
             if len(data_rows) >= 5 and milk is not None and feed is not None:
                 cur_thi = thi if thi is not None else 70.0
                 X = np.array(data_rows)
-                clf = IsolationForest(contamination=0.1, random_state=42)
+                clf = IsolationForest(contamination=0.1, random_state=42)  # type: ignore
                 clf.fit(X)
                 raw_score = -clf.decision_function(np.array([[milk, feed, cur_thi]]))[0]
                 ml_score = max(0.0, min(1.0, (raw_score + 0.2) / 0.4))
@@ -314,12 +316,15 @@ class AnomalyDetectionService:
     def list_anomalies(
         self,
         user_id: str,
+        farm_id: Optional[str] = None,
         severity: Optional[str] = None,
         resolved: Optional[bool] = None,
         cow_id: Optional[str] = None,
         search: Optional[str] = None,
     ) -> list[AnomalyRecord]:
         query = self.db.query(AnomalyRecord).filter(AnomalyRecord.owner_id == user_id)
+        if farm_id is not None:
+            query = query.filter(AnomalyRecord.farm_id == farm_id)
         if severity is not None:
             query = query.filter(AnomalyRecord.severity == severity)
         if resolved is not None:

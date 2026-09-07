@@ -4,12 +4,10 @@ import {
   Calendar,
   MousePointer,
   Gauge,
-  Bell,
   Activity,
   Repeat,
   Sparkles,
   Layers,
-  Dna,
   FlaskConical,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -40,8 +38,7 @@ const navSections: NavSection[] = [
     titleKey: "nav.animal_intelligence",
     items: [
       { to: "/predictions", labelKey: "nav.predictions", icon: Gauge },
-      { to: "/health-alerts", labelKey: "nav.health_alerts", icon: Bell },
-      { to: "/anomalies", labelKey: "nav.anomaly_detection", icon: Activity },
+      { to: "/health-alerts", labelKey: "nav.health_and_risk", icon: Activity },
       { to: "/recommendations", labelKey: "nav.recommendations", icon: Repeat },
     ],
   },
@@ -51,7 +48,6 @@ const navSections: NavSection[] = [
       { to: "/digital-twin", labelKey: "nav.digital_twin", icon: Layers },
       { to: "/simulation", labelKey: "nav.simulation", icon: FlaskConical },
       { to: "/explainability", labelKey: "nav.explainability", icon: Sparkles },
-      { to: "/genetics", labelKey: "nav.genetics", icon: Dna },
     ],
   },
 ];

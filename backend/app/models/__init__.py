@@ -14,7 +14,6 @@ from .anomaly_record import AnomalyRecord
 from .explainability_result import ExplainabilityResult
 from .recommendation import Recommendation
 from .digital_twin import DigitalTwinState
-from .sire_master import SireMaster
 from .user import User
 from .user_preference import UserPreference
 from .weather_log import WeatherLog
@@ -34,7 +33,6 @@ __all__ = [
     "MilkPrediction",
     "ExplainabilityResult",
     "Recommendation",
-    "SireMaster",
     "User",
     "UserPreference",
     "WeatherLog",

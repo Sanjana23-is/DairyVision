@@ -68,7 +68,20 @@ class PredictionService:
 
     def predict_value(self, feature_vector: FeatureVector) -> float:
         model = self._load_model()
-        x = np.array([self._feature_order(feature_vector)])
+        from app.core.project_paths import ensure_project_root_on_path
+        ensure_project_root_on_path()
+        from config import ALL_FEATURES as CF
+        import pandas as pd
+
+        feature_vals = self._feature_order(feature_vector)
+        if hasattr(model, "feature_names_in_"):
+            try:
+                x = pd.DataFrame([feature_vals], columns=model.feature_names_in_)
+                pred = model.predict(x)
+                return float(pred[0])
+            except Exception:
+                pass
+        x = np.array([feature_vals])
         pred = model.predict(x)
         return float(pred[0])
 
@@ -162,7 +175,7 @@ class PredictionService:
         )
 
         predicted = self.predict_value(feature_vector)
-        model_version = getattr(self._load_model(), "__version__", os.path.basename(self.model_path))
+        model_version = getattr(self._load_model(), "__version__", os.path.basename(self.model_path or "best_milk_model.pkl"))
 
         conf_score, conf_lower, conf_upper, conf_status = self._compute_confidence_interval(
             farm.id, predicted

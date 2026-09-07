@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -22,7 +24,7 @@ def create_prediction(
     payload: FeatureVector,
     user_id: str = Depends(get_current_user_id),
     service: PredictionService = Depends(get_prediction_service),
-) -> MilkPredictionResponse:
+) -> Any:
     # payload must include observation linking info via metadata? We expect client to supply observation id in payload metadata
     # For now require observation_id in payload model (users can pass observation id in separate field)
     obs_id = getattr(payload, "observation_id", None)

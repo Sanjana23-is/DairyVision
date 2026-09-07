@@ -22,6 +22,8 @@ from ..database.types import GUID
 if TYPE_CHECKING:
     from .health_alert import HealthAlert
     from .cow import Cow
+    from .anomaly_record import AnomalyRecord
+    from .user import User
 
 
 class Recommendation(Base):
