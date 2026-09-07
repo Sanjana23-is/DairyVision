@@ -69,7 +69,7 @@ export default function Sidebar() {
               DairyVision <span className="text-emerald-600 dark:text-emerald-400">AI</span>
             </div>
             <div className="mt-1 text-[11px] font-normal text-slate-500 dark:text-[#71717A]">
-              Farm intelligence workspace
+              {t("nav.farm_intelligence_workspace")}
             </div>
           </div>
         </div>
@@ -80,10 +80,10 @@ export default function Sidebar() {
         <span className="text-base">🌾</span>
         <div className="truncate">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 block leading-none">
-            {t("status.active_farm", "Active Farm")}
+            {t("farms.active_farm")}
           </span>
           <span className="font-semibold text-slate-900 dark:text-[#F4F4F5] truncate block mt-0.5">
-            {currentFarmName || "No Farm Selected"}
+            {currentFarmName || t("farms.no_farms_found")}
           </span>
         </div>
       </div>

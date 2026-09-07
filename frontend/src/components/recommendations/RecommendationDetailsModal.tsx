@@ -1,4 +1,6 @@
 import { Recommendation } from "@/services/recommendation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getSeverityLabel } from "@/lib/i18n-helpers";
 
 export default function RecommendationDetailsModal({
   recommendation,
@@ -11,13 +13,15 @@ export default function RecommendationDetailsModal({
   open?: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
+
   if (!open || !recommendation) return null;
 
   function getCowDisplayName(rec: Recommendation): string {
     if (rec.cow?.name) return rec.cow.name;
     if (rec.cow_id && cowNameById[rec.cow_id]) return cowNameById[rec.cow_id];
-    if (rec.cow_id) return `Cow ${rec.cow_id.slice(0, 8)}`;
-    return "Herd / General";
+    if (rec.cow_id) return `${t("common.cow", "Cow")} ${rec.cow_id.slice(0, 8)}`;
+    return t("recommendations.herd_general", "Herd / General");
   }
 
   function getCategoryIcon(cat?: string | null): string {
@@ -68,7 +72,7 @@ export default function RecommendationDetailsModal({
 
   const priorityVal = recommendation.priority || "Medium";
   const categoryText = recommendation.category || "General Farm Management";
-  const titleText = recommendation.title || "Advisory Action";
+  const titleText = recommendation.title || t("recommendations.title", "Advisory Action");
   const isHigh = priorityVal === "High" || priorityVal === "Critical";
   const isMed = priorityVal === "Medium";
   const cowDisplayName = getCowDisplayName(recommendation);
@@ -87,7 +91,7 @@ export default function RecommendationDetailsModal({
               </h3>
             </div>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-[#A1A1AA]">
-              Advisory Details & Contextual Signal Breakdown
+              {t("recommendations.context_breakdown", "Advisory Details & Contextual Signal Breakdown")}
             </p>
           </div>
           <button
@@ -105,7 +109,7 @@ export default function RecommendationDetailsModal({
           <div className="rounded-2xl border border-sky-100 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 p-5 shadow-sm">
             <div className="flex items-center gap-2 text-sm font-bold text-sky-900 dark:text-sky-300">
               <span>💡</span>
-              <span>Why this recommendation?</span>
+              <span>{t("recommendations.why_this", "Why this recommendation?")}</span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-sky-950 dark:text-sky-200 font-medium">
               {whyText}
@@ -116,10 +120,10 @@ export default function RecommendationDetailsModal({
           <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20]/50 p-5">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
               <span>📋</span>
-              <span>Recommended Action</span>
+              <span>{t("recommendations.recommended_action", "Recommended Action")}</span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-[#A1A1AA] whitespace-pre-wrap font-medium">
-              {recommendation.description || "No specific action text provided."}
+              {recommendation.description || t("common.no_data", "No specific action text provided.")}
             </p>
           </div>
 
@@ -127,7 +131,7 @@ export default function RecommendationDetailsModal({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Subject Cow
+                {t("recommendations.subject_cow", "Subject Cow")}
               </div>
               <div className="mt-1.5 text-sm font-semibold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <span>🐄</span>
@@ -137,7 +141,7 @@ export default function RecommendationDetailsModal({
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Category
+                {t("recommendations.category", "Category")}
               </div>
               <div className="mt-1.5 text-sm font-semibold text-slate-800 dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <span>{getCategoryIcon(categoryText)}</span>
@@ -147,7 +151,7 @@ export default function RecommendationDetailsModal({
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Priority Level
+                {t("recommendations.priority", "Priority Level")}
               </div>
               <div className="mt-1.5">
                 <span
@@ -159,14 +163,14 @@ export default function RecommendationDetailsModal({
                       : "bg-slate-100 dark:bg-[#151719] text-slate-700 dark:text-[#A1A1AA]"
                   }`}
                 >
-                  {priorityVal} Priority
+                  {getSeverityLabel(priorityVal, t)}
                 </span>
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Status
+                {t("common.status", "Status")}
               </div>
               <div className="mt-1.5">
                 <span
@@ -176,7 +180,7 @@ export default function RecommendationDetailsModal({
                       : "bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300"
                   }`}
                 >
-                  {recommendation.completed ? "Completed" : "Action Required"}
+                  {recommendation.completed ? t("recommendations.status_applied", "Completed") : t("recommendations.action_required", "Action Required")}
                 </span>
               </div>
             </div>
@@ -184,13 +188,13 @@ export default function RecommendationDetailsModal({
 
           {/* Footer Date */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#27272A] pt-4 text-xs text-slate-400 dark:text-[#A1A1AA]">
-            <span>Evaluated & Generated: {formatDate(recommendation.created_at)}</span>
+            <span>{t("recommendations.evaluated_generated", "Evaluated & Generated")}: {formatDate(recommendation.created_at)}</span>
             <button
               type="button"
               onClick={onClose}
               className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
             >
-              Close
+              {t("common.close", "Close")}
             </button>
           </div>
         </div>

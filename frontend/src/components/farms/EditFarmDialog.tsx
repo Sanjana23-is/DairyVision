@@ -3,6 +3,7 @@ import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Farm } from "@/services/farm";
+import { useLanguage } from "@/context/LanguageContext";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -35,6 +36,7 @@ export default function EditFarmDialog({
   loading?: boolean;
   error?: string;
 }) {
+  const { t } = useLanguage();
   const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
 
   const {
@@ -43,7 +45,6 @@ export default function EditFarmDialog({
     reset,
     formState: { errors },
   } = useForm<FormData>({ resolver });
-
 
   // populate when farm changes
   React.useEffect(() => {
@@ -67,10 +68,10 @@ export default function EditFarmDialog({
         onSubmit={handleSubmit((v) => onSave(farm.id, v))}
         className="w-full max-w-md rounded bg-white p-6 shadow-xl"
       >
-        <h3 className="mb-4 text-lg font-semibold">Edit Farm</h3>
+        <h3 className="mb-4 text-lg font-semibold">{t("farms.edit_farm")}</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-sm">Name</label>
+            <label className="text-sm">{t("farms.farm_name")}</label>
             <input
               className="w-full rounded border px-2 py-1"
               {...register("name")}
@@ -84,7 +85,7 @@ export default function EditFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-sm">City</label>
+              <label className="text-sm">{t("farms.city")}</label>
               <input
                 className="w-full rounded border px-2 py-1"
                 {...register("location_city")}
@@ -92,7 +93,7 @@ export default function EditFarmDialog({
             </div>
 
             <div>
-              <label className="text-sm">Country</label>
+              <label className="text-sm">{t("farms.country")}</label>
               <input
                 className="w-full rounded border px-2 py-1"
                 {...register("location_country")}
@@ -102,7 +103,7 @@ export default function EditFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-sm">Latitude (optional)</label>
+              <label className="text-sm">{t("farms.latitude")}</label>
               <input
                 type="number"
                 step="any"
@@ -118,7 +119,7 @@ export default function EditFarmDialog({
             </div>
 
             <div>
-              <label className="text-sm">Longitude (optional)</label>
+              <label className="text-sm">{t("farms.longitude")}</label>
               <input
                 type="number"
                 step="any"
@@ -135,13 +136,12 @@ export default function EditFarmDialog({
           </div>
 
           <div>
-            <label className="text-sm">Description</label>
+            <label className="text-sm">{t("farms.description")}</label>
             <textarea
               className="w-full rounded border px-2 py-1"
               {...register("description")}
             />
           </div>
-
 
           {error && <div className="text-rose-600 text-sm mt-1">{error}</div>}
 
@@ -152,14 +152,14 @@ export default function EditFarmDialog({
               className="rounded border px-3 py-1"
               disabled={loading}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="rounded bg-sky-600 px-3 py-1 text-white"
               disabled={loading}
             >
-              {loading ? "Saving..." : "Save"}
+              {loading ? t("common.saving") : t("common.save")}
             </button>
           </div>
         </div>

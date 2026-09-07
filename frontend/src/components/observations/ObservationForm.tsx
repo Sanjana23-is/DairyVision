@@ -3,6 +3,8 @@ import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Observation } from "@/services/observation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getConditionLabel } from "@/lib/i18n-helpers";
 
 const positiveNumberOrEmpty = z.preprocess((val) => {
   if (val === "" || val === null || val === undefined) return undefined;
@@ -60,6 +62,7 @@ export default function ObservationForm({
   onClose: () => void;
   onSave: (payload: Partial<Observation>) => Promise<any> | any;
 }) {
+  const { t } = useLanguage();
   const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
 
   const {
@@ -163,37 +166,37 @@ export default function ObservationForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
       <form
         onSubmit={handleSubmit(submit)}
-        className="w-full max-w-lg overflow-y-auto max-h-[90vh] rounded-3xl bg-white p-6 shadow-xl"
+        className="w-full max-w-lg overflow-y-auto max-h-[90vh] rounded-3xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] p-6 shadow-xl text-slate-900 dark:text-[#F4F4F5]"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold">
-              {observation ? "Edit Observation" : "New Observation"}
+            <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">
+              {observation ? t("cows.edit_cow", "Edit Observation") : t("obs.add_observation", "New Observation")}
             </h3>
-            <p className="text-sm text-slate-500">
-              Daily observation & health check.
+            <p className="text-sm text-slate-500 dark:text-[#A1A1AA]">
+              {t("obs.subtitle", "Daily observation & health check.")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-sm text-slate-600"
+            className="text-sm text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
           >
-            Close
+            {t("common.close", "Close")}
           </button>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="space-y-1">
-            <span className="text-sm font-medium">Cow</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.cow", "Cow")}</span>
             {cowOptions && cowOptions.length > 0 ? (
               <select
                 {...register("cow_id")}
-                className="h-12 w-full rounded-2xl border px-4"
+                className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
-                <option value="">Select a cow</option>
+                <option value="" className="dark:bg-[#1B1D20]">{t("obs.select_cow", "Select Cow")}</option>
                 {cowOptions.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="dark:bg-[#1B1D20]">
                     {c.name ?? c.id}
                   </option>
                 ))}
@@ -201,8 +204,8 @@ export default function ObservationForm({
             ) : (
               <input
                 {...register("cow_id")}
-                placeholder="Cow ID"
-                className="h-12 w-full rounded-2xl border px-4"
+                placeholder={t("cows.cow_tag_id", "Cow ID")}
+                className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             )}
             {errors.cow_id && (
@@ -213,11 +216,11 @@ export default function ObservationForm({
           </label>
 
           <label className="space-y-1">
-            <span className="text-sm font-medium">Date</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.date", "Date")}</span>
             <input
               type="date"
               {...register("observation_date")}
-              className="h-12 w-full rounded-2xl border px-4"
+              className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             {errors.observation_date && (
               <div className="text-rose-600 text-xs">
@@ -229,14 +232,14 @@ export default function ObservationForm({
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="space-y-1">
-            <span className="text-sm font-medium">Total milk produced (L)</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.milk_yield_l", "Milk Yield (L)")}</span>
             <input
               type="number"
               step="0.1"
               inputMode="decimal"
               {...register("milk_produced_liters")}
-              placeholder="e.g. 12.5"
-              className="h-12 w-full rounded-2xl border px-4"
+              placeholder="12.5"
+              className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             {errors.milk_produced_liters && (
               <div className="text-rose-600 text-xs">
@@ -246,14 +249,14 @@ export default function ObservationForm({
           </label>
 
           <label className="space-y-1">
-            <span className="text-sm font-medium">Total feed quantity (kg)</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.feed_kg", "Feed (kg)")}</span>
             <input
               type="number"
               step="0.1"
               inputMode="decimal"
               {...register("feed_quantity_kg")}
-              placeholder="Optional"
-              className="h-12 w-full rounded-2xl border px-4"
+              placeholder={t("common.optional", "Optional")}
+              className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             {errors.feed_quantity_kg && (
               <div className="text-rose-600 text-xs">
@@ -264,46 +267,46 @@ export default function ObservationForm({
         </div>
 
         {/* Structured Health Information Section */}
-        <div className="mt-6 rounded-2xl border bg-slate-50 p-4 space-y-4">
-          <div className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-            <span>🩺 Health Information</span>
+        <div className="mt-6 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-4 space-y-4">
+          <div className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5] flex items-center gap-2">
+            <span>🩺 {t("nav.health_alerts", "Health Information")}</span>
           </div>
 
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-slate-700">Health Condition</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.health_condition", "Health Condition")}</span>
             <select
               {...register("health_condition")}
-              className="h-12 w-full rounded-2xl border bg-white px-4 text-sm"
+              className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
-              <option value="normal">Normal (Healthy)</option>
-              <option value="fever">Fever / High Temp</option>
-              <option value="mastitis">Mastitis / Udder Issue</option>
-              <option value="lameness">Lameness / Leg Issue</option>
-              <option value="respiratory">Respiratory / Coughing</option>
-              <option value="digestive">Digestive / Bloat</option>
-              <option value="other">Other Issue</option>
+              <option value="normal" className="dark:bg-[#151719]">{getConditionLabel("normal", t)}</option>
+              <option value="fever" className="dark:bg-[#151719]">{getConditionLabel("fever", t)}</option>
+              <option value="mastitis" className="dark:bg-[#151719]">{getConditionLabel("mastitis", t)}</option>
+              <option value="lameness" className="dark:bg-[#151719]">{getConditionLabel("lameness", t)}</option>
+              <option value="digestive" className="dark:bg-[#151719]">{getConditionLabel("digestive", t)}</option>
+              <option value="off_feed" className="dark:bg-[#151719]">{getConditionLabel("off_feed", t)}</option>
+              <option value="other" className="dark:bg-[#151719]">{t("breeds.other", "Other Issue")}</option>
             </select>
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-1">
-              <span className="text-sm font-medium text-slate-700">Body Temperature (°C)</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.temperature", "Body Temperature (°C)")}</span>
               <input
                 type="number"
                 step="0.1"
                 inputMode="decimal"
                 {...register("body_temperature_c")}
-                placeholder="Optional (e.g. 38.5)"
-                className="h-12 w-full rounded-2xl border bg-white px-4 text-sm"
+                placeholder="38.5"
+                className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
-              <p className="text-xs text-slate-500">Leave blank if not measured.</p>
+              <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">{t("common.optional", "Optional")}</p>
               {errors.body_temperature_c && (
                 <div className="text-rose-600 text-xs">{errors.body_temperature_c.message}</div>
               )}
             </label>
 
             <label className="space-y-1">
-              <span className="text-sm font-medium text-slate-700">Body Condition Score (BCS)</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("obs.bcs", "Body Condition Score (BCS)")}</span>
               <input
                 type="number"
                 step="0.1"
@@ -311,10 +314,10 @@ export default function ObservationForm({
                 max="5.0"
                 inputMode="decimal"
                 {...register("body_condition_score")}
-                placeholder="Optional (1.0 - 5.0)"
-                className="h-12 w-full rounded-2xl border bg-white px-4 text-sm"
+                placeholder="3.0"
+                className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
-              <p className="text-xs text-slate-500">1.0 (Thin) to 5.0 (Fat). Leave blank if not measured.</p>
+              <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">{t("obs.bcs_hint", "1.0 (Thin) to 5.0 (Fat).")}</p>
               {errors.body_condition_score && (
                 <div className="text-rose-600 text-xs">{errors.body_condition_score.message}</div>
               )}
@@ -322,22 +325,22 @@ export default function ObservationForm({
           </div>
 
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-slate-700">Health Notes</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("common.notes", "Health Notes")}</span>
             <input
               {...register("health_notes")}
-              placeholder="Optional health details or observations"
-              className="h-12 w-full rounded-2xl border bg-white px-4 text-sm"
+              placeholder={t("common.optional", "Optional health details or observations")}
+              className="h-12 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-4 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </label>
         </div>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium">General Notes</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("common.description", "General Notes")}</span>
           <textarea
             {...register("notes")}
             rows={3}
-            className="mt-1 w-full rounded-2xl border px-3 py-2 text-sm"
-            placeholder="Optional general notes"
+            className="mt-1 w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder={t("common.optional", "Optional general notes")}
           />
           {errors.notes && (
             <div className="text-rose-600 text-xs">{errors.notes.message}</div>
@@ -348,17 +351,17 @@ export default function ObservationForm({
           <button
             type="button"
             onClick={onClose}
-            className="h-12 rounded-2xl border px-4 text-sm"
+            className="h-12 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 text-sm font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428]"
             disabled={saving}
           >
-            Cancel
+            {t("common.cancel", "Cancel")}
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="h-12 rounded-2xl bg-sky-600 px-4 text-white text-sm"
+            className="h-12 rounded-2xl bg-emerald-600 px-4 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-60 shadow-xs"
           >
-            {saving ? "Saving…" : "Save observation"}
+            {saving ? t("common.saving", "Saving…") : t("common.save", "Save observation")}
           </button>
         </div>
         {saveError && <div className="mt-3 text-rose-600 text-sm">{saveError}</div>}

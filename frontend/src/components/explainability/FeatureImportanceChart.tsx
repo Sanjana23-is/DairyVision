@@ -9,9 +9,11 @@ import {
   Cell,
 } from "recharts";
 import type { ExplainabilityFeature } from "@/services/explainability";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Custom Tooltip for SHAP Feature Importance
 function CustomShapTooltip({ active, payload }: any) {
+  const { t } = useLanguage();
   if (!active || !payload || !payload.length) return null;
   const item = payload[0].payload;
   const shapVal = item.shap_value ?? 0;
@@ -27,8 +29,8 @@ function CustomShapTooltip({ active, payload }: any) {
       </div>
       <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]/70 pt-0.5">
         {shapVal >= 0
-          ? "Increases predicted milk yield"
-          : "Decreases predicted milk yield"}
+          ? t("explain.supporting", "Increases predicted milk yield")
+          : t("explain.lowering", "Decreases predicted milk yield")}
       </div>
     </div>
   );
@@ -39,10 +41,12 @@ export default function FeatureImportanceChart({
 }: {
   features: ExplainabilityFeature[];
 }) {
+  const { t } = useLanguage();
+
   if (!features || features.length === 0) {
     return (
       <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-6 text-slate-600 dark:text-[#A1A1AA] text-sm text-center">
-        No feature importance data available.
+        {t("status.no_data", "No feature importance data available.")}
       </div>
     );
   }
@@ -66,10 +70,10 @@ export default function FeatureImportanceChart({
         <h4 className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">Feature Attribution (SHAP)</h4>
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> + Yield Impact
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> + {t("explain.supporting", "Yield Boost")}
           </span>
           <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
-            <span className="h-2 w-2 rounded-full bg-rose-500" /> - Yield Impact
+            <span className="h-2 w-2 rounded-full bg-rose-500" /> - {t("explain.lowering", "Yield Penalty")}
           </span>
         </div>
       </div>
@@ -111,3 +115,4 @@ export default function FeatureImportanceChart({
     </div>
   );
 }
+

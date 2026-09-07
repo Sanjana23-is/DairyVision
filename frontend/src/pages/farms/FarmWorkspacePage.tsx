@@ -6,6 +6,7 @@ import { fetchCows } from "@/services/cow";
 import { fetchHealthAlerts } from "@/services/healthAlert";
 import { fetchObservations } from "@/services/observation";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import {
   ArrowLeft,
@@ -24,6 +25,7 @@ export default function FarmWorkspacePage() {
   const { farmId } = useParams<{ farmId: string }>();
   const navigate = useNavigate();
   const { currentFarmId, setCurrentFarm } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"overview" | "cows" | "observations" | "predictions" | "alerts">("overview");
 
   const { data: farms = [], isLoading: isFarmsLoading } = useQuery({
@@ -58,7 +60,7 @@ export default function FarmWorkspacePage() {
       <DashboardLayout>
         <div className="mx-auto max-w-7xl">
           <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA] shadow-sm">
-            Loading farm workspace...
+            {t("status.loading", "Loading farm workspace...")}
           </div>
         </div>
       </DashboardLayout>
@@ -71,10 +73,10 @@ export default function FarmWorkspacePage() {
         <div className="mx-auto max-w-7xl space-y-4">
           <Link to="/farms" className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline">
             <ArrowLeft className="h-4 w-4" />
-            Back to Farms
+            {t("farms.back_to_farms", "Back to Farms")}
           </Link>
           <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-700 dark:text-[#F4F4F5] shadow-sm">
-            Farm not found.
+            {t("status.not_found", "Farm not found.")}
           </div>
         </div>
       </DashboardLayout>
@@ -101,7 +103,7 @@ export default function FarmWorkspacePage() {
         <div className="space-y-3">
           <Link to="/farms" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-[#A1A1AA] hover:text-slate-800 dark:hover:text-[#F4F4F5] transition">
             <ArrowLeft className="h-4 w-4" />
-            Back to Farms
+            {t("farms.back_to_farms", "Back to Farms")}
           </Link>
 
           <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -113,7 +115,7 @@ export default function FarmWorkspacePage() {
                   {isActive ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                      ACTIVE FARM
+                      {t("farms.active_farm", "ACTIVE FARM")}
                     </span>
                   ) : (
                     <button
@@ -121,7 +123,7 @@ export default function FarmWorkspacePage() {
                       onClick={handleMakeActive}
                       className="rounded-full bg-slate-100 dark:bg-[#1B1D20] border border-slate-200 dark:border-[#27272A] px-3 py-1 text-xs font-bold text-slate-700 dark:text-[#F4F4F5] hover:bg-sky-50 dark:hover:bg-sky-950/40 hover:text-sky-700 dark:hover:text-sky-300"
                     >
-                      Set as Active Farm
+                      {t("farms.set_as_active", "Set as Active Farm")}
                     </button>
                   )}
                 </div>
@@ -141,35 +143,35 @@ export default function FarmWorkspacePage() {
                   activeTab === "overview" ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                 }`}
               >
-                Overview
+                {t("nav.overview", "Overview")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate(`/cows?farm_id=${farmId}`)}
                 className="rounded-xl px-3 py-1.5 text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5] transition"
               >
-                Cows ({cows.length})
+                {t("nav.cows", "Cows")} ({cows.length})
               </button>
               <button
                 type="button"
                 onClick={() => navigate(`/observations?farm_id=${farmId}`)}
                 className="rounded-xl px-3 py-1.5 text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5] transition"
               >
-                Observations ({observations.length})
+                {t("nav.daily_observations", "Observations")} ({observations.length})
               </button>
               <button
                 type="button"
                 onClick={() => navigate(`/predictions?farm_id=${farmId}`)}
                 className="rounded-xl px-3 py-1.5 text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5] transition"
               >
-                Predictions
+                {t("nav.predictions", "Predictions")}
               </button>
               <button
                 type="button"
                 onClick={() => navigate(`/health-alerts?farm_id=${farmId}`)}
                 className="rounded-xl px-3 py-1.5 text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5] transition"
               >
-                Alerts ({activeAlerts.length})
+                {t("health.alerts", "Alerts")} ({activeAlerts.length})
               </button>
             </div>
           </div>
@@ -182,7 +184,7 @@ export default function FarmWorkspacePage() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-3xl border border-sky-100 dark:border-[#27272A] bg-sky-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider">Total Cows</div>
+                  <div className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider">{t("dashboard.total_cows", "Total Cows")}</div>
                   <div className="mt-1 text-3xl font-black text-sky-950 dark:text-[#F4F4F5]">{cows.length}</div>
                   <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">Registered cattle in herd</p>
                 </div>
@@ -191,7 +193,7 @@ export default function FarmWorkspacePage() {
 
               <div className="rounded-3xl border border-amber-100 dark:border-[#27272A] bg-amber-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider">Active Alerts</div>
+                  <div className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider">{t("dashboard.active_alerts", "Active Alerts")}</div>
                   <div className="mt-1 text-3xl font-black text-amber-950 dark:text-[#F4F4F5]">{activeAlerts.length}</div>
                   <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">Health issues needing attention</p>
                 </div>
@@ -200,7 +202,7 @@ export default function FarmWorkspacePage() {
 
               <div className="rounded-3xl border border-emerald-100 dark:border-[#27272A] bg-emerald-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Daily Observations</div>
+                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">{t("nav.daily_observations", "Daily Observations")}</div>
                   <div className="mt-1 text-3xl font-black text-emerald-950 dark:text-[#F4F4F5]">{observations.length}</div>
                   <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">Production records logged</p>
                 </div>
@@ -210,7 +212,7 @@ export default function FarmWorkspacePage() {
 
             {/* Quick Actions */}
             <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm space-y-3">
-              <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">Quick Actions</h2>
+              <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">{t("dashboard.quick_actions", "Quick Actions")}</h2>
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="button"
@@ -218,7 +220,7 @@ export default function FarmWorkspacePage() {
                   className="inline-flex items-center gap-2 rounded-2xl bg-sky-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-sky-700 transition"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Add Cow</span>
+                  <span>{t("cows.add_cow", "Add Cow")}</span>
                 </button>
 
                 <button
@@ -227,7 +229,7 @@ export default function FarmWorkspacePage() {
                   className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Record Observation</span>
+                  <span>{t("obs.record_observation", "Record Observation")}</span>
                 </button>
 
                 <button
@@ -236,7 +238,7 @@ export default function FarmWorkspacePage() {
                   className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719] transition shadow-xs"
                 >
                   <Gauge className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                  <span>View Milk Predictions</span>
+                  <span>{t("pred.view_predictions", "View Milk Predictions")}</span>
                 </button>
 
                 <button
@@ -245,7 +247,7 @@ export default function FarmWorkspacePage() {
                   className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719] transition shadow-xs"
                 >
                   <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span>AI Decision Intelligence</span>
+                  <span>{t("explain.title", "AI Yield Intelligence")}</span>
                 </button>
               </div>
             </div>
@@ -255,16 +257,16 @@ export default function FarmWorkspacePage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-2">
                   <Activity className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                  Recent Health Alerts & Operational Risks
+                  {t("health.recent_alerts", "Recent Health Alerts & Operational Risks")}
                 </h2>
                 <Link to="/health-alerts" className="text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline">
-                  View All Alerts →
+                  {t("health.view_all", "View All Alerts →")}
                 </Link>
               </div>
 
               {activeAlerts.length === 0 ? (
                 <div className="rounded-2xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-500/10 p-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                  ✅ No active health alerts or severe risks recorded for this farm.
+                  ✅ {t("health.no_active_alerts", "No active health alerts or severe risks recorded for this farm.")}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -288,3 +290,4 @@ export default function FarmWorkspacePage() {
     </DashboardLayout>
   );
 }
+

@@ -1,5 +1,6 @@
 import { MilkPrediction } from "@/services/prediction";
 import { Sparkles, Activity } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -25,6 +26,7 @@ export default function PredictionCard({
   cowName?: string;
   observationDate?: string;
 }) {
+  const { t } = useLanguage();
   const hasRange = prediction.confidence_lower != null && prediction.confidence_upper != null;
   const isHistorical = prediction.confidence_data_status === "historical";
 
@@ -34,7 +36,7 @@ export default function PredictionCard({
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#27272A] pb-2.5">
         <div className="flex items-center gap-1.5">
           <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">AI Model Yield Target</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">{t("pred.ai_target", "AI Model Yield Target")}</span>
         </div>
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
@@ -44,8 +46,8 @@ export default function PredictionCard({
           }`}
         >
           {prediction.confidence_score != null
-            ? `Confidence: ${Math.round(prediction.confidence_score * 100)}%`
-            : "Confidence: Estimated"}
+            ? `${t("pred.confidence", "Confidence")}: ${Math.round(prediction.confidence_score * 100)}%`
+            : `${t("pred.confidence", "Confidence")}: ${t("pred.estimated", "Estimated")}`}
         </span>
       </div>
 
@@ -54,7 +56,7 @@ export default function PredictionCard({
         <span className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-950 dark:text-[#F4F4F5]">
           {prediction.predicted_milk_yield.toFixed(2)}
         </span>
-        <span className="text-sm font-semibold text-slate-500 dark:text-[#A1A1AA]">L/day</span>
+        <span className="text-sm font-semibold text-slate-500 dark:text-[#A1A1AA]">L/{t("common.day", "day")}</span>
       </div>
 
       {/* Estimated Prediction Range Box */}
@@ -62,33 +64,33 @@ export default function PredictionCard({
         <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider">
           <span className="flex items-center gap-1">
             <Activity className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            Estimated Prediction Range
+            {t("pred.prediction_range", "Estimated Prediction Range")}
           </span>
         </div>
         <div className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
           {hasRange
-            ? `${prediction.confidence_lower!.toFixed(2)} – ${prediction.confidence_upper!.toFixed(2)} L/day`
-            : "Estimated from baseline error"}
+            ? `${prediction.confidence_lower!.toFixed(2)} – ${prediction.confidence_upper!.toFixed(2)} L/${t("common.day", "day")}`
+            : t("pred.range_baseline", "Estimated from baseline error")}
         </div>
         <p className="text-[11px] font-normal text-slate-500 dark:text-[#A1A1AA]">
           {isHistorical
-            ? "Historical error-based estimate"
-            : "Estimated with limited historical data"}
+            ? t("pred.range_hist_desc", "Historical error-based estimate")
+            : t("pred.range_limited_desc", "Estimated with limited historical data")}
         </p>
       </div>
 
       {/* Metadata Footers */}
       <div className="grid gap-1.5 text-xs text-slate-600 dark:text-[#A1A1AA] pt-0.5">
         <div className="flex justify-between">
-          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Subject Cow:</span>
+          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">{t("pred.subject_cow", "Subject Cow")}:</span>
           <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">{cowName || "—"}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Observation Date:</span>
+          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">{t("pred.observation_date", "Observation Date")}:</span>
           <span className="font-medium text-slate-800 dark:text-[#F4F4F5]">{formatDate(observationDate)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Model Engine:</span>
+          <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">{t("pred.model_engine", "Model Engine")}:</span>
           <span className="font-mono text-[11px] text-slate-700 dark:text-[#F4F4F5]">{prediction.model_version}</span>
         </div>
       </div>

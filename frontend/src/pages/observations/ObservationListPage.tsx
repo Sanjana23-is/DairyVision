@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getConditionLabel } from "@/lib/i18n-helpers";
 import {
   fetchObservations,
   Observation,
@@ -45,26 +46,6 @@ function formatDate(dateStr: string) {
   } catch {
     return dateStr;
   }
-}
-
-function getHealthBadgeStyle(condition?: string | null) {
-  const normalized = (condition || "").toLowerCase().trim();
-  if (normalized === "fever" || normalized === "mastitis" || normalized === "critical") {
-    return {
-      label: condition || "Critical",
-      className: "bg-rose-50 text-rose-800 border border-rose-200/80 font-bold",
-    };
-  }
-  if (normalized === "lameness" || normalized === "warning" || normalized === "mild") {
-    return {
-      label: condition || "Warning",
-      className: "bg-amber-50 text-amber-800 border border-amber-200/80 font-bold",
-    };
-  }
-  return {
-    label: condition || "Normal",
-    className: "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-bold",
-  };
 }
 
 export default function ObservationListPage() {
@@ -115,11 +96,11 @@ export default function ObservationListPage() {
 
   const cowNameById = useMemo(() => {
     const map = new Map<string, string>();
-    cows.forEach((cow) => map.set(cow.id, cow.name || cow.tag_id || "Unknown cow"));
+    cows.forEach((cow) => map.set(cow.id, cow.name || cow.tag_id || t("common.unknown", "Unknown cow")));
     return map;
-  }, [cows]);
+  }, [cows, t]);
 
-  const cowName = (id: string) => cowNameById.get(id) ?? "Unknown cow";
+  const cowName = (id: string) => cowNameById.get(id) ?? t("common.unknown", "Unknown cow");
 
   const filteredObservations = useMemo(() => {
     let result = [...observations];
@@ -179,13 +160,13 @@ export default function ObservationListPage() {
       setAdding(false);
       setToast({
         type: "success",
-        message: "Daily observation added successfully.",
+        message: t("common.success", "Daily observation added successfully."),
       });
     },
     onError: (err) => {
       setToast({
         type: "error",
-        message: err.message || "Unable to add observation.",
+        message: err.message || t("common.error", "Unable to add observation."),
       });
     },
   });
@@ -200,13 +181,13 @@ export default function ObservationListPage() {
       setEditing(null);
       setToast({
         type: "success",
-        message: "Observation updated successfully.",
+        message: t("common.success", "Observation updated successfully."),
       });
     },
     onError: (err) => {
       setToast({
         type: "error",
-        message: err.message || "Unable to update observation.",
+        message: err.message || t("common.error", "Unable to update observation."),
       });
     },
   });
@@ -218,22 +199,22 @@ export default function ObservationListPage() {
       setDeleting(null);
       setToast({
         type: "success",
-        message: "Observation deleted successfully.",
+        message: t("common.success", "Observation deleted successfully."),
       });
     },
     onError: (err) => {
       setToast({
         type: "error",
-        message: err.message || "Unable to delete observation.",
+        message: err.message || t("common.error", "Unable to delete observation."),
       });
     },
   });
 
   const cowOptions = useMemo(() => {
     return cows
-      .map((cow) => ({ id: cow.id, name: cow.name || cow.tag_id || "Unknown cow" }))
+      .map((cow) => ({ id: cow.id, name: cow.name || cow.tag_id || t("common.unknown", "Unknown cow") }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [cows]);
+  }, [cows, t]);
 
   const clearToast = () => setToast(null);
 
@@ -242,17 +223,14 @@ export default function ObservationListPage() {
       <DashboardLayout>
         <div className="mx-auto max-w-7xl rounded-2xl border border-amber-100 bg-amber-50 p-6 shadow-sm text-amber-900 font-sans">
           <p className="mb-3 font-semibold">
-            No farm selected. Please select a farm before viewing observations.
-          </p>
-          <p className="mb-3 text-xs">
-            If you don't have a farm yet, create your first farm.
+            {t("farms.no_farms_found", "No farm selected. Please select a farm before viewing observations.")}
           </p>
           <div>
             <Link
               to="/farms"
               className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 transition"
             >
-              Create Your First Farm
+              {t("farms.title", "Select Farm")}
             </Link>
           </div>
         </div>
@@ -280,7 +258,7 @@ export default function ObservationListPage() {
               className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200/90 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-[#151719] px-4 py-2.5 text-xs font-bold text-emerald-900 dark:text-emerald-400 shadow-2xs hover:bg-emerald-100 dark:hover:bg-[#222428] hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-200"
             >
               <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{t("action.bulk_import", "Bulk Import CSV")}</span>
+              <span>{t("obs.bulk_import", "Bulk Import CSV")}</span>
             </button>
             <button
               type="button"
@@ -288,7 +266,7 @@ export default function ObservationListPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 active:bg-emerald-800 transition-all duration-200 border-0 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
-              <span>{t("action.add_observation", "Add Observation")}</span>
+              <span>{t("obs.add_observation", "Add Observation")}</span>
             </button>
           </div>
         </div>
@@ -303,7 +281,7 @@ export default function ObservationListPage() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("action.search", "Search...")}
+                placeholder={t("cows.search_placeholder", "Search cow name or date...")}
                 className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] pl-9 pr-3 text-xs text-slate-900 dark:text-[#F4F4F5] placeholder:text-slate-400 dark:placeholder:text-[#A1A1AA]/60 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 font-medium"
               />
             </div>
@@ -315,7 +293,7 @@ export default function ObservationListPage() {
                 onChange={(e) => setSelectedCow(e.target.value)}
                 className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">All cows ▾</option>
+                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("cows.all_breeds", "All Cows")} ▾</option>
                 {cowOptions.map((cow) => (
                   <option key={cow.id} value={cow.id} className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">
                     {cow.name}
@@ -331,11 +309,11 @@ export default function ObservationListPage() {
                 onChange={(e) => setSelectedHealth(e.target.value)}
                 className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: All ▾</option>
-                <option value="normal" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Normal</option>
-                <option value="lameness" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Warning / Lameness</option>
-                <option value="fever" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Critical / Fever</option>
-                <option value="mastitis" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Critical / Mastitis</option>
+                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("common.all", "All Health Conditions")} ▾</option>
+                <option value="normal" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getConditionLabel("normal", t)}</option>
+                <option value="lameness" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getConditionLabel("lameness", t)}</option>
+                <option value="fever" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getConditionLabel("fever", t)}</option>
+                <option value="mastitis" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getConditionLabel("mastitis", t)}</option>
               </select>
             </div>
 
@@ -346,8 +324,8 @@ export default function ObservationListPage() {
                 onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
                 className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="newest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Date: Latest First ▾</option>
-                <option value="oldest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Date: Oldest First ▾</option>
+                <option value="newest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("common.date", "Date")}: Latest First ▾</option>
+                <option value="oldest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("common.date", "Date")}: Oldest First ▾</option>
               </select>
             </div>
           </div>
@@ -367,7 +345,7 @@ export default function ObservationListPage() {
               onClick={clearToast}
               className="text-xs opacity-70 hover:opacity-100 font-bold"
             >
-              Dismiss
+              {t("common.dismiss", "Dismiss")}
             </button>
           </div>
         )}
@@ -376,17 +354,17 @@ export default function ObservationListPage() {
         <div className="space-y-4">
           {isLoading ? (
             <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] shadow-xs">
-              Loading daily observations...
+              {t("common.loading", "Loading daily observations...")}
             </div>
           ) : isError ? (
             <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 p-6 text-xs font-semibold text-rose-800 dark:text-rose-300 shadow-xs">
-              Error loading observations: {error?.message}
+              {t("common.error", "Error")}: {error?.message}
             </div>
           ) : filteredObservations.length === 0 ? (
             <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-12 text-center text-xs text-slate-500 dark:text-[#A1A1AA] shadow-xs space-y-2">
-              <p className="font-bold text-slate-800 dark:text-[#F4F4F5] text-sm">No daily observations found</p>
+              <p className="font-bold text-slate-800 dark:text-[#F4F4F5] text-sm">{t("obs.no_observations_found", "No daily observations found")}</p>
               <p>
-                Use <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">Add Observation</strong> or <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">Bulk Import CSV</strong> to create records.
+                {t("obs.no_observations_desc", "Use Add Observation or Bulk Import CSV to create records.")}
               </p>
             </div>
           ) : (
@@ -396,12 +374,12 @@ export default function ObservationListPage() {
                 <div className="flex items-center gap-2.5">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" />
                   <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
-                    {isExpanded ? "All Observations" : "Latest 5 Observations"}
+                    {isExpanded ? t("obs.showing_all", "All Observations") : t("obs.recent_records", "Latest 5 Observations")}
                   </h2>
                   <span className="rounded-full bg-slate-200/80 dark:bg-[#27272A] px-2.5 py-0.5 text-[11px] font-bold text-slate-700 dark:text-[#A1A1AA]">
                     {isExpanded
-                      ? `${filteredObservations.length} total records`
-                      : `Showing 5 of ${filteredObservations.length}`}
+                      ? `${filteredObservations.length} ${t("common.details", "total records")}`
+                      : `${Math.min(5, filteredObservations.length)} / ${filteredObservations.length}`}
                   </span>
                 </div>
                 {isExpanded && (
@@ -413,7 +391,7 @@ export default function ObservationListPage() {
                     }}
                     className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline transition"
                   >
-                    ← Show Latest 5 Only
+                    ← {t("obs.collapse_to_five", "Show Latest 5 Only")}
                   </button>
                 )}
               </div>
@@ -433,8 +411,8 @@ export default function ObservationListPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium text-slate-800 dark:text-[#F4F4F5]">
                     {visibleObservations.map((obs) => {
-                      const badge = getHealthBadgeStyle(obs.health_condition);
                       const isMenuOpen = activeMenuId === obs.id;
+                      const condLabel = getConditionLabel(obs.health_condition, t);
 
                       return (
                         <tr
@@ -464,23 +442,29 @@ export default function ObservationListPage() {
                           {/* Milk Yield */}
                           <td className="py-3.5 px-4 font-extrabold text-slate-950 dark:text-[#F4F4F5]">
                             {obs.milk_produced_liters != null
-                              ? `${obs.milk_produced_liters.toFixed(1)} L`
+                              ? `${obs.milk_produced_liters.toFixed(1)} ${t("common.units_l_day", "L")}`
                               : "—"}
                           </td>
 
                           {/* Feed (kg) */}
                           <td className="py-3.5 px-4 text-slate-700 dark:text-[#F4F4F5] font-semibold">
                             {obs.feed_quantity_kg != null
-                              ? `${obs.feed_quantity_kg.toFixed(1)} kg`
+                              ? `${obs.feed_quantity_kg.toFixed(1)} ${t("common.units_kg", "kg")}`
                               : "—"}
                           </td>
 
                           {/* Health Condition Semantic Badge */}
                           <td className="py-3.5 px-4">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] capitalize ${badge.className}`}
+                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                                obs.health_condition === "fever" || obs.health_condition === "mastitis"
+                                  ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300"
+                                  : obs.health_condition === "lameness"
+                                    ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
+                                    : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
+                              }`}
                             >
-                              {badge.label}
+                              ● {condLabel}
                             </span>
                           </td>
 
@@ -514,7 +498,7 @@ export default function ObservationListPage() {
                                       className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                                     >
                                       <Eye className="h-3.5 w-3.5 text-slate-500 dark:text-[#A1A1AA]" />
-                                      <span>View Details</span>
+                                      <span>{t("common.view_details", "View Details")}</span>
                                     </button>
                                     <button
                                       type="button"
@@ -525,7 +509,7 @@ export default function ObservationListPage() {
                                       className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                                     >
                                       <Edit2 className="h-3.5 w-3.5 text-slate-500 dark:text-[#A1A1AA]" />
-                                      <span>Edit Record</span>
+                                      <span>{t("common.edit", "Edit Record")}</span>
                                     </button>
                                     <div className="border-t border-slate-100 dark:border-[#27272A] my-1" />
                                     <button
@@ -537,7 +521,7 @@ export default function ObservationListPage() {
                                       className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
                                     >
                                       <Trash2 className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
-                                      <span>Delete Record</span>
+                                      <span>{t("common.delete", "Delete Record")}</span>
                                     </button>
                                   </div>
                                 </>
@@ -555,7 +539,7 @@ export default function ObservationListPage() {
               {!isExpanded && filteredObservations.length > 5 && (
                 <div className="border-t border-slate-100 dark:border-[#27272A] p-4 bg-slate-50/40 dark:bg-[#1B1D20]/40 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-                    Showing <strong className="text-slate-800 dark:text-[#F4F4F5]">5</strong> of <strong className="text-slate-800 dark:text-[#F4F4F5]">{filteredObservations.length}</strong> recorded observations
+                    {t("obs.recent_records", "Showing 5 most recent observations")} ({filteredObservations.length} {t("common.details", "total")})
                   </p>
                   <button
                     type="button"
@@ -565,7 +549,7 @@ export default function ObservationListPage() {
                     }}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-500/30 bg-emerald-50/90 dark:bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-800 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:border-emerald-400 dark:hover:border-emerald-500/50 shadow-2xs transition-all duration-200"
                   >
-                    <span>View All Observations ({filteredObservations.length})</span>
+                    <span>{t("obs.view_all_history", "View All Observations →")}</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -575,7 +559,7 @@ export default function ObservationListPage() {
                 <div className="border-t border-slate-100 dark:border-[#27272A] p-3.5 bg-slate-50/40 dark:bg-[#1B1D20]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-3">
                     <p className="text-slate-500 dark:text-[#A1A1AA]">
-                      Showing <strong className="text-slate-800 dark:text-[#F4F4F5]">{(currentPage - 1) * pageSize + 1}</strong> to <strong className="text-slate-800 dark:text-[#F4F4F5]">{Math.min(currentPage * pageSize, filteredObservations.length)}</strong> of <strong className="text-slate-800 dark:text-[#F4F4F5]">{filteredObservations.length}</strong> observations
+                      {t("obs.showing_all", "Showing all observation records")} ({filteredObservations.length})
                     </p>
                     <button
                       type="button"
@@ -585,7 +569,7 @@ export default function ObservationListPage() {
                       }}
                       className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold"
                     >
-                      (Collapse to 5)
+                      ({t("obs.collapse_to_five", "Collapse to 5")})
                     </button>
                   </div>
 
@@ -598,10 +582,10 @@ export default function ObservationListPage() {
                         className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-2.5 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                       >
                         <ChevronLeft className="h-3.5 w-3.5" />
-                        <span>Previous</span>
+                        <span>{t("common.back", "Previous")}</span>
                       </button>
                       <div className="flex items-center gap-1 px-2 font-semibold text-slate-600 dark:text-[#A1A1AA]">
-                        <span>Page {currentPage} of {totalPages}</span>
+                        <span>{currentPage} / {totalPages}</span>
                       </div>
                       <button
                         type="button"
@@ -609,7 +593,7 @@ export default function ObservationListPage() {
                         disabled={currentPage === totalPages}
                         className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-2.5 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                       >
-                        <span>Next</span>
+                        <span>{t("common.details", "Next")}</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </button>
                     </div>

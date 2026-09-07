@@ -216,7 +216,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "all" ? "bg-white dark:bg-[#151719] text-slate-900 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  All ({rawCowStates.length})
+                  {t("common.all", "All")} ({rawCowStates.length})
                 </button>
                 <button
                   onClick={() => setFilterCategory("attention")}
@@ -224,7 +224,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "attention" ? "bg-amber-500 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Attention ({attentionCount})
+                  {t("dashboard.require_attention", "Attention")} ({attentionCount})
                 </button>
                 <button
                   onClick={() => setFilterCategory("critical")}
@@ -232,7 +232,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "critical" ? "bg-rose-600 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Health Risk ({rawCowStates.filter((c) => c.health_status !== "Healthy").length})
+                  {t("nav.health_and_risk", "Health Risk")} ({rawCowStates.filter((c) => c.health_status !== "Healthy").length})
                 </button>
                 <button
                   onClick={() => setFilterCategory("heat")}
@@ -240,7 +240,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "heat" ? "bg-orange-500 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Heat Stress ({rawCowStates.filter((c) => c.heat_stress_level === "High" || c.heat_stress_level === "Moderate").length})
+                  {t("dashboard.thermal_conditions", "Heat Stress")} ({rawCowStates.filter((c) => c.heat_stress_level === "High" || c.heat_stress_level === "Moderate").length})
                 </button>
               </div>
 
@@ -252,10 +252,10 @@ export default function DigitalTwinPage() {
                   onChange={(e) => setSortOption(e.target.value as SortType)}
                   className="bg-transparent border-none text-xs font-bold text-slate-800 dark:text-[#F4F4F5] focus:outline-none"
                 >
-                  <option value="vitality_asc" className="dark:bg-[#1B1D20]">Vitality (Lowest First)</option>
-                  <option value="vitality_desc" className="dark:bg-[#1B1D20]">Vitality (Highest First)</option>
-                  <option value="yield_desc" className="dark:bg-[#1B1D20]">Milk Yield (High to Low)</option>
-                  <option value="name" className="dark:bg-[#1B1D20]">Cow Name</option>
+                  <option value="vitality_asc" className="dark:bg-[#1B1D20]">{t("twin.vitality_index", "Vitality")} ({t("common.low_to_high", "Lowest First")})</option>
+                  <option value="vitality_desc" className="dark:bg-[#1B1D20]">{t("twin.vitality_index", "Vitality")} ({t("common.high_to_low", "Highest First")})</option>
+                  <option value="yield_desc" className="dark:bg-[#1B1D20]">{t("twin.daily_milk", "Milk Yield")} ({t("common.high_to_low", "High to Low")})</option>
+                  <option value="name" className="dark:bg-[#1B1D20]">{t("cows.name", "Cow Name")}</option>
                 </select>
               </div>
             </div>
@@ -264,15 +264,15 @@ export default function DigitalTwinPage() {
           {/* Herd Cards List */}
           {isLoading ? (
             <div className="p-8 text-center text-sm font-semibold text-slate-500 dark:text-[#A1A1AA]">
-              Loading real-time herd state grid…
+              {t("common.loading", "Loading real-time herd state grid…")}
             </div>
           ) : isError ? (
             <div className="p-6 text-center text-sm font-semibold text-rose-600 dark:text-rose-400">
-              Failed to load herd state records.
+              {t("common.error", "Failed to load herd state records.")}
             </div>
           ) : sortedCowStates.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500 dark:text-[#A1A1AA]">
-              No cows match the selected filter category ({filterCategory}).
+              {t("common.no_data", "No cows match the selected filter category.")}
             </div>
           ) : (
             <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -303,7 +303,7 @@ export default function DigitalTwinPage() {
                             {cow.cow_name}
                           </h4>
                           <span className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium">
-                            {cow.lactation_stage || "Active Lactation"}
+                            {cow.lactation_stage || t("status.lactating", "Active Lactation")}
                           </span>
                         </div>
                       </div>
@@ -325,7 +325,7 @@ export default function DigitalTwinPage() {
                     {/* Vitality Index Bar */}
                     <div className="mt-3.5 space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-500 dark:text-[#A1A1AA]">Vitality Index</span>
+                        <span className="font-semibold text-slate-500 dark:text-[#A1A1AA]">{t("twin.vitality_index", "Vitality Index")}</span>
                         <span
                           className={`font-black ${
                             cow.vitality_score >= 80
@@ -355,7 +355,7 @@ export default function DigitalTwinPage() {
                     {/* Footer Metrics */}
                     <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 dark:border-[#27272A] pt-2.5 text-xs">
                       <span className="font-medium text-slate-600 dark:text-[#A1A1AA]">
-                        Yield: <strong className="text-slate-900 dark:text-[#F4F4F5]">{cow.production.current_yield_l != null ? `${cow.production.current_yield_l} L` : "N/A"}</strong>
+                        {t("cows.yield", "Yield")}: <strong className="text-slate-900 dark:text-[#F4F4F5]">{cow.production.current_yield_l != null ? `${cow.production.current_yield_l} L` : "N/A"}</strong>
                       </span>
                       <span
                         className={`font-medium ${

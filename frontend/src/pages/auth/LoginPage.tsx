@@ -1,8 +1,11 @@
 import { DairyVideoBackground } from "@/components/auth/DairyVideoBackground";
 import { LoginForm } from "@/components/login-form";
+import { useLanguage } from "@/context/LanguageContext";
 import { Activity, BarChart3, Calendar } from "lucide-react";
 
 export function LoginPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 font-sans text-slate-100 flex items-center justify-center">
       {/* 1. CINEMATIC FULL-VIEWPORT BACKGROUND VIDEO */}
@@ -38,7 +41,7 @@ export function LoginPage() {
               </span>
             </div>
             <p className="text-xs text-slate-300/80 pl-10 font-normal">
-              Smarter decisions. Healthier herds. Better farms.
+              {t("auth.turn_data_smarter")}
             </p>
           </div>
         </div>
@@ -50,13 +53,12 @@ export function LoginPage() {
           <div className="w-full max-w-[660px] flex flex-col items-start text-left">
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-[54px] lg:text-[60px] xl:text-[64px] font-bold tracking-tight text-white leading-[1.08] mb-5">
-              Turn your farm data<br />
-              into <span className="text-emerald-400">smarter decisions.</span>
+              {t("auth.turn_data_smarter")}
             </h1>
             
             {/* Larger Supporting Description */}
             <p className="text-lg lg:text-[21px] font-normal text-slate-100/95 leading-relaxed max-w-[560px] mb-10">
-              Monitor herd health, predict milk production, and make data-driven decisions with confidence.
+              {t("auth.hero_desc")}
             </p>
 
             {/* 3 Larger Feature Rows with High-Impact Typography & Contrast */}
@@ -67,8 +69,8 @@ export function LoginPage() {
                   <Activity className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">Herd Health Monitoring</h3>
-                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Real-time health tracking and alerts</p>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">{t("auth.health_monitoring")}</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">{t("auth.health_monitoring_desc")}</p>
                 </div>
               </div>
 
@@ -78,8 +80,8 @@ export function LoginPage() {
                   <BarChart3 className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">AI Milk Yield Predictions</h3>
-                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Predict milk yield and identify production risks</p>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">{t("auth.milk_predictions")}</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">{t("auth.milk_predictions_desc")}</p>
                 </div>
               </div>
 
@@ -89,8 +91,8 @@ export function LoginPage() {
                   <Calendar className="h-5.5 w-5.5 lg:h-6 lg:w-6 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">Smart Farm Management</h3>
-                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">Data-driven insights for better daily decisions</p>
+                  <h3 className="text-[17px] lg:text-[19px] font-bold text-white leading-snug">{t("auth.smart_farm_mgmt")}</h3>
+                  <p className="text-sm lg:text-[15px] font-medium text-slate-200/95 mt-1">{t("auth.smart_farm_mgmt_desc")}</p>
                 </div>
               </div>
             </div>
@@ -109,7 +111,7 @@ export function LoginPage() {
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pb-2 text-xs font-normal text-slate-300/80">
           <div className="flex items-center gap-2 text-emerald-400 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Live farm intelligence</span>
+            <span>{t("auth.live_farm_intelligence")}</span>
           </div>
 
           <p className="text-slate-300/70 font-normal">
