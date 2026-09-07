@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 
 interface RegisterFormProps extends React.ComponentProps<"form"> {
@@ -25,6 +26,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -32,7 +34,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
     setError("");
 
     if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError("Please fill in all fields.");
+      setError(t("auth.error_empty", "Please fill in all fields."));
       return;
     }
 
@@ -42,7 +44,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match. Please verify your password.");
+      setError(t("auth.password_mismatch", "Passwords do not match."));
       return;
     }
 
@@ -63,7 +65,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
       if (typeof detail === "string" && detail.trim()) {
         setError(detail);
       } else {
-        setError("We could not create your account right now. Please try again.");
+        setError(t("auth.error_invalid", "We could not create your account right now. Please try again."));
       }
     } finally {
       setIsSubmitting(false);
@@ -75,13 +77,13 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
       <FieldGroup>
         <div className="flex flex-col text-left mb-1">
           <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600">
-            START FREE
+            {t("auth.start_free")}
           </span>
           <h2 className="text-[26px] lg:text-[29px] font-bold tracking-tight text-slate-900 mt-1 leading-snug">
-            Create your account
+            {t("auth.create_account")}
           </h2>
           <p className="text-[14px] font-normal text-slate-500 mt-0.5">
-            Join modern dairy operations scaling with AI.
+            {t("auth.create_account_subtitle")}
           </p>
         </div>
 
@@ -93,7 +95,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
 
         <Field>
           <FieldLabel htmlFor="fullName" className="text-[13px] font-medium text-slate-700 mb-1 block">
-            Full name
+            {t("auth.full_name")}
           </FieldLabel>
           <div className="relative">
             <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -112,7 +114,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
 
         <Field>
           <FieldLabel htmlFor="email" className="text-[13px] font-medium text-slate-700 mb-1 block">
-            Email address
+            {t("auth.email_address")}
           </FieldLabel>
           <div className="relative">
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -131,7 +133,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
 
         <Field>
           <FieldLabel htmlFor="password" className="text-[13px] font-medium text-slate-700 mb-1 block">
-            Password
+            {t("auth.password")}
           </FieldLabel>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -162,7 +164,7 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
 
         <Field>
           <FieldLabel htmlFor="confirmPassword" className="text-[13px] font-medium text-slate-700 mb-1 block">
-            Confirm password
+            {t("auth.confirm_password")}
           </FieldLabel>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -197,14 +199,14 @@ export function RegisterForm({ className, onSuccess, ...props }: RegisterFormPro
             disabled={isSubmitting}
             className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[15px] rounded-xl shadow-sm transition-all duration-150 border-0"
           >
-            {isSubmitting ? "Creating workspace..." : "Create account"}
+            {isSubmitting ? t("auth.creating_workspace") : t("auth.create_account_btn")}
           </Button>
         </Field>
 
         <p className="text-center text-xs font-normal text-slate-500 pt-2">
-          Already have an account?{" "}
+          {t("auth.already_have_account")}{" "}
           <Link to="/login" className="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
-            Sign in
+            {t("auth.sign_in")}
           </Link>
         </p>
       </FieldGroup>

@@ -12,6 +12,8 @@ import {
 import { DashboardSummary, DashboardTrends } from "@/services/dashboard";
 import { HealthAlert } from "@/services/healthAlert";
 import { fetchObservations, Observation } from "@/services/observation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getSeverityLabel } from "@/lib/i18n-helpers";
 
 function escapeCSVValue(val: any): string {
   if (val === null || val === undefined) return '""';
@@ -37,6 +39,7 @@ export default function ExecutiveReportModal({
   healthAlerts?: HealthAlert[];
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const [exportingCSV, setExportingCSV] = useState(false);
 
   if (!open) return null;
@@ -156,7 +159,7 @@ export default function ExecutiveReportModal({
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-bold text-xs border border-sky-200 dark:border-sky-800/60">
               <FileText className="h-4 w-4" />
             </span>
-            <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">Executive Farm Report Viewer</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">{t("reports.executive_title")}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -166,7 +169,7 @@ export default function ExecutiveReportModal({
               className="flex items-center gap-1.5 rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              {exportingCSV ? "Exporting CSV…" : "Export Observations CSV"}
+              {exportingCSV ? t("reports.exporting_csv") : t("reports.export_csv")}
             </button>
 
             <button
@@ -174,7 +177,7 @@ export default function ExecutiveReportModal({
               className="flex items-center gap-1.5 rounded-xl bg-sky-700 hover:bg-sky-800 px-3.5 py-1.5 text-xs font-bold text-white transition shadow-sm"
             >
               <Printer className="h-3.5 w-3.5" />
-              Print / Save as PDF
+              {t("reports.print_pdf")}
             </button>
 
             <button
@@ -192,7 +195,7 @@ export default function ExecutiveReportModal({
             <div className="flex items-center gap-2">
               <span className="text-xl font-black tracking-tight text-sky-900 dark:text-sky-300">DairyVision AI</span>
               <span className="rounded-full bg-slate-100 dark:bg-[#1B1D20] px-2.5 py-0.5 text-[11px] font-bold text-slate-700 dark:text-[#A1A1AA] border border-slate-200 dark:border-[#27272A]">
-                Executive Farm Summary
+                {t("reports.summary_title")}
               </span>
             </div>
             <h1 className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1">{farmName}</h1>
@@ -211,34 +214,34 @@ export default function ExecutiveReportModal({
         {/* Executive KPI Grid */}
         <div className="space-y-2">
           <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-[#A1A1AA]">
-            Key Operational Performance Indicators
+            {t("reports.kpis_title")}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
-              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Active Herd Size</span>
-              <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{activeCowCount} Cows</span>
-              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Registered active inventory</span>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">{t("reports.active_herd_size")}</span>
+              <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{activeCowCount} {t("nav.cows")}</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">{t("cows.tracked_in_herd")}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
-              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Milk Produced Today</span>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">{t("reports.milk_today")}</span>
               <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{actualMilkToday.toFixed(1)} L</span>
-              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Total recorded daily yield</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">{t("dashboard.total_milk_produced")}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
-              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">7-Day Average Yield</span>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">{t("reports.avg_yield_7d")}</span>
               <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{avgYield7d.toFixed(1)} L/day</span>
-              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Rolling 7d production average</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">{t("reports.avg_yield")}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
-              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Active Health Alerts</span>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">{t("reports.health_alerts")}</span>
               <span className={`text-2xl font-black mt-1 block ${healthAlerts.length > 0 ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}`}>
-                {healthAlerts.length} Active
+                {healthAlerts.length} {t("health.active_alerts")}
               </span>
               <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">
-                {healthAlerts.length > 0 ? "Requires monitoring" : "All checks normal"}
+                {healthAlerts.length > 0 ? t("alerts.requires_monitoring") : t("alerts.all_clear")}
               </span>
             </div>
           </div>
@@ -248,21 +251,21 @@ export default function ExecutiveReportModal({
         <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#1B1D20] p-4 space-y-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
             <Thermometer className="h-4 w-4 text-rose-500 dark:text-rose-400" />
-            Thermal Stress Index (THI) & Ambient Weather Status
+            {t("reports.thermal_stress_title")}
           </h3>
           <div className="grid grid-cols-3 gap-4 text-xs">
             <div>
-              <span className="text-slate-500 dark:text-[#A1A1AA] block">Temperature:</span>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">{t("observations.temperature")}:</span>
               <strong className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">{temp.toFixed(1)} °C</strong>
             </div>
             <div>
-              <span className="text-slate-500 dark:text-[#A1A1AA] block">Relative Humidity:</span>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">{t("observations.humidity")}:</span>
               <strong className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">{humidity.toFixed(0)}%</strong>
             </div>
             <div>
-              <span className="text-slate-500 dark:text-[#A1A1AA] block">Calculated THI Index:</span>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">{t("observations.thi")}:</span>
               <strong className={`text-sm font-bold ${thi >= 79 ? "text-rose-700 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"}`}>
-                {thi.toFixed(1)} {thi >= 79 ? "(Heat Stress Zone)" : "(Comfort Zone)"}
+                {thi.toFixed(1)} {thi >= 79 ? `(${t("observations.heat_stress")})` : `(${t("observations.normal")})`}
               </strong>
             </div>
           </div>
@@ -271,17 +274,17 @@ export default function ExecutiveReportModal({
         {/* 7-Day Milk Production & Forecast Trend Table */}
         <div className="space-y-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5]">
-            7-Day Milk Production & AI Forecast Trend
+            {t("reports.seven_day_trend_title")}
           </h3>
           {trends?.observation_trends && trends.observation_trends.length > 0 ? (
             <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#27272A]">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 dark:bg-[#1B1D20] border-b border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-[#A1A1AA] font-bold">
                   <tr>
-                    <th className="p-3">Date</th>
-                    <th className="p-3">Actual Milk Produced (L)</th>
-                    <th className="p-3">Avg Forecast Yield (L/cow)</th>
-                    <th className="p-3">Daily Observation Count</th>
+                    <th className="p-3">{t("table.date")}</th>
+                    <th className="p-3">{t("reports.milk_today")} (L)</th>
+                    <th className="p-3">{t("predictions.predicted_yield")} (L/cow)</th>
+                    <th className="p-3">{t("observations.observation_count")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium">
@@ -296,7 +299,7 @@ export default function ExecutiveReportModal({
                             ? `${predRow.average_predicted_milk_yield.toFixed(1)} L`
                             : "N/A"}
                         </td>
-                        <td className="p-3 text-slate-600 dark:text-[#A1A1AA]">{row.observation_count} logs</td>
+                        <td className="p-3 text-slate-600 dark:text-[#A1A1AA]">{row.observation_count}</td>
                       </tr>
                     );
                   })}
@@ -305,7 +308,7 @@ export default function ExecutiveReportModal({
             </div>
           ) : (
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] p-4 text-center text-xs text-slate-500 dark:text-[#A1A1AA]">
-              No daily observation trend data available for this farm yet.
+              {t("observations.no_data")}
             </div>
           )}
         </div>
@@ -314,17 +317,17 @@ export default function ExecutiveReportModal({
         <div className="space-y-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
             <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            Unresolved Herd Health & Thermal Stress Alerts ({healthAlerts.length})
+            {t("reports.active_alerts_title")} ({healthAlerts.length})
           </h3>
           {healthAlerts.length > 0 ? (
             <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#27272A]">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 dark:bg-[#1B1D20] border-b border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-[#A1A1AA] font-bold">
                   <tr>
-                    <th className="p-3">Alert Type</th>
-                    <th className="p-3">Severity</th>
-                    <th className="p-3">Description</th>
-                    <th className="p-3">Confidence</th>
+                    <th className="p-3">{t("health.condition")}</th>
+                    <th className="p-3">{t("health.severity")}</th>
+                    <th className="p-3">{t("table.description")}</th>
+                    <th className="p-3">{t("health.confidence")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium">
@@ -341,10 +344,10 @@ export default function ExecutiveReportModal({
                               : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20"
                           }`}
                         >
-                          {alert.alert_level}
+                          {getSeverityLabel(alert.alert_level, t)}
                         </span>
                       </td>
-                      <td className="p-3 text-slate-700 dark:text-[#F4F4F5] max-w-xs truncate">{alert.description || "Health check alert"}</td>
+                      <td className="p-3 text-slate-700 dark:text-[#F4F4F5] max-w-xs truncate">{alert.description || t("health.active_alerts")}</td>
                       <td className="p-3 font-semibold text-slate-800 dark:text-[#F4F4F5]">{(alert.confidence * 100).toFixed(0)}%</td>
                     </tr>
                   ))}
@@ -354,7 +357,7 @@ export default function ExecutiveReportModal({
           ) : (
             <div className="rounded-2xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-500/10 p-4 text-xs font-semibold text-emerald-900 dark:text-emerald-300 flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span>0 active health alerts reported. All monitored cows passed daily health evaluation.</span>
+              <span>{t("alerts.all_clear")}</span>
             </div>
           )}
         </div>
@@ -364,7 +367,7 @@ export default function ExecutiveReportModal({
           <div className="space-y-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-              Active AI Operational Recommendations
+              {t("reports.ai_action_plan")}
             </h3>
             <div className="space-y-2">
               {summary.recent_recommendations.slice(0, 3).map((rec, idx) => (
@@ -380,7 +383,7 @@ export default function ExecutiveReportModal({
         {/* Report Footer */}
         <div className="border-t border-slate-200 dark:border-[#27272A] pt-4 flex items-center justify-between text-[11px] text-slate-600 dark:text-[#A1A1AA]">
           <span>DairyVision AI Enterprise Operations Platform</span>
-          <span>End of Executive Summary Report</span>
+          <span>{t("reports.end_of_report")}</span>
         </div>
       </div>
     </div>

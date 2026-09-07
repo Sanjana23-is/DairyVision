@@ -394,7 +394,7 @@ export default function ExplainabilityPage() {
                       <div className="flex items-center gap-2 sm:gap-4">
                         <div>
                           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A] block">
-                            Predicted Yield
+                            {t("explain.predicted_yield", "Predicted Yield")}
                           </span>
                           <span className="text-base font-black text-slate-900 dark:text-[#F4F4F5]">
                             {pred.predicted_milk_yield.toFixed(1)}{" "}
@@ -408,11 +408,11 @@ export default function ExplainabilityPage() {
                         {isSelected ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Selected Explanation
+                            {t("status.selected", "Selected Explanation")}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                            View Explanation <ArrowRight className="h-3.5 w-3.5" />
+                            {t("explain.view_explanation", "View Explanation")} <ArrowRight className="h-3.5 w-3.5" />
                           </span>
                         )}
                       </div>
@@ -430,9 +430,9 @@ export default function ExplainabilityPage() {
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] transition shadow-sm"
                   >
                     {showAllHistory ? (
-                      <>Show Recent 5 Only</>
+                      <>{t("action.show_recent", "Show Recent 5 Only")}</>
                     ) : (
-                      <>View More Prediction History ({cowPredictionHistory.length - 5} more) →</>
+                      <>{t("action.view_all", "View More Prediction History")} ({cowPredictionHistory.length - 5} {t("action.more", "more")}) →</>
                     )}
                   </button>
                 </div>

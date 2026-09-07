@@ -1,6 +1,8 @@
 import React from "react";
 import { ShieldCheck, MoreHorizontal, Eye, Sparkles } from "lucide-react";
 import { UnifiedRiskCase, RiskSource, SummaryFilterType } from "@/services/riskCorrelation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getBreedLabel, getSeverityLabel } from "@/lib/i18n-helpers";
 
 interface PriorityCowsGridProps {
   cases: UnifiedRiskCase[];
@@ -17,43 +19,45 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
   onOpenMore,
   isLoading,
 }) => {
+  const { t } = useLanguage();
+
   function getSectionHeader() {
     switch (activeFilter) {
       case "high_attention":
         return {
           icon: "🔴",
-          title: "High Attention Cows",
-          subtitle: "Cows requiring immediate clinical inspection or management intervention.",
-          emptyText: "No high attention cows currently identified. The herd is in good health.",
+          title: t("risk.high_attention_cows", "High Attention Cows"),
+          subtitle: t("risk.high_attention_desc", "Cows requiring immediate clinical inspection or management intervention."),
+          emptyText: t("risk.no_high_attention", "No high attention cows currently identified. The herd is in good health."),
         };
       case "monitor":
         return {
           icon: "⚠️",
-          title: "Cows Under Surveillance",
-          subtitle: "Cows showing moderate variance in yield, biometrics, or feed intake.",
-          emptyText: "No cows currently in warning/monitoring status.",
+          title: t("risk.cows_under_surveillance", "Cows Under Surveillance"),
+          subtitle: t("risk.surveillance_desc", "Cows showing moderate variance in yield, biometrics, or feed intake."),
+          emptyText: t("risk.no_monitor", "No cows currently in warning/monitoring status."),
         };
       case "healthy":
         return {
           icon: "🐄",
-          title: "Healthy & Stable Herd",
-          subtitle: "Cows operating within normal expected baselines and healthy biometrics.",
-          emptyText: "No cows currently categorized under normal baseline.",
+          title: t("risk.healthy_stable_herd", "Healthy & Stable Herd"),
+          subtitle: t("risk.healthy_desc", "Cows operating within normal expected baselines and healthy biometrics."),
+          emptyText: t("risk.no_healthy", "No cows currently categorized under normal baseline."),
         };
       case "flagged_7d":
         return {
           icon: "📅",
-          title: "Cows Flagged (Past 7 Days)",
-          subtitle: "Unique cows with active or recent health signals recorded in the last 7 days.",
-          emptyText: "No health alerts or anomalies recorded across the herd in the last 7 days.",
+          title: t("risk.flagged_7d_title", "Cows Flagged (Past 7 Days)"),
+          subtitle: t("risk.flagged_7d_desc", "Unique cows with active or recent health signals recorded in the last 7 days."),
+          emptyText: t("risk.no_7d", "No health alerts or anomalies recorded across the herd in the last 7 days."),
         };
       case "all_attention":
       default:
         return {
           icon: "🚨",
-          title: "Cows Requiring Attention",
-          subtitle: "Aggregated cow-level cases prioritizing highest urgency (1 card per cow).",
-          emptyText: "All cows healthy and stable. No active attention cases.",
+          title: t("risk.cows_requiring_attention", "Cows Requiring Attention"),
+          subtitle: t("risk.attention_desc", "Aggregated cow-level cases prioritizing highest urgency (1 card per cow)."),
+          emptyText: t("risk.all_healthy", "All cows healthy and stable. No active attention cases."),
         };
     }
   }
@@ -68,7 +72,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-950/40 px-2 py-0.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300"
           >
-            <span>🤖</span> AI Anomaly
+            <span>🤖</span> {t("risk.ai_anomaly", "AI Anomaly")}
           </span>
         );
       case "Health Alert":
@@ -77,7 +81,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-950/40 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
           >
-            <span>🩺</span> Health Alert
+            <span>🩺</span> {t("risk.health_alert", "Health Alert")}
           </span>
         );
       case "Environmental":
@@ -86,7 +90,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/40 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
           >
-            <span>🌤️</span> Environmental
+            <span>🌤️</span> {t("risk.environmental", "Environmental")}
           </span>
         );
     }
@@ -110,7 +114,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
           </div>
         </div>
         <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-          Showing {cases.length} {cases.length === 1 ? "cow" : "cows"}
+          {t("common.showing", "Showing")} {cases.length} {t("cows.cows", "cows")}
         </span>
       </div>
 
@@ -132,7 +136,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
             {emptyText}
           </h4>
           <p className="mt-1 text-xs font-medium text-emerald-800/80 dark:text-emerald-400/70 max-w-md mx-auto">
-            Select another summary block above to view cows in other risk categories.
+            {t("risk.select_another_filter", "Select another summary block above to view cows in other risk categories.")}
           </p>
         </div>
       ) : (
@@ -167,7 +171,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                       </div>
                       {item.breed ? (
                         <div className="mt-0.5 text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">
-                          {item.breed}
+                          {getBreedLabel(item.breed, t)}
                         </div>
                       ) : null}
                     </div>
@@ -181,7 +185,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                           : "bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/40"
                       }`}
                     >
-                      {isCritical ? "HIGH ATTENTION" : isWarning ? "MONITOR" : "HEALTHY"}
+                      {getSeverityLabel(item.highest_severity, t).toUpperCase()}
                     </span>
                   </div>
 
@@ -210,7 +214,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                 {/* Bottom row: Signals & Actions (View Cow + More ⋯) */}
                 <div className="mt-4 border-t border-slate-100 dark:border-slate-800/80 pt-3">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                    {item.sources.length > 0 ? "Signals:" : "Status:"}
+                    {item.sources.length > 0 ? `${t("risk.signals", "Signals")}:` : `${t("common.status", "Status")}:`}
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex flex-wrap gap-1">
@@ -218,7 +222,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                         item.sources.map((s) => getSourceBadge(s))
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
-                          <Sparkles className="h-3 w-3" /> Normal Baseline
+                          <Sparkles className="h-3 w-3" /> {t("risk.normal_baseline", "Normal Baseline")}
                         </span>
                       )}
                     </div>
@@ -230,13 +234,13 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                         className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700/60 dark:bg-[#1B1D20] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-600 dark:hover:bg-emerald-600 dark:hover:text-white transition-all cursor-pointer"
                       >
                         <Eye className="h-3 w-3" />
-                        <span>View Cow</span>
+                        <span>{t("risk.view_cow", "View Cow")}</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onOpenMore(item)}
-                        title="More details & signals"
+                        title={t("common.more_details", "More details")}
                         className="rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700/60 dark:bg-[#1B1D20] p-1 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                       >
                         <MoreHorizontal className="h-4 w-4" />

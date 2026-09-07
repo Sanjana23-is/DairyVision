@@ -66,13 +66,13 @@ export function ProfilePage() {
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-[#A1A1AA] hover:text-slate-800 dark:hover:text-[#F4F4F5] mb-2 transition"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back</span>
+              <span>{t("common.back")}</span>
             </button>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
-              User Profile & Account Settings
+              {t("auth.profile_title")}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-1">
-              Manage your personal identity, display name, and active workspace preferences.
+              {t("auth.profile_subtitle")}
             </p>
           </div>
         </div>
@@ -90,7 +90,7 @@ export function ProfilePage() {
               </h2>
               <p className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium mt-0.5">{user?.email || "N/A"}</p>
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 mt-2">
-                Authenticated Account
+                {t("profile.personal_info")}
               </span>
             </div>
           </div>
@@ -120,7 +120,7 @@ export function ProfilePage() {
               {/* Editable Full Name Field */}
               <div className="space-y-1.5">
                 <label className="block font-bold text-slate-700 dark:text-[#F4F4F5]">
-                  Full Name <span className="text-rose-500">*</span>
+                  {t("auth.full_name")} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -133,14 +133,14 @@ export function ProfilePage() {
                   />
                 </div>
                 <p className="text-[11px] text-slate-400 dark:text-[#A1A1AA] font-medium">
-                  This name will be displayed across dashboard greetings and reports.
+                  {t("profile.subtitle")}
                 </p>
               </div>
 
               {/* Read-Only Email Field */}
               <div className="space-y-1.5">
                 <label className="block font-bold text-slate-700 dark:text-[#F4F4F5]">
-                  Email Address <span className="text-slate-400 dark:text-[#A1A1AA] font-normal">(Primary)</span>
+                  {t("auth.email_address")}
                 </label>
                 <div className="relative">
                   <input
@@ -150,15 +150,12 @@ export function ProfilePage() {
                     className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-50/80 dark:bg-[#1B1D20]/80 px-3.5 text-xs text-slate-500 dark:text-[#A1A1AA] font-semibold cursor-not-allowed select-none"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 dark:text-[#A1A1AA] font-medium">
-                  Email is linked to your authentication credentials.
-                </p>
               </div>
 
               {/* Language Preference Field */}
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="block font-bold text-slate-700 dark:text-[#F4F4F5]">
-                  Language Preference
+                  {t("profile.language_preferences")}
                 </label>
                 <div className="relative">
                   <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-emerald-600 dark:text-emerald-400 pointer-events-none" />
@@ -174,19 +171,16 @@ export function ProfilePage() {
                     ))}
                   </select>
                 </div>
-                <p className="text-[11px] text-slate-400 dark:text-[#A1A1AA] font-medium">
-                  Select your preferred language for navigation, buttons, and AI explainability labels.
-                </p>
               </div>
 
               {/* Theme Preference Card */}
               <div className="space-y-2 sm:col-span-2 rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#1B1D20] p-4">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-[#F4F4F5] font-bold text-xs">
                   <Palette className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Theme & Appearance</span>
+                  <span>{t("auth.theme_appearance")}</span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
-                  Choose your interface theme preference. System mode automatically matches your operating system.
+                  {t("auth.theme_desc")}
                 </p>
 
                 <div className="grid grid-cols-3 gap-3 pt-2">
@@ -200,7 +194,7 @@ export function ProfilePage() {
                     }`}
                   >
                     <Sun className="h-5 w-5 text-amber-500" />
-                    <span>Light Mode</span>
+                    <span>Light</span>
                   </button>
 
                   <button
@@ -213,7 +207,7 @@ export function ProfilePage() {
                     }`}
                   >
                     <Moon className="h-5 w-5 text-emerald-400" />
-                    <span>Dark Mode</span>
+                    <span>Dark</span>
                   </button>
 
                   <button
@@ -226,7 +220,7 @@ export function ProfilePage() {
                     }`}
                   >
                     <Monitor className="h-5 w-5 text-sky-500" />
-                    <span>System Auto</span>
+                    <span>System</span>
                   </button>
                 </div>
               </div>
@@ -235,10 +229,10 @@ export function ProfilePage() {
               <div className="rounded-xl border border-slate-100 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4 space-y-1">
                 <div className="flex items-center gap-2 text-slate-400 dark:text-[#A1A1AA] font-bold uppercase tracking-wider text-[10px]">
                   <Building className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Active Workspace</span>
+                  <span>{t("auth.active_workspace")}</span>
                 </div>
                 <p className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] truncate">
-                  {currentFarmName || "No farm selected"}
+                  {currentFarmName || t("farms.no_farms_found")}
                 </p>
               </div>
 
@@ -246,7 +240,7 @@ export function ProfilePage() {
               <div className="rounded-xl border border-slate-100 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4 space-y-1">
                 <div className="flex items-center gap-2 text-slate-400 dark:text-[#A1A1AA] font-bold uppercase tracking-wider text-[10px]">
                   <Shield className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Account Role</span>
+                  <span>{t("auth.account_role")}</span>
                 </div>
                 <p className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">
                   {(user as any)?.role || "Farm Manager"}
@@ -263,7 +257,7 @@ export function ProfilePage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 px-5 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 dark:hover:bg-emerald-600 active:bg-emerald-800 transition disabled:opacity-50 border-0 cursor-pointer"
               >
                 <Save className="h-4 w-4" />
-                <span>{t("action.save_changes", "Save Changes")}</span>
+                <span>{t("common.save_changes")}</span>
               </button>
 
               <button
@@ -272,7 +266,7 @@ export function ProfilePage() {
                 className="inline-flex items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 px-4 py-2.5 text-xs font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 hover:border-rose-300 transition"
               >
                 <LogOut className="h-4 w-4 text-rose-500 dark:text-rose-400" />
-                <span>{t("action.sign_out", "Sign Out")}</span>
+                <span>{t("common.sign_out")}</span>
               </button>
             </div>
           </form>

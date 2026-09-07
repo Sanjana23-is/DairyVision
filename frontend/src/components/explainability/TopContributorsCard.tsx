@@ -1,4 +1,5 @@
 import { ExplainabilityFeature } from "@/services/explainability";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TopContributorsCard({
   title,
@@ -7,12 +8,13 @@ export default function TopContributorsCard({
   title: string;
   items: ExplainabilityFeature[];
 }) {
+  const { t } = useLanguage();
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-5 shadow-sm">
       <div className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">{title}</div>
       <ul className="mt-4 space-y-3 text-sm text-slate-600 dark:text-[#A1A1AA]">
         {items.length === 0 ? (
-          <li className="text-xs text-slate-400 dark:text-[#A1A1AA]/70">No significant factors</li>
+          <li className="text-xs text-slate-400 dark:text-[#A1A1AA]/70">{t("status.no_data", "No significant factors")}</li>
         ) : (
           items.slice(0, 5).map((f, idx) => {
             const isPositive = (f.shap_value ?? 0) >= 0;
@@ -23,7 +25,7 @@ export default function TopContributorsCard({
                     {idx + 1}. {f.display_name || f.feature}
                   </div>
                   <div className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-                    Value: {f.value_formatted || String(f.value ?? "—")}
+                    {t("label.value", "Value")}: {f.value_formatted || String(f.value ?? "—")}
                   </div>
                 </div>
                 <div className="text-right">
@@ -43,3 +45,4 @@ export default function TopContributorsCard({
     </div>
   );
 }
+

@@ -4,6 +4,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBreeds } from "@/services/breed";
+import { useLanguage } from "@/context/LanguageContext";
+import { getBreedLabel, getStatusLabel } from "@/lib/i18n-helpers";
 
 // Note: Tag is intentionally not editable here. The backend's CowUpdate
 // schema does not accept tag_id, so tags are set once at creation time.
@@ -43,6 +45,7 @@ export default function EditCowDialog({
   isSubmitting?: boolean;
   submitError?: string | null;
 }) {
+  const { t } = useLanguage();
   const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
 
   const {
@@ -97,11 +100,12 @@ export default function EditCowDialog({
         })}
         className="w-full max-w-md rounded-2xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] p-6 shadow-xl text-slate-900 dark:text-[#F4F4F5]"
       >
-        <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">Edit Cow</h3>
+        <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">{t("cows.edit_cow", "Edit Cow")}</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Name</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.name", "Name")}</label>
             <input
+              placeholder={t("cows.enter_cow_name", "Enter cow name (e.g. Ganga)")}
               className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("name")}
             />
@@ -112,25 +116,22 @@ export default function EditCowDialog({
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Tag</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.tag_id", "Tag ID")}</label>
             <input
               className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20]/50 px-3 py-2 text-sm text-slate-500 dark:text-[#A1A1AA]"
               value={cow?.tag ?? ""}
               disabled
               readOnly
             />
-            <div className="text-xs text-slate-400 dark:text-[#A1A1AA] mt-1">
-              Tag can't be changed after a cow is created.
-            </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Age</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.age", "Age")}</label>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <input
                   type="number"
                   min="0"
-                  placeholder="Years (e.g. 4)"
+                  placeholder={t("cows.years", "Years")}
                   className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   {...register("age_years")}
                 />
@@ -145,7 +146,7 @@ export default function EditCowDialog({
                   type="number"
                   min="0"
                   max="11"
-                  placeholder="Months (0–11)"
+                  placeholder={t("cows.months", "Months")}
                   className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   {...register("age_months_part")}
                 />
@@ -156,14 +157,13 @@ export default function EditCowDialog({
                 )}
               </div>
             </div>
-            <div className="text-xs text-slate-400 dark:text-[#A1A1AA] mt-1">Approximate age is okay.</div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Weight (kg)</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.weight_kg", "Weight (kg)")}</label>
             <input
               type="number"
               step="any"
-              placeholder="e.g. 500"
+              placeholder="500"
               className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("weight_kg")}
             />
@@ -174,31 +174,31 @@ export default function EditCowDialog({
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Breed</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.breed", "Breed")}</label>
             <select
               className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("breed")}
             >
-              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Select breed</option>
+              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("cows.select_breed", "Select Breed")}</option>
               {breeds.map((b) => (
                 <option key={b.id} value={b.id} className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">
-                  {b.canonical_name}
+                  {getBreedLabel(b.canonical_name, t)}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Status</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">{t("cows.status", "Status")}</label>
             <select
               className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("status")}
             >
-              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Select status</option>
-              <option value="active" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Active</option>
-              <option value="dry" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Dry</option>
-              <option value="sick" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Sick</option>
-              <option value="deceased" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Deceased</option>
-              <option value="sold" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Sold</option>
+              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{t("cows.select_status", "Select Status")}</option>
+              <option value="active" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getStatusLabel("active", t)}</option>
+              <option value="dry" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getStatusLabel("dry", t)}</option>
+              <option value="sick" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getStatusLabel("sick", t)}</option>
+              <option value="deceased" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getStatusLabel("deceased", t)}</option>
+              <option value="sold" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">{getStatusLabel("sold", t)}</option>
             </select>
             {errors.status && (
               <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
@@ -219,14 +219,14 @@ export default function EditCowDialog({
               className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-sm font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428]"
               disabled={isSubmitting}
             >
-              Cancel
+              {t("common.cancel", "Cancel")}
             </button>
             <button
               type="submit"
               className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60 shadow-xs"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving…" : "Save"}
+              {isSubmitting ? t("common.saving", "Saving...") : t("common.save", "Save")}
             </button>
           </div>
         </div>

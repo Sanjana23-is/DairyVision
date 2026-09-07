@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLanguage } from "@/context/LanguageContext";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -32,6 +33,7 @@ export default function AddFarmDialog({
   loading?: boolean;
   error?: string;
 }) {
+  const { t } = useLanguage();
   const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
 
   const {
@@ -40,7 +42,6 @@ export default function AddFarmDialog({
     reset,
     formState: { errors },
   } = useForm<FormData>({ resolver });
-
 
   useEffect(() => {
     if (open) {
@@ -63,10 +64,10 @@ export default function AddFarmDialog({
         onSubmit={handleSubmit((v) => onCreate(v))}
         className="w-full max-w-md rounded-3xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] p-6 shadow-xl space-y-4"
       >
-        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">Create Farm</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">{t("farms.create_another", "Create Farm")}</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Name</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.farm_name", "Name")}</label>
             <input
               className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
               {...register("name")}
@@ -80,7 +81,7 @@ export default function AddFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">City</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.city", "City")}</label>
               <input
                 className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("location_city")}
@@ -88,7 +89,7 @@ export default function AddFarmDialog({
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Country</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.country", "Country")}</label>
               <input
                 className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("location_country")}
@@ -98,7 +99,7 @@ export default function AddFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Latitude (optional)</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.latitude", "Latitude (optional)")}</label>
               <input
                 type="number"
                 step="any"
@@ -114,7 +115,7 @@ export default function AddFarmDialog({
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Longitude (optional)</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.longitude", "Longitude (optional)")}</label>
               <input
                 type="number"
                 step="any"
@@ -131,7 +132,7 @@ export default function AddFarmDialog({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Description</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">{t("farms.description", "Description")}</label>
             <textarea
               rows={2}
               className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none resize-none"
@@ -148,14 +149,14 @@ export default function AddFarmDialog({
               className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
               disabled={loading}
             >
-              Cancel
+              {t("action.cancel", "Cancel")}
             </button>
             <button
               type="submit"
               className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? "Creating..." : "Create"}
+              {loading ? t("farms.creating", "Creating...") : t("action.create", "Create")}
             </button>
           </div>
         </div>
@@ -163,3 +164,4 @@ export default function AddFarmDialog({
     </div>
   );
 }
+

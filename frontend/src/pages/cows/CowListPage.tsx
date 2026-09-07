@@ -13,6 +13,7 @@ import { fetchHealthAlerts } from "@/services/healthAlert";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getBreedLabel, getStatusLabel } from "@/lib/i18n-helpers";
 import AddCowDialog from "@/components/cows/AddCowDialog";
 import EditCowDialog from "@/components/cows/EditCowDialog";
 import DeleteCowDialog from "@/components/cows/DeleteCowDialog";
@@ -107,7 +108,8 @@ export default function CowListPage() {
 
   const breedName = (b?: string | null) => {
     if (!b) return null;
-    return breedNameById.get(b) ?? b;
+    const raw = breedNameById.get(b) ?? b;
+    return getBreedLabel(raw, t);
   };
 
   const filteredCows = useMemo(() => {
@@ -130,7 +132,7 @@ export default function CowListPage() {
     return Array.from(set).sort((a, b) =>
       (breedName(a) ?? a).localeCompare(breedName(b) ?? b),
     );
-  }, [cows, breedNameById]);
+  }, [cows, breedNameById, t]);
 
   // Metric Summaries (Real Data Only)
   const activeCount = cows.filter((c) => c.status === "active").length;
@@ -166,12 +168,12 @@ export default function CowListPage() {
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-7xl rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm text-amber-900">
-          <p className="font-bold text-sm">No farm is currently active.</p>
+          <p className="font-bold text-sm">{t("farms.no_farms_found", "No farm is currently active.")}</p>
           <p className="text-xs text-amber-700 mt-1">
-            Please choose a farm from the Farms page to manage cattle.
+            {t("farms.choose_farm", "Please choose a farm from the Farms page to manage cattle.")}
           </p>
           <Link to="/farms" className="inline-block mt-3 rounded-2xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-sm">
-            Go to Farms Page
+            {t("farms.title", "Select Farm")}
           </Link>
         </div>
       </DashboardLayout>
@@ -228,7 +230,7 @@ export default function CowListPage() {
             <div>
               <div className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider">{t("cows.avg_weight", "AVG WEIGHT")}</div>
               <div className="mt-1 text-3xl font-black text-slate-900 dark:text-[#F4F4F5]">
-                {avgWeight ? `${avgWeight} kg` : "—"}
+                {avgWeight ? `${avgWeight} ${t("common.units_kg", "kg")}` : "—"}
               </div>
               <p className="mt-1 text-xs text-slate-400 dark:text-[#A1A1AA]">{t("cows.herd_weight_estimate", "Herd weight estimate")}</p>
             </div>
@@ -276,27 +278,27 @@ export default function CowListPage() {
             className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-3 py-2 text-xs text-slate-800 dark:text-[#F4F4F5] shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <option value="" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{t("cows.all_statuses", "All Statuses")}</option>
-            <option value="active" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Active</option>
-            <option value="dry" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Dry</option>
-            <option value="sick" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Sick</option>
-            <option value="deceased" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Deceased</option>
-            <option value="sold" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Sold</option>
+            <option value="active" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{getStatusLabel("active", t)}</option>
+            <option value="dry" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{getStatusLabel("dry", t)}</option>
+            <option value="sick" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{getStatusLabel("sick", t)}</option>
+            <option value="deceased" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{getStatusLabel("deceased", t)}</option>
+            <option value="sold" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{getStatusLabel("sold", t)}</option>
           </select>
         </div>
 
         {/* Table Container */}
         <div className="overflow-x-auto rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
           {isLoading ? (
-            <div className="p-8 text-center text-slate-500 dark:text-[#A1A1AA] text-xs font-semibold">Loading cattle herd...</div>
+            <div className="p-8 text-center text-slate-500 dark:text-[#A1A1AA] text-xs font-semibold">{t("common.loading", "Loading cattle herd...")}</div>
           ) : isError ? (
             <div className="p-6 text-rose-600 dark:text-rose-400 text-xs font-semibold">
-              Error loading cattle: {(error as any)?.message ?? "Failed to load"}
+              {t("common.error", "Error")}: {(error as any)?.message ?? "Failed to load"}
             </div>
           ) : filteredCows.length === 0 ? (
             <div className="p-12 text-center text-slate-600 dark:text-[#A1A1AA] space-y-3">
-              <p className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">No cattle found</p>
+              <p className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">{t("cows.no_cows_found", "No cows found in herd")}</p>
               <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-                Add a new cow to this farm or adjust your search and breed filter.
+                {t("cows.no_cows_desc", "Add a new cow to this farm or adjust your search and breed filter.")}
               </p>
               <button
                 type="button"
@@ -333,18 +335,18 @@ export default function CowListPage() {
                       <div className="flex items-center gap-2">
                         <span>🐄</span>
                         <div>
-                          <div className="text-sm font-bold text-slate-950 dark:text-[#F4F4F5]">{c.name || c.tag || "Unnamed Cow"}</div>
-                          <div className="text-[11px] font-mono text-slate-400 dark:text-[#A1A1AA]">Tag: {c.tag || c.id.slice(0, 8)}</div>
+                          <div className="text-sm font-bold text-slate-950 dark:text-[#F4F4F5]">{c.name || c.tag || t("common.unknown", "Unnamed Cow")}</div>
+                          <div className="text-[11px] font-mono text-slate-400 dark:text-[#A1A1AA]">{t("cows.tag_id", "Tag")}: {c.tag || c.id.slice(0, 8)}</div>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-4 py-4 font-medium text-slate-800 dark:text-[#F4F4F5]">
-                      {c.breed_name || breedName(c.breed) || "—"}
+                      {getBreedLabel(c.breed_name || breedNameById.get(c.breed || "") || c.breed, t)}
                     </td>
 
                     <td className="px-4 py-4 font-semibold text-slate-800 dark:text-[#F4F4F5]">
-                      {c.weight_kg ? `${c.weight_kg} kg` : "—"}
+                      {c.weight_kg ? `${c.weight_kg} ${t("common.units_kg", "kg")}` : "—"}
                     </td>
 
                     <td className="px-4 py-4 font-medium text-slate-600 dark:text-[#A1A1AA]">
@@ -361,7 +363,7 @@ export default function CowListPage() {
                               : "bg-slate-100 dark:bg-[#1B1D20] text-slate-600 dark:text-[#A1A1AA]"
                         }`}
                       >
-                        ● {c.status ? c.status.toUpperCase() : "ACTIVE"}
+                        ● {getStatusLabel(c.status, t).toUpperCase()}
                       </span>
                     </td>
 
@@ -371,7 +373,7 @@ export default function CowListPage() {
                           to={`/cows/${c.id}`}
                           className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-1 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-100 dark:hover:bg-[#222428] transition"
                         >
-                          <span>Open</span>
+                          <span>{t("common.details", "Open")}</span>
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
 
@@ -390,7 +392,7 @@ export default function CowListPage() {
                                 className="fixed inset-0 z-10"
                                 onClick={() => setOpenMenuId(null)}
                               />
-                              <div className="absolute right-0 top-8 z-20 w-32 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-1 shadow-lg text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] text-left ring-1 ring-black/20">
+                              <div className="absolute right-0 top-8 z-20 w-36 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-1 shadow-lg text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] text-left ring-1 ring-black/20">
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -400,7 +402,7 @@ export default function CowListPage() {
                                   }}
                                   className="w-full px-3 py-2 hover:bg-slate-50 dark:hover:bg-[#222428] text-slate-800 dark:text-[#F4F4F5]"
                                 >
-                                  Edit Cow
+                                  {t("cows.edit_cow", "Edit Cow")}
                                 </button>
                                 <button
                                   type="button"
@@ -411,7 +413,7 @@ export default function CowListPage() {
                                   }}
                                   className="w-full px-3 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400"
                                 >
-                                  Delete Cow
+                                  {t("cows.delete_cow", "Delete Cow")}
                                 </button>
                               </div>
                             </>

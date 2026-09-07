@@ -1,3 +1,5 @@
+import { useLanguage } from "@/context/LanguageContext";
+
 export default function DeleteFarmDialog({
   open,
   onClose,
@@ -13,16 +15,17 @@ export default function DeleteFarmDialog({
   farmName?: string | null;
   error?: string;
 }) {
+  const { t } = useLanguage();
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-lg font-semibold">Delete Farm</h3>
+        <h3 className="mb-4 text-lg font-semibold">{t("farms.delete_farm")}</h3>
         <p className="mb-4">
-          Are you sure you want to delete{" "}
-          <strong>{farmName ?? "this farm"}</strong>? This action cannot be
-          undone.
+          {t("farms.delete_confirm")}{" "}
+          <strong>{farmName ?? t("farms.active_farm")}</strong>? {t("farms.cannot_undone")}
         </p>
 
         {error && <div className="text-rose-600 text-sm mb-4">{error}</div>}
@@ -33,14 +36,14 @@ export default function DeleteFarmDialog({
             className="rounded border px-3 py-1"
             disabled={loading}
           >
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             onClick={onDelete}
             className="rounded bg-rose-600 px-3 py-1 text-white"
             disabled={loading}
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? t("common.deleting") : t("common.delete")}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Sidebar from "@/components/sidebar/Sidebar";
 import Navbar from "@/components/navbar/Navbar";
 import ResponsiveTopbar from "@/components/sidebar/ResponsiveTopbar";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function DashboardLayout({
   children,
@@ -9,6 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090B] text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
@@ -28,7 +30,7 @@ export default function DashboardLayout({
                 onClick={() => setIsMobileSidebarOpen(false)}
                 className="rounded-md bg-slate-100 dark:bg-[#151719] px-3 py-2 text-sm text-slate-700 dark:text-[#A1A1AA] hover:dark:text-[#F4F4F5]"
               >
-                Close
+                {t("common.close")}
               </button>
             </div>
             <Sidebar />

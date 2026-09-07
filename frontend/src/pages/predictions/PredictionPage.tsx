@@ -265,12 +265,12 @@ export default function PredictionPage() {
               )}
             </p>
           </div>
-          <Link
+            <Link
             to="/predictions/history"
             className="inline-flex items-center gap-1.5 self-start sm:self-auto text-xs font-semibold text-slate-600 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 transition"
           >
             <Clock className="h-3.5 w-3.5" />
-            <span>Prediction History</span>
+            <span>{t("pred.history_title", "Prediction History")}</span>
           </Link>
         </div>
 
@@ -295,7 +295,7 @@ export default function PredictionPage() {
               onClick={clearToast}
               className="text-xs opacity-70 hover:opacity-100 font-bold ml-4 cursor-pointer"
             >
-              Dismiss
+              {t("common.dismiss", "Dismiss")}
             </button>
           </div>
         )}
@@ -305,7 +305,7 @@ export default function PredictionPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3.5">
             <div className="flex-1 min-w-0 space-y-1.5">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]">
-                Select Daily Observation
+                {t("pred.select_observation", "Select Daily Observation")}
               </label>
               <div className="relative">
                 <select
@@ -316,26 +316,26 @@ export default function PredictionPage() {
                 >
                   <option value="" disabled className="dark:bg-[#1B1D20] text-slate-400">
                     {isObsLoading
-                      ? "Loading observations..."
+                      ? t("common.loading", "Loading...")
                       : isObsError
-                      ? "Error loading observations"
+                      ? t("common.error", "Error")
                       : observations.length === 0
-                      ? "No observations available — record one first"
-                      : "Pick an observation (Date • Cow • Current Yield)..."}
+                      ? t("obs.no_observations", "No observations found")
+                      : t("pred.select_observation", "Select Daily Observation") + "..."}
                   </option>
                   {observations.map((o: any) => {
                     const cow = cowName(o.cow_id);
                     const yieldText =
                       o.milk_produced_liters != null
                         ? `${Number(o.milk_produced_liters).toFixed(1)} L`
-                        : "No yield logged";
+                        : "—";
                     return (
                       <option
                         key={o.id}
                         value={o.id}
                         className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]"
                       >
-                        {o.observation_date} • {cow} • Current Yield: {yieldText}
+                        {o.observation_date} • {cow} • {t("dashboard.yield", "Yield")}: {yieldText}
                       </option>
                     );
                   })}
@@ -355,7 +355,7 @@ export default function PredictionPage() {
               >
                 <Sparkles className="h-4 w-4" />
                 <span>
-                  {mutation.isPending ? "Generating..." : "Generate Prediction"}
+                  {mutation.isPending ? t("pred.generating", "Generating...") : t("pred.generate_prediction", "Generate Prediction")}
                 </span>
               </button>
             </div>
@@ -373,10 +373,10 @@ export default function PredictionPage() {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-[#A1A1AA]">
-                    PREDICTED MILK YIELD
+                    {t("pred.predicted_yield", "Predicted Milk Yield")}
                   </span>
                   <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                    AI Target
+                    {t("pred.ai_target", "AI Target")}
                   </span>
                 </div>
 
@@ -389,7 +389,7 @@ export default function PredictionPage() {
                     L
                   </span>
                   <span className="text-sm sm:text-base font-semibold text-slate-400 dark:text-[#A1A1AA]">
-                    /day
+                    /{t("common.day", "day")}
                   </span>
                 </div>
               </div>
@@ -403,17 +403,17 @@ export default function PredictionPage() {
                   </span>
                   <span>
                     {confidenceScore >= 85
-                      ? "High Confidence"
+                      ? t("pred.high_confidence", "High Confidence")
                       : confidenceScore >= 70
-                      ? "Good Confidence"
-                      : "Estimated Confidence"}{" "}
+                      ? t("pred.good_confidence", "Good Confidence")
+                      : t("pred.estimated_confidence", "Estimated Confidence")}{" "}
                     — {confidenceScore}%
                   </span>
                 </div>
 
                 {yieldVariance != null && (
                   <span className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium">
-                    vs Observed (
+                    vs {t("pred.observed", "Observed")} (
                     {Number(latestObsYield).toFixed(1)} L):{" "}
                     <strong
                       className={
@@ -436,13 +436,13 @@ export default function PredictionPage() {
             <div className="lg:col-span-5 rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 sm:p-7 shadow-xs flex flex-col justify-between">
               <div>
                 <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-[#F4F4F5] border-b border-slate-100 dark:border-[#27272A] pb-3 mb-4">
-                  Prediction Details
+                  {t("pred.prediction_details", "Prediction Details")}
                 </h2>
 
                 <div className="space-y-3.5 text-xs sm:text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">
-                      Confidence
+                      {t("pred.confidence", "Confidence")}
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {confidenceScore}%
@@ -450,7 +450,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">
-                      Prediction Range
+                      {t("pred.prediction_range", "Prediction Range")}
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {hasRange
@@ -462,7 +462,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">
-                      Subject Cow
+                      {t("pred.subject_cow", "Subject Cow")}
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {latestCowName || "Nandini"}
@@ -470,7 +470,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">
-                      Observation Date
+                      {t("pred.observation_date", "Observation Date")}
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {formatDate(latestObsDate)}
@@ -478,7 +478,7 @@ export default function PredictionPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">
-                      Model Engine
+                      {t("pred.model_engine", "Model Engine")}
                     </span>
                     <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1B1D20] text-slate-700 dark:text-[#A1A1AA] border border-slate-200/60 dark:border-[#27272A]">
                       {latest.model_version || "best_milk_model.pkl"}
@@ -488,14 +488,14 @@ export default function PredictionPage() {
               </div>
 
               <div className="pt-4 mt-4 border-t border-slate-100 dark:border-[#27272A] flex items-center justify-between text-[11px] text-slate-400 dark:text-[#A1A1AA]">
-                <span>Status: Active Inference</span>
+                <span>{t("pred.status_active", "Status: Active Inference")}</span>
                 <span>
                   {latest.prediction_timestamp
                     ? new Date(latest.prediction_timestamp).toLocaleTimeString(
                         [],
                         { hour: "2-digit", minute: "2-digit" }
                       )
-                    : "Live"}
+                    : t("common.live", "Live")}
                 </span>
               </div>
             </div>
@@ -507,14 +507,10 @@ export default function PredictionPage() {
               <Sparkles className="h-6 w-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
-              No Prediction Generated Yet
+              {t("pred.no_predictions", "No Prediction Generated Yet")}
             </h3>
             <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto mt-1">
-              Select an observation from the dropdown above and click{" "}
-              <strong className="text-slate-800 dark:text-slate-200">
-                Generate Prediction
-              </strong>{" "}
-              to forecast milk yield and see AI-driven attribution insights.
+              {t("pred.select_observation", "Select an observation from the dropdown above and click Generate Prediction.")}
             </p>
           </div>
         )}
@@ -525,10 +521,10 @@ export default function PredictionPage() {
             {/* 1. SECTION HEADER */}
             <div className="border-b border-slate-100 dark:border-[#27272A] pb-3">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-2">
-                <span>🧠</span> Why This Prediction?
+                <span>🧠</span> {t("pred.why_this_prediction", "Why This Prediction?")}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-0.5">
-                Understand which factors influenced today's predicted milk yield.
+                {t("pred.why_subtitle", "Understand which factors influenced today's predicted milk yield.")}
               </p>
             </div>
 
@@ -537,7 +533,7 @@ export default function PredictionPage() {
               <span className="text-base shrink-0 mt-0.5 sm:mt-0">🧠</span>
               <div className="text-xs sm:text-sm text-slate-700 dark:text-[#F4F4F5]/90 leading-snug">
                 <span className="font-bold text-slate-900 dark:text-[#F4F4F5] mr-1.5">
-                  AI Insight
+                  {t("pred.ai_insight", "AI Insight")}
                 </span>
                 {aiInsightMessage}
               </div>
@@ -549,7 +545,7 @@ export default function PredictionPage() {
               <div className="space-y-4 lg:pr-4">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-[#34D399] uppercase tracking-wider">
                   <ArrowUp className="h-3.5 w-3.5" />
-                  <span>Increasing Predicted Yield</span>
+                  <span>{t("pred.increasing_yield", "Increasing Predicted Yield")}</span>
                 </div>
 
                 <div className="space-y-3.5">
@@ -589,7 +585,7 @@ export default function PredictionPage() {
               <div className="space-y-4 lg:pl-4 lg:border-l lg:border-slate-100 lg:dark:border-[#27272A]">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-rose-500 dark:text-[#FB7185] uppercase tracking-wider">
                   <ArrowDown className="h-3.5 w-3.5" />
-                  <span>Reducing Predicted Yield</span>
+                  <span>{t("pred.reducing_yield", "Reducing Predicted Yield")}</span>
                 </div>
 
                 <div className="space-y-3.5">
@@ -629,13 +625,13 @@ export default function PredictionPage() {
             {/* 4. FOOTER (Subtle divider with CTA) */}
             <div className="border-t border-slate-100 dark:border-[#27272A] pt-3.5 mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
               <span className="text-xs text-slate-400 dark:text-[#A1A1AA]">
-                TreeSHAP analysis based on biometric and weather data.
+                {t("pred.treeshap_desc", "TreeSHAP analysis based on biometric and weather data.")}
               </span>
               <Link
                 to={`/explainability?predictionId=${latest.id}`}
                 className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-emerald-600 dark:text-[#34D399] hover:text-emerald-700 dark:hover:text-emerald-300 transition group cursor-pointer"
               >
-                <span>View Detailed SHAP Explanation</span>
+                <span>{t("pred.view_shap", "View Detailed SHAP Explanation")}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>

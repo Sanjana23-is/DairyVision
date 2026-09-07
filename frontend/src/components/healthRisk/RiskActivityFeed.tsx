@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Search, Eye, MoreHorizontal } from "lucide-react";
 import { UnifiedRiskCase, RiskSource, SeverityLevel } from "@/services/riskCorrelation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getSeverityLabel } from "@/lib/i18n-helpers";
 
 interface RiskActivityFeedProps {
   cases: UnifiedRiskCase[];
@@ -19,6 +21,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
   onResolveCase,
   isResolving,
 }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<FeedTab>("all");
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("All");
@@ -86,7 +89,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                   key={src}
                   className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-950/40 px-2 py-0.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300"
                 >
-                  🤖 AI Anomaly
+                  🤖 {t("risk.ai_anomaly", "AI Anomaly")}
                 </span>
               );
             case "Health Alert":
@@ -95,7 +98,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                   key={src}
                   className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-950/40 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
                 >
-                  🩺 Health Alert
+                  🩺 {t("risk.health_alert", "Health Alert")}
                 </span>
               );
             case "Environmental":
@@ -104,7 +107,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                   key={src}
                   className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/40 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
                 >
-                  🌤️ Environmental
+                  🌤️ {t("risk.environmental", "Environmental")}
                 </span>
               );
           }
@@ -114,23 +117,24 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
   }
 
   function renderSeverityBadge(sev: SeverityLevel) {
+    const label = getSeverityLabel(sev, t);
     switch (sev) {
       case "Critical":
         return (
           <span className="inline-flex items-center rounded-full border border-rose-300 bg-rose-100 dark:border-rose-500/40 dark:bg-rose-950/70 px-2.5 py-0.5 text-xs font-bold text-rose-800 dark:text-rose-300">
-            Critical
+            {label}
           </span>
         );
       case "Warning":
         return (
           <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 dark:border-amber-500/40 dark:bg-amber-950/70 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300">
-            Warning
+            {label}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/50 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
-            Normal
+            {label}
           </span>
         );
     }
@@ -142,10 +146,10 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <h3 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
-            Herd Risk Activity Feed
+            {t("risk.activity_feed", "Herd Risk Activity Feed")}
           </h3>
           <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-            Unified cow-level risk tracking (1 row per cow).
+            {t("risk.activity_subtitle", "Unified cow-level risk tracking (1 row per cow).")}
           </p>
         </div>
 
@@ -160,7 +164,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F4F4F5]"
             }`}
           >
-            All Cows ({cases.length})
+            {t("risk.all_cows", "All Cows")} ({cases.length})
           </button>
           <button
             type="button"
@@ -171,7 +175,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F4F4F5]"
             }`}
           >
-            Health Alerts ({cases.filter((c) => c.sources.includes("Health Alert")).length})
+            {t("risk.health_alerts", "Health Alerts")} ({cases.filter((c) => c.sources.includes("Health Alert")).length})
           </button>
           <button
             type="button"
@@ -182,7 +186,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F4F4F5]"
             }`}
           >
-            AI Anomalies ({cases.filter((c) => c.sources.includes("AI Anomaly")).length})
+            {t("risk.ai_anomalies", "AI Anomalies")} ({cases.filter((c) => c.sources.includes("AI Anomaly")).length})
           </button>
           <button
             type="button"
@@ -193,7 +197,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-[#F4F4F5]"
             }`}
           >
-            Resolved ({cases.filter((c) => c.is_resolved).length})
+            {t("common.resolved", "Resolved")} ({cases.filter((c) => c.is_resolved).length})
           </button>
         </div>
       </div>
@@ -206,7 +210,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search cow name, tag, or primary concern..."
+            placeholder={t("risk.search_placeholder", "Search cow name, tag, or primary concern...")}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-[#181A1D] pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-[#F4F4F5] placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500 focus:outline-hidden"
           />
         </div>
@@ -217,10 +221,10 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
             onChange={(e) => setSeverityFilter(e.target.value)}
             className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-[#181A1D] px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 focus:border-emerald-500 focus:outline-hidden"
           >
-            <option value="All">Severity: All</option>
-            <option value="Critical">Critical Only</option>
-            <option value="Warning">Warning Only</option>
-            <option value="Normal">Normal</option>
+            <option value="All">{t("common.severity_all", "Severity: All")}</option>
+            <option value="Critical">{t("severity.critical", "Critical")}</option>
+            <option value="Warning">{t("severity.warning", "Warning")}</option>
+            <option value="Normal">{t("severity.normal", "Normal")}</option>
           </select>
 
           {activeTab !== "resolved" ? (
@@ -229,9 +233,9 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
               onChange={(e) => setStatusFilter(e.target.value)}
               className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-[#181A1D] px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 focus:border-emerald-500 focus:outline-hidden"
             >
-              <option value="all">Status: All</option>
-              <option value="active">Active Only</option>
-              <option value="resolved">Resolved</option>
+              <option value="all">{t("common.status_all", "Status: All")}</option>
+              <option value="active">{t("common.active_only", "Active Only")}</option>
+              <option value="resolved">{t("common.resolved", "Resolved")}</option>
             </select>
           ) : null}
         </div>
@@ -241,20 +245,20 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
       <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F1012]">
         {filteredCases.length === 0 ? (
           <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-sm font-semibold">No cow risk cases match the current filters.</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Try resetting search or filter criteria.</p>
+            <p className="text-sm font-semibold">{t("risk.no_cases_match", "No cow risk cases match the current filters.")}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t("risk.try_resetting", "Try resetting search or filter criteria.")}</p>
           </div>
         ) : (
           <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
             <thead className="bg-slate-50 dark:bg-[#15171A] text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="px-4 py-3">Last Signal</th>
-                <th className="px-4 py-3">Cow / Tag ID</th>
-                <th className="px-4 py-3">Primary Concern</th>
-                <th className="px-4 py-3">Severity</th>
-                <th className="px-4 py-3">Detected By</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">{t("risk.last_signal", "Last Signal")}</th>
+                <th className="px-4 py-3">{t("risk.cow_tag_id", "Cow / Tag ID")}</th>
+                <th className="px-4 py-3">{t("risk.primary_concern", "Primary Concern")}</th>
+                <th className="px-4 py-3">{t("risk.severity", "Severity")}</th>
+                <th className="px-4 py-3">{t("risk.detected_by", "Detected By")}</th>
+                <th className="px-4 py-3">{t("common.status", "Status")}</th>
+                <th className="px-4 py-3 text-right">{t("common.actions", "Actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
@@ -270,7 +274,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">{c.cow_name}</div>
-                      <div className="text-[11px] text-slate-500 font-mono">Tag: {c.tag_id}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">{t("cows.tag", "Tag")}: {c.tag_id}</div>
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">
                       {c.primary_concern}
@@ -289,7 +293,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                             : "bg-slate-100 text-slate-600 border border-slate-300 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700/40"
                         }`}
                       >
-                        {isActive ? "Active Case" : "Resolved"}
+                        {isActive ? t("common.active", "Active Case") : t("common.resolved", "Resolved")}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -300,13 +304,13 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                           className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800/70 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                         >
                           <Eye className="h-3 w-3" />
-                          <span>View</span>
+                          <span>{t("common.view", "View")}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => onOpenMore(c)}
-                          title="More details & signal log"
+                          title={t("common.more_details", "More details & signal log")}
                           className="rounded-lg border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800/70 p-1 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                         >
                           <MoreHorizontal className="h-4 w-4" />
@@ -319,7 +323,7 @@ export const RiskActivityFeed: React.FC<RiskActivityFeedProps> = ({
                             disabled={isResolving}
                             className="rounded-lg border border-emerald-300 bg-emerald-50 dark:border-emerald-700/60 dark:bg-emerald-950/40 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors disabled:opacity-50 cursor-pointer"
                           >
-                            Resolve
+                            {t("risk.resolve", "Resolve")}
                           </button>
                         ) : null}
                       </div>

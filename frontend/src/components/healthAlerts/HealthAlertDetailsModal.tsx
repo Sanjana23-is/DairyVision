@@ -1,4 +1,6 @@
 import { HealthAlert } from "@/services/healthAlert";
+import { useLanguage } from "@/context/LanguageContext";
+import { getSeverityLabel } from "@/lib/i18n-helpers";
 
 export default function HealthAlertDetailsModal({
   alert,
@@ -11,6 +13,7 @@ export default function HealthAlertDetailsModal({
   open?: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   if (!open) return null;
 
   function getRiskDisplayName(alertItem: HealthAlert): string {
@@ -20,10 +23,10 @@ export default function HealthAlertDetailsModal({
     const desc = (alertItem.description || "").toLowerCase();
     const atype = (alertItem.alert_type || "").toLowerCase();
 
-    if (atype.includes("heat") || desc.includes("heat")) return "Heat Stress";
-    if (atype.includes("temp") || atype.includes("fever") || desc.includes("fever") || desc.includes("temperature")) return "High Temperature";
-    if (atype.includes("milk") || desc.includes("milk")) return "Milk Production Drop";
-    return "Health Condition";
+    if (atype.includes("heat") || desc.includes("heat")) return t("risk.heat_stress", "Heat Stress");
+    if (atype.includes("temp") || atype.includes("fever") || desc.includes("fever") || desc.includes("temperature")) return t("risk.high_temperature", "High Temperature");
+    if (atype.includes("milk") || desc.includes("milk")) return t("risk.milk_drop", "Milk Production Drop");
+    return t("obs.health_condition", "Health Condition");
   }
 
   function getCategoryIcon(riskName: string): string {
@@ -53,13 +56,13 @@ export default function HealthAlertDetailsModal({
   const cowDisplayName =
     (alert.cow_name && !alert.cow_name.startsWith("Cow "))
       ? alert.cow_name
-      : (alert.cow?.name || (cowNameById && alert.cow_id ? cowNameById[alert.cow_id] : null) || "Unknown cow");
+      : (alert.cow?.name || (cowNameById && alert.cow_id ? cowNameById[alert.cow_id] : null) || t("common.unknown_cow", "Unknown cow"));
 
   // Fallback why explanation if not supplied directly by backend response
   let rawWhyText = alert.why_explanation || (
     alert.description && !alert.description.includes("heat_score=")
       ? alert.description
-      : `${cowDisplayName} was flagged because recent observations indicate elevated ${riskTitle.toLowerCase()} risk.`
+      : `${cowDisplayName} ${t("risk.flagged_because", "was flagged because recent observations indicate elevated risk.")}`
   );
 
   // Replace any legacy raw UUID references inside text with the farmer-friendly cow display name
@@ -70,9 +73,9 @@ export default function HealthAlertDetailsModal({
 
   // Recommended actions
   const actionList = alert.recommended_actions || [
-    "Monitor cow closely during daily observations",
-    "Ensure unhindered access to fresh water and feed",
-    "Contact a veterinarian if symptoms or stress persist",
+    t("risk.action_observe", "Monitor cow closely during daily observations"),
+    t("risk.action_water", "Ensure unhindered access to fresh water and feed"),
+    t("risk.action_vet", "Contact a veterinarian if symptoms or stress persist"),
   ];
 
   return (
@@ -93,17 +96,17 @@ export default function HealthAlertDetailsModal({
                     : "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
                 }`}
               >
-                {alert.alert_level}
+                {getSeverityLabel(alert.alert_level, t)}
               </span>
             </div>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-[#A1A1AA]">
-              Farmer-Facing Health Risk & Evidence Summary
+              {t("risk.farmer_summary_title", "Farmer-Facing Health Risk & Evidence Summary")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#1B1D20] hover:text-slate-700 dark:hover:text-[#F4F4F5]"
+            className="rounded-full p-2 text-slate-400 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#1B1D20] hover:text-slate-700 dark:hover:text-[#F4F4F5] cursor-pointer"
           >
             ✕
           </button>
@@ -121,7 +124,7 @@ export default function HealthAlertDetailsModal({
           >
             <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">
               <span>💡</span>
-              <span>Why is this cow flagged?</span>
+              <span>{t("risk.why_flagged", "Why is this cow flagged?")}</span>
             </div>
             <p className="mt-2 text-sm leading-relaxed font-medium">
               "{whyExplanationText}"
@@ -133,7 +136,7 @@ export default function HealthAlertDetailsModal({
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20]/50 p-5">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-[#F4F4F5] mb-3">
                 <span>📊</span>
-                <span>Recent Evidence</span>
+                <span>{t("risk.recent_evidence", "Recent Evidence")}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {evidenceEntries.map(([key, val]) => (
@@ -152,7 +155,7 @@ export default function HealthAlertDetailsModal({
           <div className="rounded-2xl border border-sky-100 dark:border-sky-900/50 bg-sky-50/50 dark:bg-sky-950/30 p-5">
             <div className="flex items-center gap-2 text-sm font-bold text-sky-900 dark:text-sky-300 mb-2">
               <span>📋</span>
-              <span>Recommended Actions</span>
+              <span>{t("risk.recommended_actions", "Recommended Actions")}</span>
             </div>
             <ul className="space-y-1.5 list-disc list-inside text-sm text-sky-950 dark:text-sky-200 font-medium">
               {actionList.map((action, idx) => (
@@ -167,7 +170,7 @@ export default function HealthAlertDetailsModal({
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Subject Cow
+                {t("pred.subject_cow", "Subject Cow")}
               </div>
               <div className="mt-1.5 text-sm font-semibold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <span>🐄</span>
@@ -177,7 +180,7 @@ export default function HealthAlertDetailsModal({
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Observation Date
+                {t("pred.observation_date", "Observation Date")}
               </div>
               <div className="mt-1.5 text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">
                 {alert.observation_date || formatDate(alert.created_at)}
@@ -186,7 +189,7 @@ export default function HealthAlertDetailsModal({
 
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
               <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
-                Risk Status
+                {t("risk.risk_status", "Risk Status")}
               </div>
               <div className="mt-1.5">
                 <span
@@ -196,7 +199,7 @@ export default function HealthAlertDetailsModal({
                       : "bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300"
                   }`}
                 >
-                  {alert.resolved ? "Resolved" : "Active Risk"}
+                  {alert.resolved ? t("common.resolved", "Resolved") : t("risk.active_risk", "Active Risk")}
                 </span>
               </div>
             </div>
@@ -204,13 +207,13 @@ export default function HealthAlertDetailsModal({
 
           {/* Footer Close */}
           <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#27272A] pt-4 text-xs text-slate-400 dark:text-[#A1A1AA]">
-            <span>Evaluated & Generated by DairyVision AI</span>
+            <span>{t("risk.powered_by", "Evaluated & Generated by DairyVision AI")}</span>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
+              className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719] cursor-pointer"
             >
-              Close
+              {t("common.close", "Close")}
             </button>
           </div>
         </div>

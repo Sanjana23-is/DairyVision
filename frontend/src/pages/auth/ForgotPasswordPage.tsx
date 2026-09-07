@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Mail, ArrowLeft, KeyRound } from "lucide-react";
 
 export function ForgotPasswordPage() {
@@ -13,6 +14,7 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { forgotPassword } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,7 +22,7 @@ export function ForgotPasswordPage() {
     setMessage("");
 
     if (!email.trim()) {
-      setError("Please provide your email address.");
+      setError(t("auth.error_empty", "Please provide your email address."));
       return;
     }
 
@@ -35,7 +37,7 @@ export function ForgotPasswordPage() {
       setError(
         typeof detail === "string" && detail.trim()
           ? detail
-          : "We could not send a password reset request at the moment. Please try again.",
+          : t("auth.error_invalid", "We could not send a password reset request at the moment. Please try again."),
       );
     } finally {
       setIsSubmitting(false);
@@ -77,7 +79,7 @@ export function ForgotPasswordPage() {
               </span>
             </div>
             <p className="text-xs text-slate-300/80 pl-10 font-normal">
-              Smarter decisions. Healthier herds. Better farms.
+              {t("auth.turn_data_smarter")}
             </p>
           </div>
         </div>
@@ -92,13 +94,13 @@ export function ForgotPasswordPage() {
                     <KeyRound className="h-5 w-5" />
                   </div>
                   <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600">
-                    ACCOUNT RECOVERY
+                    {t("auth.recovery_title")}
                   </span>
                   <h2 className="text-[26px] font-bold tracking-tight text-slate-900 mt-1 leading-snug">
-                    Reset your password
+                    {t("auth.reset_password_title")}
                   </h2>
                   <p className="text-[14px] font-normal text-slate-500 mt-1">
-                    Enter the email associated with your account and we'll send a password recovery link.
+                    {t("auth.reset_password_subtitle")}
                   </p>
                 </div>
 
@@ -116,7 +118,7 @@ export function ForgotPasswordPage() {
 
                 <Field>
                   <FieldLabel htmlFor="email" className="text-[13px] font-medium text-slate-700 mb-1.5 block">
-                    Email address
+                    {t("auth.email_address")}
                   </FieldLabel>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -139,7 +141,7 @@ export function ForgotPasswordPage() {
                     disabled={isSubmitting}
                     className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[15px] rounded-xl shadow-sm transition-all duration-150 border-0"
                   >
-                    {isSubmitting ? "Sending reset link..." : "Send reset link"}
+                    {isSubmitting ? t("auth.sending_reset_link") : t("auth.send_reset_link")}
                   </Button>
                 </Field>
 
@@ -149,7 +151,7 @@ export function ForgotPasswordPage() {
                     className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-emerald-700 transition-colors"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
-                    <span>Back to sign in</span>
+                    <span>{t("auth.back_to_signin")}</span>
                   </Link>
                 </div>
               </FieldGroup>
@@ -161,7 +163,7 @@ export function ForgotPasswordPage() {
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pb-2 text-xs font-normal text-slate-300/80">
           <div className="flex items-center gap-2 text-emerald-400 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Live farm intelligence</span>
+            <span>{t("auth.live_farm_intelligence")}</span>
           </div>
 
           <p className="text-slate-300/70 font-normal">

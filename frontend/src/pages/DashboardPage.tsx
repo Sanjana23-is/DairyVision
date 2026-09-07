@@ -149,23 +149,23 @@ export function DashboardPage() {
       if (actualMilkToday >= expectedMilkToday) {
         insights.push({
           icon: "🥛",
-          title: t("nav.predictions", "Milk production"),
-          text: t("dashboard.performing_target", "Performing on target"),
+          title: t("nav.predictions"),
+          text: t("dashboard.performing_target"),
           link: "/predictions",
         });
       } else {
         insights.push({
           icon: "🥛",
-          title: t("nav.predictions", "Milk production"),
-          text: "Slightly below expected target",
+          title: t("nav.predictions"),
+          text: t("dashboard.expected_yield"),
           link: "/predictions",
         });
       }
     } else {
       insights.push({
         icon: "🥛",
-        title: t("nav.predictions", "Milk production"),
-        text: `Active herd of ${activeCowCount} cows monitored`,
+        title: t("nav.predictions"),
+        text: `${t("dashboard.active_herd")}: ${activeCowCount}`,
         link: "/predictions",
       });
     }
@@ -177,15 +177,15 @@ export function DashboardPage() {
     if (thi >= 79) {
       insights.push({
         icon: "🌡️",
-        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
-        text: "Heat stress alert zone (THI high)",
+        title: t("dashboard.thermal_conditions"),
+        text: `${t("observations.heat_stress")} (${t("observations.thi")}: ${thi.toFixed(1)})`,
         link: "/explainability",
       });
     } else {
       insights.push({
         icon: "🌡️",
-        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
-        text: t("dashboard.thi_comfortable", "THI within comfortable zone"),
+        title: t("dashboard.thermal_conditions"),
+        text: t("dashboard.thi_comfortable"),
         link: "/explainability",
       });
     }
@@ -193,15 +193,15 @@ export function DashboardPage() {
     if (activeAlertsCount > 0) {
       insights.push({
         icon: "🐄",
-        title: t("dashboard.herd_health", "Herd Health"),
-        text: `${activeAlertsCount} ${t("dashboard.cows_monitoring", "cows require monitoring")}`,
+        title: t("dashboard.herd_health"),
+        text: `${activeAlertsCount} ${t("dashboard.cows_monitoring")}`,
         link: "/health-alerts",
       });
     } else {
       insights.push({
         icon: "🐄",
-        title: t("dashboard.herd_health", "Herd Health"),
-        text: "All cows pass health checks",
+        title: t("dashboard.herd_health"),
+        text: t("alerts.all_clear"),
         link: "/health-alerts",
       });
     }
@@ -228,9 +228,9 @@ export function DashboardPage() {
                 {getGreetingText()}, {displayedUserName} 👋
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-1">
-                {t("dashboard.heres_happening", "Here's what's happening at")}{" "}
+                {t("dashboard.heres_happening")}{" "}
                 <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">{displayedFarmName}</strong>{" "}
-                {t("dashboard.today", "today.")}
+                {t("dashboard.today")}
               </p>
             </div>
 
@@ -241,7 +241,7 @@ export function DashboardPage() {
                 className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/90 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-[#151719] px-4 py-2.5 text-xs font-bold text-emerald-900 dark:text-emerald-400 shadow-2xs hover:bg-emerald-100 dark:hover:bg-[#222428] hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-200"
               >
                 <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{t("dashboard.executive_report", "Executive Report & Export")}</span>
+                <span>{t("dashboard.executive_report")}</span>
               </button>
             </div>
           </div>
@@ -249,7 +249,7 @@ export function DashboardPage() {
           {/* Loading / Error States */}
           {isSummaryLoading ? (
             <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] shadow-xs">
-              Loading farm intelligence dashboard...
+              {t("dashboard.loading")}
             </div>
           ) : isSummaryError ? (
             <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 p-6 text-xs font-semibold text-rose-800 dark:text-rose-300 shadow-xs">
@@ -260,33 +260,33 @@ export function DashboardPage() {
               {/* Four KPI Cards */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
-                  title={t("dashboard.total_cows", "TOTAL COWS")}
+                  title={t("dashboard.total_cows")}
                   value={activeCowCount}
-                  delta={t("dashboard.active_herd", "Active herd in workspace")}
+                  delta={t("dashboard.active_herd")}
                   icon={<Users className="h-5 w-5" />}
                   onClick={() => navigate("/cows")}
                 />
 
                 <StatCard
-                  title={t("dashboard.milk_today", "MILK PRODUCED TODAY")}
+                  title={t("dashboard.milk_today")}
                   value={`${actualMilkToday.toFixed(1)} L`}
-                  delta={t("dashboard.today_actual", "Today's actual yield")}
+                  delta={t("dashboard.today_actual")}
                   icon={<Droplet className="h-5 w-5" />}
                   onClick={() => navigate("/observations")}
                 />
 
                 <StatCard
-                  title={t("dashboard.expected_yield", "EXPECTED YIELD TODAY")}
+                  title={t("dashboard.expected_yield")}
                   value={`${expectedMilkToday.toFixed(1)} L`}
-                  delta={t("dashboard.ai_yield_target", "AI model yield target")}
+                  delta={t("dashboard.ai_yield_target")}
                   icon={<TrendingUp className="h-5 w-5" />}
                   onClick={() => navigate("/predictions")}
                 />
 
                 <StatCard
-                  title={t("dashboard.active_alerts", "ACTIVE HEALTH ALERTS")}
+                  title={t("dashboard.active_alerts")}
                   value={activeAlertsCount}
-                  delta={activeAlertsCount > 0 ? `${activeAlertsCount} ${t("dashboard.require_attention", "require attention")}` : t("status.normal", "Normal")}
+                  delta={activeAlertsCount > 0 ? `${activeAlertsCount} ${t("dashboard.require_attention")}` : t("alerts.all_clear")}
                   icon={<Bell className="h-5 w-5" />}
                   onClick={() => navigate("/health-alerts")}
                 />
@@ -307,11 +307,11 @@ export function DashboardPage() {
                         <Activity className="h-4 w-4" />
                       </div>
                       <h2 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
-                        {t("dashboard.live_insights", "LIVE FARM INSIGHTS")}
+                        {t("dashboard.live_insights")}
                       </h2>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-1">
-                      {t("dashboard.realtime_monitoring", "Real-time AI monitoring & thermal conditions")}
+                      {t("dashboard.realtime_monitoring")}
                     </p>
 
                     <div className="mt-5 space-y-3">
@@ -339,9 +339,9 @@ export function DashboardPage() {
                   </div>
 
                   <div className="mt-5 border-t border-slate-100 dark:border-[#27272A] pt-3.5 text-xs text-slate-500 dark:text-[#A1A1AA] flex items-center justify-between">
-                    <span className="font-medium">Thermal Snapshot:</span>
+                    <span className="font-medium">{t("dashboard.thermal_snapshot")}:</span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      {temp.toFixed(1)}°C • {humidity.toFixed(0)}% Humidity
+                      {temp.toFixed(1)}°C • {humidity.toFixed(0)}% {t("observations.humidity")}
                     </span>
                   </div>
                 </div>

@@ -13,6 +13,8 @@ import {
   Calendar,
 } from "lucide-react";
 import { UnifiedRiskCase, RiskSource, SeverityLevel } from "@/services/riskCorrelation";
+import { useLanguage } from "@/context/LanguageContext";
+import { getBreedLabel, getSeverityLabel } from "@/lib/i18n-helpers";
 
 interface UnifiedRiskDetailModalProps {
   riskCase?: UnifiedRiskCase | null;
@@ -27,6 +29,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
   onResolve,
   isResolving,
 }) => {
+  const { t } = useLanguage();
   if (!riskCase) return null;
 
   const cowId = riskCase.cow_id;
@@ -50,9 +53,9 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
   }
   if (actionList.length === 0) {
     actionList.push(
-      "Perform physical observation during next milking cycle",
-      "Check body temperature and hydration levels",
-      "Verify daily feed dry matter intake and ration quality"
+      t("risk.action_observe", "Perform physical observation during next milking cycle"),
+      t("risk.action_temp", "Check body temperature and hydration levels"),
+      t("risk.action_feed", "Verify daily feed dry matter intake and ration quality")
     );
   }
   const uniqueActions = Array.from(new Set(actionList));
@@ -78,7 +81,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-950/40 px-2 py-0.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300"
           >
-            🤖 AI Anomaly
+            🤖 {t("risk.ai_anomaly", "AI Anomaly")}
           </span>
         );
       case "Health Alert":
@@ -87,7 +90,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-950/40 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
           >
-            🩺 Health Alert
+            🩺 {t("risk.health_alert", "Health Alert")}
           </span>
         );
       case "Environmental":
@@ -96,30 +99,31 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
             key={src}
             className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/40 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
           >
-            🌤️ Environmental
+            🌤️ {t("risk.environmental", "Environmental")}
           </span>
         );
     }
   }
 
   function renderSeverityBadge(sev: SeverityLevel) {
+    const label = getSeverityLabel(sev, t);
     switch (sev) {
       case "Critical":
         return (
           <span className="inline-flex items-center rounded-full border border-rose-300 bg-rose-100 dark:border-rose-500/40 dark:bg-rose-950/70 px-2.5 py-0.5 text-xs font-bold text-rose-800 dark:text-rose-300">
-            Critical
+            {label}
           </span>
         );
       case "Warning":
         return (
           <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 dark:border-amber-500/40 dark:bg-amber-950/70 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300">
-            Warning
+            {label}
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/50 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
-            Normal
+            {label}
           </span>
         );
     }
@@ -141,16 +145,16 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                 {cowName}
               </h3>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                Tag: {tagId}
+                {t("cows.tag", "Tag")}: {tagId}
               </span>
               {breed ? (
                 <span className="rounded-md bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-700 dark:text-slate-300">
-                  {breed}
+                  {getBreedLabel(breed, t)}
                 </span>
               ) : null}
             </div>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Aggregated Risk Case & Full Underlying Signal History
+              {t("risk.modal_subtitle", "Aggregated Risk Case & Full Underlying Signal History")}
             </p>
           </div>
 
@@ -185,10 +189,10 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
               )}
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider">
-                  Current Risk Level: {severity}
+                  {t("risk.current_risk_level", "Current Risk Level")}: {getSeverityLabel(severity, t)}
                 </div>
                 <div className="text-sm font-semibold text-slate-900 dark:text-[#F4F4F5] mt-0.5">
-                  {isResolved ? "Resolved — Health Status Verified Normal" : "Active Case Requiring Farmer Attention"}
+                  {isResolved ? t("risk.resolved_msg", "Resolved — Health Status Verified Normal") : t("risk.active_msg", "Active Case Requiring Farmer Attention")}
                 </div>
               </div>
             </div>
@@ -203,7 +207,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                     : "bg-amber-200 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-600/50"
                 }`}
               >
-                {isResolved ? "Resolved" : "Active Case"}
+                {isResolved ? t("common.resolved", "Resolved") : t("common.active", "Active Case")}
               </span>
             </div>
           </div>
@@ -213,7 +217,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300">
                 <Info className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Why is this cow flagged?</span>
+                <span>{t("risk.why_flagged", "Why is this cow flagged?")}</span>
               </div>
               <div className="flex items-center gap-1">
                 {riskCase.sources.map((s) => renderSourceBadge(s))}
@@ -234,15 +238,15 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
           <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#16171B] p-5">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300">
-                Recent Signals Log ({riskCase.signals.length})
+                {t("risk.recent_signals_log", "Recent Signals Log")} ({riskCase.signals.length})
               </h4>
               <span className="text-[11px] text-slate-500 font-medium">
-                Detailed engine evidence & records
+                {t("risk.signals_subtitle", "Detailed engine evidence & records")}
               </span>
             </div>
 
             {riskCase.signals.length === 0 ? (
-              <p className="text-xs text-slate-500">No raw signal records found.</p>
+              <p className="text-xs text-slate-500">{t("risk.no_signals", "No raw signal records found.")}</p>
             ) : (
               <div className="space-y-2.5">
                 {riskCase.signals.map((sig) => (
@@ -286,7 +290,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
           {/* SECTION 4: Recommended Actions */}
           <div className="rounded-2xl border border-sky-200 bg-sky-50/70 dark:border-sky-900/40 dark:bg-sky-950/20 p-5">
             <div className="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-sky-400 mb-2.5">
-              Recommended Management Actions
+              {t("risk.recommended_actions", "Recommended Management Actions")}
             </div>
             <ul className="space-y-2 text-xs font-medium text-sky-950 dark:text-sky-200">
               {uniqueActions.map((action, idx) => (
@@ -301,14 +305,14 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
           {/* SECTION 5: Cross-Feature Navigation Shortcuts */}
           <div className="rounded-2xl border border-slate-200 bg-slate-50/60 dark:border-slate-800 dark:bg-[#16171B] p-5">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-3">
-              Explore Related Intelligence
+              {t("risk.explore_related", "Explore Related Intelligence")}
             </h4>
             <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               <Link
                 to={`/cows/${cowId}`}
                 className="flex items-center justify-between rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#1B1D22] p-3 text-xs font-bold text-slate-800 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
               >
-                <span>Cow Profile</span>
+                <span>{t("cows.cow_profile", "Cow Profile")}</span>
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
 
@@ -316,7 +320,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                 to="/predictions"
                 className="flex items-center justify-between rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#1B1D22] p-3 text-xs font-bold text-slate-800 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
               >
-                <span>Predictions</span>
+                <span>{t("nav.predictions", "Predictions")}</span>
                 <Gauge className="h-3.5 w-3.5" />
               </Link>
 
@@ -324,7 +328,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                 to="/explainability"
                 className="flex items-center justify-between rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#1B1D22] p-3 text-xs font-bold text-slate-800 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
               >
-                <span>Why Prediction</span>
+                <span>{t("nav.explainability", "Why Prediction")}</span>
                 <Sparkles className="h-3.5 w-3.5" />
               </Link>
 
@@ -332,7 +336,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                 to={`/digital-twin?cowId=${cowId}`}
                 className="flex items-center justify-between rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-[#1B1D22] p-3 text-xs font-bold text-slate-800 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
               >
-                <span>Digital Twin</span>
+                <span>{t("nav.digital_twin", "Digital Twin")}</span>
                 <Layers className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -342,7 +346,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
         {/* Modal Footer */}
         <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-slate-50/70 dark:bg-[#17191D]">
           <span className="text-xs font-medium text-slate-500">
-            Powered by DairyVision AI Decision Support
+            {t("risk.powered_by", "Powered by DairyVision AI Decision Support")}
           </span>
 
           <div className="flex items-center gap-3">
@@ -354,7 +358,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
                 className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Resolve Cow Case</span>
+                <span>{t("risk.resolve_cow_case", "Resolve Cow Case")}</span>
               </button>
             ) : null}
 
@@ -363,7 +367,7 @@ export const UnifiedRiskDetailModal: React.FC<UnifiedRiskDetailModalProps> = ({
               onClick={onClose}
               className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
-              Close
+              {t("common.close", "Close")}
             </button>
           </div>
         </div>

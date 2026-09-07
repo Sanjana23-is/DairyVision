@@ -89,7 +89,7 @@ export default function Navbar() {
           >
             <span>🌾</span>
             <span className="max-w-[180px] truncate">
-              {currentFarmName ?? t("action.select_farm", "Select Farm")}
+              {currentFarmName ?? t("action.select_farm")}
             </span>
             <ChevronDown className={`h-3.5 w-3.5 text-slate-400 dark:text-[#A1A1AA] transition-transform duration-200 ${isFarmOpen ? "rotate-180 text-emerald-600 dark:text-emerald-400" : ""}`} />
           </button>
@@ -102,12 +102,12 @@ export default function Navbar() {
               />
               <div className="absolute left-0 top-11 z-50 w-64 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-2 shadow-xl ring-1 ring-black/20 text-xs">
                 <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-[#71717A]">
-                  Switch Farm Workspace
+                  {t("farms.switch_workspace")}
                 </div>
 
                 <div className="mt-1 space-y-0.5 max-h-56 overflow-y-auto">
                   {farms.length === 0 ? (
-                    <div className="px-3 py-2 text-slate-500 dark:text-[#71717A] italic">No farms found</div>
+                    <div className="px-3 py-2 text-slate-500 dark:text-[#71717A] italic">{t("farms.no_farms_found")}</div>
                   ) : (
                     farms.map((f: Farm) => {
                       const isSelected = f.id === currentFarmId;
@@ -138,7 +138,7 @@ export default function Navbar() {
                     className="w-full flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-left font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/[0.08] transition"
                   >
                     <Plus className="h-4 w-4" />
-                    <span>Create New Farm</span>
+                    <span>{t("nav.create_farm")}</span>
                   </button>
                 </div>
               </div>
@@ -171,7 +171,7 @@ export default function Navbar() {
               <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
               <div className="absolute right-0 top-11 z-50 w-44 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-1.5 shadow-xl text-xs space-y-0.5 select-none ring-1 ring-black/20">
                 <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-[#71717A]">
-                  Select Language
+                  {t("profile.language_preferences")}
                 </div>
                 {LANGUAGE_OPTIONS.map((opt) => (
                   <button
@@ -263,7 +263,7 @@ export default function Navbar() {
                   className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left font-bold text-slate-700 dark:text-[#F4F4F5] hover:bg-emerald-50/70 dark:hover:bg-emerald-500/[0.08] hover:text-emerald-800 dark:hover:text-emerald-400 transition duration-150"
                 >
                   <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>{t("action.profile", "Profile & Account")}</span>
+                  <span>{t("profile.title")}</span>
                 </button>
 
                 <div className="border-t border-slate-100 dark:border-[#27272A]" />
@@ -271,7 +271,7 @@ export default function Navbar() {
                 {/* Theme Selector */}
                 <div className="px-3 py-2">
                   <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-[#71717A] mb-1.5">
-                    {t("label.theme", "Theme")}
+                    {t("profile.theme_preferences")}
                   </div>
                   <div className="flex items-center gap-1 bg-slate-50 dark:bg-[#0F1012] p-1 rounded-xl border border-slate-100 dark:border-[#27272A]">
                     <button
@@ -282,7 +282,7 @@ export default function Navbar() {
                           ? "bg-white dark:bg-[#151719] shadow-sm text-emerald-600 dark:text-emerald-400 font-bold"
                           : "text-slate-500 dark:text-[#71717A] hover:text-slate-700 dark:hover:text-[#F4F4F5] hover:bg-slate-200/50 dark:hover:bg-[#151719]/50"
                       }`}
-                      title={t("theme.light", "Light")}
+                      title="Light"
                     >
                       <Sun className="h-4 w-4" />
                     </button>
@@ -294,7 +294,7 @@ export default function Navbar() {
                           ? "bg-white dark:bg-[#151719] shadow-sm text-emerald-600 dark:text-emerald-400 font-bold"
                           : "text-slate-500 dark:text-[#71717A] hover:text-slate-700 dark:hover:text-[#F4F4F5] hover:bg-slate-200/50 dark:hover:bg-[#151719]/50"
                       }`}
-                      title={t("theme.dark", "Dark")}
+                      title="Dark"
                     >
                       <Moon className="h-4 w-4" />
                     </button>
@@ -306,7 +306,7 @@ export default function Navbar() {
                           ? "bg-white dark:bg-[#151719] shadow-sm text-emerald-600 dark:text-emerald-400 font-bold"
                           : "text-slate-500 dark:text-[#71717A] hover:text-slate-700 dark:hover:text-[#F4F4F5] hover:bg-slate-200/50 dark:hover:bg-[#151719]/50"
                       }`}
-                      title={t("theme.system", "System")}
+                      title="System"
                     >
                       <Monitor className="h-4 w-4" />
                     </button>
@@ -323,7 +323,7 @@ export default function Navbar() {
                   className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition duration-150"
                 >
                   <LogOut className="h-4 w-4 text-rose-500 dark:text-rose-400" />
-                  <span>{t("action.sign_out", "Sign Out")}</span>
+                  <span>{t("common.sign_out")}</span>
                 </button>
               </div>
             </>

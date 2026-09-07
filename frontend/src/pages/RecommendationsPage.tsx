@@ -167,10 +167,10 @@ export default function RecommendationsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900 dark:text-[#F4F4F5]">
-              {t("rec.title", "Actionable Herd Recommendations")}
+              {t("recommendations.title", "AI Herd Recommendations")}
             </h2>
             <p className="text-sm text-slate-500 dark:text-[#A1A1AA]">
-              {t("rec.subtitle", "AI-guided advisory actions for heat stress, ration adjustments, and veterinary care.")}
+              {t("recommendations.subtitle", "Actionable, data-driven suggestions for nutrition, climate control, and lactation management.")}
             </p>
           </div>
           <button
@@ -179,7 +179,7 @@ export default function RecommendationsPage() {
             disabled={generateMutation.isPending}
             className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
           >
-            {generateMutation.isPending ? t("rec.evaluating", "Evaluating Herd...") : `💡 ${t("rec.evaluate", "Evaluate Herd Recommendations")}`}
+            {generateMutation.isPending ? t("recommendations.evaluating", "Evaluating Herd...") : `💡 ${t("recommendations.evaluate", "Evaluate Herd Recommendations")}`}
           </button>
         </div>
 
@@ -197,7 +197,7 @@ export default function RecommendationsPage() {
               onClick={() => setToast(null)}
               className="text-xs text-slate-500 dark:text-[#A1A1AA] underline"
             >
-              Dismiss
+              {t("common.dismiss", "Dismiss")}
             </button>
           </div>
         ) : null}
@@ -205,35 +205,35 @@ export default function RecommendationsPage() {
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-sky-100 dark:border-sky-900/40 bg-sky-50/40 dark:bg-sky-950/20 p-5 shadow-sm">
-            <div className="text-xs font-medium text-sky-800 dark:text-sky-300">{t("rec.pending", "Pending Actions")}</div>
+            <div className="text-xs font-medium text-sky-800 dark:text-sky-300">{t("recommendations.pending_actions", "Pending Actions")}</div>
             <div className="mt-2 text-3xl font-bold text-sky-950 dark:text-sky-200">
               {counts.pending}
             </div>
-            <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">{t("rec.pending_subtitle", "Advisory items needing attention")}</p>
+            <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">{t("recommendations.pending_actions_desc", "Advisory items needing attention")}</p>
           </div>
 
           <div className="rounded-2xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-sm">
-            <div className="text-xs font-medium text-rose-800 dark:text-rose-300">{t("rec.high_priority", "High Priority")}</div>
+            <div className="text-xs font-medium text-rose-800 dark:text-rose-300">{t("recommendations.high_priority_actions", "High Priority")}</div>
             <div className="mt-2 text-3xl font-bold text-rose-950 dark:text-rose-200">
               {counts.high}
             </div>
-            <p className="mt-1 text-xs text-rose-700 dark:text-rose-400">{t("rec.high_subtitle", "Urgent health & feed actions")}</p>
+            <p className="mt-1 text-xs text-rose-700 dark:text-rose-400">{t("recommendations.high_priority_desc", "Urgent health & feed actions")}</p>
           </div>
 
           <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-500/[0.08] p-5 shadow-sm">
-            <div className="text-xs font-medium text-emerald-800 dark:text-emerald-300">{t("rec.completed", "Completed Actions")}</div>
+            <div className="text-xs font-medium text-emerald-800 dark:text-emerald-300">{t("recommendations.completed_actions", "Completed Actions")}</div>
             <div className="mt-2 text-3xl font-bold text-emerald-950 dark:text-emerald-200">
               {counts.completed}
             </div>
-            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">{t("rec.completed_subtitle", "Actioned herd advisories")}</p>
+            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">{t("recommendations.completed_actions_desc", "Actioned herd advisories")}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm">
-            <div className="text-xs font-medium text-slate-500 dark:text-[#A1A1AA]">{t("rec.total", "Total Advisories")}</div>
+            <div className="text-xs font-medium text-slate-500 dark:text-[#A1A1AA]">{t("recommendations.total_advisories", "Total Advisories")}</div>
             <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-[#F4F4F5]">
               {counts.total}
             </div>
-            <p className="mt-1 text-xs text-slate-400 dark:text-[#A1A1AA]/70">{t("rec.total_subtitle", "Total recommendations tracked")}</p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-[#A1A1AA]/70">{t("recommendations.total_advisories_desc", "Total recommendations tracked")}</p>
           </div>
         </div>
 
@@ -246,7 +246,7 @@ export default function RecommendationsPage() {
           >
             {categories.map((option) => (
               <option key={option} value={option}>
-                Category: {option}
+                {option === "All" ? t("recommendations.all_categories", "All Categories") : option}
               </option>
             ))}
           </select>
@@ -257,7 +257,7 @@ export default function RecommendationsPage() {
           >
             {priorities.map((option) => (
               <option key={option} value={option}>
-                Priority: {option}
+                {option === "All" ? t("recommendations.all_priorities", "All Priorities") : option}
               </option>
             ))}
           </select>
@@ -269,17 +269,17 @@ export default function RecommendationsPage() {
             {completionStates.map((option) => (
               <option key={option} value={option}>
                 {option === "all"
-                  ? "All Statuses"
+                  ? t("recommendations.all_statuses", "All Statuses")
                   : option === "pending"
-                    ? "Pending Only"
-                    : "Completed Only"}
+                    ? t("recommendations.pending_only", "Pending Only")
+                    : t("recommendations.completed_only", "Completed Only")}
               </option>
             ))}
           </select>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search action title or category..."
+            placeholder={t("recommendations.search_placeholder", "Search action title or category...")}
             className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-700 dark:text-[#F4F4F5] placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
           />
         </div>
@@ -288,11 +288,11 @@ export default function RecommendationsPage() {
         <div>
           {isLoading ? (
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA]">
-              Loading recommendations...
+              {t("common.loading", "Loading...")}
             </div>
           ) : isError ? (
             <div className="rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-6 text-rose-700 dark:text-rose-300">
-              Error loading recommendations: {(error as any)?.message}
+              {t("common.error", "Error")}: {(error as any)?.message}
             </div>
           ) : (
             <RecommendationsTable
