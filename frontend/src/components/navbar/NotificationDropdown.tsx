@@ -67,12 +67,12 @@ export function NotificationDropdown() {
   };
 
   const getAlertBg = (level: string, resolved: boolean) => {
-    if (resolved) return "bg-slate-50";
+    if (resolved) return "bg-slate-50 dark:bg-[#151719]/60";
     switch (level) {
-      case "critical": return "bg-rose-50/50";
-      case "high": return "bg-orange-50/50";
-      case "medium": return "bg-amber-50/50";
-      default: return "bg-blue-50/50";
+      case "critical": return "bg-rose-50/50 dark:bg-rose-950/25";
+      case "high": return "bg-orange-50/50 dark:bg-orange-950/25";
+      case "medium": return "bg-amber-50/50 dark:bg-amber-950/25";
+      default: return "bg-blue-50/50 dark:bg-blue-950/25";
     }
   };
 
@@ -81,7 +81,7 @@ export function NotificationDropdown() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+        className="relative rounded-xl p-2 text-slate-500 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#151719] hover:text-slate-800 dark:hover:text-[#F4F4F5] transition"
         title={t("notifications.title", "Notifications")}
         aria-label={t("notifications.title", "Notifications")}
         aria-expanded={isOpen}
@@ -96,13 +96,13 @@ export function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-slate-200/90 bg-white shadow-xl ring-1 ring-slate-900/5 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="text-sm font-bold text-slate-900">
+        <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-xl ring-1 ring-black/20 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#1B1D20]">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">
               {t("notifications.title", "Notifications")}
             </h3>
             {hasUnread && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60">
                 {unreadAlerts.length} {t("notifications.new", "New")}
               </span>
             )}
@@ -122,18 +122,18 @@ export function NotificationDropdown() {
               </div>
             ) : recentAlerts.length === 0 ? (
               <div className="px-4 py-8 flex flex-col items-center justify-center text-center">
-                <div className="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center mb-2">
-                  <Bell className="h-5 w-5 text-slate-300" />
+                <div className="h-10 w-10 rounded-full bg-slate-50 dark:bg-[#1B1D20] flex items-center justify-center mb-2 border border-slate-100 dark:border-[#27272A]">
+                  <Bell className="h-5 w-5 text-slate-300 dark:text-[#A1A1AA]/50" />
                 </div>
-                <p className="text-sm font-medium text-slate-600">
+                <p className="text-sm font-medium text-slate-600 dark:text-[#F4F4F5]">
                   {t("notifications.empty", "You're all caught up!")}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-400 dark:text-[#71717A] mt-1">
                   {t("notifications.empty_sub", "No new alerts at the moment.")}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-[#27272A]">
                 {recentAlerts.map(alert => (
                   <div 
                     key={alert.id} 
@@ -143,10 +143,10 @@ export function NotificationDropdown() {
                       {getAlertIcon(alert.alert_level)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className={`text-xs ${alert.resolved ? "text-slate-600" : "font-semibold text-slate-900"} line-clamp-2`}>
+                      <p className={`text-xs ${alert.resolved ? "text-slate-600 dark:text-[#A1A1AA]" : "font-semibold text-slate-900 dark:text-[#F4F4F5]"} line-clamp-2`}>
                         {alert.message}
                       </p>
-                      <p className="text-[10px] text-slate-400 mt-1.5 flex items-center justify-between">
+                      <p className="text-[10px] text-slate-400 dark:text-[#71717A] mt-1.5 flex items-center justify-between">
                         <span>{formatDistanceToNow(new Date(alert.created_at), { addSuffix: true })}</span>
                         {!alert.resolved && (
                           <button
@@ -155,7 +155,7 @@ export function NotificationDropdown() {
                               resolveMut.mutate(alert.id);
                             }}
                             disabled={resolveMut.status === "pending"}
-                            className="text-emerald-600 font-semibold hover:text-emerald-700 flex items-center gap-1"
+                            className="text-emerald-600 dark:text-emerald-400 font-semibold hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1"
                           >
                             <Check className="h-3 w-3" />
                             {t("action.mark_read", "Mark read")}
@@ -169,11 +169,11 @@ export function NotificationDropdown() {
             )}
           </div>
 
-          <div className="p-2 border-t border-slate-100 bg-slate-50">
+          <div className="p-2 border-t border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20]">
             <Link
               to="/health-alerts"
               onClick={() => setIsOpen(false)}
-              className="block w-full rounded-lg py-2 text-center text-xs font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 transition"
+              className="block w-full rounded-lg py-2 text-center text-xs font-bold text-slate-600 dark:text-[#F4F4F5] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-[#222428] transition"
             >
               {t("notifications.view_history", "View Notification History")}
             </Link>

@@ -101,7 +101,7 @@ export default function CowListPage() {
 
   const breedNameById = useMemo(() => {
     const map = new Map<string, string>();
-    breedsList.forEach((b: any) => map.set(b.id, b.name));
+    breedsList.forEach((b: any) => map.set(b.id, b.canonical_name || b.name));
     return map;
   }, [breedsList]);
 
@@ -184,11 +184,11 @@ export default function CowListPage() {
         {/* Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-2">
               🐄 {t("cows.title", "Cattle Herd")}
             </h1>
-            <p className="text-sm text-slate-500">
-              {t("cows.subtitle", "Manage cattle in")} <strong className="text-slate-800">{displayedFarmName}</strong>.
+            <p className="text-sm text-slate-500 dark:text-[#A1A1AA]">
+              {t("cows.subtitle", "Manage cattle in")} <strong className="text-slate-800 dark:text-[#F4F4F5]">{displayedFarmName}</strong>.
             </p>
           </div>
           <button
@@ -206,65 +206,65 @@ export default function CowListPage() {
 
         {/* Real Metric Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-3xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{t("cows.total_cows", "TOTAL COWS")}</div>
-              <div className="mt-1 text-3xl font-black text-emerald-950">{cows.length}</div>
-              <p className="mt-1 text-xs text-emerald-700">{t("cows.tracked_in_herd", "Tracked in farm herd")}</p>
+              <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">{t("cows.total_cows", "TOTAL COWS")}</div>
+              <div className="mt-1 text-3xl font-black text-emerald-950 dark:text-[#F4F4F5]">{cows.length}</div>
+              <p className="mt-1 text-xs text-emerald-700 dark:text-[#A1A1AA]">{t("cows.tracked_in_herd", "Tracked in farm herd")}</p>
             </div>
-            <Users className="h-7 w-7 text-emerald-600/40" />
+            <Users className="h-7 w-7 text-emerald-600/40 dark:text-emerald-400/40" />
           </div>
 
-          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-3xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">{t("cows.active_animals", "ACTIVE ANIMALS")}</div>
-              <div className="mt-1 text-3xl font-black text-emerald-950">{activeCount}</div>
-              <p className="mt-1 text-xs text-emerald-700">{t("cows.in_active_production", "In active production")}</p>
+              <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">{t("cows.active_animals", "ACTIVE ANIMALS")}</div>
+              <div className="mt-1 text-3xl font-black text-emerald-950 dark:text-[#F4F4F5]">{activeCount}</div>
+              <p className="mt-1 text-xs text-emerald-700 dark:text-[#A1A1AA]">{t("cows.in_active_production", "In active production")}</p>
             </div>
-            <CheckCircle2 className="h-7 w-7 text-emerald-600/40" />
+            <CheckCircle2 className="h-7 w-7 text-emerald-600/40 dark:text-emerald-400/40" />
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t("cows.avg_weight", "AVG WEIGHT")}</div>
-              <div className="mt-1 text-3xl font-black text-slate-900">
+              <div className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider">{t("cows.avg_weight", "AVG WEIGHT")}</div>
+              <div className="mt-1 text-3xl font-black text-slate-900 dark:text-[#F4F4F5]">
                 {avgWeight ? `${avgWeight} kg` : "—"}
               </div>
-              <p className="mt-1 text-xs text-slate-400">{t("cows.herd_weight_estimate", "Herd weight estimate")}</p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-[#A1A1AA]">{t("cows.herd_weight_estimate", "Herd weight estimate")}</p>
             </div>
-            <Scale className="h-7 w-7 text-slate-400/40" />
+            <Scale className="h-7 w-7 text-slate-400/40 dark:text-[#A1A1AA]/30" />
           </div>
 
-          <div className="rounded-3xl border border-amber-100 bg-amber-50/40 p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-3xl border border-amber-100 dark:border-amber-900/40 bg-amber-50/40 dark:bg-[#151719] p-5 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold text-amber-800 uppercase tracking-wider">{t("cows.active_alerts", "ACTIVE ALERTS")}</div>
-              <div className="mt-1 text-3xl font-black text-amber-950">{activeAlertsCount}</div>
-              <p className="mt-1 text-xs text-amber-700">{t("cows.health_issues_flagged", "Health issues flagged")}</p>
+              <div className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider">{t("cows.active_alerts", "ACTIVE ALERTS")}</div>
+              <div className="mt-1 text-3xl font-black text-amber-950 dark:text-[#F4F4F5]">{activeAlertsCount}</div>
+              <p className="mt-1 text-xs text-amber-700 dark:text-[#A1A1AA]">{t("cows.health_issues_flagged", "Health issues flagged")}</p>
             </div>
-            <AlertTriangle className="h-7 w-7 text-amber-600/40" />
+            <AlertTriangle className="h-7 w-7 text-amber-600/40 dark:text-amber-400/40" />
           </div>
         </div>
 
         {/* Filter Bar */}
         <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-4">
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-[#A1A1AA]" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("cows.search_placeholder", "Search cow name or tag ID...")}
-              className="w-full rounded-2xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] pl-9 pr-3 py-2 text-xs text-slate-800 dark:text-[#F4F4F5] shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
           <select
             value={breedFilter}
             onChange={(e) => setBreedFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-3 py-2 text-xs text-slate-800 dark:text-[#F4F4F5] shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">{t("cows.all_breeds", "All Breeds")}</option>
+            <option value="" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{t("cows.all_breeds", "All Breeds")}</option>
             {breeds.map((b) => (
-              <option key={b} value={b}>
+              <option key={b} value={b} className="dark:bg-[#151719] dark:text-[#F4F4F5]">
                 {breedName(b)}
               </option>
             ))}
@@ -273,29 +273,29 @@ export default function CowListPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-3 py-2 text-xs text-slate-800 dark:text-[#F4F4F5] shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">{t("cows.all_statuses", "All Statuses")}</option>
-            <option value="active">Active</option>
-            <option value="dry">Dry</option>
-            <option value="sick">Sick</option>
-            <option value="deceased">Deceased</option>
-            <option value="sold">Sold</option>
+            <option value="" className="dark:bg-[#151719] dark:text-[#F4F4F5]">{t("cows.all_statuses", "All Statuses")}</option>
+            <option value="active" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Active</option>
+            <option value="dry" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Dry</option>
+            <option value="sick" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Sick</option>
+            <option value="deceased" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Deceased</option>
+            <option value="sold" className="dark:bg-[#151719] dark:text-[#F4F4F5]">Sold</option>
           </select>
         </div>
 
         {/* Table Container */}
-        <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
           {isLoading ? (
-            <div className="p-8 text-center text-slate-500 text-xs font-semibold">Loading cattle herd...</div>
+            <div className="p-8 text-center text-slate-500 dark:text-[#A1A1AA] text-xs font-semibold">Loading cattle herd...</div>
           ) : isError ? (
-            <div className="p-6 text-rose-600 text-xs font-semibold">
+            <div className="p-6 text-rose-600 dark:text-rose-400 text-xs font-semibold">
               Error loading cattle: {(error as any)?.message ?? "Failed to load"}
             </div>
           ) : filteredCows.length === 0 ? (
-            <div className="p-12 text-center text-slate-600 space-y-3">
-              <p className="text-base font-bold text-slate-900">No cattle found</p>
-              <p className="text-xs text-slate-500">
+            <div className="p-12 text-center text-slate-600 dark:text-[#A1A1AA] space-y-3">
+              <p className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">No cattle found</p>
+              <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
                 Add a new cow to this farm or adjust your search and breed filter.
               </p>
               <button
@@ -312,7 +312,7 @@ export default function CowListPage() {
             </div>
           ) : (
             <table className="w-full table-auto">
-              <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <thead className="bg-slate-50 dark:bg-[#1B1D20] text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-100 dark:border-[#27272A]">
                 <tr>
                   <th className="px-5 py-3.5">{t("cows.cow_tag_id", "COW / TAG ID")}</th>
                   <th className="px-4 py-3.5">{t("cows.breed", "BREED")}</th>
@@ -322,32 +322,32 @@ export default function CowListPage() {
                   <th className="px-4 py-3.5 text-right">{t("cows.action", "ACTION")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-xs text-slate-700 dark:text-[#F4F4F5]">
                 {filteredCows.map((c) => (
                   <tr
                     key={c.id}
-                    className="hover:bg-slate-50/80 transition cursor-pointer"
+                    className="hover:bg-slate-50/80 dark:hover:bg-[#222428] transition cursor-pointer"
                     onClick={() => navigate(`/cows/${c.id}`)}
                   >
-                    <td className="px-5 py-4 font-bold text-slate-900">
+                    <td className="px-5 py-4 font-bold text-slate-900 dark:text-[#F4F4F5]">
                       <div className="flex items-center gap-2">
                         <span>🐄</span>
                         <div>
-                          <div className="text-sm font-bold text-slate-950">{c.name || c.tag || "Unnamed Cow"}</div>
-                          <div className="text-[11px] font-mono text-slate-400">Tag: {c.tag || c.id.slice(0, 8)}</div>
+                          <div className="text-sm font-bold text-slate-950 dark:text-[#F4F4F5]">{c.name || c.tag || "Unnamed Cow"}</div>
+                          <div className="text-[11px] font-mono text-slate-400 dark:text-[#A1A1AA]">Tag: {c.tag || c.id.slice(0, 8)}</div>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-4 py-4 font-medium text-slate-800">
-                      {breedName(c.breed) ?? "—"}
+                    <td className="px-4 py-4 font-medium text-slate-800 dark:text-[#F4F4F5]">
+                      {c.breed_name || breedName(c.breed) || "—"}
                     </td>
 
-                    <td className="px-4 py-4 font-semibold text-slate-800">
+                    <td className="px-4 py-4 font-semibold text-slate-800 dark:text-[#F4F4F5]">
                       {c.weight_kg ? `${c.weight_kg} kg` : "—"}
                     </td>
 
-                    <td className="px-4 py-4 font-medium text-slate-600">
+                    <td className="px-4 py-4 font-medium text-slate-600 dark:text-[#A1A1AA]">
                       {formatAge(c.age_months)}
                     </td>
 
@@ -355,10 +355,10 @@ export default function CowListPage() {
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
                           c.status === "active"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
                             : c.status === "dry" || c.status === "sick"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-slate-100 text-slate-600"
+                              ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
+                              : "bg-slate-100 dark:bg-[#1B1D20] text-slate-600 dark:text-[#A1A1AA]"
                         }`}
                       >
                         ● {c.status ? c.status.toUpperCase() : "ACTIVE"}
@@ -369,7 +369,7 @@ export default function CowListPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/cows/${c.id}`}
-                          className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                          className="inline-flex items-center gap-1 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-1 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-100 dark:hover:bg-[#222428] transition"
                         >
                           <span>Open</span>
                           <ArrowRight className="h-3.5 w-3.5" />
@@ -379,7 +379,7 @@ export default function CowListPage() {
                           <button
                             type="button"
                             onClick={() => setOpenMenuId(openMenuId === c.id ? null : c.id)}
-                            className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                            className="rounded-full p-1.5 text-slate-400 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#222428] hover:text-slate-700 dark:hover:text-[#F4F4F5]"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>
@@ -390,7 +390,7 @@ export default function CowListPage() {
                                 className="fixed inset-0 z-10"
                                 onClick={() => setOpenMenuId(null)}
                               />
-                              <div className="absolute right-0 top-8 z-20 w-32 rounded-2xl border border-slate-200 bg-white py-1 shadow-lg text-xs font-semibold text-slate-700 text-left">
+                              <div className="absolute right-0 top-8 z-20 w-32 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-1 shadow-lg text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] text-left ring-1 ring-black/20">
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -398,7 +398,7 @@ export default function CowListPage() {
                                     updateMut.reset();
                                     setEditing(c);
                                   }}
-                                  className="w-full px-3 py-2 hover:bg-slate-50 text-slate-800"
+                                  className="w-full px-3 py-2 hover:bg-slate-50 dark:hover:bg-[#222428] text-slate-800 dark:text-[#F4F4F5]"
                                 >
                                   Edit Cow
                                 </button>
@@ -409,7 +409,7 @@ export default function CowListPage() {
                                     deleteMut.reset();
                                     setDeleting(c);
                                   }}
-                                  className="w-full px-3 py-2 hover:bg-rose-50 text-rose-600"
+                                  className="w-full px-3 py-2 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400"
                                 >
                                   Delete Cow
                                 </button>

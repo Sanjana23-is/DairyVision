@@ -8,6 +8,7 @@ export type Cow = {
   tag_id?: string;
   breed?: string;
   breed_id?: string;
+  breed_name?: string;
   birth_date?: string | null;
   age_months?: number | null;
   weight_kg?: number | null;
@@ -48,6 +49,7 @@ function mapCowFromApi(cow: Cow) {
     ...cow,
     tag: cow.tag ?? cow.tag_id,
     breed: cow.breed ?? cow.breed_id,
+    breed_name: cow.breed_name,
   };
 }
 

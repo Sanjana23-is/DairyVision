@@ -131,6 +131,13 @@ class Cow(Base):
         doc="Activity logs linked to this cow.",
     )
 
+    @property
+    def breed_name(self) -> Optional[str]:
+        """Returns the canonical breed name if a breed is assigned."""
+        if self.breed is not None:
+            return getattr(self.breed, "canonical_name", None)
+        return None
+
     __table_args__ = (
         CheckConstraint("status IN ('active', 'dry', 'sick', 'deceased', 'sold')", name="ck_cow_status"),
         CheckConstraint("lactation_number IS NULL OR lactation_number > 0", name="ck_cow_lactation"),

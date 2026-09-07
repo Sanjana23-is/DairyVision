@@ -56,7 +56,7 @@ export default function AddCowDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs px-4">
       <form
         onSubmit={handleSubmit((v) => {
           const yrs = v.age_years ?? 0;
@@ -74,47 +74,47 @@ export default function AddCowDialog({
             age_months: totalAgeMonths,
           });
         })}
-        className="w-full max-w-md rounded bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] p-6 shadow-xl text-slate-900 dark:text-[#F4F4F5]"
       >
-        <h3 className="mb-4 text-lg font-semibold">Add Cow</h3>
+        <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">Add Cow</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-sm font-medium text-slate-700">Name</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Name</label>
             <input
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("name")}
             />
             {errors.name && (
-              <div className="text-rose-600 text-xs">
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                 {String(errors.name.message)}
               </div>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Tag</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Tag</label>
             <input
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("tag")}
             />
             {errors.tag && (
-              <div className="text-rose-600 text-xs">
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                 {String(errors.tag.message)}
               </div>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Age</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Age</label>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <input
                   type="number"
                   min="0"
                   placeholder="Years (e.g. 4)"
-                  className="w-full rounded border px-2 py-1 text-sm"
+                  className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   {...register("age_years")}
                 />
                 {errors.age_years && (
-                  <div className="text-rose-600 text-xs">
+                  <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                     {String(errors.age_years.message)}
                   </div>
                 )}
@@ -125,84 +125,84 @@ export default function AddCowDialog({
                   min="0"
                   max="11"
                   placeholder="Months (0–11)"
-                  className="w-full rounded border px-2 py-1 text-sm"
+                  className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   {...register("age_months_part")}
                 />
                 {errors.age_months_part && (
-                  <div className="text-rose-600 text-xs">
+                  <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                     {String(errors.age_months_part.message)}
                   </div>
                 )}
               </div>
             </div>
-            <div className="text-xs text-slate-400 mt-1">Approximate age is okay.</div>
+            <div className="text-xs text-slate-400 dark:text-[#A1A1AA] mt-1">Approximate age is okay.</div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Weight (kg)</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Weight (kg)</label>
             <input
               type="number"
               step="any"
               placeholder="e.g. 500"
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("weight_kg")}
             />
             {errors.weight_kg && (
-              <div className="text-rose-600 text-xs">
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                 {String(errors.weight_kg.message)}
               </div>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Breed</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Breed</label>
             <select
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("breed")}
             >
-              <option value="">Select breed</option>
+              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Select breed</option>
               {breeds.map((b) => (
-                <option key={b.id} value={b.id}>
+                <option key={b.id} value={b.id} className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">
                   {b.canonical_name}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700">Status</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-[#A1A1AA]">Status</label>
             <select
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-sm text-slate-900 dark:text-[#F4F4F5] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               {...register("status")}
             >
-              <option value="">Select status</option>
-              <option value="active">Active</option>
-              <option value="dry">Dry</option>
-              <option value="sick">Sick</option>
-              <option value="deceased">Deceased</option>
-              <option value="sold">Sold</option>
+              <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Select status</option>
+              <option value="active" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Active</option>
+              <option value="dry" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Dry</option>
+              <option value="sick" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Sick</option>
+              <option value="deceased" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Deceased</option>
+              <option value="sold" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Sold</option>
             </select>
             {errors.status && (
-              <div className="text-rose-600 text-xs">
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">
                 {String(errors.status.message)}
               </div>
             )}
           </div>
 
           {submitError && (
-            <div className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+            <div className="rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 px-3 py-2 text-xs text-rose-700 dark:text-rose-300">
               {submitError}
             </div>
           )}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="rounded border px-3 py-1"
+              className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-sm font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428]"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded bg-sky-600 px-3 py-1 text-white disabled:opacity-60"
+              className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60 shadow-xs"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Creating…" : "Create"}

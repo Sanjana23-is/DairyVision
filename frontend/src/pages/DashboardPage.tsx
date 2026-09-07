@@ -224,12 +224,12 @@ export function DashboardPage() {
           {/* Header & Greeting */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
                 {getGreetingText()}, {displayedUserName} 👋
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-1">
                 {t("dashboard.heres_happening", "Here's what's happening at")}{" "}
-                <strong className="text-slate-800 font-bold">{displayedFarmName}</strong>{" "}
+                <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">{displayedFarmName}</strong>{" "}
                 {t("dashboard.today", "today.")}
               </p>
             </div>
@@ -238,9 +238,9 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setExecutiveReportOpen(true)}
-                className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/90 bg-emerald-50/70 px-4 py-2.5 text-xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200"
+                className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/90 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-[#151719] px-4 py-2.5 text-xs font-bold text-emerald-900 dark:text-emerald-400 shadow-2xs hover:bg-emerald-100 dark:hover:bg-[#222428] hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-200"
               >
-                <FileText className="h-4 w-4 text-emerald-600" />
+                <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{t("dashboard.executive_report", "Executive Report & Export")}</span>
               </button>
             </div>
@@ -248,11 +248,11 @@ export function DashboardPage() {
 
           {/* Loading / Error States */}
           {isSummaryLoading ? (
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-8 text-center text-xs font-semibold text-slate-500 shadow-xs">
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] shadow-xs">
               Loading farm intelligence dashboard...
             </div>
           ) : isSummaryError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-xs font-semibold text-rose-800 shadow-xs">
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 p-6 text-xs font-semibold text-rose-800 dark:text-rose-300 shadow-xs">
               Unable to load farm intelligence: {(summaryError as any)?.message || "Network Error"}
             </div>
           ) : (
@@ -300,17 +300,17 @@ export function DashboardPage() {
                 </div>
 
                 {/* AI Monitoring Panel (4 cols) */}
-                <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow duration-200">
+                <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-xs hover:shadow-sm transition-shadow duration-200">
                   <div>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
                         <Activity className="h-4 w-4" />
                       </div>
-                      <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                      <h2 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
                         {t("dashboard.live_insights", "LIVE FARM INSIGHTS")}
                       </h2>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-1">
                       {t("dashboard.realtime_monitoring", "Real-time AI monitoring & thermal conditions")}
                     </p>
 
@@ -319,28 +319,28 @@ export function DashboardPage() {
                         <div
                           key={idx}
                           onClick={() => navigate(item.link)}
-                          className="group flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/60 p-3.5 hover:bg-emerald-50/40 hover:border-emerald-300/80 transition-all duration-200 cursor-pointer"
+                          className="group flex items-center justify-between rounded-xl border border-slate-200/80 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20]/80 p-3.5 hover:bg-emerald-50/40 dark:hover:bg-[#222428] hover:border-emerald-300/80 dark:hover:border-emerald-500/50 transition-all duration-200 cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
                             <span className="text-lg">{item.icon}</span>
                             <div>
-                              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#A1A1AA]">
                                 {item.title}
                               </div>
-                              <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-900 transition-colors">
+                              <p className="text-xs font-bold text-slate-800 dark:text-[#F4F4F5] group-hover:text-emerald-900 dark:group-hover:text-emerald-400 transition-colors">
                                 {item.text}
                               </p>
                             </div>
                           </div>
-                          <ArrowRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
+                          <ArrowRight className="h-4 w-4 text-slate-400 dark:text-[#A1A1AA] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="mt-5 border-t border-slate-100 pt-3.5 text-xs text-slate-500 flex items-center justify-between">
+                  <div className="mt-5 border-t border-slate-100 dark:border-[#27272A] pt-3.5 text-xs text-slate-500 dark:text-[#A1A1AA] flex items-center justify-between">
                     <span className="font-medium">Thermal Snapshot:</span>
-                    <span className="font-bold text-slate-900">
+                    <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {temp.toFixed(1)}°C • {humidity.toFixed(0)}% Humidity
                     </span>
                   </div>

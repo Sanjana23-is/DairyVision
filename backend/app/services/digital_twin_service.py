@@ -334,7 +334,7 @@ class DigitalTwinService:
 
         breed_str = None
         if cow.breed:
-            breed_str = cow.breed.name if hasattr(cow.breed, "name") else (cow.breed if isinstance(cow.breed, str) else None)
+            breed_str = getattr(cow.breed, "canonical_name", None) or getattr(cow.breed, "name", None) or (cow.breed if isinstance(cow.breed, str) else None)
 
         response = CowDigitalTwinResponse(
 

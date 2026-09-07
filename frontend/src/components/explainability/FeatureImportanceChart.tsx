@@ -17,15 +17,15 @@ function CustomShapTooltip({ active, payload }: any) {
   const shapVal = item.shap_value ?? 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white/95 p-3 shadow-md text-xs text-slate-800 space-y-1 backdrop-blur-md">
-      <div className="font-semibold text-slate-900">{item.display_name || item.feature}</div>
-      <div className="flex items-center justify-between gap-4 text-slate-600">
+    <div className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white/95 dark:bg-[#151719]/95 p-3 shadow-md text-xs text-slate-800 dark:text-[#F4F4F5] space-y-1 backdrop-blur-md">
+      <div className="font-semibold text-slate-900 dark:text-[#F4F4F5]">{item.display_name || item.feature}</div>
+      <div className="flex items-center justify-between gap-4 text-slate-600 dark:text-[#A1A1AA]">
         <span>SHAP Impact:</span>
-        <span className={`font-bold ${shapVal >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+        <span className={`font-bold ${shapVal >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
           {shapVal >= 0 ? `+${shapVal.toFixed(3)}` : shapVal.toFixed(3)} L
         </span>
       </div>
-      <div className="text-[11px] text-slate-500 pt-0.5">
+      <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]/70 pt-0.5">
         {shapVal >= 0
           ? "Increases predicted milk yield"
           : "Decreases predicted milk yield"}
@@ -41,7 +41,7 @@ export default function FeatureImportanceChart({
 }) {
   if (!features || features.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-600 text-sm text-center">
+      <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-6 text-slate-600 dark:text-[#A1A1AA] text-sm text-center">
         No feature importance data available.
       </div>
     );
@@ -61,14 +61,14 @@ export default function FeatureImportanceChart({
   const dynamicHeight = Math.max(260, chartData.length * 36);
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
       <div className="flex items-center justify-between mb-2 px-2">
-        <h4 className="text-sm font-semibold text-slate-800">Feature Attribution (SHAP)</h4>
+        <h4 className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">Feature Attribution (SHAP)</h4>
         <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1 text-emerald-600 font-medium">
+          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
             <span className="h-2 w-2 rounded-full bg-emerald-500" /> + Yield Impact
           </span>
-          <span className="flex items-center gap-1 text-rose-600 font-medium">
+          <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
             <span className="h-2 w-2 rounded-full bg-rose-500" /> - Yield Impact
           </span>
         </div>
@@ -81,12 +81,12 @@ export default function FeatureImportanceChart({
             data={chartData}
             margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
           >
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#27272A" opacity={0.3} />
             <XAxis
               type="number"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "#A1A1AA" }}
             />
             <YAxis
               type="category"
@@ -94,7 +94,7 @@ export default function FeatureImportanceChart({
               width={160}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12, fill: "#334155", fontWeight: 500 }}
+              tick={{ fontSize: 12, fill: "#A1A1AA", fontWeight: 500 }}
             />
             <Tooltip content={<CustomShapTooltip />} />
             <Bar dataKey="shap_value" radius={[0, 4, 4, 0]} isAnimationActive={true}>

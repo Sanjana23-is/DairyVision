@@ -148,22 +148,22 @@ export default function SelectFarmPage() {
       <div className="relative z-10 w-full my-auto py-8 flex items-center justify-center">
         {farms.length === 0 ? (
           /* CASE 1: First-Time User / 0 Farms (Onboarding View) */
-          <div className="w-full max-w-[480px] rounded-[24px] bg-white p-8 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 space-y-6">
+          <div className="w-full max-w-[480px] rounded-[24px] bg-white dark:bg-[#151719] p-8 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-6">
             <div className="space-y-1 text-left">
-              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600">
+              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 WELCOME TO DAIRYVISION AI
               </span>
-              <h1 className="text-[26px] sm:text-[28px] font-bold tracking-tight text-slate-900 leading-snug mt-1">
+              <h1 className="text-[26px] sm:text-[28px] font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] leading-snug mt-1">
                 Let's set up your farm
               </h1>
-              <p className="text-[14px] font-normal text-slate-500 mt-1">
+              <p className="text-[14px] font-normal text-slate-500 dark:text-[#A1A1AA] mt-1">
                 Enter your dairy farm details to activate yield predictions, cattle health alerts, and daily tracking.
               </p>
             </div>
 
             <form onSubmit={handleOnboardingSubmit} className="space-y-4 text-xs font-sans">
               <div>
-                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
+                <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">
                   Farm Name <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -172,47 +172,47 @@ export default function SelectFarmPage() {
                   value={farmName}
                   onChange={(e) => setFarmName(e.target.value)}
                   placeholder="e.g. Luna Dairy Farm"
-                  className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-[14px] text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:ring-emerald-600/20 font-medium"
+                  className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 focus:ring-emerald-600/20 font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[13px] font-medium text-slate-700 mb-1.5">City / District</label>
+                  <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">City / District</label>
                   <input
                     type="text"
                     value={locationCity}
                     onChange={(e) => setLocationCity(e.target.value)}
                     placeholder="e.g. Anand"
-                    className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-[14px] text-slate-900 focus:border-emerald-600 focus:ring-emerald-600/20"
+                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:ring-emerald-600/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Country</label>
+                  <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">Country</label>
                   <input
                     type="text"
                     value={locationCountry}
                     onChange={(e) => setLocationCountry(e.target.value)}
                     placeholder="e.g. India"
-                    className="h-11 w-full rounded-xl border border-slate-200 px-3.5 text-[14px] text-slate-900 focus:border-emerald-600 focus:ring-emerald-600/20"
+                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:ring-emerald-600/20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Description (Optional)</label>
+                <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">Description (Optional)</label>
                 <textarea
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Short notes about your dairy herd..."
-                  className="w-full rounded-xl border border-slate-200 p-3 text-[14px] text-slate-900 focus:border-emerald-600 focus:ring-emerald-600/20 resize-none"
+                  className="w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-3 text-[14px] text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:ring-emerald-600/20 resize-none"
                 />
               </div>
 
               {createMut.isError && (
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-normal text-rose-700">
+                <div className="rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/60 p-3 text-xs font-normal text-rose-700 dark:text-rose-300">
                   {(createMut.error as any)?.response?.data?.detail || createMut.error.message}
                 </div>
               )}
@@ -228,16 +228,16 @@ export default function SelectFarmPage() {
           </div>
         ) : (
           /* CASE 2: Returning User with 1+ Farms (Single Main Centered Container Card) */
-          <div className="w-full max-w-[760px] rounded-[24px] bg-white p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 space-y-6">
+          <div className="w-full max-w-[760px] rounded-[24px] bg-white dark:bg-[#151719] p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-6">
             {/* Header inside parent card */}
             <div className="space-y-1">
-              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600">
+              <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 WELCOME BACK, {user?.full_name?.toUpperCase() || "FARM MANAGER"}
               </span>
-              <h1 className="text-[26px] sm:text-[30px] font-bold tracking-tight text-slate-900 leading-snug">
+              <h1 className="text-[26px] sm:text-[30px] font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] leading-snug">
                 Choose a farm to continue
               </h1>
-              <p className="text-[15px] font-normal text-slate-500">
+              <p className="text-[15px] font-normal text-slate-500 dark:text-[#A1A1AA]">
                 Select an active farm workspace or create a new dairy farm location.
               </p>
             </div>
@@ -257,14 +257,14 @@ export default function SelectFarmPage() {
                 return (
                   <div
                     key={farm.id}
-                    className="flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-slate-50/60 p-4.5 hover:bg-slate-50 hover:border-emerald-500/40 transition-all duration-150 space-y-4"
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4.5 hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80 hover:border-emerald-500/40 transition-all duration-150 space-y-4"
                   >
                     <div className="space-y-2">
                       <div className="flex items-start gap-2.5">
                         <span className="text-xl">🌾</span>
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-[15px] font-bold text-slate-900 truncate">{farm.name}</h3>
-                          <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                          <h3 className="text-[15px] font-bold text-slate-900 dark:text-[#F4F4F5] truncate">{farm.name}</h3>
+                          <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-[#A1A1AA] mt-0.5">
                             <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
                             <span className="truncate">{locationStr}</span>
                           </div>
@@ -272,24 +272,24 @@ export default function SelectFarmPage() {
                       </div>
 
                       {/* Real Metrics */}
-                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 text-xs">
-                        <div className="flex items-center gap-1.5 rounded-xl bg-white p-2 border border-slate-100 shadow-2xs">
-                          <Users className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 dark:border-[#27272A] text-xs">
+                        <div className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-[#151719] p-2 border border-slate-100 dark:border-[#27272A] shadow-2xs">
+                          <Users className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <div>
-                            <span className="font-bold text-slate-900">{cowCount}</span>
-                            <span className="text-slate-500 ml-1 text-[11px]">cows</span>
+                            <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">{cowCount}</span>
+                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">cows</span>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 rounded-xl bg-white p-2 border border-slate-100 shadow-2xs">
+                        <div className="flex items-center gap-1.5 rounded-xl bg-white dark:bg-[#151719] p-2 border border-slate-100 dark:border-[#27272A] shadow-2xs">
                           <AlertTriangle
                             className={`h-3.5 w-3.5 shrink-0 ${
-                              alertCount > 0 ? "text-amber-600" : "text-slate-400"
+                              alertCount > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"
                             }`}
                           />
                           <div>
-                            <span className="font-bold text-slate-900">{alertCount}</span>
-                            <span className="text-slate-500 ml-1 text-[11px]">alerts</span>
+                            <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">{alertCount}</span>
+                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">alerts</span>
                           </div>
                         </div>
                       </div>
@@ -309,13 +309,13 @@ export default function SelectFarmPage() {
             </div>
 
             {/* Secondary Action: + Create Another Farm inside parent card */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-3 border-t border-slate-100 dark:border-[#27272A] flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => setIsCreatingModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-700 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-150 shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-[#F4F4F5] hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-500/40 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all duration-150 shadow-2xs"
               >
-                <Plus className="h-4 w-4 text-emerald-600" />
+                <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Create Another Farm</span>
               </button>
             </div>

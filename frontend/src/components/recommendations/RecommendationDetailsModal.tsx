@@ -75,25 +75,25 @@ export default function RecommendationDetailsModal({
   const whyText = getWhyExplanation(recommendation);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/70 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] shadow-2xl transition-all">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-5 bg-slate-50/50">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#27272A] px-6 py-5 bg-slate-50/50 dark:bg-[#1B1D20]/60">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xl">{getCategoryIcon(categoryText)}</span>
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">
                 {titleText}
               </h3>
             </div>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-[#A1A1AA]">
               Advisory Details & Contextual Signal Breakdown
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-full p-2 text-slate-400 dark:text-[#A1A1AA] hover:bg-slate-100 dark:hover:bg-[#1B1D20] hover:text-slate-700 dark:hover:text-[#F4F4F5]"
           >
             ✕
           </button>
@@ -102,61 +102,61 @@ export default function RecommendationDetailsModal({
         {/* Content Body */}
         <div className="space-y-5 p-6">
           {/* SECTION 1: Why this recommendation? */}
-          <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-5 shadow-sm">
-            <div className="flex items-center gap-2 text-sm font-bold text-sky-900">
+          <div className="rounded-2xl border border-sky-100 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 p-5 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-bold text-sky-900 dark:text-sky-300">
               <span>💡</span>
               <span>Why this recommendation?</span>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-sky-950 font-medium">
+            <p className="mt-2 text-sm leading-relaxed text-sky-950 dark:text-sky-200 font-medium">
               {whyText}
             </p>
           </div>
 
           {/* SECTION 2: Recommended Action */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20]/50 p-5">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
               <span>📋</span>
               <span>Recommended Action</span>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap font-medium">
+            <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-[#A1A1AA] whitespace-pre-wrap font-medium">
               {recommendation.description || "No specific action text provided."}
             </p>
           </div>
 
           {/* SECTION 3: Context Metrics Grid */}
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
+              <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
                 Subject Cow
               </div>
-              <div className="mt-1.5 text-sm font-semibold text-slate-900 flex items-center gap-1.5">
+              <div className="mt-1.5 text-sm font-semibold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <span>🐄</span>
                 <span>{cowDisplayName}</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
+              <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
                 Category
               </div>
-              <div className="mt-1.5 text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+              <div className="mt-1.5 text-sm font-semibold text-slate-800 dark:text-[#F4F4F5] flex items-center gap-1.5">
                 <span>{getCategoryIcon(categoryText)}</span>
                 <span>{categoryText}</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
+              <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
                 Priority Level
               </div>
               <div className="mt-1.5">
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
                     isHigh
-                      ? "bg-rose-100 text-rose-800"
+                      ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300"
                       : isMed
-                      ? "bg-amber-100 text-amber-800"
-                      : "bg-slate-100 text-slate-700"
+                      ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
+                      : "bg-slate-100 dark:bg-[#151719] text-slate-700 dark:text-[#A1A1AA]"
                   }`}
                 >
                   {priorityVal} Priority
@@ -164,16 +164,16 @@ export default function RecommendationDetailsModal({
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 shadow-sm">
+              <div className="text-xs font-semibold text-slate-400 dark:text-[#A1A1AA] uppercase tracking-wider">
                 Status
               </div>
               <div className="mt-1.5">
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
                     recommendation.completed
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-sky-100 text-sky-800"
+                      ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
+                      : "bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300"
                   }`}
                 >
                   {recommendation.completed ? "Completed" : "Action Required"}
@@ -183,12 +183,12 @@ export default function RecommendationDetailsModal({
           </div>
 
           {/* Footer Date */}
-          <div className="flex items-center justify-between border-t pt-4 text-xs text-slate-400">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#27272A] pt-4 text-xs text-slate-400 dark:text-[#A1A1AA]">
             <span>Evaluated & Generated: {formatDate(recommendation.created_at)}</span>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-2xl border bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
             >
               Close
             </button>

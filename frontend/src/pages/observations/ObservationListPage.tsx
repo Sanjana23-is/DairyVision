@@ -244,10 +244,10 @@ export default function ObservationListPage() {
         {/* Header Bar */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
               {t("obs.title", "Daily Observations")}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-0.5">
               {t("obs.subtitle", "Track daily milk yield, feed intake, and cattle health observations over time.")}
             </p>
           </div>
@@ -255,9 +255,9 @@ export default function ObservationListPage() {
             <button
               type="button"
               onClick={() => setBulkUploading(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200/90 bg-emerald-50/70 px-4 py-2.5 text-xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200/90 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-[#151719] px-4 py-2.5 text-xs font-bold text-emerald-900 dark:text-emerald-400 shadow-2xs hover:bg-emerald-100 dark:hover:bg-[#222428] hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-200"
             >
-              <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>{t("action.bulk_import", "Bulk Import CSV")}</span>
             </button>
             <button
@@ -272,17 +272,17 @@ export default function ObservationListPage() {
         </div>
 
         {/* Filter Toolbar Card */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs space-y-3">
+        <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-xs space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 dark:text-[#A1A1AA]" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("action.search", "Search...")}
-                className="h-10 w-full rounded-xl border border-slate-200 pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 font-medium"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] pl-9 pr-3 text-xs text-slate-900 dark:text-[#F4F4F5] placeholder:text-slate-400 dark:placeholder:text-[#A1A1AA]/60 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 font-medium"
               />
             </div>
 
@@ -291,11 +291,11 @@ export default function ObservationListPage() {
               <select
                 value={selectedCow}
                 onChange={(e) => setSelectedCow(e.target.value)}
-                className="h-10 w-full rounded-xl border border-slate-200 px-3 text-xs text-slate-900 font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white appearance-none cursor-pointer"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="">All cows ▾</option>
+                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">All cows ▾</option>
                 {cowOptions.map((cow) => (
-                  <option key={cow.id} value={cow.id}>
+                  <option key={cow.id} value={cow.id} className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">
                     {cow.name}
                   </option>
                 ))}
@@ -307,13 +307,13 @@ export default function ObservationListPage() {
               <select
                 value={selectedHealth}
                 onChange={(e) => setSelectedHealth(e.target.value)}
-                className="h-10 w-full rounded-xl border border-slate-200 px-3 text-xs text-slate-900 font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white appearance-none cursor-pointer"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="">Health: All ▾</option>
-                <option value="normal">Health: Normal</option>
-                <option value="lameness">Health: Warning / Lameness</option>
-                <option value="fever">Health: Critical / Fever</option>
-                <option value="mastitis">Health: Critical / Mastitis</option>
+                <option value="" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: All ▾</option>
+                <option value="normal" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Normal</option>
+                <option value="lameness" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Warning / Lameness</option>
+                <option value="fever" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Critical / Fever</option>
+                <option value="mastitis" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Health: Critical / Mastitis</option>
               </select>
             </div>
 
@@ -322,10 +322,10 @@ export default function ObservationListPage() {
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
-                className="h-10 w-full rounded-xl border border-slate-200 px-3 text-xs text-slate-900 font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white appearance-none cursor-pointer"
+                className="h-10 w-full rounded-xl border border-slate-200 dark:border-[#27272A] px-3 text-xs text-slate-900 dark:text-[#F4F4F5] font-semibold focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 bg-white dark:bg-[#1B1D20] appearance-none cursor-pointer"
               >
-                <option value="newest">Date: Latest First ▾</option>
-                <option value="oldest">Date: Oldest First ▾</option>
+                <option value="newest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Date: Latest First ▾</option>
+                <option value="oldest" className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]">Date: Oldest First ▾</option>
               </select>
             </div>
           </div>
@@ -336,8 +336,8 @@ export default function ObservationListPage() {
           <div
             className={`rounded-xl border p-3.5 text-xs font-bold flex items-center justify-between shadow-2xs ${
               toast.type === "success"
-                ? "border-emerald-200 bg-emerald-50/80 text-emerald-900"
-                : "border-rose-200 bg-rose-50 text-rose-800"
+                ? "border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/80 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-300"
+                : "border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300"
             }`}
           >
             <div>{toast.message}</div>
@@ -353,25 +353,25 @@ export default function ObservationListPage() {
         {/* Main Data Table Area */}
         <div className="space-y-4">
           {isLoading ? (
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-8 text-center text-xs font-semibold text-slate-500 shadow-xs">
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] shadow-xs">
               Loading daily observations...
             </div>
           ) : isError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-xs font-semibold text-rose-800 shadow-xs">
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 p-6 text-xs font-semibold text-rose-800 dark:text-rose-300 shadow-xs">
               Error loading observations: {error?.message}
             </div>
           ) : filteredObservations.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-12 text-center text-xs text-slate-500 shadow-xs space-y-2">
-              <p className="font-bold text-slate-800 text-sm">No daily observations found</p>
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-12 text-center text-xs text-slate-500 dark:text-[#A1A1AA] shadow-xs space-y-2">
+              <p className="font-bold text-slate-800 dark:text-[#F4F4F5] text-sm">No daily observations found</p>
               <p>
-                Use <strong className="text-slate-800 font-bold">Add Observation</strong> or <strong className="text-slate-800 font-bold">Bulk Import CSV</strong> to create records.
+                Use <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">Add Observation</strong> or <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">Bulk Import CSV</strong> to create records.
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+            <div className="overflow-hidden rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+                  <thead className="bg-slate-50/90 dark:bg-[#1B1D20] border-b border-slate-200/80 dark:border-[#27272A] text-slate-500 dark:text-[#A1A1AA] font-bold text-[11px] uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4 font-extrabold">{t("obs.date", "Date")}</th>
                       <th className="py-3.5 px-4 font-extrabold">{t("obs.cow", "Cow")}</th>
@@ -381,7 +381,7 @@ export default function ObservationListPage() {
                       <th className="py-3.5 px-4 text-right font-extrabold">{t("obs.actions", "Actions")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium text-slate-800 dark:text-[#F4F4F5]">
                     {filteredObservations.map((obs) => {
                       const badge = getHealthBadgeStyle(obs.health_condition);
                       const isMenuOpen = activeMenuId === obs.id;
@@ -389,10 +389,10 @@ export default function ObservationListPage() {
                       return (
                         <tr
                           key={obs.id}
-                          className="hover:bg-slate-50/80 transition-colors duration-150 group"
+                          className="hover:bg-slate-50/80 dark:hover:bg-[#222428] transition-colors duration-150 group"
                         >
                           {/* Date */}
-                          <td className="py-3.5 px-4 font-bold text-slate-900">
+                          <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-[#F4F4F5]">
                             {formatDate(obs.observation_date)}
                           </td>
 
@@ -400,9 +400,9 @@ export default function ObservationListPage() {
                           <td className="py-3.5 px-4">
                             <Link
                               to={`/cows/${obs.cow_id}`}
-                              className="inline-flex items-center gap-2 font-bold text-slate-900 hover:text-emerald-700 transition group-hover:text-emerald-900"
+                              className="inline-flex items-center gap-2 font-bold text-slate-900 dark:text-[#F4F4F5] hover:text-emerald-700 dark:hover:text-emerald-400 transition group-hover:text-emerald-900 dark:group-hover:text-emerald-300"
                             >
-                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs">
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 text-xs">
                                 🌾
                               </span>
                               <span className="truncate max-w-[160px]">
@@ -412,14 +412,14 @@ export default function ObservationListPage() {
                           </td>
 
                           {/* Milk Yield */}
-                          <td className="py-3.5 px-4 font-extrabold text-slate-950">
+                          <td className="py-3.5 px-4 font-extrabold text-slate-950 dark:text-[#F4F4F5]">
                             {obs.milk_produced_liters != null
                               ? `${obs.milk_produced_liters.toFixed(1)} L`
                               : "—"}
                           </td>
 
                           {/* Feed (kg) */}
-                          <td className="py-3.5 px-4 text-slate-700 font-semibold">
+                          <td className="py-3.5 px-4 text-slate-700 dark:text-[#F4F4F5] font-semibold">
                             {obs.feed_quantity_kg != null
                               ? `${obs.feed_quantity_kg.toFixed(1)} kg`
                               : "—"}
@@ -442,7 +442,7 @@ export default function ObservationListPage() {
                                 onClick={() =>
                                   setActiveMenuId(isMenuOpen ? null : obs.id)
                                 }
-                                className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all duration-150"
+                                className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/80 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] text-slate-500 dark:text-[#A1A1AA] hover:border-slate-300 dark:hover:border-emerald-500 hover:bg-slate-50 dark:hover:bg-[#222428] hover:text-slate-900 dark:hover:text-[#F4F4F5] transition-all duration-150"
                                 title="Actions menu"
                               >
                                 <MoreVertical className="h-4 w-4" />
@@ -451,46 +451,43 @@ export default function ObservationListPage() {
                               {isMenuOpen && (
                                 <>
                                   <div
-                                    className="fixed inset-0 z-20"
+                                    className="fixed inset-0 z-40"
                                     onClick={() => setActiveMenuId(null)}
                                   />
-                                  <div className="absolute right-0 top-9 z-30 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ring-1 ring-slate-900/5 text-xs font-semibold text-slate-700 space-y-0.5 select-none">
+                                  <div className="absolute right-0 top-10 z-50 w-44 rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-1.5 shadow-xl ring-1 ring-black/20 text-xs space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setActiveMenuId(null);
                                         navigate(`/observations/${obs.id}`);
                                       }}
-                                      className="w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-emerald-50/70 hover:text-emerald-900 transition"
+                                      className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                                     >
-                                      <Eye className="h-3.5 w-3.5 text-emerald-600" />
+                                      <Eye className="h-3.5 w-3.5 text-slate-500 dark:text-[#A1A1AA]" />
                                       <span>View Details</span>
                                     </button>
-
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setActiveMenuId(null);
                                         setEditing(obs);
                                       }}
-                                      className="w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-slate-100 transition"
+                                      className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#222428] transition"
                                     >
-                                      <Edit2 className="h-3.5 w-3.5 text-slate-600" />
-                                      <span>Edit</span>
+                                      <Edit2 className="h-3.5 w-3.5 text-slate-500 dark:text-[#A1A1AA]" />
+                                      <span>Edit Record</span>
                                     </button>
-
-                                    <div className="border-t border-slate-100 my-1" />
-
+                                    <div className="border-t border-slate-100 dark:border-[#27272A] my-1" />
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setActiveMenuId(null);
                                         setDeleting(obs);
                                       }}
-                                      className="w-full flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left font-bold text-rose-600 hover:bg-rose-50 transition"
+                                      className="w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
                                     >
-                                      <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                                      <span>Delete</span>
+                                      <Trash2 className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
+                                      <span>Delete Record</span>
                                     </button>
                                   </div>
                                 </>

@@ -100,6 +100,7 @@ class CowResponse(CowBase):
     owner_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    breed_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

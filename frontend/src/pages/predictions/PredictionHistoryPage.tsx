@@ -103,33 +103,33 @@ export default function PredictionHistoryPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-6xl">
-        <h2 className="text-2xl font-semibold">Prediction History</h2>
+      <div className="mx-auto max-w-6xl space-y-6">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">Prediction History</h2>
 
         {toast ? (
-          <div className="mt-4 rounded-2xl border bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-sm">
             <div
-              className={`text-sm ${toast.type === "success" ? "text-sky-700" : "text-rose-700"}`}
+              className={`text-sm font-semibold ${toast.type === "success" ? "text-sky-700 dark:text-sky-400" : "text-rose-700 dark:text-rose-400"}`}
             >
               {toast.message}
             </div>
             <button
               type="button"
               onClick={handleCloseToast}
-              className="mt-3 text-xs text-slate-500 underline"
+              className="mt-3 text-xs text-slate-500 dark:text-[#A1A1AA] underline"
             >
               Dismiss
             </button>
           </div>
         ) : null}
 
-        <div className="mt-6">
+        <div>
           {isLoading ? (
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 text-slate-500 dark:text-[#A1A1AA] shadow-sm">
               Loading predictions...
             </div>
           ) : isError ? (
-            <div className="rounded-2xl border bg-rose-50 p-6 text-rose-700">
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-6 text-rose-700 dark:text-rose-300">
               Error loading predictions. {(error as any)?.message}
             </div>
           ) : (

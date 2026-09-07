@@ -169,6 +169,7 @@ class ObservationService:
             if pred:
                 prediction_id = pred.id
         except Exception as exc:
+            self.db.rollback()
             logger.debug(
                 "Prediction generation skipped/failed for observation %s: %s",
                 observation.id,
@@ -187,6 +188,7 @@ class ObservationService:
                 persist=True,
             )
         except Exception as exc:
+            self.db.rollback()
             logger.warning(
                 "Health evaluation failed for observation %s: %s",
                 observation.id,
@@ -202,6 +204,7 @@ class ObservationService:
                 persist=True,
             )
         except Exception as exc:
+            self.db.rollback()
             logger.warning(
                 "Anomaly detection failed for observation %s: %s",
                 observation.id,
@@ -216,6 +219,7 @@ class ObservationService:
                 observation_id=observation.id,
             )
         except Exception as exc:
+            self.db.rollback()
             logger.warning(
                 "Recommendation auto-generation failed for observation %s: %s",
                 observation.id,
@@ -227,6 +231,7 @@ class ObservationService:
             dt_svc = DigitalTwinService(self.db)
             dt_svc.refresh_cow_digital_twin_state(user_id=user_id, cow_id=observation.cow_id)
         except Exception as exc:
+            self.db.rollback()
             logger.warning(
                 "Digital Twin state refresh failed for observation %s: %s",
                 observation.id,

@@ -118,20 +118,20 @@ export default function HealthAlertsPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900">
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-[#F4F4F5]">
               {t("health.title", "Herd Health Overview")}
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-[#A1A1AA]">
               {t("health.subtitle", "Real-time health status, risk alerts, and herd monitoring.")}
             </p>
           </div>
         </div>
 
         {toast ? (
-          <div className="rounded-2xl border bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-sm">
             <div
               className={`text-sm ${
-                toast.type === "success" ? "text-emerald-700" : "text-rose-700"
+                toast.type === "success" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"
               }`}
             >
               {toast.message}
@@ -139,7 +139,7 @@ export default function HealthAlertsPage() {
             <button
               type="button"
               onClick={clearToast}
-              className="mt-2 text-xs text-slate-500 underline"
+              className="mt-2 text-xs text-slate-500 dark:text-[#A1A1AA] underline"
             >
               Dismiss
             </button>
@@ -148,81 +148,81 @@ export default function HealthAlertsPage() {
 
         {/* Health Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm">
+          <div className="rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-500/[0.08] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-emerald-800">
+              <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
                 🐄 {t("health.healthy", "Healthy")}
               </span>
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+              <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                 {t("health.normal", "Normal")}
               </span>
             </div>
-            <div className="mt-3 text-3xl font-bold text-emerald-950">
+            <div className="mt-3 text-3xl font-bold text-emerald-950 dark:text-emerald-200">
               {isSummaryLoading ? "…" : summary.healthy}
             </div>
-            <p className="mt-1 text-xs text-emerald-700">
+            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">
               {t("health.verified_data", "Verified recent health data")}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm">
+          <div className="rounded-2xl border border-amber-100 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-amber-800">
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
                 ⚠️ {t("health.warning", "Warning")}
               </span>
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+              <span className="rounded-full bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:text-amber-300">
                 {t("health.moderate_risk", "Moderate Risk")}
               </span>
             </div>
-            <div className="mt-3 text-3xl font-bold text-amber-950">
+            <div className="mt-3 text-3xl font-bold text-amber-950 dark:text-amber-200">
               {isSummaryLoading ? "…" : summary.warning}
             </div>
-            <p className="mt-1 text-xs text-amber-700">{t("health.cows_monitoring", "Cows require monitoring")}</p>
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">{t("health.cows_monitoring", "Cows require monitoring")}</p>
           </div>
 
-          <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm">
+          <div className="rounded-2xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-rose-800">
+              <span className="text-sm font-medium text-rose-800 dark:text-rose-300">
                 🔴 {t("health.critical", "Critical")}
               </span>
-              <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800">
+              <span className="rounded-full bg-rose-100 dark:bg-rose-900/60 px-2 py-0.5 text-xs font-semibold text-rose-800 dark:text-rose-300">
                 {t("health.action_required", "Action Required")}
               </span>
             </div>
-            <div className="mt-3 text-3xl font-bold text-rose-950">
+            <div className="mt-3 text-3xl font-bold text-rose-950 dark:text-rose-200">
               {isSummaryLoading ? "…" : summary.critical}
             </div>
-            <p className="mt-1 text-xs text-rose-700">{t("health.high_severity", "High severity health risks")}</p>
+            <p className="mt-1 text-xs text-rose-700 dark:text-rose-400">{t("health.high_severity", "High severity health risks")}</p>
           </div>
 
-          <div className="rounded-2xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm">
+          <div className="rounded-2xl border border-sky-100 dark:border-sky-900/40 bg-sky-50/50 dark:bg-sky-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-sky-800">
+              <span className="text-sm font-medium text-sky-800 dark:text-sky-300">
                 🩺 {t("health.needs_attention", "Needs Attention")}
               </span>
-              <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800">
+              <span className="rounded-full bg-sky-100 dark:bg-sky-900/60 px-2 py-0.5 text-xs font-semibold text-sky-800 dark:text-sky-300">
                 {t("health.total", "Total")}
               </span>
             </div>
-            <div className="mt-3 text-3xl font-bold text-sky-950">
+            <div className="mt-3 text-3xl font-bold text-sky-950 dark:text-sky-200">
               {isSummaryLoading ? "…" : summary.needs_attention}
             </div>
-            <p className="mt-1 text-xs text-sky-700">{t("health.warning_critical", "Warning + Critical cows")}</p>
+            <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">{t("health.warning_critical", "Warning + Critical cows")}</p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#151719] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">
+              <span className="text-sm font-medium text-slate-700 dark:text-[#F4F4F5]">
                 ❓ {t("health.no_recent", "No Recent Data")}
               </span>
-              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
+              <span className="rounded-full bg-slate-200 dark:bg-[#1B1D20] px-2 py-0.5 text-xs font-semibold text-slate-700 dark:text-[#A1A1AA]">
                 {t("health.unverified", "Unverified")}
               </span>
             </div>
-            <div className="mt-3 text-3xl font-bold text-slate-900">
+            <div className="mt-3 text-3xl font-bold text-slate-900 dark:text-[#F4F4F5]">
               {isSummaryLoading ? "…" : summary.no_recent_data}
             </div>
-            <p className="mt-1 text-xs text-slate-500">{t("health.no_observation", "No observation in 14 days")}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-[#A1A1AA]">{t("health.no_observation", "No observation in 14 days")}</p>
           </div>
         </div>
 
@@ -230,11 +230,11 @@ export default function HealthAlertsPage() {
         {/* Middle Row: Risk Breakdown & Attention Cows */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Health Risk Breakdown Card */}
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
-            <h3 className="text-base font-semibold text-slate-900">
+          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-[#F4F4F5]">
               {t("health.risks", "Health Risks")}
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mb-4">
               {t("health.risks_subtitle", "Current active health alert breakdown")}
             </p>
             <div className="space-y-3">
@@ -247,15 +247,15 @@ export default function HealthAlertsPage() {
                 return (
                   <div
                     key={r.risk_type}
-                    className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3"
+                    className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-3"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-base">{icon}</span>
-                      <span className="text-sm font-medium text-slate-800">
+                      <span className="text-sm font-medium text-slate-800 dark:text-[#F4F4F5]">
                         {r.risk_type}
                       </span>
                     </div>
-                    <span className="rounded-full bg-slate-200/60 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                    <span className="rounded-full bg-slate-200/60 dark:bg-[#151719] px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:text-[#A1A1AA]">
                       {r.count}
                     </span>
                   </div>
@@ -265,28 +265,28 @@ export default function HealthAlertsPage() {
           </div>
 
           {/* Cows Needing Attention */}
-          <div className="lg:col-span-2 rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-[#F4F4F5]">
                   {t("health.cows_attention", "Cows Needing Attention")}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
                   {t("health.cows_attention_subtitle", "Cows currently flagged with health alerts")}
                 </p>
               </div>
               <Link
                 to="/cows"
-                className="text-xs font-medium text-sky-600 hover:underline"
+                className="text-xs font-medium text-sky-600 dark:text-sky-400 hover:underline"
               >
                 {t("health.view_herd", "View Herd →")}
               </Link>
             </div>
 
             {attentionCows.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-6 text-center text-slate-500">
+              <div className="rounded-xl border border-dashed border-slate-200 dark:border-[#27272A] p-6 text-center text-slate-500 dark:text-[#A1A1AA]">
                 <p className="text-sm font-medium">🌱 {t("health.all_healthy", "All cows look healthy!")}</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-400 dark:text-[#A1A1AA]/70 mt-1">
                   {t("health.no_attention", "No cows currently require health attention.")}
                 </p>
               </div>
@@ -296,27 +296,27 @@ export default function HealthAlertsPage() {
                   <div
                     key={c.cow_id}
                     onClick={() => navigate(`/cows`)}
-                    className="cursor-pointer rounded-2xl border p-4 transition-all hover:border-sky-300 hover:shadow-md bg-slate-50/50"
+                    className="cursor-pointer rounded-2xl border border-slate-200 dark:border-[#27272A] p-4 transition-all hover:border-sky-300 dark:hover:border-sky-600 hover:shadow-md bg-slate-50/50 dark:bg-[#1B1D20]"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-900">
+                      <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
                         🐄 {c.cow_name}
                       </span>
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           c.alert_level === "Critical"
-                            ? "bg-rose-100 text-rose-800"
-                            : "bg-amber-100 text-amber-800"
+                            ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300"
+                            : "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
                         }`}
                       >
                         {c.alert_level}
                       </span>
                     </div>
-                    <div className="mt-2 text-sm text-slate-700">
+                    <div className="mt-2 text-sm text-slate-700 dark:text-[#A1A1AA]">
                       {c.risk_type}
                     </div>
                     {c.last_observed_date ? (
-                      <div className="mt-2 text-xs text-slate-400">
+                      <div className="mt-2 text-xs text-slate-400 dark:text-[#A1A1AA]/60">
                         Last observed: {c.last_observed_date}
                       </div>
                     ) : null}
@@ -330,14 +330,14 @@ export default function HealthAlertsPage() {
         {/* Filter Controls & Recent Health Alerts Table */}
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-lg font-semibold text-slate-900">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-[#F4F4F5]">
               {t("health.recent_alerts", "Recent Health Alerts")}
             </h3>
             <div className="flex flex-wrap gap-2">
               <select
                 value={alertLevel}
                 onChange={(e) => setAlertLevel(e.target.value)}
-                className="rounded-2xl border bg-white px-3 py-2 text-xs text-slate-700 shadow-sm"
+                className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-700 dark:text-[#F4F4F5] shadow-sm"
               >
                 {["All", "Healthy", "Warning", "Critical"].map((lvl) => (
                   <option key={lvl} value={lvl}>
@@ -349,7 +349,7 @@ export default function HealthAlertsPage() {
               <select
                 value={resolvedFilter}
                 onChange={(e) => setResolvedFilter(e.target.value)}
-                className="rounded-2xl border bg-white px-3 py-2 text-xs text-slate-700 shadow-sm"
+                className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-700 dark:text-[#F4F4F5] shadow-sm"
               >
                 <option value="unresolved">Active Alerts</option>
                 <option value="resolved">Resolved Alerts</option>
@@ -360,18 +360,18 @@ export default function HealthAlertsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
-                className="rounded-2xl border bg-white px-3 py-2 text-xs text-slate-700 shadow-sm"
+                className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-700 dark:text-[#F4F4F5] placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
               />
             </div>
           </div>
 
           <div>
             {isLoading ? (
-              <div className="rounded-2xl border bg-white p-8 text-center text-slate-500 shadow-sm">
+              <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA] shadow-sm">
                 Loading health alerts...
               </div>
             ) : isError ? (
-              <div className="rounded-2xl border bg-rose-50 p-6 text-rose-700">
+              <div className="rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-6 text-rose-700 dark:text-rose-300">
                 Error loading health alerts. {(error as any)?.message}
               </div>
             ) : (

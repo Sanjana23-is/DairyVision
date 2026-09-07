@@ -48,6 +48,18 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        // Dedicated Charcoal-Black Dark Mode Tokens
+        'dark-bg': '#09090B',
+        'dark-sidebar': '#0D0E10',
+        'dark-card': '#151719',
+        'dark-surface': '#1B1D20',
+        'dark-elevated': '#1B1D20',
+        'dark-hover': '#222428',
+        'dark-border': '#27272A',
+        'dark-border-strong': '#3F3F46',
+        'dark-text': '#F4F4F5',
+        'dark-secondary': '#A1A1AA',
+        'dark-muted': '#71717A',
       },
       borderRadius: {
         lg: "var(--radius)",

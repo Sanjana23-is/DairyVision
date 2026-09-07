@@ -58,21 +58,21 @@ export default function AddFarmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 px-4 backdrop-blur-xs">
       <form
         onSubmit={handleSubmit((v) => onCreate(v))}
-        className="w-full max-w-md rounded bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-3xl bg-white dark:bg-[#151719] border border-slate-200 dark:border-[#27272A] p-6 shadow-xl space-y-4"
       >
-        <h3 className="mb-4 text-lg font-semibold">Create Farm</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">Create Farm</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-sm">Name</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Name</label>
             <input
-              className="w-full rounded border px-2 py-1"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
               {...register("name")}
             />
             {errors.name && (
-              <div className="text-rose-600 text-xs">
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-0.5">
                 {String(errors.name.message)}
               </div>
             )}
@@ -80,17 +80,17 @@ export default function AddFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-sm">City</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">City</label>
               <input
-                className="w-full rounded border px-2 py-1"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("location_city")}
               />
             </div>
 
             <div>
-              <label className="text-sm">Country</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Country</label>
               <input
-                className="w-full rounded border px-2 py-1"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("location_country")}
               />
             </div>
@@ -98,32 +98,32 @@ export default function AddFarmDialog({
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-sm">Latitude (optional)</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Latitude (optional)</label>
               <input
                 type="number"
                 step="any"
                 placeholder="e.g. 12.9716"
-                className="w-full rounded border px-2 py-1"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("latitude")}
               />
               {errors.latitude && (
-                <div className="text-rose-600 text-xs">
+                <div className="text-rose-600 dark:text-rose-400 text-xs mt-0.5">
                   {String(errors.latitude.message)}
                 </div>
               )}
             </div>
 
             <div>
-              <label className="text-sm">Longitude (optional)</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Longitude (optional)</label>
               <input
                 type="number"
                 step="any"
                 placeholder="e.g. 77.5946"
-                className="w-full rounded border px-2 py-1"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
                 {...register("longitude")}
               />
               {errors.longitude && (
-                <div className="text-rose-600 text-xs">
+                <div className="text-rose-600 dark:text-rose-400 text-xs mt-0.5">
                   {String(errors.longitude.message)}
                 </div>
               )}
@@ -131,28 +131,28 @@ export default function AddFarmDialog({
           </div>
 
           <div>
-            <label className="text-sm">Description</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">Description</label>
             <textarea
-              className="w-full rounded border px-2 py-1"
+              rows={2}
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none resize-none"
               {...register("description")}
             />
           </div>
 
+          {error && <div className="text-rose-600 dark:text-rose-400 text-xs mt-1">{error}</div>}
 
-          {error && <div className="text-rose-600 text-sm mt-1">{error}</div>}
-
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-[#27272A]">
             <button
               type="button"
               onClick={onClose}
-              className="rounded border px-3 py-1"
+              className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded bg-sky-600 px-3 py-1 text-white"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Creating..." : "Create"}

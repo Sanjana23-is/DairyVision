@@ -118,7 +118,7 @@ export default function ExecutiveReportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 overflow-y-auto print:bg-white print:p-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 px-4 py-6 overflow-y-auto print:bg-white print:p-0 backdrop-blur-xs">
       <style>{`
         @media print {
           body {
@@ -149,29 +149,29 @@ export default function ExecutiveReportModal({
         }
       `}</style>
 
-      <div className="printable-report w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl space-y-6 text-slate-900 border border-slate-200">
+      <div className="printable-report w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-[#151719] p-8 shadow-2xl space-y-6 text-slate-900 dark:text-[#F4F4F5] border border-slate-200 dark:border-[#27272A]">
         {/* Top Control Bar (Hidden during print) */}
-        <div className="no-print flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="no-print flex items-center justify-between border-b border-slate-100 dark:border-[#27272A] pb-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-100 text-sky-800 font-bold text-xs">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-bold text-xs border border-sky-200 dark:border-sky-800/60">
               <FileText className="h-4 w-4" />
             </span>
-            <span className="text-sm font-bold text-slate-800">Executive Farm Report Viewer</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">Executive Farm Report Viewer</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportCSV}
               disabled={exportingCSV}
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition"
             >
-              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               {exportingCSV ? "Exporting CSV…" : "Export Observations CSV"}
             </button>
 
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 rounded-xl bg-sky-700 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-sky-800 transition shadow-sm"
+              className="flex items-center gap-1.5 rounded-xl bg-sky-700 hover:bg-sky-800 px-3.5 py-1.5 text-xs font-bold text-white transition shadow-sm"
             >
               <Printer className="h-3.5 w-3.5" />
               Print / Save as PDF
@@ -179,7 +179,7 @@ export default function ExecutiveReportModal({
 
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1B1D20] hover:text-slate-700 dark:hover:text-[#F4F4F5]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -187,57 +187,57 @@ export default function ExecutiveReportModal({
         </div>
 
         {/* Printable Report Header */}
-        <div className="border-b border-slate-200 pb-6 flex items-start justify-between">
+        <div className="border-b border-slate-200 dark:border-[#27272A] pb-6 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-sky-900">DairyVision AI</span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-700 border border-slate-200">
+              <span className="text-xl font-black tracking-tight text-sky-900 dark:text-sky-300">DairyVision AI</span>
+              <span className="rounded-full bg-slate-100 dark:bg-[#1B1D20] px-2.5 py-0.5 text-[11px] font-bold text-slate-700 dark:text-[#A1A1AA] border border-slate-200 dark:border-[#27272A]">
                 Executive Farm Summary
               </span>
             </div>
-            <h1 className="text-2xl font-black text-slate-950 mt-1">{farmName}</h1>
-            <p className="text-xs text-slate-600 mt-0.5">
+            <h1 className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1">{farmName}</h1>
+            <p className="text-xs text-slate-600 dark:text-[#A1A1AA] mt-0.5">
               Timezone: {farmTimezone} • Operational Intelligence Summary
             </p>
           </div>
 
-          <div className="text-right text-xs text-slate-600 space-y-1">
-            <div className="font-bold text-slate-900">Generated On:</div>
+          <div className="text-right text-xs text-slate-600 dark:text-[#A1A1AA] space-y-1">
+            <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">Generated On:</div>
             <div>{reportDate}</div>
-            <div className="text-[11px] text-slate-600">Confidential Farm Executive Document</div>
+            <div className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Confidential Farm Executive Document</div>
           </div>
         </div>
 
         {/* Executive KPI Grid */}
         <div className="space-y-2">
-          <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+          <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-[#A1A1AA]">
             Key Operational Performance Indicators
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">Active Herd Size</span>
-              <span className="text-2xl font-black text-slate-950 mt-1 block">{activeCowCount} Cows</span>
-              <span className="text-[11px] text-slate-600">Registered active inventory</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Active Herd Size</span>
+              <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{activeCowCount} Cows</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Registered active inventory</span>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">Milk Produced Today</span>
-              <span className="text-2xl font-black text-slate-950 mt-1 block">{actualMilkToday.toFixed(1)} L</span>
-              <span className="text-[11px] text-slate-600">Total recorded daily yield</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Milk Produced Today</span>
+              <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{actualMilkToday.toFixed(1)} L</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Total recorded daily yield</span>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">7-Day Average Yield</span>
-              <span className="text-2xl font-black text-slate-950 mt-1 block">{avgYield7d.toFixed(1)} L/day</span>
-              <span className="text-[11px] text-slate-600">Rolling 7d production average</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">7-Day Average Yield</span>
+              <span className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5] mt-1 block">{avgYield7d.toFixed(1)} L/day</span>
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">Rolling 7d production average</span>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">Active Health Alerts</span>
-              <span className={`text-2xl font-black mt-1 block ${healthAlerts.length > 0 ? "text-amber-700" : "text-emerald-700"}`}>
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-4">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] uppercase tracking-wider block">Active Health Alerts</span>
+              <span className={`text-2xl font-black mt-1 block ${healthAlerts.length > 0 ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"}`}>
                 {healthAlerts.length} Active
               </span>
-              <span className="text-[11px] text-slate-600">
+              <span className="text-[11px] text-slate-600 dark:text-[#A1A1AA]">
                 {healthAlerts.length > 0 ? "Requires monitoring" : "All checks normal"}
               </span>
             </div>
@@ -245,23 +245,23 @@ export default function ExecutiveReportModal({
         </div>
 
         {/* Weather & THI Thermal Stress Overview */}
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <Thermometer className="h-4 w-4 text-rose-500" />
+        <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#1B1D20] p-4 space-y-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
+            <Thermometer className="h-4 w-4 text-rose-500 dark:text-rose-400" />
             Thermal Stress Index (THI) & Ambient Weather Status
           </h3>
           <div className="grid grid-cols-3 gap-4 text-xs">
             <div>
-              <span className="text-slate-500 block">Temperature:</span>
-              <strong className="text-sm font-bold text-slate-900">{temp.toFixed(1)} °C</strong>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">Temperature:</span>
+              <strong className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">{temp.toFixed(1)} °C</strong>
             </div>
             <div>
-              <span className="text-slate-500 block">Relative Humidity:</span>
-              <strong className="text-sm font-bold text-slate-900">{humidity.toFixed(0)}%</strong>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">Relative Humidity:</span>
+              <strong className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">{humidity.toFixed(0)}%</strong>
             </div>
             <div>
-              <span className="text-slate-500 block">Calculated THI Index:</span>
-              <strong className={`text-sm font-bold ${thi >= 79 ? "text-rose-700" : "text-emerald-700"}`}>
+              <span className="text-slate-500 dark:text-[#A1A1AA] block">Calculated THI Index:</span>
+              <strong className={`text-sm font-bold ${thi >= 79 ? "text-rose-700 dark:text-rose-400" : "text-emerald-700 dark:text-emerald-400"}`}>
                 {thi.toFixed(1)} {thi >= 79 ? "(Heat Stress Zone)" : "(Comfort Zone)"}
               </strong>
             </div>
@@ -270,13 +270,13 @@ export default function ExecutiveReportModal({
 
         {/* 7-Day Milk Production & Forecast Trend Table */}
         <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5]">
             7-Day Milk Production & AI Forecast Trend
           </h3>
           {trends?.observation_trends && trends.observation_trends.length > 0 ? (
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#27272A]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
+                <thead className="bg-slate-100 dark:bg-[#1B1D20] border-b border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-[#A1A1AA] font-bold">
                   <tr>
                     <th className="p-3">Date</th>
                     <th className="p-3">Actual Milk Produced (L)</th>
@@ -284,19 +284,19 @@ export default function ExecutiveReportModal({
                     <th className="p-3">Daily Observation Count</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium">
                   {trends.observation_trends.slice(-7).map((row, idx) => {
                     const predRow = trends.milk_yield_trends?.find((p) => p.date === row.date);
                     return (
-                      <tr key={idx} className="hover:bg-slate-50">
-                        <td className="p-3 font-bold text-slate-900">{row.date}</td>
-                        <td className="p-3 font-black text-sky-950">{row.total_milk_produced.toFixed(1)} L</td>
-                        <td className="p-3 text-slate-700">
+                      <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80">
+                        <td className="p-3 font-bold text-slate-900 dark:text-[#F4F4F5]">{row.date}</td>
+                        <td className="p-3 font-black text-sky-950 dark:text-emerald-400">{row.total_milk_produced.toFixed(1)} L</td>
+                        <td className="p-3 text-slate-700 dark:text-[#F4F4F5]">
                           {predRow?.average_predicted_milk_yield
                             ? `${predRow.average_predicted_milk_yield.toFixed(1)} L`
                             : "N/A"}
                         </td>
-                        <td className="p-3 text-slate-600">{row.observation_count} logs</td>
+                        <td className="p-3 text-slate-600 dark:text-[#A1A1AA]">{row.observation_count} logs</td>
                       </tr>
                     );
                   })}
@@ -304,7 +304,7 @@ export default function ExecutiveReportModal({
               </table>
             </div>
           ) : (
-            <div className="rounded-2xl border border-slate-200 p-4 text-center text-xs text-slate-500">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] p-4 text-center text-xs text-slate-500 dark:text-[#A1A1AA]">
               No daily observation trend data available for this farm yet.
             </div>
           )}
@@ -312,14 +312,14 @@ export default function ExecutiveReportModal({
 
         {/* Active Health & Heat Stress Alerts Summary */}
         <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <ShieldAlert className="h-4 w-4 text-amber-600" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
+            <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             Unresolved Herd Health & Thermal Stress Alerts ({healthAlerts.length})
           </h3>
           {healthAlerts.length > 0 ? (
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-[#27272A]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold">
+                <thead className="bg-slate-100 dark:bg-[#1B1D20] border-b border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-[#A1A1AA] font-bold">
                   <tr>
                     <th className="p-3">Alert Type</th>
                     <th className="p-3">Severity</th>
@@ -327,33 +327,33 @@ export default function ExecutiveReportModal({
                     <th className="p-3">Confidence</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] font-medium">
                   {healthAlerts.slice(0, 5).map((alert, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
-                      <td className="p-3 font-bold text-slate-900">{alert.alert_type}</td>
+                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80">
+                      <td className="p-3 font-bold text-slate-900 dark:text-[#F4F4F5]">{alert.alert_type}</td>
                       <td className="p-3">
                         <span
                           className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                             alert.alert_level === "Critical"
-                              ? "bg-rose-100 text-rose-800"
+                              ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60"
                               : alert.alert_level === "Warning"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-emerald-100 text-emerald-800"
+                              ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
+                              : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20"
                           }`}
                         >
                           {alert.alert_level}
                         </span>
                       </td>
-                      <td className="p-3 text-slate-700 max-w-xs truncate">{alert.description || "Health check alert"}</td>
-                      <td className="p-3 font-semibold text-slate-800">{(alert.confidence * 100).toFixed(0)}%</td>
+                      <td className="p-3 text-slate-700 dark:text-[#F4F4F5] max-w-xs truncate">{alert.description || "Health check alert"}</td>
+                      <td className="p-3 font-semibold text-slate-800 dark:text-[#F4F4F5]">{(alert.confidence * 100).toFixed(0)}%</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 text-xs font-semibold text-emerald-900 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <div className="rounded-2xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-500/10 p-4 text-xs font-semibold text-emerald-900 dark:text-emerald-300 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>0 active health alerts reported. All monitored cows passed daily health evaluation.</span>
             </div>
           )}
@@ -362,15 +362,15 @@ export default function ExecutiveReportModal({
         {/* AI Action Plan & Recommendations */}
         {summary?.recent_recommendations && summary.recent_recommendations.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-sky-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#F4F4F5] flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-sky-600 dark:text-sky-400" />
               Active AI Operational Recommendations
             </h3>
             <div className="space-y-2">
               {summary.recent_recommendations.slice(0, 3).map((rec, idx) => (
-                <div key={idx} className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3.5 text-xs">
-                  <div className="font-bold text-slate-900">{rec.title}</div>
-                  <div className="mt-0.5 text-slate-600">{rec.description}</div>
+                <div key={idx} className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20] p-3.5 text-xs">
+                  <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">{rec.title}</div>
+                  <div className="mt-0.5 text-slate-600 dark:text-[#A1A1AA]">{rec.description}</div>
                 </div>
               ))}
             </div>
@@ -378,7 +378,7 @@ export default function ExecutiveReportModal({
         )}
 
         {/* Report Footer */}
-        <div className="border-t border-slate-200 pt-4 flex items-center justify-between text-[11px] text-slate-600">
+        <div className="border-t border-slate-200 dark:border-[#27272A] pt-4 flex items-center justify-between text-[11px] text-slate-600 dark:text-[#A1A1AA]">
           <span>DairyVision AI Enterprise Operations Platform</span>
           <span>End of Executive Summary Report</span>
         </div>

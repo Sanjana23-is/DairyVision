@@ -61,18 +61,18 @@ export default function Sidebar() {
   const { t } = useLanguage();
 
   return (
-    <div className="w-64 h-screen border-r border-slate-200/80 bg-white px-3 py-5 flex flex-col overflow-y-auto select-none font-sans">
+    <div className="w-full h-full border-r border-slate-200/80 dark:border-[#27272A] bg-white dark:bg-[#0D0E10] px-3 py-5 flex flex-col overflow-y-auto select-none font-sans text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
       {/* Brand Header */}
       <div className="px-3 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-600 font-bold text-sm shadow-2xs">
+          <div className="h-8 w-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shadow-2xs">
             🥛
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-900 tracking-tight leading-none">
-              DairyVision <span className="text-emerald-600">AI</span>
+            <div className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] tracking-tight leading-none">
+              DairyVision <span className="text-emerald-600 dark:text-emerald-400">AI</span>
             </div>
-            <div className="mt-1 text-[11px] font-normal text-slate-500">
+            <div className="mt-1 text-[11px] font-normal text-slate-500 dark:text-[#71717A]">
               Farm intelligence workspace
             </div>
           </div>
@@ -80,13 +80,13 @@ export default function Sidebar() {
       </div>
 
       {/* Current Active Farm Context Indicator */}
-      <div className="mx-2 mb-5 rounded-xl border border-emerald-200/80 bg-emerald-50/60 p-2.5 flex items-center gap-2 text-xs">
+      <div className="mx-2 mb-5 rounded-xl border border-emerald-200/80 dark:border-[#27272A] bg-emerald-50/60 dark:bg-[#151719] p-2.5 flex items-center gap-2 text-xs">
         <span className="text-base">🌾</span>
         <div className="truncate">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 block leading-none">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 block leading-none">
             {t("status.active_farm", "Active Farm")}
           </span>
-          <span className="font-semibold text-slate-900 truncate block mt-0.5">
+          <span className="font-semibold text-slate-900 dark:text-[#F4F4F5] truncate block mt-0.5">
             {currentFarmName || "No Farm Selected"}
           </span>
         </div>
@@ -96,7 +96,7 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-4" aria-label="Primary navigation">
         {navSections.map((section) => (
           <div key={section.titleKey} className="space-y-1">
-            <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#71717A]">
               {t(section.titleKey)}
             </div>
             <div className="space-y-0.5 mt-1">
@@ -107,12 +107,12 @@ export default function Sidebar() {
                   className={({ isActive }) =>
                     `group flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-150 ${
                       isActive
-                        ? "bg-emerald-50/80 text-emerald-900 font-bold shadow-2xs border-l-2 border-emerald-600"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                        ? "bg-emerald-50/80 dark:bg-emerald-500/[0.08] text-emerald-900 dark:text-emerald-400 font-bold shadow-2xs border-l-2 border-emerald-600 dark:border-emerald-500"
+                        : "text-slate-600 dark:text-[#A1A1AA] hover:bg-slate-50 dark:hover:bg-[#1B1D20] hover:text-slate-900 dark:hover:text-[#F4F4F5] font-medium"
                     }`
                   }
                 >
-                  <it.icon className="h-4 w-4 shrink-0 transition-colors duration-150 text-slate-400 group-hover:text-slate-600" />
+                  <it.icon className="h-4 w-4 shrink-0 transition-colors duration-150 text-slate-400 dark:text-[#71717A] group-hover:text-slate-600 dark:group-hover:text-emerald-400" />
                   <span className="truncate">{t(it.labelKey)}</span>
                 </NavLink>
               ))}
