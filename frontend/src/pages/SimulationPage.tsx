@@ -391,9 +391,9 @@ export default function SimulationPage() {
         </div>
 
         {/* Main Grid: Control Panel & Results */}
-        <div className="grid gap-6 lg:grid-cols-12">
+        <div className="grid gap-6 lg:grid-cols-12 items-start">
           {/* Controls Column */}
-          <div className="lg:col-span-5 space-y-6 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm">
+          <div className="lg:col-span-5 space-y-6 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
             <div className="border-b border-slate-100 dark:border-[#27272A] pb-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
                 {t("sim.scenario_panel", "Scenario Control Panel")}

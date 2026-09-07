@@ -36,7 +36,7 @@ class CowBase(BaseModel):
 
 
 class CowCreate(CowBase):
-    status: str
+    status: Optional[str] = "active"
 
     @field_validator("tag_id")
     @classmethod

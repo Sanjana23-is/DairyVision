@@ -20,7 +20,7 @@ class CRUDService:
         return scope_query(query, model, user_id).all()
 
     def get_owned(self, model: type[T], user_id: str, record_id: str) -> Optional[T]:
-        record = self.db.query(model).filter(model.id == record_id).first()
+        record = self.db.query(model).filter(getattr(model, "id") == record_id).first()
         if record is None:
             return None
 

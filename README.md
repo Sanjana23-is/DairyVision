@@ -1,19 +1,18 @@
 # 🥛 DairyVision AI — Smart Dairy Digital Twin Platform
 
-**DairyVision AI** is an enterprise-grade AI operations and digital twin platform designed for modern dairy farm management. It integrates real-time ambient weather tracking, individual cow physiological monitoring, ML milk yield forecasting, genetic merit evaluation, SHAP explainability, automated health alerts, deduplicated actionable recommendations, and an interactive What-If scenario simulator.
+**DairyVision AI** is an enterprise-grade AI operations and digital twin platform designed for modern dairy farm management. It integrates real-time ambient weather tracking, individual cow physiological monitoring, ML milk yield forecasting, SHAP explainability, automated health alerts, deduplicated actionable recommendations, and an interactive What-If scenario simulator.
 
 ---
 
 ## 🌟 Key Capabilities & System Features
 
-- **🐄 Cow & Herd Management**: Complete digital profiles for individual cows, including lactation history, breed metadata, sire lineage, and real-time health conditions.
+- **🐄 Cow & Herd Management**: Complete digital profiles for individual cows, including lactation history, breed metadata, and real-time health conditions.
 - **🥛 Milk Yield Prediction**: Machine learning engine leveraging historical observations, ration inputs, and real-time Temperature-Humidity Index (THI) ambient conditions.
 - **🌐 Digital Twin Monitoring**: Live digital representation of individual cows and herd-wide thermal stress levels, yield deviations, and health flags.
-- **🧬 Genetics & Sire Selection**: Pedigree tracking, sire ranking by genetic merit, predicted transmitting ability (PTA), and herd breeding strategy insights.
+- **🚨 Herd Health & Risk Center**: Unified monitoring of thermal stress, temperature spikes, abnormal milk drops, and behavioral anomalies.
 - **🧪 What-If Scenario Simulation**: Dual herd-level and individual-cow scenario simulation engines to model yield impacts based on feed adjustments, water availability, and cooling interventions.
 - **💡 AI Explainability (SHAP)**: Granular feature attribution explaining why specific yield predictions or anomaly flags occurred.
 - **📋 Deduplicated Recommendations**: Real-time actionable farm recommendations that update dynamically and consolidate duplicate issues per cow/farm.
-- **🚨 Health & Anomaly Alerts**: Real-time detection of thermal stress, temperature spikes, abnormal milk drops, and feeding anomalies.
 
 ---
 
@@ -23,7 +22,7 @@
 Smart_dairyvisionAI/
 ├── backend/                        # FastAPI Backend Application
 │   ├── app/
-│   │   ├── api/v1/                 # API Routes (Dairy, Digital Twin, What-If, Genetics, etc.)
+│   │   ├── api/v1/                 # API Routes (Dairy, Digital Twin, What-If, Health, etc.)
 │   │   ├── core/                   # Security, Auth, & DB Config
 │   │   ├── models/                 # SQLAlchemy Database Models
 │   │   ├── schemas/                # Pydantic Schemas & DTOs
@@ -33,10 +32,10 @@ Smart_dairyvisionAI/
 │   ├── requirements.txt            # Python Dependencies
 │   └── main.py                     # FastAPI Application Entrypoint
 │
-├── frontend/                       # React 18 + Vite + Tailwind Frontend Application
+├── frontend/                       # React 18 + Vite Frontend Application
 │   ├── src/
 │   │   ├── components/             # Reusable UI Components & Charts
-│   │   ├── pages/                  # Dashboard, Digital Twin, Simulation, Genetics, etc.
+│   │   ├── pages/                  # Dashboard, Digital Twin, Simulation, Health Risk, etc.
 │   │   ├── services/               # Axios API Client Services
 │   │   └── context/                # Auth & App State Contexts
 │   └── package.json                # Frontend Package Configuration

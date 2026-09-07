@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -27,7 +28,7 @@ def create_observation(
     payload: ObservationCreate,
     user_id: str = Depends(get_current_user_id),
     service: ObservationService = Depends(get_observation_service),
-) -> ObservationResponse:
+) -> Any:
     try:
         return service.create_observation(user_id, payload)
     except ObservationValidationError as exc:
@@ -56,10 +57,11 @@ def create_bulk_observations(
 
 @router.get("", response_model=list[ObservationResponse])
 def list_observations(
+    farm_id: Optional[str] = None,
     user_id: str = Depends(get_current_user_id),
     service: ObservationService = Depends(get_observation_service),
-) -> list[ObservationResponse]:
-    return service.list_observations(user_id)
+) -> Any:
+    return service.list_observations(user_id, farm_id=farm_id)
 
 
 @router.get("/{observation_id}", response_model=ObservationResponse)
@@ -67,7 +69,7 @@ def get_observation(
     observation_id: str,
     user_id: str = Depends(get_current_user_id),
     service: ObservationService = Depends(get_observation_service),
-) -> ObservationResponse:
+) -> Any:
     observation = service.get_observation(user_id, observation_id)
     if observation is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Observation not found")
@@ -80,7 +82,7 @@ def update_observation(
     payload: ObservationUpdate,
     user_id: str = Depends(get_current_user_id),
     service: ObservationService = Depends(get_observation_service),
-) -> ObservationResponse:
+) -> Any:
     try:
         observation = service.update_observation(user_id, observation_id, payload)
     except ObservationValidationError as exc:

@@ -1,0 +1,13 @@
+{
+  "include": [
+    "backend"
+  ],
+  "extraPaths": [
+    "backend",
+    "backend/app",
+    "/Users/sanjana/.pyenv/versions/3.12.13/lib/python3.12/site-packages",
+    "/Users/sanjana/.local/lib/python3.12/site-packages"
+  ],
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Darwin"
+}

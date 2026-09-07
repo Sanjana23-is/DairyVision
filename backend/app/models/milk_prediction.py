@@ -21,6 +21,7 @@ from ..database.types import GUID
 if TYPE_CHECKING:
     from .cow import Cow
     from .daily_observation import DailyObservation
+    from .user import User
 
 
 class MilkPrediction(Base):

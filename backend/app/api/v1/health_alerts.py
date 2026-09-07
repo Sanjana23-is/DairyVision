@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -55,12 +55,13 @@ def get_health_summary(
     farm_id: Optional[str] = Query(None),
     user_id: str = Depends(get_current_user_id),
     service: HealthAlertService = Depends(get_health_alert_service),
-) -> HealthSummaryResponse:
+) -> Any:
     return service.get_health_summary(user_id=user_id, farm_id=farm_id)
 
 
 @router.get("/health-alerts", response_model=list[HealthAlertResponse])
 def list_health_alerts(
+    farm_id: Optional[str] = Query(None),
     alert_level: Optional[str] = Query(None),
     resolved: Optional[bool] = Query(None),
     cow_id: Optional[str] = Query(None),
@@ -71,6 +72,7 @@ def list_health_alerts(
 ) -> list[HealthAlertResponse]:
     return service.list_health_alerts(
         user_id=user_id,
+        farm_id=farm_id,
         alert_level=alert_level,
         resolved=resolved,
         cow_id=cow_id,

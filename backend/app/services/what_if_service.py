@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -25,7 +24,6 @@ from app.schemas.what_if import (
     HerdWhatIfRequest,
     HerdWhatIfResponse,
     CowSimulationComparison,
-    SimulationInput,
     CowWhatIfRequest,
     CowWhatIfResponse,
 )
@@ -410,7 +408,7 @@ class WhatIfService:
 
         breed_str = None
         if cow.breed:
-            breed_str = cow.breed.canonical_name if hasattr(cow.breed, "canonical_name") else (cow.breed.name if hasattr(cow.breed, "name") else str(cow.breed))
+            breed_str = getattr(cow.breed, "canonical_name", None) or getattr(cow.breed, "breed_name", None) or getattr(cow.breed, "name", None) or str(cow.breed)
 
         # Find latest daily observation for cow
         latest_obs = (

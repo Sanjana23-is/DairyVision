@@ -11,6 +11,8 @@ from app.exceptions import WeatherForbidden, WeatherNotFound, WeatherValidationE
 from app.schemas.weather import WeatherCreate, WeatherResponse
 from app.services.weather_service import WeatherService
 
+from typing import Any
+
 router = APIRouter(prefix="/weather", tags=["weather"])
 
 
@@ -23,7 +25,7 @@ def create_weather_log(
     payload: WeatherCreate,
     user_id: str = Depends(get_current_user_id),
     service: WeatherService = Depends(get_weather_service),
-) -> WeatherResponse:
+) -> Any:
     try:
         return service.create_weather_log(user_id, payload)
     except WeatherValidationError as exc:
@@ -36,7 +38,7 @@ def create_weather_log(
 def list_weather_logs(
     user_id: str = Depends(get_current_user_id),
     service: WeatherService = Depends(get_weather_service),
-) -> list[WeatherResponse]:
+) -> Any:
     return service.list_weather(user_id)
 
 
@@ -45,7 +47,7 @@ def get_weather_log(
     weather_id: str,
     user_id: str = Depends(get_current_user_id),
     service: WeatherService = Depends(get_weather_service),
-) -> WeatherResponse:
+) -> Any:
     weather_log = service.get_weather(user_id, weather_id)
     if weather_log is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Weather log not found")
@@ -58,7 +60,7 @@ def get_nearest_weather_snapshot(
     recorded_at: datetime,
     user_id: str = Depends(get_current_user_id),
     service: WeatherService = Depends(get_weather_service),
-) -> WeatherResponse:
+) -> Any:
     try:
         return service.get_or_create_nearest_snapshot(user_id, farm_id, recorded_at)
     except WeatherNotFound as exc:

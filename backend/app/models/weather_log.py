@@ -21,6 +21,8 @@ from ..database.types import GUID
 
 if TYPE_CHECKING:
     from .farm import Farm
+    from .user import User
+    from .daily_observation import DailyObservation
 
 
 class WeatherLog(Base):

@@ -319,8 +319,8 @@ class DigitalTwinService:
 
         status_summary = " ".join(summary_parts)
 
-        anomalies_list = [a.title for a in recent_anomalies_records if getattr(a, 'title', None)]
-        recs_list = [r.title for r in active_recs if getattr(r, 'title', None)]
+        anomalies_list = [getattr(a, 'title', None) or f"{a.severity} Anomaly" for a in recent_anomalies_records]
+        recs_list = [getattr(r, 'title', '') for r in active_recs if getattr(r, 'title', None)]
         if not recs_list and active_alerts:
             enriched_alert = self.health_service.enrich_health_alert_response(active_alerts[0])
             if enriched_alert.recommended_actions:

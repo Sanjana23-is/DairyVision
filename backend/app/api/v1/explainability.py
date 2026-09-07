@@ -55,14 +55,22 @@ def get_explainability_history(
         anom_query = anom_query.filter(AnomalyRecord.farm_id == farm_id)
     anomalies = anom_query.order_by(AnomalyRecord.detected_at.desc()).limit(20).all()
 
-    cows = db.query(Cow).filter(Cow.owner_id == user_id).all()
+    cow_query = db.query(Cow).filter(Cow.owner_id == user_id)
+    if farm_id:
+        cow_query = cow_query.filter(Cow.farm_id == farm_id)
+    cows = cow_query.all()
     cow_map = {c.id: c.name or c.tag_id or c.id for c in cows}
 
     items: list[ExplainableItem] = []
 
     for p in predictions:
         obs = p.observation_id and db.get(DailyObservation, p.observation_id)
-        obs_date_str = obs.observation_date.strftime("%d %b %Y") if obs and obs.observation_date else p.created_at.strftime("%d %b %Y")
+        if obs and obs.observation_date:
+            obs_date_str = obs.observation_date.strftime("%d %b %Y")
+        elif p.prediction_timestamp:
+            obs_date_str = p.prediction_timestamp.strftime("%d %b %Y")
+        else:
+            obs_date_str = "Recent"
         cow_name = cow_map.get(p.cow_id, "Cow")
         yield_val = float(p.predicted_milk_yield)
         items.append(

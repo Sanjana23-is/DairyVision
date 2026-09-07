@@ -43,6 +43,7 @@ export type AnomalyFilter = {
   severity?: string;
   resolved?: boolean;
   cow_id?: string;
+  farm_id?: string;
   search?: string;
 };
 
@@ -62,6 +63,9 @@ export async function triggerAnomalyScan(farmId?: string) {
 
 export async function fetchAnomalies(filters: AnomalyFilter = {}) {
   const params: Record<string, string | boolean> = {};
+  if (filters.farm_id) {
+    params.farm_id = filters.farm_id;
+  }
   if (filters.severity && filters.severity !== 'All') {
     params.severity = filters.severity;
   }
