@@ -1,19 +1,94 @@
+@import "tw-animate-css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color-scheme: light dark;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2f0ff 100%);
-  color: #0f172a;
 }
 
 * {
   box-sizing: border-box;
+}
+
+@layer base {
+  .theme {
+    --font-heading: 'Inter', sans-serif;
+    --font-sans: 'Inter', sans-serif;
+  }
+  :root {
+    --background: #F4F4F5;
+    --foreground: #0F172A;
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+    --primary: #059669;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F1F5F9;
+    --secondary-foreground: #0F172A;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
+    --accent: #F1F5F9;
+    --accent-foreground: #0F172A;
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #10B981;
+    --radius: 0.625rem;
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: #0F172A;
+    --sidebar-primary: #059669;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #F1F5F9;
+    --sidebar-accent-foreground: #0F172A;
+    --sidebar-border: #E2E8F0;
+    --sidebar-ring: #10B981;
+  }
+  .dark {
+    --background: #09090B;
+    --foreground: #F4F4F5;
+    --card: #151719;
+    --card-foreground: #F4F4F5;
+    --popover: #1B1D20;
+    --popover-foreground: #F4F4F5;
+    --primary: #10B981;
+    --primary-foreground: #09090B;
+    --secondary: #1B1D20;
+    --secondary-foreground: #F4F4F5;
+    --muted: #1B1D20;
+    --muted-foreground: #71717A;
+    --accent: #222428;
+    --accent-foreground: #F4F4F5;
+    --destructive: #FB7185;
+    --destructive-foreground: #FFFFFF;
+    --border: #27272A;
+    --input: #27272A;
+    --ring: #10B981;
+    --sidebar: #0D0E10;
+    --sidebar-foreground: #F4F4F5;
+    --sidebar-primary: #10B981;
+    --sidebar-primary-foreground: #09090B;
+    --sidebar-accent: rgba(16, 185, 129, 0.08);
+    --sidebar-accent-foreground: #10B981;
+    --sidebar-border: #27272A;
+    --sidebar-ring: #10B981;
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-200;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
 }

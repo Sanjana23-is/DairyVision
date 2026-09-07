@@ -47,6 +47,20 @@ class LoginRequest(BaseModel):
         return normalized
 
 
+class UpdateUserRequest(BaseModel):
+    full_name: Optional[str] = None
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            normalized = value.strip()
+            if not normalized:
+                raise ValueError("full_name cannot be empty")
+            return normalized
+        return value
+
+
 class AuthUser(BaseModel):
     id: str
     email: str
@@ -68,5 +82,30 @@ class LogoutResponse(BaseModel):
     message: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if "@" not in normalized or "." not in normalized.split("@", 1)[1]:
+            raise ValueError("email must be a valid email address")
+        return normalized
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
 class MeResponse(BaseModel):
     user: AuthUser
+
+
+class UserPreferenceSchema(BaseModel):
+    preferred_language: Optional[str] = None
+    preferred_currency: Optional[str] = None
+    breed_display_preference: Optional[str] = None
+    show_local_names: Optional[bool] = None
+
+    model_config = ConfigDict(from_attributes=True)

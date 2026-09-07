@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from statistics import mean
 from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.exceptions import PredictionNotFound
 from app.repositories.feature_repository import FeatureRepository
+from app.repositories.ownership import ensure_record_accessible
 from app.schemas.feature import FeatureVector
+from app.models import WeatherLog
+
+logger = logging.getLogger(__name__)
 
 
 def _temp_category(temp: Optional[float]) -> Optional[str]:
@@ -53,7 +59,7 @@ class FeatureEngineeringService:
     def build_features_for_observation(self, user_id: str, observation_id: str) -> FeatureVector:
         obs = self.repo.get_observation(observation_id)
         if obs is None:
-            raise ValueError("Observation not found")
+            raise PredictionNotFound("Observation not found")
 
         # ownership checks
         if obs.owner_id != user_id:
@@ -61,19 +67,27 @@ class FeatureEngineeringService:
 
         cow = self.repo.get_cow(obs.cow_id)
         if cow is None:
-            raise ValueError("Cow not found")
+            raise PredictionNotFound("Cow not found")
         if cow.owner_id != user_id:
             raise PermissionError("User does not own the cow")
 
         farm = self.repo.get_farm(cow.farm_id)
         if farm is None:
-            raise ValueError("Farm not found")
-        if farm.created_by != user_id and getattr(farm, "owner_id", None) not in (None, user_id):
-            raise PermissionError("User does not own the farm")
+            raise PredictionNotFound("Farm not found")
+        ensure_record_accessible(farm, user_id)
 
         weather = None
         if obs.weather_log_id:
             weather = self.repo.get_weather_log(obs.weather_log_id)
+
+        if weather is None:
+            # Check for existing recorded WeatherLog for farm
+            weather = (
+                self.db.query(WeatherLog)
+                .filter(WeatherLog.farm_id == farm.id)
+                .order_by(WeatherLog.recorded_at.desc())
+                .first()
+            )
 
         # compute milk history
         recorded_dt = datetime.combine(obs.observation_date, datetime.min.time()).replace(tzinfo=timezone.utc)
@@ -88,10 +102,14 @@ class FeatureEngineeringService:
 
         # derived animal features
         age = None
-        if cow.birth_date is not None:
+        if getattr(cow, "age_months", None) is not None:
+            age = float(cow.age_months) / 12.0
+        elif getattr(cow, "birth_date", None) is not None:
             age_days = (obs.observation_date - cow.birth_date).days
-            # training dataset uses age in months
-            age = int(age_days / 30)
+            age = float(age_days) / 365.25
+
+        weight = float(cow.weight_kg) if cow.weight_kg is not None else None
+        feed = float(obs.feed_quantity_kg) if getattr(obs, "feed_quantity_kg", None) is not None else None
 
         # days in milk and lactation stage not available without calving/lactation dates
         days_in_milk = None
@@ -99,12 +117,13 @@ class FeatureEngineeringService:
 
         # body condition and health
         bcs_cat = self.defaults.get("bcs_category")
-        # health_status: encode based on symptoms or cow status (0 healthy, 1 diseased)
         health_status = 0
         try:
-            if getattr(obs, "symptoms", None):
-                if isinstance(obs.symptoms, dict) and len(obs.symptoms) > 0:
-                    health_status = 1
+            condition = None
+            if isinstance(getattr(obs, "symptoms", None), dict):
+                condition = obs.symptoms.get("condition")
+            if condition is not None and str(condition).lower() != "healthy":
+                health_status = 1
             if getattr(cow, "status", "active") != "active":
                 health_status = 1
         except Exception:
@@ -128,10 +147,7 @@ class FeatureEngineeringService:
         except Exception:
             observation_age_hours = None
 
-        # engineered numeric features matching training dataset
-        weight = float(cow.weight_kg) if cow.weight_kg is not None else None
-        feed = float(obs.feed_quantity_kg) if getattr(obs, "feed_quantity_kg", None) is not None else None
-
+        # engineered numeric features matching ML training dataset
         feed_weight_ratio = None
         feed_per_weight = None
         temp_humidity = None

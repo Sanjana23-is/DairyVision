@@ -22,11 +22,11 @@ Actionable health alerts for dairy farmers based on THI and predicted yield decl
 - Emergency: 41
 
 ## Recommendation examples
-- COW00001: Heat Stress Alert (Medium) â€” Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
-- COW00006: Heat Stress Alert (Medium) â€” Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
-- COW00014: Heat Stress Alert (Medium) â€” Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
-- COW00016: Health Risk Alert (Critical) â€” Critical heat stress or productivity decline detected. Consider emergency cooling, veterinary assessment, and hydration.
-- COW00025: Heat Stress Alert (Medium) â€” Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
+- COW00001: Heat Stress Alert (Medium) — Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
+- COW00006: Heat Stress Alert (Medium) — Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
+- COW00014: Heat Stress Alert (Medium) — Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
+- COW00016: Health Risk Alert (Critical) — Critical heat stress or productivity decline detected. Consider emergency cooling, veterinary assessment, and hydration.
+- COW00025: Heat Stress Alert (Medium) — Moderate heat stress detected. Monitor cattle closely and provide ventilation and water access.
 
 ## Alert rules
 - THI >= 70: Heat Stress Alert

@@ -5,28 +5,39 @@ export default function StatCard({
   value,
   delta,
   icon,
+  onClick,
 }: {
   title: string;
   value: ReactNode;
   delta?: string;
   icon?: ReactNode;
+  onClick?: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div
+      onClick={onClick}
+      className={`group rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-300/80 dark:hover:border-emerald-500/40 font-sans ${
+        onClick ? "cursor-pointer" : ""
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-medium text-slate-500">{title}</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-900">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#71717A]">
+            {title}
+          </div>
+          <div className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#F4F4F5] tracking-tight leading-none">
             {value}
           </div>
         </div>
-        <div className="h-12 w-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-700">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-colors duration-200 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
           {icon}
         </div>
       </div>
 
       {delta ? (
-        <div className="mt-3 text-sm text-slate-500">{delta}</div>
+        <div className="mt-2.5 text-xs font-normal text-slate-500 dark:text-[#A1A1AA] leading-normal">
+          {delta}
+        </div>
       ) : null}
     </div>
   );

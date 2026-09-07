@@ -1,11 +1,11 @@
-Monotonicity audit â€” Feed vs Predicted Yield
+Monotonicity audit — Feed vs Predicted Yield
 ==================================================
  Temp_C  N_violations  Monotone  Max_reversal
-     18            12     False         0.046
-     24            12     False         0.046
-     30            12     False         0.046
-     36            12     False         0.046
-     42            12     False         0.046
+     18             6     False         0.172
+     24             6     False         0.180
+     30             6     False         0.215
+     36             6     False         0.143
+     42             6     False         0.156
 
 Note: violations indicate model extrapolation artefacts.
 Consider constraining simulation to training data range.

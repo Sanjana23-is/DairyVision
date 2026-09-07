@@ -1,173 +1,366 @@
+import { useMemo, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import StatCard from "@/components/cards/StatCard";
-import PlaceholderChart from "@/components/charts/PlaceholderChart";
-import { fetchDashboardSummary } from "@/services/dashboard";
-import { useQuery } from "@tanstack/react-query";
-import { Activity, Droplet, CloudSun, Package } from "lucide-react";
+import MilkProductionChart, { type MilkChartPoint } from "@/components/charts/MilkProductionChart";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
+import {
+  fetchDashboardSummary,
+  fetchDashboardTrends,
+} from "@/services/dashboard";
+import { fetchHealthAlerts, HealthAlert } from "@/services/healthAlert";
+import ExecutiveReportModal from "@/components/reports/ExecutiveReportModal";
+import {
+  Users,
+  Droplet,
+  TrendingUp,
+  Bell,
+  FileText,
+  Activity,
+  ArrowRight,
+} from "lucide-react";
+
+function formatTrendLabel(dateString: string) {
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    return d.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+}
 
 export function DashboardPage() {
-  const { currentFarmId } = useAuth();
+  const { user, currentFarmId, currentFarmName } = useAuth();
+  const { t } = useLanguage();
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
+  const [executiveReportOpen, setExecutiveReportOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const { data, isLoading, isError, error } = useQuery({
+  if (!farmId) {
+    return <Navigate to="/select-farm" replace />;
+  }
+
+  const getGreetingText = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t("dashboard.good_morning", "Good morning");
+    if (hour < 18) return t("dashboard.good_afternoon", "Good afternoon");
+    return t("dashboard.good_evening", "Good evening");
+  };
+
+  // 1. Dashboard Summary Query
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+    error: summaryError,
+  } = useQuery({
     queryKey: ["dashboardSummary", farmId],
     queryFn: () => fetchDashboardSummary(farmId as string),
     staleTime: 1000 * 30,
     enabled: !!farmId,
   });
 
-  const totalCows = data?.totalCows ?? data?.total_cows ?? "-";
-  const todaysPrediction =
-    data?.todaysPrediction ?? data?.todays_prediction ?? "-";
-  const activeAlerts = data?.activeAlerts ?? data?.active_alerts ?? "-";
-  const currentWeather = data?.currentWeather ??
-    data?.current_weather ?? { temp: "-" };
+  // 2. Dashboard Trends Query
+  const { data: trends } = useQuery({
+    queryKey: ["dashboardTrends", farmId],
+    queryFn: () => fetchDashboardTrends(farmId as string),
+    staleTime: 1000 * 30,
+    enabled: !!farmId,
+  });
 
-  const recentPredictions =
-    data?.recentPredictions ?? data?.recent_predictions ?? [];
-  const recentAlerts = data?.recentAlerts ?? data?.recent_alerts ?? [];
-  const recommendations = data?.recommendations ?? [];
+  // 3. Active Health Alerts Query
+  const { data: healthAlerts = [] } = useQuery<HealthAlert[]>({
+    queryKey: ["healthAlerts", farmId, false],
+    queryFn: () => fetchHealthAlerts({ farm_id: farmId as string, resolved: false }),
+    staleTime: 1000 * 30,
+    enabled: !!farmId,
+  });
 
-  if (!farmId) {
-    return (
-      <DashboardLayout>
-        <div className="mx-auto max-w-7xl rounded-2xl border border-amber-100 bg-amber-50 p-6 shadow-sm text-amber-900">
-          No farm is selected. Please choose a farm from the Farms page or
-          contact your administrator.
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // Metrics Calculations
+  const activeCowCount = summary?.active_cow_count ?? summary?.total_cow_count ?? 0;
+  
+  // Today's actual milk produced
+  const actualMilkToday = useMemo(() => {
+    if (typeof summary?.total_milk_produced === "number" && summary.total_milk_produced > 0) {
+      return summary.total_milk_produced;
+    }
+    const lastObs = trends?.observation_trends?.slice(-1)[0];
+    return lastObs?.total_milk_produced ?? 0;
+  }, [summary, trends]);
+
+  // Expected milk yield today
+  const expectedMilkToday = useMemo(() => {
+    if (summary?.todays_milk_predictions && summary.todays_milk_predictions.length > 0) {
+      return summary.todays_milk_predictions.reduce((acc, p) => acc + (p.predicted_milk_yield || 0), 0);
+    }
+    if (typeof summary?.average_predicted_milk_yield === "number" && activeCowCount > 0) {
+      return summary.average_predicted_milk_yield * activeCowCount;
+    }
+    const lastPred = trends?.milk_yield_trends?.slice(-1)[0];
+    if (lastPred?.average_predicted_milk_yield && activeCowCount > 0) {
+      return lastPred.average_predicted_milk_yield * activeCowCount;
+    }
+    return 0;
+  }, [summary, trends, activeCowCount]);
+
+  // Health alerts count
+  const activeAlertsCount = healthAlerts.length || summary?.active_health_alerts?.length || 0;
+
+  // Chart Points (Actual vs Expected)
+  const chartPoints = useMemo<MilkChartPoint[]>(() => {
+    const obsTrendMap = new Map<string, number>();
+    trends?.observation_trends?.forEach((item) => {
+      obsTrendMap.set(String(item.date), item.total_milk_produced);
+    });
+
+    const predTrendMap = new Map<string, number>();
+    trends?.milk_yield_trends?.forEach((item) => {
+      const totalPred = (item.average_predicted_milk_yield || 0) * (activeCowCount || 1);
+      predTrendMap.set(String(item.date), Number(totalPred.toFixed(1)));
+    });
+
+    const allDates = Array.from(new Set([...obsTrendMap.keys(), ...predTrendMap.keys()])).sort();
+
+    if (allDates.length === 0) return [];
+
+    return allDates.map((dateStr) => {
+      const act = obsTrendMap.get(dateStr) ?? null;
+      const pred = predTrendMap.get(dateStr) ?? null;
+      return {
+        date: dateStr,
+        label: formatTrendLabel(dateStr),
+        actual: act !== null ? Number(act.toFixed(1)) : null,
+        predicted: pred !== null ? Number(pred.toFixed(1)) : null,
+      };
+    });
+  }, [trends, activeCowCount]);
+
+  // AI Live Insights
+  const aiInsights = useMemo(() => {
+    const insights: Array<{ icon: string; title: string; text: string; link: string }> = [];
+
+    if (actualMilkToday > 0 && expectedMilkToday > 0) {
+      if (actualMilkToday >= expectedMilkToday) {
+        insights.push({
+          icon: "🥛",
+          title: t("nav.predictions", "Milk production"),
+          text: t("dashboard.performing_target", "Performing on target"),
+          link: "/predictions",
+        });
+      } else {
+        insights.push({
+          icon: "🥛",
+          title: t("nav.predictions", "Milk production"),
+          text: "Slightly below expected target",
+          link: "/predictions",
+        });
+      }
+    } else {
+      insights.push({
+        icon: "🥛",
+        title: t("nav.predictions", "Milk production"),
+        text: `Active herd of ${activeCowCount} cows monitored`,
+        link: "/predictions",
+      });
+    }
+
+    const temp = summary?.todays_weather?.temperature ?? 26.0;
+    const humidity = summary?.todays_weather?.humidity ?? 60.0;
+    const thi = summary?.todays_weather?.thi ?? ((1.8 * temp + 32.0) - ((0.55 - 0.0055 * humidity) * (1.8 * temp - 26.0)));
+
+    if (thi >= 79) {
+      insights.push({
+        icon: "🌡️",
+        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
+        text: "Heat stress alert zone (THI high)",
+        link: "/explainability",
+      });
+    } else {
+      insights.push({
+        icon: "🌡️",
+        title: t("dashboard.thermal_conditions", "Thermal Conditions"),
+        text: t("dashboard.thi_comfortable", "THI within comfortable zone"),
+        link: "/explainability",
+      });
+    }
+
+    if (activeAlertsCount > 0) {
+      insights.push({
+        icon: "🐄",
+        title: t("dashboard.herd_health", "Herd Health"),
+        text: `${activeAlertsCount} ${t("dashboard.cows_monitoring", "cows require monitoring")}`,
+        link: "/health-alerts",
+      });
+    } else {
+      insights.push({
+        icon: "🐄",
+        title: t("dashboard.herd_health", "Herd Health"),
+        text: "All cows pass health checks",
+        link: "/health-alerts",
+      });
+    }
+
+    return insights;
+  }, [actualMilkToday, expectedMilkToday, activeCowCount, summary, activeAlertsCount, t]);
+
+  const displayedFarmName = currentFarmName || summary?.farm?.name || "Luna Farm";
+  const displayedUserName = user?.full_name || "Farm Manager";
+
+  const temp = summary?.todays_weather?.temperature ?? 26.0;
+  const humidity = summary?.todays_weather?.humidity ?? 60.0;
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-7xl">
-        {isLoading ? (
-          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-            Loading dashboard...
+      <div className="mx-auto max-w-7xl space-y-12 select-none">
+        
+        {/* SECTION 1 — FARM INTELLIGENCE */}
+        <section className="space-y-6">
+          {/* Header & Greeting */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
+                {getGreetingText()}, {displayedUserName} 👋
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-1">
+                {t("dashboard.heres_happening", "Here's what's happening at")}{" "}
+                <strong className="text-slate-800 dark:text-[#F4F4F5] font-bold">{displayedFarmName}</strong>{" "}
+                {t("dashboard.today", "today.")}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setExecutiveReportOpen(true)}
+                className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200/90 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-[#151719] px-4 py-2.5 text-xs font-bold text-emerald-900 dark:text-emerald-400 shadow-2xs hover:bg-emerald-100 dark:hover:bg-[#222428] hover:border-emerald-300 dark:hover:border-emerald-500 transition-all duration-200"
+              >
+                <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <span>{t("dashboard.executive_report", "Executive Report & Export")}</span>
+              </button>
+            </div>
           </div>
-        ) : isError ? (
-          <div className="rounded-2xl border border-rose-100 bg-rose-50 p-6 text-rose-700 shadow-sm">
-            Error loading dashboard:{" "}
-            {(error as any)?.message ?? "Unknown error"}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-              <StatCard
-                title="Total Cows"
-                value={totalCows}
-                icon={<Activity />}
-              />
-              <StatCard
-                title="Today's Milk Prediction"
-                value={
-                  typeof todaysPrediction === "number"
-                    ? `${todaysPrediction} L`
-                    : todaysPrediction
-                }
-                icon={<Package />}
-              />
-              <StatCard
-                title="Active Alerts"
-                value={activeAlerts}
-                icon={<Droplet />}
-              />
-              <StatCard
-                title="Current Weather"
-                value={`${currentWeather.temp} °C`}
-                icon={<CloudSun />}
-              />
-            </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <PlaceholderChart title="Milk Yield Trend" />
+          {/* Loading / Error States */}
+          {isSummaryLoading ? (
+            <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] shadow-xs">
+              Loading farm intelligence dashboard...
+            </div>
+          ) : isSummaryError ? (
+            <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 p-6 text-xs font-semibold text-rose-800 dark:text-rose-300 shadow-xs">
+              Unable to load farm intelligence: {(summaryError as any)?.message || "Network Error"}
+            </div>
+          ) : (
+            <>
+              {/* Four KPI Cards */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title={t("dashboard.total_cows", "TOTAL COWS")}
+                  value={activeCowCount}
+                  delta={t("dashboard.active_herd", "Active herd in workspace")}
+                  icon={<Users className="h-5 w-5" />}
+                  onClick={() => navigate("/cows")}
+                />
+
+                <StatCard
+                  title={t("dashboard.milk_today", "MILK PRODUCED TODAY")}
+                  value={`${actualMilkToday.toFixed(1)} L`}
+                  delta={t("dashboard.today_actual", "Today's actual yield")}
+                  icon={<Droplet className="h-5 w-5" />}
+                  onClick={() => navigate("/observations")}
+                />
+
+                <StatCard
+                  title={t("dashboard.expected_yield", "EXPECTED YIELD TODAY")}
+                  value={`${expectedMilkToday.toFixed(1)} L`}
+                  delta={t("dashboard.ai_yield_target", "AI model yield target")}
+                  icon={<TrendingUp className="h-5 w-5" />}
+                  onClick={() => navigate("/predictions")}
+                />
+
+                <StatCard
+                  title={t("dashboard.active_alerts", "ACTIVE HEALTH ALERTS")}
+                  value={activeAlertsCount}
+                  delta={activeAlertsCount > 0 ? `${activeAlertsCount} ${t("dashboard.require_attention", "require attention")}` : t("status.normal", "Normal")}
+                  icon={<Bell className="h-5 w-5" />}
+                  onClick={() => navigate("/health-alerts")}
+                />
               </div>
 
-              <div className="space-y-6">
-                <PlaceholderChart title="Weather Summary" />
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    Recent Health Alerts
-                  </div>
-                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                    {recentAlerts.map((a: any) => (
-                      <li
-                        key={a.id}
-                        className="flex items-start justify-between"
-                      >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {a.cow}
+              {/* Milk Production Overview & Live Farm Insights */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                {/* Visual Hero Chart (8 cols) */}
+                <div className="lg:col-span-8">
+                  <MilkProductionChart points={chartPoints} />
+                </div>
+
+                {/* AI Monitoring Panel (4 cols) */}
+                <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-xs hover:shadow-sm transition-shadow duration-200">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
+                        <Activity className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5] tracking-tight">
+                        {t("dashboard.live_insights", "LIVE FARM INSIGHTS")}
+                      </h2>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-1">
+                      {t("dashboard.realtime_monitoring", "Real-time AI monitoring & thermal conditions")}
+                    </p>
+
+                    <div className="mt-5 space-y-3">
+                      {aiInsights.map((item, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => navigate(item.link)}
+                          className="group flex items-center justify-between rounded-xl border border-slate-200/80 dark:border-[#27272A] bg-slate-50/60 dark:bg-[#1B1D20]/80 p-3.5 hover:bg-emerald-50/40 dark:hover:bg-[#222428] hover:border-emerald-300/80 dark:hover:border-emerald-500/50 transition-all duration-200 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">{item.icon}</span>
+                            <div>
+                              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#A1A1AA]">
+                                {item.title}
+                              </div>
+                              <p className="text-xs font-bold text-slate-800 dark:text-[#F4F4F5] group-hover:text-emerald-900 dark:group-hover:text-emerald-400 transition-colors">
+                                {item.text}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-xs text-slate-500">
-                            {a.message}
-                          </div>
+                          <ArrowRight className="h-4 w-4 text-slate-400 dark:text-[#A1A1AA] opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 shrink-0" />
                         </div>
-                        <div className="text-xs text-rose-600">{a.level}</div>
-                      </li>
-                    ))}
-                  </ul>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 border-t border-slate-100 dark:border-[#27272A] pt-3.5 text-xs text-slate-500 dark:text-[#A1A1AA] flex items-center justify-between">
+                    <span className="font-medium">Thermal Snapshot:</span>
+                    <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
+                      {temp.toFixed(1)}°C • {humidity.toFixed(0)}% Humidity
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    Recent Predictions
-                  </div>
-                  <ul className="mt-3 divide-y divide-slate-100 text-sm text-slate-600">
-                    {recentPredictions.map((p: any) => (
-                      <li
-                        key={p.id}
-                        className="flex items-center justify-between py-3"
-                      >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {p.cow}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            Predicted: {p.predicted} L
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div>
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <div className="text-sm font-medium text-slate-700">
-                    AI Recommendations
-                  </div>
-                  <ul className="mt-3 space-y-3 text-sm text-slate-600">
-                    {recommendations.map((r: any) => (
-                      <li
-                        key={r.id}
-                        className="flex items-start justify-between"
-                      >
-                        <div>
-                          <div className="font-medium text-slate-800">
-                            {r.title}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            Priority: {r.priority}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </section>
       </div>
+
+      {/* Executive Report Modal */}
+      <ExecutiveReportModal
+        open={executiveReportOpen}
+        onClose={() => setExecutiveReportOpen(false)}
+        farmId={farmId}
+        summary={summary}
+        healthAlerts={healthAlerts}
+      />
     </DashboardLayout>
   );
 }
+
+export default DashboardPage;

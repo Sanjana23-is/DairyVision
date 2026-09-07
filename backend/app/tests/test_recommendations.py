@@ -103,6 +103,7 @@ def test_generate_recommendations_for_warning_heat_stress(db_session: Session):
 
     assert any(rec.category == 'Heat Stress Management' for rec in recommendations)
     assert any(rec.priority in ('Medium', 'High') for rec in recommendations)
+    assert any(rec.why_reason and "heat stress" in rec.why_reason.lower() for rec in recommendations)
 
 
 def test_generate_recommendations_for_critical_alert_and_shap(db_session: Session):
@@ -114,11 +115,13 @@ def test_generate_recommendations_for_critical_alert_and_shap(db_session: Sessio
     alert = HealthAlert(
         id=str(uuid4()),
         cow_id=cow.id,
+        observation_id=obs.id,
         alert_level='Critical',
         alert_type='composite',
         description='Lethargy symptoms present',
         owner_id=user.id,
     )
+
     db_session.add(alert)
     db_session.commit()
 
@@ -190,3 +193,176 @@ def test_generate_recommendations_invalid_ownership(db_session: Session):
         assert False
     except PermissionError:
         assert True
+
+
+def test_generate_recommendations_for_anomaly(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    from app.models import AnomalyRecord
+    anom = AnomalyRecord(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        observation_id=obs.id,
+        farm_id=farm.id,
+        owner_id=user.id,
+        anomaly_score=0.85,
+        severity="Critical",
+        anomaly_type="composite",
+        issue_tags=["Extreme Heat Stress", "Abnormal Milk Drop"],
+    )
+    db_session.add(anom)
+    db_session.commit()
+
+    service = RecommendationService(db_session)
+    recs = service.generate_recommendations(user.id, anomaly_id=anom.id)
+
+    assert len(recs) >= 1
+    assert any(r.category == "Heat Stress Management" for r in recs)
+    assert any(r.category == "Feeding Strategy" for r in recs)
+
+
+def test_auto_generate_recommendation_on_observation_created(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    from app.services.observation_service import ObservationService
+    from app.schemas.observation import ObservationCreate
+
+    obs_svc = ObservationService(db_session)
+    new_obs = obs_svc.create_observation(
+        user.id,
+        ObservationCreate(farm_id=farm.id, cow_id=cow.id, milk_produced_liters=4.0, feed_quantity_kg=3.0),
+    )
+
+    recs = db_session.query(Recommendation).filter(Recommendation.observation_id == new_obs.id).all()
+    assert len(recs) >= 1
+
+
+def test_prevent_duplicate_pending_recommendation(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    alert = HealthAlert(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        alert_level='Warning',
+        alert_type='composite',
+        description='Duplicate test alert',
+        owner_id=user.id,
+    )
+    db_session.add(alert)
+    db_session.commit()
+
+    service = RecommendationService(db_session)
+    recs1 = service.generate_recommendations(user.id, health_alert_id=alert.id, observation_id=obs.id)
+    first_count = db_session.query(Recommendation).filter(Recommendation.owner_id == user.id, Recommendation.completed.is_(False)).count()
+
+    recs2 = service.generate_recommendations(user.id, health_alert_id=alert.id, observation_id=obs.id)
+    second_count = db_session.query(Recommendation).filter(Recommendation.owner_id == user.id, Recommendation.completed.is_(False)).count()
+
+    assert second_count == first_count
+    assert recs1[0].id == recs2[0].id
+
+
+def test_completed_recommendation_allows_new_recommendation(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    alert = HealthAlert(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        alert_level='Warning',
+        alert_type='composite',
+        description='Completed test alert',
+        owner_id=user.id,
+    )
+    db_session.add(alert)
+    db_session.commit()
+
+    service = RecommendationService(db_session)
+    recs1 = service.generate_recommendations(user.id, health_alert_id=alert.id, observation_id=obs.id)
+    rec_obj = recs1[0]
+    rec_obj.completed = True
+    db_session.commit()
+
+    recs2 = service.generate_recommendations(user.id, health_alert_id=alert.id, observation_id=obs.id)
+    assert recs2[0].id != rec_obj.id
+    assert recs2[0].completed is False
+
+
+def test_different_cows_and_types_deduplicated_separately(db_session: Session):
+    user, farm, cow1, obs1 = _create_owner_entities(db_session)
+    cow2 = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id='REC2',
+        owner_id=user.id,
+        created_by=user.id,
+        birth_date=date.today(),
+        weight_kg=500.0,
+    )
+    db_session.add(cow2)
+    db_session.commit()
+
+    rec1 = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow1.id,
+        title="Check ventilation",
+        category="Heat Stress Management",
+        priority="Medium",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    rec2 = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow2.id,
+        title="Check ventilation",
+        category="Heat Stress Management",
+        priority="Medium",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    rec3 = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=None,
+        title="Farm climate alert",
+        category="Heat Stress Management",
+        priority="High",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    db_session.add_all([rec1, rec2, rec3])
+    db_session.commit()
+
+    from app.api.v1.dairy import list_recommendations
+    res = list_recommendations(farm_id=farm.id, user_id=user.id, db=db_session)
+    titles_and_cows = [(r.cow_id, r.title) for r in res]
+
+    assert (cow1.id, "Check ventilation") in titles_and_cows
+    assert (cow2.id, "Check ventilation") in titles_and_cows
+    assert (None, "Farm climate alert") in titles_and_cows
+
+
+def test_get_recommendations_endpoint_serialization(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    rec = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow.id,
+        title="Serialization Test Recommendation",
+        category="General Farm Management",
+        priority="Medium",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    db_session.add(rec)
+    db_session.commit()
+
+    from app.api.v1.dairy import list_recommendations
+    res = list_recommendations(farm_id=farm.id, completed=False, user_id=user.id, db=db_session)
+    assert len(res) >= 1
+    item = res[0]
+    assert item.id == rec.id
+    assert item.created_at is not None
+    assert not hasattr(item, "updated_at") or getattr(item, "updated_at", None) is None
+

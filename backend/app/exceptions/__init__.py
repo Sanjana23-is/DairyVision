@@ -31,3 +31,39 @@ class WeatherForbidden(WeatherError):
 
 class WeatherValidationError(WeatherError):
     pass
+
+
+class PredictionError(Exception):
+    pass
+
+
+class PredictionNotFound(PredictionError):
+    pass
+
+
+class PredictionValidationError(PredictionError):
+    pass
+
+
+class ExplainabilityError(Exception):
+    pass
+
+
+class ExplainabilityNotFound(ExplainabilityError):
+    pass
+
+
+class ExplainabilityValidationError(ExplainabilityError):
+    pass
+
+
+class AuthError(Exception):
+    pass
+
+
+class AuthUnauthorized(AuthError):
+    pass
+
+
+class AuthServiceUnavailable(AuthError):
+    pass

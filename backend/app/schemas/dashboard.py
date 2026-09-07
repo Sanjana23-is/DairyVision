@@ -92,14 +92,30 @@ class ObservationSummary(BaseModel):
 
 class DashboardSummaryResponse(BaseModel):
     farm: FarmSummary
-    herd_summary: List[HerdSummaryItem]
+    total_farms: int
+    total_cow_count: int
     active_cow_count: int
+    total_daily_observations: int
+    total_milk_produced: float
+    average_milk_per_cow: float
+    active_recommendations: int
+    prediction_accuracy: Optional[float] = None
+    herd_summary: List[HerdSummaryItem]
     todays_milk_predictions: List[MilkPredictionSummary]
     average_predicted_milk_yield: float
     todays_weather: Optional[WeatherSummary] = None
     active_health_alerts: List[HealthAlertSummary]
     recent_recommendations: List[RecommendationSummary]
     recent_observations: List[ObservationSummary]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CategoryDistributionItem(BaseModel):
+    category: str
+    count: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DateTrendItem(BaseModel):
@@ -113,16 +129,28 @@ class DateTrendItem(BaseModel):
     average_temperature: Optional[float] = None
     average_humidity: Optional[float] = None
     average_thi: Optional[float] = None
+    observation_count: Optional[int] = None
+    total_milk_produced: Optional[float] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ObservationHistoryResponse(BaseModel):
     observations: List[ObservationSummary]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TrendsResponse(BaseModel):
     milk_yield_trends: List[DateTrendItem]
     health_alert_trends: List[DateTrendItem]
     weather_trends: List[DateTrendItem]
+    observation_trends: List[DateTrendItem]
+    recommendation_category_distribution: List[CategoryDistributionItem]
+    health_alert_distribution: List[CategoryDistributionItem]
+    cow_health_status_distribution: List[CategoryDistributionItem]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ObservationHistoryRequest(BaseModel):

@@ -13,9 +13,12 @@ class ObservationRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def list_for_user(self, user_id: str) -> list[DailyObservation]:
+    def list_for_user(self, user_id: str, farm_id: Optional[str] = None) -> list[DailyObservation]:
         query = self.db.query(DailyObservation)
-        return scope_query(query, DailyObservation, user_id).all()
+        query = scope_query(query, DailyObservation, user_id)
+        if farm_id is not None:
+            query = query.join(Cow, DailyObservation.cow_id == Cow.id).filter(Cow.farm_id == farm_id)
+        return query.all()
 
     def get_for_user(self, user_id: str, observation_id: str) -> Optional[DailyObservation]:
         observation = self.db.query(DailyObservation).filter(DailyObservation.id == observation_id).first()

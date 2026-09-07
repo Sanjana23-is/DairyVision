@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.core.database import get_db
 from app.dependencies.auth import get_current_user_id
 from app.schemas.crud import RecommendationResponse
 from app.schemas.recommendation import RecommendationGenerateRequest
@@ -30,7 +30,9 @@ def generate_recommendations(
             explainability_id=payload.explainability_id,
             observation_id=payload.observation_id,
             weather_log_id=payload.weather_log_id,
+            anomaly_id=payload.anomaly_id,
         )
+
         return results
     except PermissionError:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")

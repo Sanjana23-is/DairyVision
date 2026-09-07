@@ -40,6 +40,24 @@ def test_create_owned_instance_sets_owner_id(session: Session) -> None:
     assert cow.owner_id == owner.id
 
 
+def test_create_owned_instance_sets_created_by_for_farm(session: Session) -> None:
+    owner = User(id=str(uuid4()), email="owner2@example.com", full_name="Owner 2")
+    session.add(owner)
+    session.flush()
+
+    farm = create_owned_instance(
+        Farm,
+        user_id=owner.id,
+        name="Demo Farm",
+        timezone="UTC",
+    )
+    session.add(farm)
+    session.flush()
+
+    assert getattr(farm, "created_by") == owner.id
+    assert not hasattr(farm, "owner_id")
+
+
 def test_scope_query_filters_records_by_owner(session: Session) -> None:
     owner_a = User(id=str(uuid4()), email="a@example.com", full_name="User A")
     owner_b = User(id=str(uuid4()), email="b@example.com", full_name="User B")

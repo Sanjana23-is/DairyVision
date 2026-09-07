@@ -16,7 +16,7 @@ def _create_user_farm_cow(session: Session):
     farm = Farm(id=str(uuid4()), name='FE Farm', timezone='UTC', created_by=user.id, latitude=10.0, longitude=20.0)
     session.add(farm)
     session.flush()
-    cow = Cow(id=str(uuid4()), farm_id=farm.id, tag_id='TAG1', owner_id=user.id, created_by=user.id, birth_date=date.today()-timedelta(days=1000), weight_kg=550.0)
+    cow = Cow(id=str(uuid4()), farm_id=farm.id, tag_id='TAG1', owner_id=user.id, created_by=user.id, age_months=54, weight_kg=550.0)
     session.add(cow)
     session.commit()
     return user, farm, cow
@@ -55,11 +55,14 @@ def test_complete_feature_generation(db_session: Session) -> None:
     svc = FeatureEngineeringService(db_session)
     fv = svc.build_features_for_observation(user.id, cur_obs.id)
 
-    assert fv.age is not None
-    assert fv.weight == float(cow.weight_kg)
+    # 54 months / 12.0 = 4.5 years
+    assert fv.age == 4.5
+    assert fv.weight == 550.0
     assert fv.thi == 66.4
     assert fv.temperature == 22.0
-    assert fv.feed_weight_ratio is not None
+    assert fv.feed_weight_ratio == 20.0 / 550.0
+    assert fv.age_weight_ratio == 4.5 / 550.0
+
 
 
 def test_missing_weather_handling(db_session: Session) -> None:
