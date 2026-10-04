@@ -11,6 +11,7 @@ import { fetchCows, type Cow } from "@/services/cow";
 import { fetchObservations, type Observation } from "@/services/observation";
 import FeatureImportanceChart from "@/components/explainability/FeatureImportanceChart";
 import TopContributorsCard from "@/components/explainability/TopContributorsCard";
+import ModelInsightsCard from "@/components/explainability/ModelInsightsCard";
 import { useAuth } from "@/context/AuthContext";
 import {
   Sparkles,
@@ -23,6 +24,7 @@ import {
   ArrowRight,
   History,
   Info,
+  Cpu,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -75,6 +77,7 @@ export default function ExplainabilityPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryPredId = searchParams.get("predictionId");
   const { currentFarmId } = useAuth();
+  const [activeTab, setActiveTab] = useState<"local" | "global">("local");
   const [showTechnical, setShowTechnical] = useState(false);
   const [showAllHistory, setShowAllHistory] = useState(false);
 
@@ -285,8 +288,8 @@ export default function ExplainabilityPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6">
-        {/* TOP BAR / STEP 1: SELECT COW */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm">
+        {/* TOP BAR / VIEW TOGGLE */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-2">
               <Sparkles className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
@@ -297,34 +300,70 @@ export default function ExplainabilityPage() {
             </p>
           </div>
 
-          {/* Step 1: Compact Cow Selector */}
-          <div className="flex items-center gap-3 self-start sm:self-auto bg-slate-50 dark:bg-[#1B1D20] px-4 py-2.5 rounded-2xl border border-slate-200/80 dark:border-[#27272A]">
-            <label htmlFor="cow-selector" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap">
-              {t("explain.select_cow", "Select Cow")}
-            </label>
-            <div className="relative">
-              <select
-                id="cow-selector"
-                value={selectedCowId || ""}
-                onChange={(e) => handleCowChange(e.target.value)}
-                disabled={isCowsLoading || uniqueCows.length === 0}
-                className="appearance-none rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] pl-3 pr-8 py-1.5 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+          <div className="flex flex-wrap items-center gap-3">
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#1B1D20] rounded-2xl border border-slate-200/80 dark:border-[#27272A]">
+              <button
+                type="button"
+                onClick={() => setActiveTab("local")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "local"
+                    ? "bg-white dark:bg-[#151719] text-emerald-600 dark:text-emerald-400 shadow-sm"
+                    : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                }`}
               >
-                {uniqueCows.length === 0 ? (
-                  <option value="">No cows found</option>
-                ) : (
-                  uniqueCows.map((c) => (
-                    <option key={c.id} value={c.id} className="dark:bg-[#1B1D20]">
-                      🐄 {c.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 dark:text-[#A1A1AA]" />
+                <Activity className="h-3.5 w-3.5" />
+                Cow Local (SHAP)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("global")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "global"
+                    ? "bg-white dark:bg-[#151719] text-emerald-600 dark:text-emerald-400 shadow-sm"
+                    : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                }`}
+              >
+                <Cpu className="h-3.5 w-3.5" />
+                Model Architecture
+              </button>
             </div>
+
+            {/* Cow Selector (only visible in local mode) */}
+            {activeTab === "local" && (
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-[#1B1D20] px-3.5 py-1.5 rounded-2xl border border-slate-200/80 dark:border-[#27272A]">
+                <label htmlFor="cow-selector" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap">
+                  {t("explain.select_cow", "Cow")}
+                </label>
+                <div className="relative">
+                  <select
+                    id="cow-selector"
+                    value={selectedCowId || ""}
+                    onChange={(e) => handleCowChange(e.target.value)}
+                    disabled={isCowsLoading || uniqueCows.length === 0}
+                    className="appearance-none rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] pl-2.5 pr-7 py-1 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    {uniqueCows.length === 0 ? (
+                      <option value="">No cows found</option>
+                    ) : (
+                      uniqueCows.map((c) => (
+                        <option key={c.id} value={c.id} className="dark:bg-[#1B1D20]">
+                          🐄 {c.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 dark:text-[#A1A1AA]" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
+        {activeTab === "global" ? (
+          <ModelInsightsCard />
+        ) : (
+          <>
         {/* STEP 2: PREDICTION HISTORY */}
         <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -642,6 +681,8 @@ export default function ExplainabilityPage() {
             </div>
           </div>
         ) : null}
+        </>
+        )}
       </div>
     </DashboardLayout>
   );

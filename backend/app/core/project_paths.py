@@ -25,8 +25,10 @@ def _project_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def ensure_project_root_on_path() -> None:
-    """Add the project root to sys.path if it isn't already there."""
-    root_str = str(_project_root())
+def ensure_project_root_on_path() -> Path:
+    """Add the project root to sys.path if it isn't already there and return the root Path."""
+    root = _project_root()
+    root_str = str(root)
     if root_str not in sys.path:
         sys.path.insert(0, root_str)
+    return root

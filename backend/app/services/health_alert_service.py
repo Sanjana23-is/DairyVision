@@ -237,7 +237,10 @@ class HealthAlertService:
         # -------------------------------------------------------------
         from app.core.project_paths import ensure_project_root_on_path
         ensure_project_root_on_path()
-        from config import THI_COMFORT, THI_MILD, THI_SEVERE
+        try:
+            from ml_engine.config import THI_COMFORT, THI_MILD, THI_SEVERE
+        except ImportError:
+            from config import THI_COMFORT, THI_MILD, THI_SEVERE
 
         obs_window = recent_obs if recent_obs else ([current_obs] if current_obs else [])
         obs_count = len(obs_window)

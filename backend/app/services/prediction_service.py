@@ -31,7 +31,10 @@ class PredictionService:
             if self.model_path is None:
                 from app.core.project_paths import ensure_project_root_on_path
                 ensure_project_root_on_path()
-                from config import MODEL_PATH as CP_MODEL_PATH
+                try:
+                    from ml_engine.config import MODEL_PATH as CP_MODEL_PATH
+                except ImportError:
+                    from config import MODEL_PATH as CP_MODEL_PATH
                 self.model_path = CP_MODEL_PATH
             if not os.path.exists(self.model_path):
                 raise FileNotFoundError(f"Model not found at {self.model_path}. Run training first.")
@@ -43,7 +46,10 @@ class PredictionService:
         # load canonical feature order from config at runtime
         from app.core.project_paths import ensure_project_root_on_path
         ensure_project_root_on_path()
-        from config import ALL_FEATURES as CF
+        try:
+            from ml_engine.config import ALL_FEATURES as CF
+        except ImportError:
+            from config import ALL_FEATURES as CF
 
         missing = [feat for feat in CF if getattr(fv, feat, None) is None]
         if missing:
@@ -70,7 +76,10 @@ class PredictionService:
         model = self._load_model()
         from app.core.project_paths import ensure_project_root_on_path
         ensure_project_root_on_path()
-        from config import ALL_FEATURES as CF
+        try:
+            from ml_engine.config import ALL_FEATURES as CF
+        except ImportError:
+            from config import ALL_FEATURES as CF
         import pandas as pd
 
         feature_vals = self._feature_order(feature_vector)

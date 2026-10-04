@@ -52,3 +52,36 @@ class ExplainableItem(BaseModel):
 
 class ExplainabilityHistoryResponse(BaseModel):
     items: List[ExplainableItem]
+
+
+class ModelBenchmark(BaseModel):
+    model: str
+    r2_mean: float
+    r2_std: float
+    mae_mean: float
+    mae_std: float
+    rmse_mean: float
+    rmse_std: float
+
+    model_config = ConfigDict(protected_namespaces=())
+
+
+class GlobalFeatureImportance(BaseModel):
+    feature: str
+    display_name: str
+    mean_abs_shap: float
+    monotone_constraint: Optional[str] = None
+    description: str
+
+
+class ModelInsightsResponse(BaseModel):
+    model_name: str
+    version: str
+    algorithm: str
+    monotone_guaranteed: bool
+    violations_count: int
+    summary: str
+    benchmarks: List[ModelBenchmark]
+    features: List[GlobalFeatureImportance]
+
+    model_config = ConfigDict(protected_namespaces=())

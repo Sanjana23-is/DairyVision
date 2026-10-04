@@ -2,37 +2,36 @@
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+dist/
+build/
 
-# Outputs
+# Outputs & Artifacts
 outputs/
 logs/
 /models/
 
-# Datasets (optional if large/private)
+# Datasets
 datasets/
 
-# Frontend
+# Node & Frontend
+/node_modules/
+/package-lock.json
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/.env
 
-# Backend environment files
-backend/.env
-
-# Root environment files
+# Environment & Secret files
 .env
+backend/.env
+backend/.env.save
 
-# VS Code
+# IDE & Editor
 .vscode/
-
-# TypeScript
+.idea/
 *.tsbuildinfo
 
-# macOS
+# Operating System
 .DS_Store
-
-backend/.env
-.env
-
-backend/.env.save
+Thumbs.db

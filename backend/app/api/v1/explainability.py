@@ -14,6 +14,7 @@ from app.schemas.explainability import (
     ExplainabilityHistoryResponse,
     ExplainabilityResponse,
     ExplainableItem,
+    ModelInsightsResponse,
 )
 from app.schemas.feature import FeatureVector
 from app.services.explainability_service import (
@@ -34,6 +35,14 @@ class ExplainabilityRequest(BaseModel):
 
 def get_explainability_service(db: Session = Depends(get_db)) -> ExplainabilityService:
     return ExplainabilityService(db)
+
+
+@router.get("/explainability/model-insights", response_model=ModelInsightsResponse)
+def get_model_insights(
+    user_id: str = Depends(get_current_user_id),
+    service: ExplainabilityService = Depends(get_explainability_service),
+) -> ModelInsightsResponse:
+    return ModelInsightsResponse(**service.get_model_insights())
 
 
 @router.get("/explainability/history", response_model=ExplainabilityHistoryResponse)

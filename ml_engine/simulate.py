@@ -164,12 +164,20 @@ def run_simulation(point_model, interval_rf,
         ).iloc[0])
 
         for feed in SIM_FEED_RANGE:
-            row = {**avg_row,
-                   "feed":             feed,
-                   "temperature":      temp,
-                   "humidity":         hum,
-                   "thi":              thi_val,
-                   "feed_weight_ratio": feed / avg_row["weight"]}
+            weight_val = avg_row.get("weight", 500.0) or 500.0
+            feed_ratio = feed / weight_val
+            row = {
+                **avg_row,
+                "feed":                 feed,
+                "temperature":          temp,
+                "humidity":             hum,
+                "thi":                  thi_val,
+                "feed_weight_ratio":    feed_ratio,
+                "feed_per_weight":      feed_ratio,
+                "temp_humidity":        temp * hum,
+                "thi_squared":          thi_val ** 2,
+                "feed_thi_interaction": feed * thi_val,
+            }
 
             X_row = pd.DataFrame([row], columns=ALL_FEATURES)
             pt, lo, hi = predict_with_interval(point_model, interval_rf, X_row)

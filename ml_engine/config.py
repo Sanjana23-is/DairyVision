@@ -9,7 +9,8 @@ every other module imports from a single source of truth.
 import os
 
 # ── Paths ───────────────────────────────────────────────────────────────────
-BASE_DIR     = os.path.dirname(os.path.abspath(__file__))
+# Root of repository: one level up from ml_engine/
+BASE_DIR     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATASET_DIR  = os.path.join(BASE_DIR, "datasets")
 OUTPUT_DIR   = os.path.join(BASE_DIR, "outputs")
 MODEL_DIR    = os.path.join(BASE_DIR, "models")
@@ -61,19 +62,37 @@ RANDOM_SEED = 42
 # ── Cross-validation ─────────────────────────────────────────────────────────
 CV_FOLDS = 5
 
+# ── Monotonicity constraints (biological directional consistency) ─────────────
+# Directional constraints for XGBoost over ALL_FEATURES:
+#   age:                  0 (unconstrained)
+#   weight:               1 (heavier cow -> higher yield capacity)
+#   health_status:        0 (unconstrained)
+#   feed:                 1 (higher feed intake -> higher or equal milk yield)
+#   temperature:          0 (unconstrained)
+#   humidity:             0 (unconstrained)
+#   thi:                  0 (unconstrained)
+#   feed_weight_ratio:    1 (higher feed/weight ratio -> non-decreasing yield)
+#   feed_per_weight:      1 (higher feed/weight ratio -> non-decreasing yield)
+#   temp_humidity:        0 (unconstrained)
+#   thi_squared:          0 (unconstrained)
+#   feed_thi_interaction: 1 (positive interaction slope with feeding)
+#   age_weight_ratio:     0 (unconstrained)
+MONOTONE_CONSTRAINTS = (0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0)
+
 # ── Model hyperparameters (literature-informed starting points) ──────────────
 MODEL_PARAMS = {
     "XGBoost": {
-        "n_estimators":     300,
-        "learning_rate":    0.05,
-        "max_depth":        4,
-        "subsample":        0.8,
-        "colsample_bytree": 0.8,
-        "min_child_weight": 3,
-        "reg_alpha":        0.1,
-        "reg_lambda":       1.0,
-        "random_state":     RANDOM_SEED,
-        "n_jobs":           -1,
+        "n_estimators":         100,
+        "learning_rate":        0.05,
+        "max_depth":            2,
+        "min_child_weight":     8,
+        "subsample":            1.0,
+        "colsample_bytree":     0.7,
+        "reg_alpha":            0.1,
+        "reg_lambda":           0.5,
+        "monotone_constraints": MONOTONE_CONSTRAINTS,
+        "random_state":         RANDOM_SEED,
+        "n_jobs":               -1,
     },
     "Random Forest": {
         "n_estimators": 300,

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     supabase_url: str = Field(default="")
     supabase_publishable_key: str = Field(default="")
     supabase_secret_key: str = Field(default="")
+    supabase_jwt_secret: str = Field(default_factory=lambda: os.getenv("SUPABASE_JWT_SECRET", os.getenv("JWT_SECRET", "")))
 
     model_config = SettingsConfigDict(
         env_file=".env",

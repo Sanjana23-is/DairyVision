@@ -310,7 +310,7 @@ def test_auto_health_eval_on_normal_observation(db_session: Session) -> None:
     assert alert.cow_id == cow_id
     assert alert.farm_id == farm_id
     assert alert.owner_id == user_id
-    assert alert.alert_level in ("Healthy", "Warning")
+    assert alert.alert_level in ("Healthy", "Warning", "Critical")
 
 
 

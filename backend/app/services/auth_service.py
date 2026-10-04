@@ -153,6 +153,47 @@ class AuthService:
         return False
 
     def me(self, access_token: Optional[str] = None) -> MeResponse:
+        if not access_token:
+            raise AuthUnauthorized("No authentication token provided")
+
+        from app.core.config import get_settings
+        settings = get_settings()
+        jwt_secret = settings.supabase_jwt_secret
+
+        # Fast path: In-memory cryptographic JWT verification (< 1ms, zero network calls)
+        if jwt_secret:
+            try:
+                import jwt as pyjwt
+
+                payload = pyjwt.decode(
+                    access_token,
+                    key=jwt_secret,
+                    algorithms=["HS256"],
+                    options={"verify_exp": True, "verify_aud": False},
+                )
+                user_id = payload.get("sub")
+                email = payload.get("email")
+                if user_id and email:
+                    user_meta = payload.get("user_metadata", {}) or {}
+
+                    class _JWTPayloadUser:
+                        def __init__(self, uid: str, em: str, meta: dict):
+                            self.id = uid
+                            self.email = em
+                            self.user_metadata = meta
+                            self.avatar_url = meta.get("avatar_url")
+
+                    user_data = _JWTPayloadUser(str(user_id), str(email), user_meta)
+                    self._sync_local_user(user_data)
+                    return MeResponse(user=self._build_auth_user(user_data))
+            except pyjwt.ExpiredSignatureError:
+                raise AuthUnauthorized("The provided authentication token is invalid or expired.")
+            except pyjwt.PyJWTError as jwt_err:
+                logger.debug("Local JWT verification failed, falling back to remote Supabase auth: %s", jwt_err)
+            except Exception as e:
+                logger.debug("Unexpected local JWT error, falling back to remote Supabase auth: %s", e)
+
+        # Fallback path: Remote verification via Supabase API (used when secret unset, mock tests, or JWKS)
         user_response = None
         max_retries = 2
         for attempt in range(max_retries + 1):

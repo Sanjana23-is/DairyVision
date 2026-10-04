@@ -75,7 +75,10 @@ def test_explain_by_prediction_id_caches(db_session: Session, tmp_path):
 
         def shap_values(self, x):
             # return small deterministic vector length equal to config.ALL_FEATURES
-            from config import ALL_FEATURES as CF
+            try:
+                from ml_engine.config import ALL_FEATURES as CF
+            except ImportError:
+                from config import ALL_FEATURES as CF
             import numpy as _np
             vals = _np.zeros((1, len(CF)))
             for i in range(len(CF)):
@@ -149,7 +152,10 @@ def test_explain_by_feature_vector(db_session: Session, tmp_path):
             pass
 
         def shap_values(self, x):
-            from config import ALL_FEATURES as CF
+            try:
+                from ml_engine.config import ALL_FEATURES as CF
+            except ImportError:
+                from config import ALL_FEATURES as CF
             import numpy as _np
             vals = _np.ones((1, len(CF))) * 0.5
             return vals
@@ -219,5 +225,20 @@ def test_actionable_advice_mapping():
     # Neutral/No negative -> baseline advice
     advice_neutral = svc._generate_actionable_advice([{"feature": "feed", "shap_value": -0.01}])
     assert "within the model's expected range" in advice_neutral.lower()
+
+
+def test_model_insights_service():
+    from app.services.explainability_service import ExplainabilityService
+
+    svc = ExplainabilityService(None)
+    insights = svc.get_model_insights()
+
+    assert insights["monotone_guaranteed"] is True
+    assert insights["violations_count"] == 0
+    assert len(insights["benchmarks"]) >= 3
+    assert any(b["model"] == "XGBoost" or "XGBoost" in b["model"] for b in insights["benchmarks"])
+    assert len(insights["features"]) > 0
+    assert any(f["feature"] == "feed" for f in insights["features"])
+
 
 

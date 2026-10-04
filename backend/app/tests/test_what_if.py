@@ -46,7 +46,10 @@ def test_what_if_service_runs_with_scenario(db_session: Session, tmp_path):
             pass
 
         def shap_values(self, x):
-            from config import ALL_FEATURES as CF
+            try:
+                from ml_engine.config import ALL_FEATURES as CF
+            except ImportError:
+                from config import ALL_FEATURES as CF
             return np.full((1, len(CF)), 0.1)
 
     sys.modules['shap'] = types.SimpleNamespace(TreeExplainer=lambda m: FakeExplainer(m))
@@ -125,7 +128,10 @@ def test_what_if_partial_scenario_produces_complete_feature_vector(db_session: S
     service = WhatIfService(db_session, model_path=str(model_path))
     result = service.run_what_if(user.id, request)
 
-    from config import ALL_FEATURES as CF
+    try:
+        from ml_engine.config import ALL_FEATURES as CF
+    except ImportError:
+        from config import ALL_FEATURES as CF
     missing = [f for f in CF if getattr(result.scenario_features, f, None) is None]
     assert missing == [], f"scenario_features missing required fields: {missing}"
 

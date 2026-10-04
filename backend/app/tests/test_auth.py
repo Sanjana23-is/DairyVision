@@ -1,3 +1,4 @@
+import os
 import pytest
 from unittest.mock import MagicMock, patch
 from app.services.auth_service import AuthService
@@ -159,3 +160,62 @@ def test_sync_local_user_migrates_id_when_supabase_id_changes(session):
 
     updated_farm = session.get(Farm, "farm-id-123")
     assert updated_farm.created_by == new_id
+
+
+def test_local_jwt_decode_fast_path(session):
+    import jwt as pyjwt
+    import time
+    from app.services.auth_service import AuthService
+    from app.core.config import get_settings
+
+    secret = "test-jwt-secret-key-32-bytes-long"
+    payload = {
+        "sub": "local-jwt-user-001",
+        "email": "localjwt@dairyvision.io",
+        "user_metadata": {"full_name": "Local Verified Farmer"},
+        "exp": int(time.time()) + 3600,
+        "aud": "authenticated",
+        "role": "authenticated",
+    }
+    token = pyjwt.encode(payload, secret, algorithm="HS256")
+
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            service = AuthService(db=session)
+
+            with patch("app.services.auth_service.supabase") as mock_supabase:
+                res = service.me(token)
+                assert mock_supabase.auth.get_user.called is False
+                assert res.user.id == "local-jwt-user-001"
+                assert res.user.email == "localjwt@dairyvision.io"
+                assert res.user.full_name == "Local Verified Farmer"
+        finally:
+            get_settings.cache_clear()
+
+
+def test_local_jwt_decode_expired_token_raises_unauthorized(session):
+    import jwt as pyjwt
+    import time
+    from app.services.auth_service import AuthService
+    from app.exceptions import AuthUnauthorized
+    from app.core.config import get_settings
+
+    secret = "test-jwt-secret-key-32-bytes-long"
+    payload = {
+        "sub": "expired-user",
+        "email": "expired@dairyvision.io",
+        "exp": int(time.time()) - 100,
+    }
+    token = pyjwt.encode(payload, secret, algorithm="HS256")
+
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            service = AuthService(db=session)
+            with pytest.raises(AuthUnauthorized) as exc_info:
+                service.me(token)
+            assert "invalid or expired" in str(exc_info.value).lower()
+        finally:
+            get_settings.cache_clear()
+
