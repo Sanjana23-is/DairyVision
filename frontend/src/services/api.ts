@@ -26,7 +26,10 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('dairyvision_access_token');
   // Ensure headers object exists
   config.headers = config.headers ?? {};
-  if (token) {
+
+  // Do not overwrite an explicit caller Authorization header (such as a recovery token)
+  const existingAuth = (config.headers as any).Authorization || (config.headers as any).authorization;
+  if (!existingAuth && token) {
     if (isTokenExpired(token)) {
       localStorage.removeItem("dairyvision_access_token");
       localStorage.removeItem("dairyvision_user");
@@ -54,13 +57,15 @@ api.interceptors.response.use(
       const isAuthRequest =
         url.includes("/auth/login") ||
         url.includes("/auth/signup") ||
-        url.includes("/auth/forgot-password");
+        url.includes("/auth/forgot-password") ||
+        url.includes("/auth/reset-password");
 
       const currentPath = window.location.pathname;
       const isAuthPage =
         currentPath === "/login" ||
         currentPath === "/register" ||
-        currentPath === "/forgot-password";
+        currentPath === "/forgot-password" ||
+        currentPath === "/reset-password";
 
       if (!isAuthRequest && !isAuthPage) {
         localStorage.removeItem("dairyvision_access_token");

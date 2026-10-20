@@ -220,7 +220,7 @@ export default function CowDetailsPage() {
                 </Link>
 
                 <Link
-                  to={`/explainability`}
+                  to={latestPred?.id ? `/explainability?predictionId=${latestPred.id}` : `/explainability`}
                   className="inline-flex items-center gap-1.5 rounded-2xl bg-white dark:bg-[#1B1D20] border border-purple-200 dark:border-[#27272A] px-3.5 py-2 text-xs font-bold text-purple-900 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-[#222428] transition shadow-2xs"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
@@ -244,7 +244,7 @@ export default function CowDetailsPage() {
                 </Link>
 
                 <Link
-                  to={`/simulation`}
+                  to={`/simulation?cowId=${cow.id}`}
                   className="inline-flex items-center gap-1.5 rounded-2xl bg-slate-900 dark:bg-emerald-900/60 px-3.5 py-2 text-xs font-bold text-white hover:bg-slate-800 dark:hover:bg-emerald-800/80 transition shadow-2xs"
                 >
                   <FlaskConical className="h-3.5 w-3.5 text-sky-400" />

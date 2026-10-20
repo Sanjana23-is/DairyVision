@@ -13,6 +13,7 @@ interface AuthContextValue extends AuthState {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   forgotPassword: (payload: ForgotPasswordPayload) => Promise<void>;
+  resetPassword: (password: string, token: string) => Promise<void>;
   logout: () => void;
   setCurrentFarm: (farmId: string | null, farmName: string | null) => void;
   updateUserProfile: (fullName: string) => Promise<void>;
@@ -292,7 +293,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const forgotPassword = async (payload: ForgotPasswordPayload) => {
-    await api.post("/api/v1/auth/forgot-password", payload);
+    const redirectUrl = payload.redirect_to || `${window.location.origin}/reset-password`;
+    await api.post("/api/v1/auth/forgot-password", {
+      ...payload,
+      redirect_to: redirectUrl,
+    });
+  };
+
+  const resetPassword = async (password: string, token: string) => {
+    await api.post(
+      "/api/v1/auth/reset-password",
+      { password },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
   };
 
   const logout = () => {
@@ -325,6 +342,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       forgotPassword,
+      resetPassword,
       logout,
       setCurrentFarm,
       updateUserProfile,

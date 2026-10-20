@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.supabase import supabase
 from app.database.session import SessionLocal
-from app.exceptions import AuthError, AuthServiceUnavailable, AuthUnauthorized
+from app.exceptions import AuthError, AuthServiceUnavailable, AuthUnauthorized, AuthRateLimitExceeded
 from app.models.user import User
 from app.models.user_preference import UserPreference
 from app.schemas.auth import AuthResponse, AuthUser, LoginRequest, LogoutResponse, MeResponse, SignupRequest
@@ -108,27 +108,65 @@ class AuthService:
             raise RuntimeError("Supabase login did not return a user")
 
         self._sync_local_user(user_data)
+
+        # Enforce account active status
+        db_user = self.db.scalar(select(User).where(User.id == str(user_data.id)))
+        if db_user and not db_user.is_active:
+            raise AuthUnauthorized("This account has been deactivated.")
+
         return self._build_auth_response(user_data, getattr(response, "session", None))
 
     def logout(self) -> LogoutResponse:
         supabase.auth.sign_out()
         return LogoutResponse(message="Logged out successfully")
 
-    def send_password_reset(self, email: str) -> None:
-        """Send a password reset email via Supabase. Raises on failure."""
+    def send_password_reset(self, email: str, redirect_to: Optional[str] = None) -> None:
+        """Send a password reset email via Supabase with redirect_to. Raises on failure."""
+        from app.core.config import get_settings
+        settings = get_settings()
+
         email_str = email.strip().lower()
+        target_redirect = None
+        if redirect_to:
+            redirect_clean = redirect_to.strip()
+            allowed_origins = [o.rstrip("/") for o in settings.cors_origins] + [settings.frontend_url.rstrip("/")]
+            if any(redirect_clean.startswith(origin) for origin in allowed_origins):
+                target_redirect = redirect_clean
+
+        if not target_redirect:
+            target_redirect = f"{settings.frontend_url.rstrip('/')}/reset-password"
+
         try:
-            supabase.auth.reset_password_email(email_str)
+            supabase.auth.reset_password_email(email_str, options={"redirect_to": target_redirect})
         except Exception as exc:
             logger.warning("Password reset email failed for %s: %s", email_str, exc)
-            raise
+            status_code = getattr(exc, "status", None) or getattr(getattr(exc, "response", None), "status_code", None)
+            lowered = str(exc).lower()
+            if status_code == 429 or "rate limit" in lowered or "429" in lowered or "too many requests" in lowered:
+                raise AuthRateLimitExceeded("Email rate limit exceeded. Please wait a few minutes before trying again.") from exc
+            raise self._format_supabase_error(exc, action="reset_password_email", email=email_str) from exc
+
+    def update_password(self, user_id: str, new_password: str) -> None:
+        """Update a user's password in Supabase Auth via admin API."""
+        if not new_password or len(new_password.strip()) < 8:
+            raise AuthUnauthorized("Password must be at least 8 characters long.")
+
+        db_user = self.db.scalar(select(User).where(User.id == user_id))
+        if db_user and not db_user.is_active:
+            raise AuthUnauthorized("This account has been deactivated.")
+
+        try:
+            supabase.auth.admin.update_user_by_id(user_id, {"password": new_password})
+        except Exception as exc:
+            logger.exception("Supabase admin update_user_by_id failed for user %s", user_id)
+            raise self._format_supabase_error(exc, action="reset_password", email=None) from exc
 
     @staticmethod
     def _is_transient_error(exc: Exception) -> bool:
         message = str(exc).lower()
         exc_type = type(exc).__name__.lower()
 
-        if any(keyword in exc_type for keyword in ("remoteprotocol", "connect", "timeout", "network")):
+        if any(keyword in exc_type for keyword in ("remoteprotocol", "connect", "timeout", "network", "gaierror")):
             return True
 
         transient_keywords = (
@@ -142,12 +180,20 @@ class AuthService:
             "502",
             "503",
             "504",
+            "connection refused",
+            "failed to establish a new connection",
+            "temporary failure in name resolution",
+            "nodename nor servname provided",
+            "network is unreachable",
+            "tenant not found",
+            "project not found",
         )
         if any(keyword in message for keyword in transient_keywords):
             return True
 
+        # Note: 429 is rate-limiting, NOT a transient network glitch, so it should not be retried in a tight loop.
         status_code = getattr(exc, "status", None) or getattr(getattr(exc, "response", None), "status_code", None)
-        if status_code in (429, 500, 502, 503, 504):
+        if status_code in (500, 502, 503, 504):
             return True
 
         return False
@@ -174,18 +220,27 @@ class AuthService:
                 user_id = payload.get("sub")
                 email = payload.get("email")
                 if user_id and email:
+                    # Enforce account active status
+                    db_user = self.db.scalar(select(User).where(User.id == str(user_id)))
+                    if db_user and not db_user.is_active:
+                        raise AuthUnauthorized("This account has been deactivated.")
+
                     user_meta = payload.get("user_metadata", {}) or {}
 
                     class _JWTPayloadUser:
-                        def __init__(self, uid: str, em: str, meta: dict):
+                        def __init__(self, uid: str, em: str, meta: dict, active: bool = True):
                             self.id = uid
                             self.email = em
                             self.user_metadata = meta
                             self.avatar_url = meta.get("avatar_url")
+                            self.is_active = active
+                            self.is_superuser = False
 
-                    user_data = _JWTPayloadUser(str(user_id), str(email), user_meta)
+                    user_data = _JWTPayloadUser(str(user_id), str(email), user_meta, db_user.is_active if db_user else True)
                     self._sync_local_user(user_data)
                     return MeResponse(user=self._build_auth_user(user_data))
+            except AuthUnauthorized:
+                raise
             except pyjwt.ExpiredSignatureError:
                 raise AuthUnauthorized("The provided authentication token is invalid or expired.")
             except pyjwt.PyJWTError as jwt_err:
@@ -213,6 +268,9 @@ class AuthService:
             raise AuthUnauthorized("No authenticated user found")
 
         self._sync_local_user(user_data)
+        db_user = self.db.scalar(select(User).where(User.id == str(user_data.id)))
+        if db_user and not db_user.is_active:
+            raise AuthUnauthorized("This account has been deactivated.")
         return MeResponse(user=self._build_auth_user(user_data))
 
     def _sync_local_user(self, user_data: object, full_name: Optional[str] = None) -> None:
@@ -262,10 +320,6 @@ class AuthService:
             expected_avatar_url = getattr(user_data, "avatar_url", None)
             if existing.avatar_url != expected_avatar_url:
                 existing.avatar_url = expected_avatar_url
-                has_changes = True
-
-            if not existing.is_active:
-                existing.is_active = True
                 has_changes = True
 
         pref_created = self._ensure_default_preferences(existing)
@@ -370,16 +424,21 @@ class AuthService:
         message = str(exc).strip()
         lowered = message.lower()
 
+        status_code = getattr(exc, "status", None) or getattr(getattr(exc, "response", None), "status_code", None)
+        if status_code == 429 or "rate limit" in lowered or "429" in lowered or "too many requests" in lowered:
+            detail = "Email rate limit exceeded. Please wait a few minutes before trying again."
+            logger.warning("Supabase rate limit for action=%s email=%s message=%s", action, email, message)
+            return AuthRateLimitExceeded(detail)
+
         if self._is_transient_error(exc):
             detail = "Authentication service is temporarily unavailable. Please try again."
             logger.warning("Supabase transient auth error for action=%s email=%s message=%s", action, email, message)
             return AuthServiceUnavailable(detail)
-
-        if "rate limit" in lowered or "429" in lowered:
-            detail = "Supabase auth is temporarily rate-limiting signups. Please wait a few minutes and try again."
-            return AuthServiceUnavailable(detail)
         elif "invalid email" in lowered or ("email address" in lowered and "invalid" in lowered):
             detail = "The supplied email address is invalid."
+        elif "invalid login credentials" in lowered or "invalid credentials" in lowered:
+            detail = "The supplied email address or password is incorrect."
+            return AuthUnauthorized(detail)
         elif "password" in lowered:
             detail = "The supplied password does not meet the current authentication requirements."
         elif "already" in lowered and "registered" in lowered:

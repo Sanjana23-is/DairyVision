@@ -84,6 +84,7 @@ class LogoutResponse(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     email: str
+    redirect_to: Optional[str] = None
 
     @field_validator("email")
     @classmethod
@@ -95,6 +96,21 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
+class ResetPasswordRequest(BaseModel):
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if len(value.strip()) < 8:
+            raise ValueError("password must be at least 8 characters long")
+        return value
+
+
+class ResetPasswordResponse(BaseModel):
     message: str
 
 

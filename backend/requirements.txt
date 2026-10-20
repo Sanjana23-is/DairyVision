@@ -11,7 +11,7 @@ annotated-types==0.8.0
 
 # Database & ORM Migration Engine
 SQLAlchemy==2.0.36
-alembic==1.7.0
+alembic>=1.13.0
 psycopg==3.2.2
 psycopg-binary==3.2.2
 

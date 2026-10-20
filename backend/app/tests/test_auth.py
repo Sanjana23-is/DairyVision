@@ -219,3 +219,371 @@ def test_local_jwt_decode_expired_token_raises_unauthorized(session):
         finally:
             get_settings.cache_clear()
 
+
+def test_login_route_invalid_password_returns_401(client):
+    from unittest.mock import patch
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        mock_supabase.auth.sign_in_with_password.side_effect = Exception("Invalid login credentials")
+        response = client.post("/api/v1/auth/login", json={"email": "audit@dairyvision.ai", "password": "wrong"})
+        assert response.status_code == 401
+        assert "incorrect" in response.json()["detail"].lower()
+
+
+def test_login_route_supabase_unavailable_returns_503(client):
+    from unittest.mock import patch
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        mock_supabase.auth.sign_in_with_password.side_effect = Exception("httpx.RemoteProtocolError: Server disconnected")
+        response = client.post("/api/v1/auth/login", json={"email": "audit@dairyvision.ai", "password": "secret"})
+        assert response.status_code == 503
+        assert "temporarily unavailable" in response.json()["detail"].lower()
+
+
+def test_login_route_deactivated_account_returns_401(client, session):
+    from unittest.mock import MagicMock, patch
+    from uuid import uuid4
+    from app.models.user import User
+
+    test_uid = str(uuid4())
+    test_email = f"deact.route.{test_uid[:8]}@dairyvision.ai"
+    user = User(id=test_uid, email=test_email, full_name="Deactivated Route User", is_active=False)
+    session.add(user)
+    session.commit()
+
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        mock_res = MagicMock()
+        mock_u = MagicMock()
+        mock_u.id = test_uid
+        mock_u.email = test_email
+        mock_u.user_metadata = {"full_name": "Deactivated Route User"}
+        mock_u.avatar_url = None
+        mock_sess = MagicMock()
+        mock_sess.access_token = "valid-token-for-inactive"
+        mock_res.user = mock_u
+        mock_res.session = mock_sess
+        mock_supabase.auth.sign_in_with_password.return_value = mock_res
+
+        response = client.post("/api/v1/auth/login", json={"email": test_email, "password": "valid-password"})
+        assert response.status_code == 401
+        assert "deactivated" in response.json()["detail"].lower()
+
+    session.query(User).filter(User.id == test_uid).delete()
+    session.commit()
+
+
+def test_token_validation_deactivated_user_in_me_returns_401(session):
+    import jwt as pyjwt
+    import time
+    from uuid import uuid4
+    from app.models.user import User
+    from app.services.auth_service import AuthService
+    from app.exceptions import AuthUnauthorized
+    from app.core.config import get_settings
+
+    test_uid = str(uuid4())
+    test_email = f"deact.token.{test_uid[:8]}@dairyvision.ai"
+    user = User(id=test_uid, email=test_email, full_name="Deactivated Token User", is_active=False)
+    session.add(user)
+    session.commit()
+
+    cfg = get_settings()
+    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    payload = {
+        "sub": test_uid,
+        "email": test_email,
+        "user_metadata": {"full_name": "Deactivated Token User"},
+        "exp": int(time.time()) + 3600,
+    }
+    token = pyjwt.encode(payload, secret, algorithm="HS256")
+
+    service = AuthService(db=session)
+    with pytest.raises(AuthUnauthorized, match="deactivated"):
+        service.me(token)
+
+    session.query(User).filter(User.id == test_uid).delete()
+    session.commit()
+
+
+def test_protected_route_missing_token_returns_401(client):
+    response = client.get("/api/v1/auth/me")
+    assert response.status_code == 401
+    assert "Missing authorization header" in response.json()["detail"]
+
+
+def test_send_password_reset_supplies_appropriate_redirect_to(session):
+    from unittest.mock import patch
+    from app.services.auth_service import AuthService
+
+    service = AuthService(db=session)
+
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        service.send_password_reset("farmer@dairyvision.ai")
+        mock_supabase.auth.reset_password_email.assert_called_once_with(
+            "farmer@dairyvision.ai",
+            options={"redirect_to": "http://localhost:3000/reset-password"},
+        )
+
+
+def test_send_password_reset_accepts_custom_allowed_redirect_to(session):
+    from unittest.mock import patch
+    from app.services.auth_service import AuthService
+
+    service = AuthService(db=session)
+
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        service.send_password_reset("farmer@dairyvision.ai", redirect_to="http://localhost:5173/reset-password")
+        mock_supabase.auth.reset_password_email.assert_called_once_with(
+            "farmer@dairyvision.ai",
+            options={"redirect_to": "http://localhost:5173/reset-password"},
+        )
+
+
+def test_reset_password_endpoint_updates_password_successfully(client, session):
+    import jwt as pyjwt
+    import time
+    from unittest.mock import patch
+    from uuid import uuid4
+    from app.models.user import User
+    from app.core.config import get_settings
+
+    test_uid = str(uuid4())
+    test_email = f"reset.user.{test_uid[:8]}@dairyvision.ai"
+    user = User(id=test_uid, email=test_email, full_name="Reset User", is_active=True)
+    session.add(user)
+    session.commit()
+
+    cfg = get_settings()
+    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    token = pyjwt.encode({"sub": test_uid, "email": test_email, "exp": int(time.time()) + 3600}, secret, algorithm="HS256")
+
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        response = client.post(
+            "/api/v1/auth/reset-password",
+            json={"password": "NewSecurePassword123!"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 200
+        assert "successfully updated" in response.json()["message"].lower()
+        mock_supabase.auth.admin.update_user_by_id.assert_called_once_with(
+            test_uid,
+            {"password": "NewSecurePassword123!"},
+        )
+
+    session.query(User).filter(User.id == test_uid).delete()
+    session.commit()
+
+
+def test_reset_password_endpoint_rejects_short_password(client):
+    import jwt as pyjwt
+    import time
+    from app.core.config import get_settings
+
+    cfg = get_settings()
+    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    token = pyjwt.encode({"sub": "any-id", "email": "a@b.com", "exp": int(time.time()) + 3600}, secret, algorithm="HS256")
+
+    response = client.post(
+        "/api/v1/auth/reset-password",
+        json={"password": "short"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 422
+
+
+def test_reset_password_endpoint_rejects_expired_or_invalid_token(client):
+    response = client.post(
+        "/api/v1/auth/reset-password",
+        json={"password": "NewSecurePassword123!"},
+        headers={"Authorization": "Bearer invalid.expired.token"},
+    )
+    assert response.status_code == 401
+
+
+def test_cors_preflight_reset_password(client):
+    response = client.options(
+        "/api/v1/auth/reset-password",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization,content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+    assert response.headers.get("access-control-allow-credentials") == "true"
+    assert "POST" in response.headers.get("access-control-allow-methods", "")
+
+
+def test_cors_headers_on_error_responses(client):
+    # 401 error response has CORS headers
+    resp_401 = client.post(
+        "/api/v1/auth/reset-password",
+        json={"password": "NewPassword123!"},
+        headers={"Origin": "http://localhost:3000"},
+    )
+    assert resp_401.status_code == 401
+    assert resp_401.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+    # 422 validation error response has CORS headers
+    resp_422 = client.post(
+        "/api/v1/auth/reset-password",
+        json={"password": "short"},
+        headers={"Origin": "http://localhost:3000"},
+    )
+    assert resp_422.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+def test_cors_headers_on_unhandled_500_error(client):
+    from app.dependencies.auth import get_optional_auth_service
+
+    def _crash():
+        raise ZeroDivisionError("Simulated unhandled crash")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _crash
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "crash@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 500
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        assert response.headers.get("access-control-allow-credentials") == "true"
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)
+
+
+def test_forgot_password_supabase_rate_limited_returns_429(client):
+    with patch("app.services.auth_service.supabase") as mock_supabase:
+        mock_supabase.auth.reset_password_email.side_effect = Exception("Email rate limit exceeded (429)")
+
+        response = client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "farmer@dairyvision.ai"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 429
+        assert "rate limit exceeded" in response.json()["detail"].lower()
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        # Does NOT claim email was sent
+        assert "has been sent" not in str(response.json()).lower()
+
+
+def test_exception_handler_401_sanitizes_sensitive_details_and_includes_cors(client):
+    from app.dependencies.auth import get_optional_auth_service
+    from app.exceptions import AuthUnauthorized
+
+    def _raise_sensitive_401():
+        raise AuthUnauthorized("Sensitive token eyJhbGciOi... failed with psycopg connection string postgres://secret:pwd@host/db")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _raise_sensitive_401
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "audit@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 401
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        detail = response.json()["detail"]
+        assert "eyJ" not in detail
+        assert "postgres" not in detail
+        assert "psycopg" not in detail
+        assert "secret" not in detail
+        assert "pwd" not in detail
+        assert "invalid or expired" in detail.lower()
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)
+
+
+def test_exception_handler_400_sanitizes_sensitive_details_and_includes_cors(client):
+    from app.dependencies.auth import get_optional_auth_service
+    from app.exceptions import AuthError
+
+    def _raise_sensitive_400():
+        raise AuthError("Internal error: SELECT * FROM users WHERE token = 'secret_token_123'")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _raise_sensitive_400
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "audit@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 400
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        detail = response.json()["detail"]
+        assert "SELECT" not in detail
+        assert "secret_token_123" not in detail
+        assert "users" not in detail
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)
+
+
+def test_exception_handler_503_includes_cors_and_safe_message(client):
+    from app.dependencies.auth import get_optional_auth_service
+    from app.exceptions import AuthServiceUnavailable
+
+    def _raise_503():
+        raise AuthServiceUnavailable("httpx.RemoteProtocolError: Server disconnected https://srldlurahlzfizpnnuyg.supabase.co")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _raise_503
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "audit@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 503
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        detail = response.json()["detail"]
+        assert "srldlurahlzfizpnnuyg" not in detail
+        assert "https://" not in detail
+        assert "temporarily unavailable" in detail.lower()
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)
+
+
+def test_exception_handler_429_includes_cors_and_safe_message(client):
+    from app.dependencies.auth import get_optional_auth_service
+    from app.exceptions import AuthRateLimitExceeded
+
+    def _raise_429():
+        raise AuthRateLimitExceeded("Too many requests from internal worker pid 45892")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _raise_429
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "audit@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 429
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        detail = response.json()["detail"]
+        assert "pid" not in detail
+        assert "rate limit exceeded" in detail.lower()
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)
+
+
+def test_error_handling_middleware_500_includes_cors_and_safe_message(client):
+    from app.dependencies.auth import get_optional_auth_service
+
+    def _crash():
+        raise RuntimeError("CRITICAL DATABASE CORRUPTION: table /var/data/users.db is corrupt")
+
+    client.app.dependency_overrides[get_optional_auth_service] = _crash
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "crash@dairyvision.ai", "password": "any"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 500
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+        detail = response.json()["detail"]
+        assert "/var/data" not in detail
+        assert "CORRUPTION" not in detail
+        assert detail == "Internal server error"
+    finally:
+        client.app.dependency_overrides.pop(get_optional_auth_service, None)

@@ -342,7 +342,32 @@ class HealthAlertService:
         else:
             summary_desc = " ".join(summary_parts)
 
-        # Update-or-Insert Active Alert Deduplication
+        # Update-or-Insert Alert Deduplication: first check if this observation already has an alert
+        if observation_id:
+            existing_for_obs = (
+                self.db.query(HealthAlert)
+                .filter(
+                    HealthAlert.observation_id == observation_id,
+                    HealthAlert.owner_id == user_id,
+                )
+                .first()
+            )
+            if existing_for_obs:
+                existing_for_obs.alert_level = level
+                existing_for_obs.alert_type = primary_risk
+                existing_for_obs.confidence = confidence
+                existing_for_obs.description = summary_desc
+                existing_for_obs.resolved = (level == "Healthy")
+                if prediction_id:
+                    existing_for_obs.prediction_id = prediction_id
+                if farm:
+                    existing_for_obs.farm_id = farm.id
+                if persist:
+                    self.db.commit()
+                    self.db.refresh(existing_for_obs)
+                return existing_for_obs
+
+        # Update-or-Insert Active Alert Deduplication for cow
         active_alerts_for_cow = (
             self.db.query(HealthAlert)
             .filter(
@@ -403,6 +428,10 @@ class HealthAlertService:
                 owner_id=user_id,
                 created_at=datetime.now(timezone.utc),
             )
+            if persist:
+                self.db.add(ha)
+                self.db.commit()
+                self.db.refresh(ha)
             return ha
 
         ha = HealthAlert(

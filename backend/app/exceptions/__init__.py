@@ -67,3 +67,7 @@ class AuthUnauthorized(AuthError):
 
 class AuthServiceUnavailable(AuthError):
     pass
+
+
+class AuthRateLimitExceeded(AuthError):
+    pass

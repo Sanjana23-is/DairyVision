@@ -3,7 +3,7 @@ import json
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,11 +44,36 @@ class Settings(BaseSettings):
             "http://localhost:3000,http://localhost:5173,http://localhost",
         )
     )
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: object) -> list[str]:
+        origins: list[str] = []
+        if isinstance(value, list):
+            origins = [str(item).strip() for item in value if str(item).strip()]
+        elif isinstance(value, str):
+            raw = value.strip()
+            if raw.startswith("[") and raw.endswith("]"):
+                try:
+                    parsed = json.loads(raw)
+                    if isinstance(parsed, list):
+                        origins = [str(item).strip() for item in parsed if str(item).strip()]
+                except Exception:
+                    pass
+            if not origins:
+                origins = [item.strip() for item in raw.split(",") if item.strip()]
+
+        # Ensure localhost:3000 is always present as base development origin
+        fallback_origin = "http://localhost:3000"
+        if fallback_origin not in origins:
+            origins.insert(0, fallback_origin)
+        return origins
     log_level: str = Field(default="INFO")
     supabase_url: str = Field(default="")
     supabase_publishable_key: str = Field(default="")
     supabase_secret_key: str = Field(default="")
     supabase_jwt_secret: str = Field(default_factory=lambda: os.getenv("SUPABASE_JWT_SECRET", os.getenv("JWT_SECRET", "")))
+    frontend_url: str = Field(default_factory=lambda: os.getenv("FRONTEND_URL", "http://localhost:3000"))
 
     model_config = SettingsConfigDict(
         env_file=".env",

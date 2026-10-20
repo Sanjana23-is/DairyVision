@@ -1,8 +1,19 @@
+import { Navigate } from "react-router-dom";
 import { DairyVideoBackground } from "@/components/auth/DairyVideoBackground";
 import { LoginForm } from "@/components/login-form";
 import { Activity, BarChart3, Calendar } from "lucide-react";
 
 export function LoginPage() {
+  const hash = window.location.hash;
+  const search = window.location.search;
+  const hasRecovery =
+    (hash && (hash.includes("type=recovery") || hash.includes("access_token=") || hash.includes("error_code=") || hash.includes("error="))) ||
+    (search && (search.includes("type=recovery") || search.includes("error_code=") || search.includes("error=")));
+
+  if (hasRecovery) {
+    return <Navigate to={`/reset-password${search}${hash}`} replace />;
+  }
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-slate-950 font-sans text-slate-100 flex items-center justify-center">
       {/* 1. CINEMATIC FULL-VIEWPORT BACKGROUND VIDEO */}

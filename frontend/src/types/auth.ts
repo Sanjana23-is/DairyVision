@@ -18,6 +18,11 @@ export interface RegisterPayload {
 
 export interface ForgotPasswordPayload {
   email: string;
+  redirect_to?: string;
+}
+
+export interface ResetPasswordPayload {
+  password: string;
 }
 
 export interface AuthState {

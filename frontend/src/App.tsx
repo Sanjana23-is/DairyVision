@@ -10,6 +10,27 @@ import PageLoadingFallback from "@/components/common/PageLoadingFallback";
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage").then((m) => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage").then((m) => ({ default: m.RegisterPage })));
 const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })));
+
+/**
+ * Catch-all route handler:
+ * If the user arrives with a recovery token or error on an unhandled path (such as / from Supabase Site URL),
+ * forward to /reset-password preserving hash and search params.
+ * Otherwise, redirect to /login.
+ */
+function CatchAllRedirect() {
+  const hash = window.location.hash;
+  const search = window.location.search;
+  const hasRecovery =
+    (hash && (hash.includes("type=recovery") || hash.includes("access_token=") || hash.includes("error_code=") || hash.includes("error="))) ||
+    (search && (search.includes("type=recovery") || search.includes("error_code=") || search.includes("error=")));
+
+  if (hasRecovery) {
+    return <Navigate to={`/reset-password${search}${hash}`} replace />;
+  }
+
+  return <Navigate to="/login" replace />;
+}
 
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const CowListPage = lazy(() => import("@/pages/cows/CowListPage"));
@@ -42,6 +63,9 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               </Route>
 
+              {/* DEDICATED PASSWORD RECOVERY ROUTE */}
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+
               {/* PROTECTED APPLICATION ROUTES (Require valid authenticated session) */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/select-farm" element={<SelectFarmPage />} />
@@ -65,7 +89,7 @@ function App() {
               </Route>
 
               {/* CATCH ALL FALLBACK */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<CatchAllRedirect />} />
             </Routes>
           </Suspense>
         </ThemeProvider>

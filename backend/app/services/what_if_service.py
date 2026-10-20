@@ -235,7 +235,7 @@ class WhatIfService:
     def _apply_scenario_overrides(self, baseline: FeatureVector, scenario: FeatureVector) -> FeatureVector:
         merged = baseline.model_copy()
 
-        for field_name in scenario.model_fields.keys():
+        for field_name in type(scenario).model_fields.keys():
             if field_name == "observation_id":
                 continue
             val = getattr(scenario, field_name, None)

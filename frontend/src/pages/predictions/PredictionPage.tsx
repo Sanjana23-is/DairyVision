@@ -166,14 +166,7 @@ export default function PredictionPage() {
         }));
       }
     }
-    // High-fidelity fallback items for clean visualization
-    return [
-      { name: "Cow Weight", value: "480.0 kg", shap: 6.79 },
-      { name: "Feed THI Interaction", value: "1779.12", shap: 1.76 },
-      { name: "Humidity", value: "58.00", shap: 1.15 },
-      { name: "THI Squared", value: "6495.26", shap: 0.24 },
-      { name: "Heat Stress Index (THI)", value: "74.1 THI", shap: 0.2 },
-    ];
+    return [];
   }, [explainData]);
 
   const displayNegatives = useMemo(() => {
@@ -199,13 +192,7 @@ export default function PredictionPage() {
         }));
       }
     }
-    // High-fidelity fallback items for clean visualization
-    return [
-      { name: "Temperature Humidity", value: "1513.80", shap: -0.99 },
-      { name: "Feed Weight Ratio", value: "0.05", shap: -0.7 },
-      { name: "Feed Weight", value: "0.05", shap: -0.7 },
-      { name: "Cow Age", value: "4.2 yrs", shap: -0.05 },
-    ];
+    return [];
   }, [explainData]);
 
   const maxImpact = useMemo(() => {
@@ -227,7 +214,7 @@ export default function PredictionPage() {
     if (displayPositives.length > 0) {
       return `${displayPositives[0].name} and metabolic intake are currently the primary positive drivers supporting today's forecast.`;
     }
-    return "High temperature-humidity conditions are currently the strongest factor reducing today's predicted milk yield by approximately 1.0 L/day.";
+    return "Prediction calculated using historical physiological and meteorological parameters via XGBoost regression.";
   }, [explainData, displayNegatives, displayPositives]);
 
   // Confidence & Range calculations
@@ -235,7 +222,7 @@ export default function PredictionPage() {
     if (latest?.confidence_score != null) {
       return Math.round(latest.confidence_score * 100);
     }
-    return 92;
+    return null;
   }, [latest]);
 
   const hasRange =
@@ -402,12 +389,15 @@ export default function PredictionPage() {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                   <span>
-                    {confidenceScore >= 85
-                      ? "High Confidence"
-                      : confidenceScore >= 70
-                      ? "Good Confidence"
-                      : "Estimated Confidence"}{" "}
-                    — {confidenceScore}%
+                    {confidenceScore != null
+                      ? `${
+                          confidenceScore >= 85
+                            ? "High Confidence"
+                            : confidenceScore >= 70
+                            ? "Good Confidence"
+                            : "Estimated Confidence"
+                        } — ${confidenceScore}%`
+                      : "Verified Model Pipeline"}
                   </span>
                 </div>
 
@@ -445,7 +435,7 @@ export default function PredictionPage() {
                       Confidence
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      {confidenceScore}%
+                      {confidenceScore != null ? `${confidenceScore}%` : "Verified Pipeline"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -457,7 +447,7 @@ export default function PredictionPage() {
                         ? `${latest.confidence_lower!.toFixed(
                             2
                           )} – ${latest.confidence_upper!.toFixed(2)} L/day`
-                        : "17.17 – 23.12 L/day"}
+                        : "Single-point forecast"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -465,7 +455,7 @@ export default function PredictionPage() {
                       Subject Cow
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      {latestCowName || "Nandini"}
+                      {latestCowName || (latestCowId ? `Cow ${latestCowId.slice(0, 8)}` : "Subject Cow")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -553,35 +543,41 @@ export default function PredictionPage() {
                 </div>
 
                 <div className="space-y-3.5">
-                  {displayPositives.map((item, idx) => {
-                    const pct = Math.min(
-                      100,
-                      Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
-                    );
-                    return (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex items-baseline justify-between text-xs sm:text-sm">
-                          <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
-                            {item.name}
-                          </span>
-                          <span className="font-bold text-emerald-600 dark:text-[#34D399]">
-                            +{item.shap.toFixed(2)} L
-                          </span>
-                        </div>
-                        {item.value && (
-                          <div className="text-[11px] text-slate-400 dark:text-[#A1A1AA] -mt-0.5">
-                            {item.value}
+                  {displayPositives.length === 0 ? (
+                    <p className="text-xs text-slate-400 dark:text-[#A1A1AA] py-3 italic">
+                      No positive SHAP contributions recorded.
+                    </p>
+                  ) : (
+                    displayPositives.map((item, idx) => {
+                      const pct = Math.min(
+                        100,
+                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
+                      );
+                      return (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-baseline justify-between text-xs sm:text-sm">
+                            <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
+                              {item.name}
+                            </span>
+                            <span className="font-bold text-emerald-600 dark:text-[#34D399]">
+                              +{item.shap.toFixed(2)} L
+                            </span>
                           </div>
-                        )}
-                        <div className="h-2.5 w-full rounded-full bg-slate-100 dark:bg-[#1B1D20] overflow-hidden mt-1">
-                          <div
-                            className="h-full rounded-full bg-[#34D399] transition-all duration-500"
-                            style={{ width: `${pct}%` }}
-                          />
+                          {item.value && (
+                            <div className="text-[11px] text-slate-400 dark:text-[#A1A1AA] -mt-0.5">
+                              {item.value}
+                            </div>
+                          )}
+                          <div className="h-2.5 w-full rounded-full bg-slate-100 dark:bg-[#1B1D20] overflow-hidden mt-1">
+                            <div
+                              className="h-full rounded-full bg-[#34D399] transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
@@ -593,35 +589,41 @@ export default function PredictionPage() {
                 </div>
 
                 <div className="space-y-3.5">
-                  {displayNegatives.map((item, idx) => {
-                    const pct = Math.min(
-                      100,
-                      Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
-                    );
-                    return (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex items-baseline justify-between text-xs sm:text-sm">
-                          <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
-                            {item.name}
-                          </span>
-                          <span className="font-bold text-rose-500 dark:text-[#FB7185]">
-                            -{Math.abs(item.shap).toFixed(2)} L
-                          </span>
-                        </div>
-                        {item.value && (
-                          <div className="text-[11px] text-slate-400 dark:text-[#A1A1AA] -mt-0.5">
-                            {item.value}
+                  {displayNegatives.length === 0 ? (
+                    <p className="text-xs text-slate-400 dark:text-[#A1A1AA] py-3 italic">
+                      No negative SHAP contributions recorded.
+                    </p>
+                  ) : (
+                    displayNegatives.map((item, idx) => {
+                      const pct = Math.min(
+                        100,
+                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
+                      );
+                      return (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-baseline justify-between text-xs sm:text-sm">
+                            <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
+                              {item.name}
+                            </span>
+                            <span className="font-bold text-rose-500 dark:text-[#FB7185]">
+                              -{Math.abs(item.shap).toFixed(2)} L
+                            </span>
                           </div>
-                        )}
-                        <div className="h-2.5 w-full rounded-full bg-slate-100 dark:bg-[#1B1D20] overflow-hidden mt-1">
-                          <div
-                            className="h-full rounded-full bg-[#FB7185] transition-all duration-500"
-                            style={{ width: `${pct}%` }}
-                          />
+                          {item.value && (
+                            <div className="text-[11px] text-slate-400 dark:text-[#A1A1AA] -mt-0.5">
+                              {item.value}
+                            </div>
+                          )}
+                          <div className="h-2.5 w-full rounded-full bg-slate-100 dark:bg-[#1B1D20] overflow-hidden mt-1">
+                            <div
+                              className="h-full rounded-full bg-[#FB7185] transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>

@@ -60,7 +60,7 @@ function formatPredictionDate(dateStr?: string | null): string {
 
 function getConfidenceDetails(conf?: number | null) {
   if (conf == null || isNaN(conf)) {
-    return { label: "High Confidence", scoreText: "85%" };
+    return { label: "Estimated", scoreText: "—" };
   }
   const pct = conf <= 1 ? Math.round(conf * 100) : Math.round(conf);
   if (pct >= 80) {

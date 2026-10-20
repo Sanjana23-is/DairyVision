@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/context/AuthContext";
@@ -140,9 +141,9 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
       <div className="rounded-xl bg-slate-100/80 dark:bg-[#1B1D20] p-3 text-[11.5px] text-slate-600 dark:text-[#A1A1AA] flex items-center gap-2">
         <span className="font-bold text-slate-700 dark:text-[#F4F4F5]">Transparency Note:</span>
         {impact.using_default_assumptions ? (
-          <span>Using default assumptions — Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg. Configure farm settings for custom rates.</span>
+          <span>Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on default regional estimates (Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg) over a standard 30-day monthly horizon. Configure farm settings for customized rates.</span>
         ) : (
-          <span>Based on configured economic rates — Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg.</span>
+          <span>Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on farm-configured rates (Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg) over a standard 30-day monthly horizon.</span>
         )}
       </div>
     </div>
@@ -152,6 +153,8 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
 export default function SimulationPage() {
   const { currentFarmId } = useAuth();
   const { t } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const paramCowId = searchParams.get("cowId");
   const farmId = currentFarmId || localStorage.getItem("current_farm_id");
 
   // Mode Switcher state: 'cow' | 'herd'
@@ -175,12 +178,16 @@ export default function SimulationPage() {
     queryFn: () => fetchCows(farmId || undefined),
   });
 
-  // Select first active cow by default when cows load
+  // Select requested cow from query param or first active cow by default when cows load
   useEffect(() => {
-    if (cows.length > 0 && !selectedCowId) {
-      setSelectedCowId(cows[0].id);
+    if (cows.length > 0) {
+      if (paramCowId && cows.some((c) => c.id === paramCowId)) {
+        setSelectedCowId(paramCowId);
+      } else if (!selectedCowId) {
+        setSelectedCowId(cows[0].id);
+      }
     }
-  }, [cows, selectedCowId]);
+  }, [cows, paramCowId, selectedCowId]);
 
   // Mutations
   const herdMutation = useMutation<HerdWhatIfResponse, Error, SimulationInput>({
