@@ -112,14 +112,61 @@ DEMO_COWS = [
 ]
 
 
-def seed_demo_data() -> dict[str, int]:
-    with SessionLocal() as db:
+DEMO_USER_EMAIL = "demo.farmer@dairyvision.ai"
+DEMO_FARM_NAME = "Luna Smart Dairy Farm"
+
+
+def seed_demo_data(
+    session: Optional[Session] = None,
+    force: bool = False,
+) -> dict[str, int]:
+    """
+    Deterministically seeds hackathon demonstration records for DairyVision AI.
+
+    Safety Guarantees:
+      - Never reassigns ownership of existing non-demo farms, cows, observations, or alerts.
+      - Never changes created_by, transfers ownership, or overwrites another user's records,
+        even if force=True is supplied.
+      - Never selects an arbitrary first farm via db.query(Farm).first().
+      - Specifically seeks or creates a dedicated farm named 'Luna Smart Dairy Farm' owned by demo.farmer@dairyvision.ai.
+      - Fails safely (raises ValueError or PermissionError) on any ownership conflict, leaving existing records untouched.
+    """
+    own_session = session is None
+    db = session or SessionLocal()
+    try:
+        # 0. Pre-flight ownership conflict verification before performing ANY mutations
+        existing_farm_other_owner = db.query(Farm).filter(Farm.name == DEMO_FARM_NAME).first()
+        demo_user = db.query(User).filter(User.email == DEMO_USER_EMAIL).first()
+        demo_user_id = str(demo_user.id) if demo_user else None
+
+        if existing_farm_other_owner:
+            if demo_user_id is None or existing_farm_other_owner.created_by != demo_user_id:
+                raise ValueError(
+                    f"Conflict: Farm '{DEMO_FARM_NAME}' exists but is owned by user ID '{existing_farm_other_owner.created_by}', "
+                    f"not demo user. Refusing to transfer ownership or mutate another user's records."
+                )
+
+        demo_tags = [c["tag_id"] for c in DEMO_COWS]
+        conflicting_cow = (
+            db.query(Cow)
+            .filter(
+                Cow.tag_id.in_(demo_tags),
+                Cow.owner_id != demo_user_id if demo_user_id else True,
+            )
+            .first()
+        )
+        if conflicting_cow:
+            raise PermissionError(
+                f"Conflict: Cow with tag '{conflicting_cow.tag_id}' already exists (owned by user '{conflicting_cow.owner_id}'). "
+                f"Refusing to transfer ownership or mutate another user's records."
+            )
+
         # 1. Identify or create primary demo user
-        user = db.query(User).filter(User.email == "demo.farmer@dairyvision.ai").first()
+        user = db.query(User).filter(User.email == DEMO_USER_EMAIL).first()
         if not user:
             user = User(
                 id=str(uuid4()),
-                email="demo.farmer@dairyvision.ai",
+                email=DEMO_USER_EMAIL,
                 full_name="Dairy Farm Operations Director",
                 is_active=True,
             )
@@ -128,25 +175,34 @@ def seed_demo_data() -> dict[str, int]:
         user_id = str(user.id)
         logger.info("Using demo user: %s (id=%s)", user.email, user_id)
 
-        # 2. Identify or configure primary demo farm
-        farm = db.query(Farm).first()
+        # 2. Identify or configure primary demo farm specifically by name and owner
+        farm = db.query(Farm).filter(
+            Farm.name == DEMO_FARM_NAME,
+            Farm.created_by == user_id,
+        ).first()
+
         if not farm:
             farm = Farm(
                 id=str(uuid4()),
-                name="Luna Smart Dairy Farm",
+                name=DEMO_FARM_NAME,
+                location_city="Bengaluru",
+                location_country="India",
+                latitude=12.9716,
+                longitude=77.5946,
+                timezone="Asia/Kolkata",
                 created_by=user_id,
             )
             db.add(farm)
             db.flush()
 
-        farm.name = "Luna Smart Dairy Farm"
+        farm.name = DEMO_FARM_NAME
         farm.location_city = "Bengaluru"
         farm.location_country = "India"
         farm.latitude = 12.9716
         farm.longitude = 77.5946
         farm.timezone = "Asia/Kolkata"
         farm_id = str(farm.id)
-        logger.info("Configured farm: %s (id=%s) at (%s, %s)", farm.name, farm_id, farm.latitude, farm.longitude)
+        logger.info("Configured demo farm: %s (id=%s) at (%s, %s)", farm.name, farm_id, farm.latitude, farm.longitude)
 
         # Ensure FarmMember ownership mapping for demo user
         member = db.query(FarmMember).filter(FarmMember.farm_id == farm_id, FarmMember.user_id == user_id).first()
@@ -158,16 +214,11 @@ def seed_demo_data() -> dict[str, int]:
                 role="owner",
             )
             db.add(member)
+            db.flush()
         else:
             member.role = "owner"
 
-        # Also ensure any other existing local user retains membership access
-        for extra_user in db.query(User).filter(User.id != user_id).all():
-            m = db.query(FarmMember).filter(FarmMember.farm_id == farm_id, FarmMember.user_id == extra_user.id).first()
-            if not m:
-                db.add(FarmMember(id=str(uuid4()), farm_id=farm_id, user_id=extra_user.id, role="owner"))
-
-        # Ensure FarmSettings
+        # Ensure FarmSettings for demo farm
         settings = db.query(FarmSettings).filter(FarmSettings.farm_id == farm_id).first()
         if not settings:
             settings = FarmSettings(
@@ -181,27 +232,7 @@ def seed_demo_data() -> dict[str, int]:
                 use_local_breed_names=True,
             )
             db.add(settings)
-
-        db.commit()
-
-        # Ensure user_id owns all cows and related farm data
-        from app.models import AnomalyRecord, DigitalTwinState, ExplainabilityResult
-
-        db.query(Farm).filter(Farm.id == farm_id).update({Farm.created_by: user_id})
-        db.query(Cow).filter(Cow.farm_id == farm_id).update({Cow.owner_id: user_id, Cow.created_by: user_id})
-        cow_ids = [c.id for c in db.query(Cow).filter(Cow.farm_id == farm_id).all()]
-        if cow_ids:
-            db.query(DailyObservation).filter(DailyObservation.cow_id.in_(cow_ids)).update({DailyObservation.owner_id: user_id, DailyObservation.observed_by: user_id}, synchronize_session=False)
-            db.query(MilkPrediction).filter(MilkPrediction.cow_id.in_(cow_ids)).update({MilkPrediction.owner_id: user_id}, synchronize_session=False)
-            db.query(HealthAlert).filter(HealthAlert.cow_id.in_(cow_ids)).update({HealthAlert.owner_id: user_id}, synchronize_session=False)
-            db.query(Recommendation).filter(Recommendation.cow_id.in_(cow_ids)).update({Recommendation.owner_id: user_id}, synchronize_session=False)
-            db.query(AnomalyRecord).filter(AnomalyRecord.cow_id.in_(cow_ids)).update({AnomalyRecord.owner_id: user_id}, synchronize_session=False)
-            db.query(DigitalTwinState).filter(DigitalTwinState.cow_id.in_(cow_ids)).update({DigitalTwinState.owner_id: user_id}, synchronize_session=False)
-            db.query(ExplainabilityResult).filter(ExplainabilityResult.prediction_id.in_(
-                [p.id for p in db.query(MilkPrediction).filter(MilkPrediction.cow_id.in_(cow_ids)).all()]
-            )).update({ExplainabilityResult.owner_id: user_id}, synchronize_session=False)
-        db.query(WeatherLog).filter(WeatherLog.farm_id == farm_id).update({WeatherLog.owner_id: user_id}, synchronize_session=False)
-        db.commit()
+            db.flush()
 
         # 3. Cache breed records
         breeds = {b.canonical_name: b.id for b in db.query(BreedMaster).all()}
@@ -251,8 +282,6 @@ def seed_demo_data() -> dict[str, int]:
                 db.flush()
             weather_logs_by_day[obs_date] = w_log
 
-        db.commit()
-
         # 6. Seed Cows and Observations
         cows_seeded = 0
         obs_seeded = 0
@@ -265,6 +294,12 @@ def seed_demo_data() -> dict[str, int]:
             tag = cow_data["tag_id"]
             cow = db.query(Cow).filter(Cow.farm_id == farm_id, Cow.tag_id == tag).first()
             if not cow:
+                existing_cow_anywhere = db.query(Cow).filter(Cow.tag_id == tag).first()
+                if existing_cow_anywhere and existing_cow_anywhere.owner_id != user_id:
+                    raise PermissionError(
+                        f"Conflict: Cow with tag '{tag}' already exists (owned by user '{existing_cow_anywhere.owner_id}'). "
+                        f"Refusing to transfer ownership or mutate another user's records."
+                    )
                 breed_id = breeds.get(cow_data["breed_name"])
                 cow = Cow(
                     id=str(uuid4()),
@@ -283,6 +318,12 @@ def seed_demo_data() -> dict[str, int]:
                 db.add(cow)
                 db.flush()
                 cows_seeded += 1
+            else:
+                if cow.owner_id != user_id:
+                    raise PermissionError(
+                        f"Conflict: Cow with tag '{tag}' exists on farm '{farm_id}' but is owned by user '{cow.owner_id}', "
+                        f"not demo user '{user_id}'. Refusing to transfer ownership or mutate another user's records."
+                    )
 
             # Seed 7 days of daily observations
             for day_offset in range(6, -1, -1):
@@ -393,7 +434,23 @@ def seed_demo_data() -> dict[str, int]:
             "alerts": alerts_seeded,
             "recommendations": recs_seeded,
         }
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        if own_session:
+            db.close()
 
 
 if __name__ == "__main__":
-    seed_demo_data()
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Seed deterministic demo data for DairyVision AI safely."
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-run demo seeding for existing demo-owned records. Note: Never transfers ownership or modifies non-demo tenant records.",
+    )
+    args = parser.parse_args()
+    seed_demo_data(force=args.force)
