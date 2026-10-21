@@ -1,6 +1,7 @@
 import React from "react";
 import { ShieldCheck, MoreHorizontal, Eye, Sparkles } from "lucide-react";
 import { UnifiedRiskCase, RiskSource, SummaryFilterType } from "@/services/riskCorrelation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PriorityCowsGridProps {
   cases: UnifiedRiskCase[];
@@ -17,33 +18,35 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
   onOpenMore,
   isLoading,
 }) => {
+  const { t } = useLanguage();
+
   function getSectionHeader() {
     switch (activeFilter) {
       case "high_attention":
         return {
           icon: "🔴",
-          title: "High Attention Cows",
+          title: t("health.high_attention_title", "High Attention Cows"),
           subtitle: "Cows requiring immediate clinical inspection or management intervention.",
           emptyText: "No high attention cows currently identified. The herd is in good health.",
         };
       case "monitor":
         return {
           icon: "⚠️",
-          title: "Cows Under Surveillance",
+          title: t("health.surveillance_title", "Cows Under Surveillance"),
           subtitle: "Cows showing moderate variance in yield, biometrics, or feed intake.",
           emptyText: "No cows currently in warning/monitoring status.",
         };
       case "healthy":
         return {
           icon: "🐄",
-          title: "Healthy & Stable Herd",
+          title: t("health.healthy_title", "Healthy & Stable Herd"),
           subtitle: "Cows operating within normal expected baselines and healthy biometrics.",
           emptyText: "No cows currently categorized under normal baseline.",
         };
       case "flagged_7d":
         return {
           icon: "📅",
-          title: "Cows Flagged (Past 7 Days)",
+          title: t("health.flagged_7d_title", "Cows Flagged (Past 7 Days)"),
           subtitle: "Unique cows with active or recent health signals recorded in the last 7 days.",
           emptyText: "No health alerts or anomalies recorded across the herd in the last 7 days.",
         };
@@ -51,7 +54,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
       default:
         return {
           icon: "🚨",
-          title: "Cows Requiring Attention",
+          title: t("health.attention_title", "Cows Requiring Attention"),
           subtitle: "Aggregated cow-level cases prioritizing highest urgency (1 card per cow).",
           emptyText: "All cows healthy and stable. No active attention cases.",
         };
@@ -230,7 +233,7 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
                         className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700/60 dark:bg-[#1B1D20] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-600 dark:hover:bg-emerald-600 dark:hover:text-white transition-all cursor-pointer"
                       >
                         <Eye className="h-3 w-3" />
-                        <span>View Cow</span>
+                        <span>{t("common.open", "View Cow")}</span>
                       </button>
 
                       <button

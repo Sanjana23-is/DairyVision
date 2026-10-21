@@ -1,6 +1,7 @@
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   fetchPredictions,
   deletePrediction,
@@ -17,6 +18,7 @@ import { fetchObservations } from "@/services/observation";
 export default function PredictionHistoryPage() {
   const qc = useQueryClient();
   const { currentFarmId } = useAuth();
+  const { t } = useLanguage();
   const [detailsPrediction, setDetailsPrediction] =
     useState<MilkPrediction | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MilkPrediction | null>(null);
@@ -104,7 +106,7 @@ export default function PredictionHistoryPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-6xl space-y-6">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">Prediction History</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">{t("pred_history.title", "Prediction History")}</h2>
 
         {toast ? (
           <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-sm">
@@ -118,7 +120,7 @@ export default function PredictionHistoryPage() {
               onClick={handleCloseToast}
               className="mt-3 text-xs text-slate-500 dark:text-[#A1A1AA] underline"
             >
-              Dismiss
+              {t("common.dismiss", "Dismiss")}
             </button>
           </div>
         ) : null}
@@ -126,7 +128,7 @@ export default function PredictionHistoryPage() {
         <div>
           {isLoading ? (
             <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 text-slate-500 dark:text-[#A1A1AA] shadow-sm">
-              Loading predictions...
+              {t("pred_history.loading", "Loading predictions...")}
             </div>
           ) : isError ? (
             <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-6 text-rose-700 dark:text-rose-300">

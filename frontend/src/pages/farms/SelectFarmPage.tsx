@@ -5,6 +5,7 @@ import { fetchFarms, Farm, createFarm, CreateFarmPayload } from "@/services/farm
 import { fetchCows } from "@/services/cow";
 import { fetchHealthAlerts } from "@/services/healthAlert";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
 import FarmLocationPicker, {
   FarmLocationData,
@@ -19,6 +20,7 @@ import {
 
 export default function SelectFarmPage() {
   const { user, setCurrentFarm } = useAuth();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -164,20 +166,20 @@ export default function SelectFarmPage() {
           <div className="w-full max-w-[540px] max-h-[88vh] overflow-y-auto rounded-[24px] bg-white dark:bg-[#151719] p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-5">
             <div className="space-y-1 text-left">
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                WELCOME TO DAIRYVISION AI
+                {t("farm.welcome_to_dv", "WELCOME TO DAIRYVISION AI")}
               </span>
               <h1 className="text-[26px] sm:text-[28px] font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] leading-snug mt-1">
-                Let's set up your farm
+                {t("farm.setup_title", "Let's set up your farm")}
               </h1>
               <p className="text-[14px] font-normal text-slate-500 dark:text-[#A1A1AA] mt-1">
-                Enter your dairy farm details to activate yield predictions, cattle health alerts, and daily tracking.
+                {t("farm.setup_subtitle", "Enter your dairy farm details to activate yield predictions, cattle health alerts, and daily tracking.")}
               </p>
             </div>
 
             <form onSubmit={handleOnboardingSubmit} className="space-y-4 text-xs font-sans">
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">
-                  Farm Name <span className="text-rose-500">*</span>
+                  {t("farm.field_name", "Farm Name")} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -196,7 +198,7 @@ export default function SelectFarmPage() {
               />
 
               <div>
-                <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">Description (Optional)</label>
+                <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">{t("farm.description", "Description")} ({t("common.optional", "Optional")})</label>
                 <textarea
                   rows={2}
                   value={description}
@@ -217,7 +219,7 @@ export default function SelectFarmPage() {
                 disabled={createMut.isPending || !farmName.trim()}
                 className="h-12 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[15px] shadow-sm transition-all duration-150 border-0 disabled:opacity-50"
               >
-                <span>{createMut.isPending ? "Creating Farm Workspace..." : "Create Farm & Continue →"}</span>
+                <span>{createMut.isPending ? t("action.creating", "Creating…") : t("farm.create_and_continue", "Create Farm & Continue →")}</span>
               </button>
             </form>
           </div>
@@ -227,13 +229,13 @@ export default function SelectFarmPage() {
             {/* Header inside parent card */}
             <div className="space-y-1">
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                WELCOME BACK, {user?.full_name?.toUpperCase() || "FARM MANAGER"}
+                {t("farm.welcome_back", "WELCOME BACK")}, {user?.full_name?.toUpperCase() || "FARM MANAGER"}
               </span>
               <h1 className="text-[26px] sm:text-[30px] font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] leading-snug">
-                Choose a farm to continue
+                {t("farm.choose_farm", "Choose a farm to continue")}
               </h1>
               <p className="text-[15px] font-normal text-slate-500 dark:text-[#A1A1AA]">
-                Select an active farm workspace or create a new dairy farm location.
+                {t("farm.select_farm_desc", "Select an active farm workspace or create a new dairy farm location.")}
               </p>
             </div>
 
@@ -272,7 +274,7 @@ export default function SelectFarmPage() {
                           <Users className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <div>
                             <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">{cowCount}</span>
-                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">cows</span>
+                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">{t("farm.cows_count", "cows")}</span>
                           </div>
                         </div>
 
@@ -284,7 +286,7 @@ export default function SelectFarmPage() {
                           />
                           <div>
                             <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">{alertCount}</span>
-                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">alerts</span>
+                            <span className="text-slate-500 dark:text-[#A1A1AA] ml-1 text-[11px]">{t("nav.health_alerts", "alerts")}</span>
                           </div>
                         </div>
                       </div>
@@ -295,7 +297,7 @@ export default function SelectFarmPage() {
                       onClick={() => handleSelectFarm(farm)}
                       className="w-full h-10 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-xs shadow-sm transition-all duration-150 border-0"
                     >
-                      <span>Enter Farm</span>
+                      <span>{t("farm.enter_farm", "Enter Farm")}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -311,7 +313,7 @@ export default function SelectFarmPage() {
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-4 py-2.5 text-xs font-medium text-slate-700 dark:text-[#F4F4F5] hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-500/40 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all duration-150 shadow-2xs"
               >
                 <Plus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Create Another Farm</span>
+                <span>{t("farm.create_new", "Create Another Farm")}</span>
               </button>
             </div>
           </div>
