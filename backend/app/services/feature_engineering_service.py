@@ -81,13 +81,54 @@ class FeatureEngineeringService:
             weather = self.repo.get_weather_log(obs.weather_log_id)
 
         if weather is None:
-            # Check for existing recorded WeatherLog for farm
+            # 1. Try to find an existing WeatherLog for this farm on the observation date
+            from datetime import time
+            obs_start = datetime.combine(obs.observation_date, time.min).replace(tzinfo=timezone.utc)
+            obs_end = datetime.combine(obs.observation_date, time.max).replace(tzinfo=timezone.utc)
             weather = (
                 self.db.query(WeatherLog)
-                .filter(WeatherLog.farm_id == farm.id)
+                .filter(WeatherLog.farm_id == farm.id, WeatherLog.recorded_at >= obs_start, WeatherLog.recorded_at <= obs_end)
                 .order_by(WeatherLog.recorded_at.desc())
                 .first()
             )
+
+        if weather is None:
+            # 2. Automatically retrieve weather for observation date & time using Open-Meteo
+            try:
+                from datetime import time
+                from app.services.weather_service import WeatherService
+                ws = WeatherService(self.db)
+                target_time = datetime.combine(obs.observation_date, time(12, 0), tzinfo=timezone.utc)
+                weather = ws.get_or_create_nearest_snapshot(user_id, farm.id, target_time)
+                if weather and getattr(weather, "id", None):
+                    obs.weather_log_id = weather.id
+                    self.db.commit()
+            except Exception as exc:
+                logger.warning(
+                    "Could not auto-fetch weather for observation %s on %s: %s",
+                    obs.id,
+                    obs.observation_date,
+                    exc,
+                )
+
+        if weather is None:
+            # 3. Only fallback to a weather log within 24 hours of observation date (never substitute unrelated dates)
+            from datetime import timedelta
+            obs_start_24h = datetime.combine(obs.observation_date, datetime.min.time()).replace(tzinfo=timezone.utc) - timedelta(hours=24)
+            obs_end_24h = datetime.combine(obs.observation_date, datetime.max.time()).replace(tzinfo=timezone.utc) + timedelta(hours=24)
+            weather = (
+                self.db.query(WeatherLog)
+                .filter(WeatherLog.farm_id == farm.id, WeatherLog.recorded_at >= obs_start_24h, WeatherLog.recorded_at <= obs_end_24h)
+                .order_by(WeatherLog.recorded_at.desc())
+                .first()
+            )
+
+        if weather is not None and getattr(weather, "id", None) and obs.weather_log_id != weather.id:
+            try:
+                obs.weather_log_id = weather.id
+                self.db.commit()
+            except Exception:
+                self.db.rollback()
 
         # compute milk history
         recorded_dt = datetime.combine(obs.observation_date, datetime.min.time()).replace(tzinfo=timezone.utc)

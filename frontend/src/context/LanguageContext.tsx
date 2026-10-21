@@ -28,6 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (!translations[newLang]) return;
     setLanguageState(newLang);
     localStorage.setItem("dairyvision_lang", newLang);
+    window.dispatchEvent(new CustomEvent("dairyvision_lang_change", { detail: newLang }));
 
     // Sync with backend UserPreference if authenticated
     if (isAuthenticated) {
@@ -42,7 +43,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (saved && translations[saved] && saved !== language) {
       setLanguageState(saved);
     }
-  }, []);
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "dairyvision_lang" && e.newValue && translations[e.newValue as SupportedLanguage]) {
+        setLanguageState(e.newValue as SupportedLanguage);
+      }
+    };
+
+    const handleCustomChange = (e: Event) => {
+      const customEvent = e as CustomEvent<SupportedLanguage>;
+      if (customEvent.detail && translations[customEvent.detail]) {
+        setLanguageState(customEvent.detail);
+      }
+    };
+
+    (window as any).__setDairyVisionLanguage = setLanguage;
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("dairyvision_lang_change", handleCustomChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("dairyvision_lang_change", handleCustomChange);
+      delete (window as any).__setDairyVisionLanguage;
+    };
+  }, [language]);
 
   const t = (key: string, fallback?: string): string => {
     const langDict = translations[language] || translations["en"];

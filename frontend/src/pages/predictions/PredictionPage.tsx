@@ -19,11 +19,12 @@ import {
   ArrowRight,
   ArrowUp,
   ArrowDown,
-  ChevronDown,
   AlertCircle,
   Clock,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { getFarmerFeatureLabel } from "@/utils/featureTranslator";
+import ObservationSelector from "@/components/predictions/ObservationSelector";
 
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -64,7 +65,7 @@ export default function PredictionPage() {
   const cowNameById = useMemo(() => {
     const map = new Map<string, string>();
     cows.forEach((cow) =>
-      map.set(cow.id, cow.name || cow.tag_id || "Unknown cow")
+      map.set(cow.id, cow.name || cow.tag_id || "Unknown cow"),
     );
     return map;
   }, [cows]);
@@ -149,7 +150,8 @@ export default function PredictionPage() {
   const displayPositives = useMemo(() => {
     if (explainData?.top_positive && explainData.top_positive.length > 0) {
       return explainData.top_positive.map((f) => ({
-        name: f.display_name || f.feature,
+        name: getFarmerFeatureLabel(f.feature, f.display_name),
+        featureKey: f.feature,
         value: f.value_formatted,
         shap: f.shap_value,
       }));
@@ -160,7 +162,8 @@ export default function PredictionPage() {
         .sort((a, b) => (b.shap_value ?? 0) - (a.shap_value ?? 0));
       if (pos.length > 0) {
         return pos.map((f) => ({
-          name: f.display_name || f.feature,
+          name: getFarmerFeatureLabel(f.feature, f.display_name),
+          featureKey: f.feature,
           value: f.value_formatted,
           shap: f.shap_value,
         }));
@@ -172,7 +175,8 @@ export default function PredictionPage() {
   const displayNegatives = useMemo(() => {
     if (explainData?.top_negative && explainData.top_negative.length > 0) {
       return explainData.top_negative.map((f) => ({
-        name: f.display_name || f.feature,
+        name: getFarmerFeatureLabel(f.feature, f.display_name),
+        featureKey: f.feature,
         value: f.value_formatted,
         shap: f.shap_value,
       }));
@@ -181,12 +185,12 @@ export default function PredictionPage() {
       const neg = explainData.features
         .filter((f) => (f.shap_value ?? 0) < 0)
         .sort(
-          (a, b) =>
-            Math.abs(b.shap_value ?? 0) - Math.abs(a.shap_value ?? 0)
+          (a, b) => Math.abs(b.shap_value ?? 0) - Math.abs(a.shap_value ?? 0),
         );
       if (neg.length > 0) {
         return neg.map((f) => ({
-          name: f.display_name || f.feature,
+          name: getFarmerFeatureLabel(f.feature, f.display_name),
+          featureKey: f.feature,
           value: f.value_formatted,
           shap: f.shap_value,
         }));
@@ -208,7 +212,10 @@ export default function PredictionPage() {
     if (explainData?.summary_narrative) {
       return explainData.summary_narrative;
     }
-    if (displayNegatives.length > 0 && Math.abs(displayNegatives[0].shap) > 0.8) {
+    if (
+      displayNegatives.length > 0 &&
+      Math.abs(displayNegatives[0].shap) > 0.8
+    ) {
       return `${displayNegatives[0].name} conditions are currently the strongest factor reducing today's predicted milk yield by approximately ${Math.abs(displayNegatives[0].shap).toFixed(1)} L/day.`;
     }
     if (displayPositives.length > 0) {
@@ -248,7 +255,7 @@ export default function PredictionPage() {
             <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-0.5">
               {t(
                 "pred.subtitle",
-                "Generate AI-driven daily milk yield forecasts and inspect model feature attributions."
+                "Generate AI-driven daily milk yield forecasts and inspect model feature attributions.",
               )}
             </p>
           </div>
@@ -291,58 +298,37 @@ export default function PredictionPage() {
         <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 sm:p-5 shadow-xs transition-all">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3.5">
             <div className="flex-1 min-w-0 space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]">
-                Select Daily Observation
+              <label
+                id="observation-selector-label"
+                htmlFor="observation-selector-trigger"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
+              >
+                {t("pred.select_observation", "Select Daily Observation")}
               </label>
-              <div className="relative">
-                <select
-                  value={selected ?? ""}
-                  onChange={(e) => setSelected(e.target.value)}
-                  disabled={isObsLoading || observations.length === 0}
-                  className="w-full h-11 appearance-none rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-50/70 dark:bg-[#1B1D20] px-3.5 pr-10 text-xs sm:text-sm font-medium text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition cursor-pointer disabled:opacity-50"
-                >
-                  <option value="" disabled className="dark:bg-[#1B1D20] text-slate-400">
-                    {isObsLoading
-                      ? "Loading observations..."
-                      : isObsError
-                      ? "Error loading observations"
-                      : observations.length === 0
-                      ? "No observations available — record one first"
-                      : "Pick an observation (Date • Cow • Current Yield)..."}
-                  </option>
-                  {observations.map((o: any) => {
-                    const cow = cowName(o.cow_id);
-                    const yieldText =
-                      o.milk_produced_liters != null
-                        ? `${Number(o.milk_produced_liters).toFixed(1)} L`
-                        : "No yield logged";
-                    return (
-                      <option
-                        key={o.id}
-                        value={o.id}
-                        className="dark:bg-[#1B1D20] dark:text-[#F4F4F5]"
-                      >
-                        {o.observation_date} • {cow} • Current Yield: {yieldText}
-                      </option>
-                    );
-                  })}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400 dark:text-[#A1A1AA]">
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </div>
+              <ObservationSelector
+                observations={observations}
+                selectedId={selected}
+                onSelect={(id) => setSelected(id)}
+                isLoading={isObsLoading}
+                isError={isObsError}
+                cowName={cowName}
+                disabled={mutation.isPending}
+              />
             </div>
 
             <div className="md:w-auto shrink-0">
               <button
                 type="button"
+                data-testid="generate-prediction-button"
                 disabled={!selected || mutation.isPending}
                 onClick={() => selected && generate(selected)}
                 className="w-full md:w-auto h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 px-5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
               >
                 <Sparkles className="h-4 w-4" />
                 <span>
-                  {mutation.isPending ? "Generating..." : "Generate Prediction"}
+                  {mutation.isPending
+                    ? t("pred.generating", "Generating Forecast...")
+                    : t("pred.generate", "Generate Prediction")}
                 </span>
               </button>
             </div>
@@ -394,8 +380,8 @@ export default function PredictionPage() {
                           confidenceScore >= 85
                             ? "High Confidence"
                             : confidenceScore >= 70
-                            ? "Good Confidence"
-                            : "Estimated Confidence"
+                              ? "Good Confidence"
+                              : "Estimated Confidence"
                         } — ${confidenceScore}%`
                       : "Verified Model Pipeline"}
                   </span>
@@ -403,8 +389,7 @@ export default function PredictionPage() {
 
                 {yieldVariance != null && (
                   <span className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium">
-                    vs Observed (
-                    {Number(latestObsYield).toFixed(1)} L):{" "}
+                    vs Observed ({Number(latestObsYield).toFixed(1)} L):{" "}
                     <strong
                       className={
                         yieldVariance >= 0
@@ -435,7 +420,9 @@ export default function PredictionPage() {
                       Confidence
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      {confidenceScore != null ? `${confidenceScore}%` : "Verified Pipeline"}
+                      {confidenceScore != null
+                        ? `${confidenceScore}%`
+                        : "Verified Pipeline"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -445,7 +432,7 @@ export default function PredictionPage() {
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
                       {hasRange
                         ? `${latest.confidence_lower!.toFixed(
-                            2
+                            2,
                           )} – ${latest.confidence_upper!.toFixed(2)} L/day`
                         : "Single-point forecast"}
                     </span>
@@ -455,7 +442,10 @@ export default function PredictionPage() {
                       Subject Cow
                     </span>
                     <span className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      {latestCowName || (latestCowId ? `Cow ${latestCowId.slice(0, 8)}` : "Subject Cow")}
+                      {latestCowName ||
+                        (latestCowId
+                          ? `Cow ${latestCowId.slice(0, 8)}`
+                          : "Subject Cow")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -483,7 +473,7 @@ export default function PredictionPage() {
                   {latest.prediction_timestamp
                     ? new Date(latest.prediction_timestamp).toLocaleTimeString(
                         [],
-                        { hour: "2-digit", minute: "2-digit" }
+                        { hour: "2-digit", minute: "2-digit" },
                       )
                     : "Live"}
                 </span>
@@ -518,7 +508,8 @@ export default function PredictionPage() {
                 <span>🧠</span> Why This Prediction?
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#A1A1AA] mt-0.5">
-                Understand which factors influenced today's predicted milk yield.
+                Understand which factors influenced today's predicted milk
+                yield.
               </p>
             </div>
 
@@ -551,7 +542,7 @@ export default function PredictionPage() {
                     displayPositives.map((item, idx) => {
                       const pct = Math.min(
                         100,
-                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
+                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100),
                       );
                       return (
                         <div key={idx} className="space-y-1">
@@ -597,7 +588,7 @@ export default function PredictionPage() {
                     displayNegatives.map((item, idx) => {
                       const pct = Math.min(
                         100,
-                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100)
+                        Math.max(12, (Math.abs(item.shap) / maxImpact) * 100),
                       );
                       return (
                         <div key={idx} className="space-y-1">

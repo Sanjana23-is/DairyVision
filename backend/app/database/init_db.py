@@ -44,14 +44,40 @@ def deduplicate_database_recommendations(db: Session) -> int:
         return 0
 
 
+def ensure_legacy_farm_coordinates(db: Session) -> int:
+    """Ensure existing legacy farms created before location integration have default Indian coordinates."""
+    try:
+        from app.models import Farm
+        legacy_farms = (
+            db.query(Farm)
+            .filter(Farm.latitude.is_(None), Farm.location_city.is_(None))
+            .all()
+        )
+        for f in legacy_farms:
+            f.latitude = 12.9716
+            f.longitude = 77.5946
+            f.location_city = "Bengaluru"
+            f.location_country = "India"
+            logger.info("Migrated legacy farm %s ('%s') to default Indian coordinates", f.id, f.name)
+        if legacy_farms:
+            db.commit()
+            return len(legacy_farms)
+        return 0
+    except Exception as exc:
+        db.rollback()
+        logger.warning("Legacy farm coordinates migration notice: %s", exc)
+        return 0
+
+
 def ensure_database_schema():
     """Ensure all required DB tables and columns exist on the database engine safely."""
     try:
         Base.metadata.create_all(bind=engine)
 
-        # Run database recommendation deduplication cleanup
+        # Run database recommendation deduplication and legacy farm location initialization
         with SessionLocal() as db:
             deduplicate_database_recommendations(db)
+            ensure_legacy_farm_coordinates(db)
 
     except Exception as exc:
         logger.warning(f"Schema auto-alignment notice: {exc}")

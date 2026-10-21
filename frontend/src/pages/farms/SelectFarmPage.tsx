@@ -6,6 +6,9 @@ import { fetchCows } from "@/services/cow";
 import { fetchHealthAlerts } from "@/services/healthAlert";
 import { useAuth } from "@/context/AuthContext";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
+import FarmLocationPicker, {
+  FarmLocationData,
+} from "@/components/farms/FarmLocationPicker";
 import {
   Plus,
   Users,
@@ -23,8 +26,16 @@ export default function SelectFarmPage() {
 
   // Form state for onboarding (0 farms)
   const [farmName, setFarmName] = useState("");
-  const [locationCity, setLocationCity] = useState("");
-  const [locationCountry, setLocationCountry] = useState("India");
+  const [locationData, setLocationData] = useState<FarmLocationData>({
+    country: "India",
+    state: "",
+    district: "",
+    taluk: "",
+    village: "",
+    location_city: "",
+    latitude: undefined,
+    longitude: undefined,
+  });
   const [description, setDescription] = useState("");
 
   const { data: farms = [], isLoading: isFarmsLoading } = useQuery<Farm[]>({
@@ -87,8 +98,10 @@ export default function SelectFarmPage() {
     if (!farmName.trim()) return;
     const payload: CreateFarmPayload = {
       name: farmName.trim(),
-      location_city: locationCity.trim() || undefined,
-      location_country: locationCountry.trim() || undefined,
+      location_city: locationData.location_city.trim() || undefined,
+      location_country: "India",
+      latitude: locationData.latitude,
+      longitude: locationData.longitude,
       description: description.trim() || undefined,
     };
     createMut.mutate(payload);
@@ -148,7 +161,7 @@ export default function SelectFarmPage() {
       <div className="relative z-10 w-full my-auto py-8 flex items-center justify-center">
         {farms.length === 0 ? (
           /* CASE 1: First-Time User / 0 Farms (Onboarding View) */
-          <div className="w-full max-w-[480px] rounded-[24px] bg-white dark:bg-[#151719] p-8 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-6">
+          <div className="w-full max-w-[540px] max-h-[88vh] overflow-y-auto rounded-[24px] bg-white dark:bg-[#151719] p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-5">
             <div className="space-y-1 text-left">
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 WELCOME TO DAIRYVISION AI
@@ -176,29 +189,11 @@ export default function SelectFarmPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">City / District</label>
-                  <input
-                    type="text"
-                    value={locationCity}
-                    onChange={(e) => setLocationCity(e.target.value)}
-                    placeholder="e.g. Anand"
-                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:ring-emerald-600/20"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">Country</label>
-                  <input
-                    type="text"
-                    value={locationCountry}
-                    onChange={(e) => setLocationCountry(e.target.value)}
-                    placeholder="e.g. India"
-                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:ring-emerald-600/20"
-                  />
-                </div>
-              </div>
+              {/* Indian Administrative Hierarchy & Coordinates */}
+              <FarmLocationPicker
+                value={locationData}
+                onChange={setLocationData}
+              />
 
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">Description (Optional)</label>

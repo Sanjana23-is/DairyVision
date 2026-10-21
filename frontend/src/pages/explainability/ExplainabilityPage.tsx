@@ -27,6 +27,11 @@ import {
   Cpu,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  getFarmerFeatureLabel,
+  getFarmerExplanation,
+  getFarmerCategory,
+} from "@/utils/featureTranslator";
 
 export type CompletePredictionRecord = {
   id: string;
@@ -83,7 +88,8 @@ export default function ExplainabilityPage() {
 
   // Two dedicated state holders
   const [selectedCowId, setSelectedCowId] = useState<string | null>(null);
-  const [selectedPredictionRecord, setSelectedPredictionRecord] = useState<CompletePredictionRecord | null>(null);
+  const [selectedPredictionRecord, setSelectedPredictionRecord] =
+    useState<CompletePredictionRecord | null>(null);
 
   // 1. Fetch Cows
   const { data: cows = [], isLoading: isCowsLoading } = useQuery<Cow[]>({
@@ -93,11 +99,12 @@ export default function ExplainabilityPage() {
   });
 
   // 2. Fetch Milk Yield Predictions
-  const { data: rawPredictions = [], isLoading: isPredictionsLoading } = useQuery<MilkPrediction[]>({
-    queryKey: ["predictions", currentFarmId],
-    queryFn: () => fetchPredictions(currentFarmId || undefined),
-    staleTime: 1000 * 30,
-  });
+  const { data: rawPredictions = [], isLoading: isPredictionsLoading } =
+    useQuery<MilkPrediction[]>({
+      queryKey: ["predictions", currentFarmId],
+      queryFn: () => fetchPredictions(currentFarmId || undefined),
+      staleTime: 1000 * 30,
+    });
 
   // 3. Fetch Observations for observation_date mapping
   const { data: observations = [] } = useQuery<Observation[]>({
@@ -121,10 +128,20 @@ export default function ExplainabilityPage() {
     }
 
     return rawPredictions
-      .filter((p) => p && p.id && p.cow_id && p.predicted_milk_yield != null && !isNaN(p.predicted_milk_yield))
+      .filter(
+        (p) =>
+          p &&
+          p.id &&
+          p.cow_id &&
+          p.predicted_milk_yield != null &&
+          !isNaN(p.predicted_milk_yield),
+      )
       .map((p) => {
         const cowName = cowMap.get(p.cow_id) || `Cow ${p.cow_id.slice(0, 6)}`;
-        const obsDateRaw = (p.observation_id && obsMap.get(p.observation_id)) || p.prediction_timestamp || "";
+        const obsDateRaw =
+          (p.observation_id && obsMap.get(p.observation_id)) ||
+          p.prediction_timestamp ||
+          "";
         const conf = getConfidenceDetails(p.confidence_score);
 
         return {
@@ -169,8 +186,12 @@ export default function ExplainabilityPage() {
     return allPredictionRecords
       .filter((r) => r.cow_id === selectedCowId)
       .sort((a, b) => {
-        const timeA = a.observation_date_raw ? new Date(a.observation_date_raw).getTime() : 0;
-        const timeB = b.observation_date_raw ? new Date(b.observation_date_raw).getTime() : 0;
+        const timeA = a.observation_date_raw
+          ? new Date(a.observation_date_raw).getTime()
+          : 0;
+        const timeB = b.observation_date_raw
+          ? new Date(b.observation_date_raw).getTime()
+          : 0;
         return timeB - timeA;
       });
   }, [allPredictionRecords, selectedCowId]);
@@ -186,7 +207,9 @@ export default function ExplainabilityPage() {
 
     // 1. If URL has queryPredId, find and set that exact record as source of truth
     if (queryPredId) {
-      const matchedRecord = allPredictionRecords.find((r) => r.id === queryPredId);
+      const matchedRecord = allPredictionRecords.find(
+        (r) => r.id === queryPredId,
+      );
       if (matchedRecord) {
         if (selectedCowId !== matchedRecord.cow_id) {
           setSelectedCowId(matchedRecord.cow_id);
@@ -201,19 +224,28 @@ export default function ExplainabilityPage() {
     // 2. If no queryPredId or record not yet selected
     if (!selectedCowId) {
       // Find the first cow with prediction history
-      const cowWithPreds = uniqueCows.find((c) => allPredictionRecords.some((r) => r.cow_id === c.id));
+      const cowWithPreds = uniqueCows.find((c) =>
+        allPredictionRecords.some((r) => r.cow_id === c.id),
+      );
       const targetCowId = cowWithPreds ? cowWithPreds.id : uniqueCows[0]?.id;
       if (targetCowId) {
         setSelectedCowId(targetCowId);
       }
     } else {
       // We have selectedCowId, check if selectedPredictionRecord belongs to this cow
-      if (!selectedPredictionRecord || selectedPredictionRecord.cow_id !== selectedCowId) {
+      if (
+        !selectedPredictionRecord ||
+        selectedPredictionRecord.cow_id !== selectedCowId
+      ) {
         const forCow = allPredictionRecords
           .filter((r) => r.cow_id === selectedCowId)
           .sort((a, b) => {
-            const timeA = a.observation_date_raw ? new Date(a.observation_date_raw).getTime() : 0;
-            const timeB = b.observation_date_raw ? new Date(b.observation_date_raw).getTime() : 0;
+            const timeA = a.observation_date_raw
+              ? new Date(a.observation_date_raw).getTime()
+              : 0;
+            const timeB = b.observation_date_raw
+              ? new Date(b.observation_date_raw).getTime()
+              : 0;
             return timeB - timeA;
           });
 
@@ -226,7 +258,14 @@ export default function ExplainabilityPage() {
         }
       }
     }
-  }, [allPredictionRecords, queryPredId, uniqueCows, selectedCowId, selectedPredictionRecord, setSearchParams]);
+  }, [
+    allPredictionRecords,
+    queryPredId,
+    uniqueCows,
+    selectedCowId,
+    selectedPredictionRecord,
+    setSearchParams,
+  ]);
 
   // Handle Cow Selection Change
   function handleCowChange(newCowId: string) {
@@ -236,8 +275,12 @@ export default function ExplainabilityPage() {
     const forNewCow = allPredictionRecords
       .filter((r) => r.cow_id === newCowId)
       .sort((a, b) => {
-        const timeA = a.observation_date_raw ? new Date(a.observation_date_raw).getTime() : 0;
-        const timeB = b.observation_date_raw ? new Date(b.observation_date_raw).getTime() : 0;
+        const timeA = a.observation_date_raw
+          ? new Date(a.observation_date_raw).getTime()
+          : 0;
+        const timeB = b.observation_date_raw
+          ? new Date(b.observation_date_raw).getTime()
+          : 0;
         return timeB - timeA;
       });
 
@@ -275,7 +318,9 @@ export default function ExplainabilityPage() {
     staleTime: 1000 * 60,
   });
 
-  const displayedPredictions = showAllHistory ? cowPredictionHistory : cowPredictionHistory.slice(0, 5);
+  const displayedPredictions = showAllHistory
+    ? cowPredictionHistory
+    : cowPredictionHistory.slice(0, 5);
   const hasMorePredictions = cowPredictionHistory.length > 5;
 
   const currentCowInfo = useMemo(() => {
@@ -296,7 +341,10 @@ export default function ExplainabilityPage() {
               {t("explain.title", "AI Yield Intelligence & Decision Factors")}
             </h1>
             <p className="text-sm text-slate-500 dark:text-[#A1A1AA] mt-1">
-              {t("explain.subtitle", "Farmer-friendly explanations of model predictions and operational drivers.")}
+              {t(
+                "explain.subtitle",
+                "Farmer-friendly explanations of model predictions and operational drivers.",
+              )}
             </p>
           </div>
 
@@ -332,7 +380,10 @@ export default function ExplainabilityPage() {
             {/* Cow Selector (only visible in local mode) */}
             {activeTab === "local" && (
               <div className="flex items-center gap-2 bg-slate-50 dark:bg-[#1B1D20] px-3.5 py-1.5 rounded-2xl border border-slate-200/80 dark:border-[#27272A]">
-                <label htmlFor="cow-selector" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap">
+                <label
+                  htmlFor="cow-selector"
+                  className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap"
+                >
                   {t("explain.select_cow", "Cow")}
                 </label>
                 <div className="relative">
@@ -347,7 +398,11 @@ export default function ExplainabilityPage() {
                       <option value="">No cows found</option>
                     ) : (
                       uniqueCows.map((c) => (
-                        <option key={c.id} value={c.id} className="dark:bg-[#1B1D20]">
+                        <option
+                          key={c.id}
+                          value={c.id}
+                          className="dark:bg-[#1B1D20]"
+                        >
                           🐄 {c.name}
                         </option>
                       ))
@@ -364,324 +419,468 @@ export default function ExplainabilityPage() {
           <ModelInsightsCard />
         ) : (
           <>
-        {/* STEP 2: PREDICTION HISTORY */}
-        <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <History className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
-                {t("explain.prediction_history", "Prediction History")}
-              </h2>
-            </div>
-            {currentCowInfo && (
-              <span className="text-xs font-medium text-slate-400 dark:text-[#71717A]">
-                Showing history for <span className="font-semibold text-slate-700 dark:text-[#F4F4F5]">🐄 {currentCowInfo.name}</span>
-              </span>
-            )}
-          </div>
-
-          {isPredictionsLoading ? (
-            <div className="py-8 text-center text-xs text-slate-500 dark:text-[#A1A1AA]">
-              Loading prediction history...
-            </div>
-          ) : cowPredictionHistory.length === 0 ? (
-            /* Clean Empty State */
-            <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#1B1D20]/50 p-8 text-center space-y-2">
-              <div className="mx-auto w-10 h-10 rounded-full bg-slate-100 dark:bg-[#27272A] flex items-center justify-center text-slate-400 dark:text-[#A1A1AA]">
-                <Info className="h-5 w-5" />
+            {/* STEP 2: PREDICTION HISTORY */}
+            <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
+                    {t("explain.prediction_history", "Prediction History")}
+                  </h2>
+                </div>
+                {currentCowInfo && (
+                  <span className="text-xs font-medium text-slate-400 dark:text-[#71717A]">
+                    Showing history for{" "}
+                    <span className="font-semibold text-slate-700 dark:text-[#F4F4F5]">
+                      🐄 {currentCowInfo.name}
+                    </span>
+                  </span>
+                )}
               </div>
-              <p className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
-                {t("explain.no_predictions", "No prediction records available for this cow.")}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
-                Record a daily observation for {currentCowInfo?.name || "this cow"} to generate milk yield predictions and AI decision factors.
-              </p>
-            </div>
-          ) : (
-            /* Horizontal Prediction Rows */
-            <div className="space-y-2">
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#27272A] overflow-hidden divide-y divide-slate-100 dark:divide-[#27272A]">
-                {displayedPredictions.map((pred) => {
-                  const isSelected = selectedPredictionRecord?.id === pred.id;
 
-                  return (
-                    <div
-                      key={pred.id}
-                      onClick={() => handleSelectPrediction(pred)}
-                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 transition-colors cursor-pointer ${
-                        isSelected
-                          ? "bg-emerald-500/[0.08] dark:bg-emerald-500/[0.1] border-l-4 border-l-emerald-500 pl-3.5"
-                          : "bg-white dark:bg-[#151719] hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80"
-                      }`}
-                    >
-                      {/* Left: Date */}
-                      <div className="flex items-center gap-3 min-w-[180px]">
-                        <div className={`p-2 rounded-xl ${isSelected ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-100 dark:bg-[#1B1D20] text-slate-400 dark:text-[#A1A1AA]"}`}>
-                          <Calendar className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">
-                            {pred.observation_date_formatted}
+              {isPredictionsLoading ? (
+                <div className="py-8 text-center text-xs text-slate-500 dark:text-[#A1A1AA]">
+                  Loading prediction history...
+                </div>
+              ) : cowPredictionHistory.length === 0 ? (
+                /* Clean Empty State */
+                <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#1B1D20]/50 p-8 text-center space-y-2">
+                  <div className="mx-auto w-10 h-10 rounded-full bg-slate-100 dark:bg-[#27272A] flex items-center justify-center text-slate-400 dark:text-[#A1A1AA]">
+                    <Info className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
+                    {t(
+                      "explain.no_predictions",
+                      "No prediction records available for this cow.",
+                    )}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
+                    Record a daily observation for{" "}
+                    {currentCowInfo?.name || "this cow"} to generate milk yield
+                    predictions and AI decision factors.
+                  </p>
+                </div>
+              ) : (
+                /* Horizontal Prediction Rows */
+                <div className="space-y-2">
+                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#27272A] overflow-hidden divide-y divide-slate-100 dark:divide-[#27272A]">
+                    {displayedPredictions.map((pred) => {
+                      const isSelected =
+                        selectedPredictionRecord?.id === pred.id;
+
+                      return (
+                        <div
+                          key={pred.id}
+                          onClick={() => handleSelectPrediction(pred)}
+                          className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 transition-colors cursor-pointer ${
+                            isSelected
+                              ? "bg-emerald-500/[0.08] dark:bg-emerald-500/[0.1] border-l-4 border-l-emerald-500 pl-3.5"
+                              : "bg-white dark:bg-[#151719] hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80"
+                          }`}
+                        >
+                          {/* Left: Date */}
+                          <div className="flex items-center gap-3 min-w-[180px]">
+                            <div
+                              className={`p-2 rounded-xl ${isSelected ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-100 dark:bg-[#1B1D20] text-slate-400 dark:text-[#A1A1AA]"}`}
+                            >
+                              <Calendar className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <div className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">
+                                {pred.observation_date_formatted}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-[#71717A]">
+                                {pred.confidence_label} · {pred.confidence_text}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-[#71717A]">
-                            {pred.confidence_label} · {pred.confidence_text}
+
+                          {/* Middle: Predicted Yield */}
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <div>
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A] block">
+                                Predicted Yield
+                              </span>
+                              <span className="text-base font-black text-slate-900 dark:text-[#F4F4F5]">
+                                {pred.predicted_milk_yield.toFixed(1)}{" "}
+                                <span className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA]">
+                                  L/day
+                                </span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Right: Selection Action */}
+                          <div className="flex items-center gap-2 self-end sm:self-auto">
+                            {isSelected ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Selected Explanation
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                View Explanation{" "}
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </div>
+                      );
+                    })}
+                  </div>
 
-                      {/* Middle: Predicted Yield */}
-                      <div className="flex items-center gap-2 sm:gap-4">
-                        <div>
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A] block">
-                            Predicted Yield
-                          </span>
-                          <span className="text-base font-black text-slate-900 dark:text-[#F4F4F5]">
-                            {pred.predicted_milk_yield.toFixed(1)}{" "}
-                            <span className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA]">L/day</span>
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Right: Selection Action */}
-                      <div className="flex items-center gap-2 self-end sm:self-auto">
-                        {isSelected ? (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Selected Explanation
-                          </span>
+                  {/* Load More Toggle */}
+                  {hasMorePredictions && (
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllHistory(!showAllHistory)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] transition shadow-sm"
+                      >
+                        {showAllHistory ? (
+                          <>Show Recent 5 Only</>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                            View Explanation <ArrowRight className="h-3.5 w-3.5" />
-                          </span>
+                          <>
+                            View More Prediction History (
+                            {cowPredictionHistory.length - 5} more) →
+                          </>
                         )}
-                      </div>
+                      </button>
                     </div>
-                  );
-                })}
-              </div>
+                  )}
+                </div>
+              )}
+            </div>
 
-              {/* Load More Toggle */}
-              {hasMorePredictions && (
-                <div className="pt-2 text-center">
+            {/* STEP 3 & 4: EXPLANATION CONTENT DERIVED STRICTLY FROM selectedPredictionRecord */}
+            {!selectedPredictionRecord ? (
+              cowPredictionHistory.length === 0 ? null : (
+                <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-600 dark:text-[#A1A1AA] shadow-sm">
+                  <p className="text-base font-bold">
+                    Please select a prediction record above to view its AI
+                    decision factors.
+                  </p>
+                </div>
+              )
+            ) : isExplainLoading ? (
+              <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA] shadow-sm">
+                Loading AI decision factors for 🐄{" "}
+                {selectedPredictionRecord.cow_name} (
+                {selectedPredictionRecord.observation_date_formatted})...
+              </div>
+            ) : isError ? (
+              <div className="rounded-3xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-6 text-rose-800 dark:text-rose-300 shadow-sm">
+                Error loading explainability:{" "}
+                {(error as any)?.message || "Unknown error"}
+              </div>
+            ) : explainData ? (
+              <div className="space-y-6">
+                {/* Context Header Summary Bar - All derived from selectedPredictionRecord */}
+                <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
+                      {t("explain.subject_cow", "Subject Cow")}
+                    </span>
+                    <span className="text-xl font-black text-slate-950 dark:text-[#F4F4F5]">
+                      🐄 {selectedPredictionRecord.cow_name}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
+                      {t("explain.observation_date", "Observation Date")}
+                    </span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
+                      {selectedPredictionRecord.observation_date_formatted}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
+                      {t("explain.predicted_yield", "Predicted Yield")}
+                    </span>
+                    <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                      {selectedPredictionRecord.predicted_milk_yield.toFixed(1)}{" "}
+                      L/day
+                    </span>
+                  </div>
+
+                  {(selectedPredictionRecord.model_version ||
+                    explainData.model_version) && (
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
+                        {t("explain.model_engine", "Model Engine")}
+                      </span>
+                      <span className="text-xs font-mono text-slate-600 dark:text-[#A1A1AA]">
+                        {selectedPredictionRecord.model_version ||
+                          explainData.model_version}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 1. WHY THIS PREDICTION? (Headline Summary Narrative) */}
+                <div className="rounded-3xl border border-sky-100 dark:border-sky-900/50 bg-gradient-to-br from-sky-50 via-white to-sky-50/40 dark:from-[#151719] dark:via-[#1B1D20] dark:to-[#151719] p-6 shadow-sm space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-sky-800 dark:text-sky-300">
+                    <HelpCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>
+                      {t("explain.why_prediction", "Why This Prediction?")}
+                    </span>
+                  </div>
+                  <p className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5] leading-snug">
+                    {explainData.summary_narrative ||
+                      "Prediction matches expected production baseline."}
+                  </p>
+                </div>
+
+                {/* 2. MAIN DRIVERS */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
+                      <Activity className="h-4 w-4 text-slate-600 dark:text-[#A1A1AA]" />
+                      {t(
+                        "explain.main_factors",
+                        "Main Factors Affecting Prediction",
+                      )}
+                    </h2>
+                    <span className="text-[11px] text-slate-400 dark:text-[#71717A]">
+                      TreeSHAP statistical attributions relative to herd
+                      baseline
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Positive Supporting Factors */}
+                    <div className="rounded-3xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-500/[0.08] p-5 space-y-3">
+                      <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                        <span>
+                          🟢{" "}
+                          {t(
+                            "explain.supporting",
+                            "Supporting Production (+ Boost)",
+                          )}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                          Positive SHAP
+                        </span>
+                      </div>
+
+                      {mainPositiveDrivers.length === 0 ? (
+                        <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
+                          No strong positive yield boosts identified for this
+                          observation.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {mainPositiveDrivers.map((driver, idx) => {
+                            const farmerName = getFarmerFeatureLabel(
+                              driver.feature,
+                              driver.display_name,
+                            );
+                            const { icon, category } = getFarmerCategory(
+                              driver.feature,
+                            );
+                            const explanation = getFarmerExplanation(
+                              driver.feature,
+                              driver.shap_value,
+                              driver.value_formatted,
+                            );
+
+                            return (
+                              <div
+                                key={idx}
+                                className="rounded-2xl border border-emerald-200/60 dark:border-emerald-900/50 bg-white dark:bg-[#151719] p-3.5 shadow-sm text-xs space-y-1"
+                              >
+                                <div className="font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5">
+                                    <span>{icon}</span>
+                                    <span>{farmerName}</span>
+                                  </span>
+                                  <span className="text-emerald-700 dark:text-emerald-400 font-black">
+                                    +{Math.abs(driver.shap_value).toFixed(2)}{" "}
+                                    L/day
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-[#A1A1AA]">
+                                  <span>
+                                    Observed:{" "}
+                                    <strong className="text-slate-700 dark:text-slate-300">
+                                      {driver.value_formatted ||
+                                        String(driver.value ?? "—")}
+                                    </strong>
+                                  </span>
+                                  <span>•</span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {category}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-600 dark:text-[#A1A1AA] pt-1 border-t border-slate-100 dark:border-[#27272A]/70 leading-relaxed">
+                                  {explanation}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Negative Lowering Factors */}
+                    <div className="rounded-3xl border border-rose-100 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 space-y-3">
+                      <div className="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300 flex items-center justify-between">
+                        <span>
+                          🔴{" "}
+                          {t(
+                            "explain.lowering",
+                            "Lowering Production (- Penalty)",
+                          )}
+                        </span>
+                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono">
+                          Negative SHAP
+                        </span>
+                      </div>
+
+                      {mainNegativeDrivers.length === 0 ? (
+                        <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
+                          No significant environmental or feed yield penalties
+                          detected.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {mainNegativeDrivers.map((driver, idx) => {
+                            const farmerName = getFarmerFeatureLabel(
+                              driver.feature,
+                              driver.display_name,
+                            );
+                            const { icon, category } = getFarmerCategory(
+                              driver.feature,
+                            );
+                            const explanation = getFarmerExplanation(
+                              driver.feature,
+                              driver.shap_value,
+                              driver.value_formatted,
+                            );
+
+                            return (
+                              <div
+                                key={idx}
+                                className="rounded-2xl border border-rose-200/60 dark:border-rose-900/50 bg-white dark:bg-[#151719] p-3.5 shadow-sm text-xs space-y-1"
+                              >
+                                <div className="font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5">
+                                    <span>{icon}</span>
+                                    <span>{farmerName}</span>
+                                  </span>
+                                  <span className="text-rose-700 dark:text-rose-400 font-black">
+                                    -{Math.abs(driver.shap_value).toFixed(2)}{" "}
+                                    L/day
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-[#A1A1AA]">
+                                  <span>
+                                    Observed:{" "}
+                                    <strong className="text-slate-700 dark:text-slate-300">
+                                      {driver.value_formatted ||
+                                        String(driver.value ?? "—")}
+                                    </strong>
+                                  </span>
+                                  <span>•</span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {category}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-600 dark:text-[#A1A1AA] pt-1 border-t border-slate-100 dark:border-[#27272A]/70 leading-relaxed">
+                                  {explanation}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. RECOMMENDED MANAGEMENT ACTION */}
+                <div className="rounded-3xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/80 dark:bg-emerald-500/10 p-6 shadow-sm space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-900 dark:text-emerald-300">
+                    <Compass className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+                    <span>
+                      {t(
+                        "explain.recommended_action",
+                        "Recommended Management Action",
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] leading-relaxed">
+                      {explainData.actionable_advice ||
+                        "Production is currently within the model's expected range. Continue monitoring feed, health, and environmental conditions."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 4. TECHNICAL EXPLANATION (Collapsible Expander) */}
+                <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm overflow-hidden">
                   <button
                     type="button"
-                    onClick={() => setShowAllHistory(!showAllHistory)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] transition shadow-sm"
+                    onClick={() => setShowTechnical(!showTechnical)}
+                    className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-[#1B1D20] transition"
                   >
-                    {showAllHistory ? (
-                      <>Show Recent 5 Only</>
-                    ) : (
-                      <>View More Prediction History ({cowPredictionHistory.length - 5} more) →</>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
+                        🔬{" "}
+                        {t(
+                          "explain.tech_exp",
+                          "Optional Technical Explanation (SHAP Attribution Waterfall)",
+                        )}
+                      </span>
+                      <span className="rounded-full bg-slate-100 dark:bg-[#1B1D20] px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:text-[#A1A1AA]">
+                        {t("explain.advanced_detail", "Advanced Detail")}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 text-slate-500 dark:text-[#A1A1AA] transition-transform ${showTechnical ? "rotate-180" : ""}`}
+                    />
                   </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
-        {/* STEP 3 & 4: EXPLANATION CONTENT DERIVED STRICTLY FROM selectedPredictionRecord */}
-        {!selectedPredictionRecord ? (
-          cowPredictionHistory.length === 0 ? null : (
-            <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-600 dark:text-[#A1A1AA] shadow-sm">
-              <p className="text-base font-bold">Please select a prediction record above to view its AI decision factors.</p>
-            </div>
-          )
-        ) : isExplainLoading ? (
-          <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA] shadow-sm">
-            Loading AI decision factors for 🐄 {selectedPredictionRecord.cow_name} ({selectedPredictionRecord.observation_date_formatted})...
-          </div>
-        ) : isError ? (
-          <div className="rounded-3xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-6 text-rose-800 dark:text-rose-300 shadow-sm">
-            Error loading explainability: {(error as any)?.message || "Unknown error"}
-          </div>
-        ) : explainData ? (
-          <div className="space-y-6">
-            {/* Context Header Summary Bar - All derived from selectedPredictionRecord */}
-            <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
-                  {t("explain.subject_cow", "Subject Cow")}
-                </span>
-                <span className="text-xl font-black text-slate-950 dark:text-[#F4F4F5]">
-                  🐄 {selectedPredictionRecord.cow_name}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
-                  {t("explain.observation_date", "Observation Date")}
-                </span>
-                <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
-                  {selectedPredictionRecord.observation_date_formatted}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
-                  {t("explain.predicted_yield", "Predicted Yield")}
-                </span>
-                <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
-                  {selectedPredictionRecord.predicted_milk_yield.toFixed(1)} L/day
-                </span>
-              </div>
-
-              {(selectedPredictionRecord.model_version || explainData.model_version) && (
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] block">
-                    {t("explain.model_engine", "Model Engine")}
-                  </span>
-                  <span className="text-xs font-mono text-slate-600 dark:text-[#A1A1AA]">
-                    {selectedPredictionRecord.model_version || explainData.model_version}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* 1. WHY THIS PREDICTION? (Headline Summary Narrative) */}
-            <div className="rounded-3xl border border-sky-100 dark:border-sky-900/50 bg-gradient-to-br from-sky-50 via-white to-sky-50/40 dark:from-[#151719] dark:via-[#1B1D20] dark:to-[#151719] p-6 shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-sky-800 dark:text-sky-300">
-                <HelpCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>{t("explain.why_prediction", "Why This Prediction?")}</span>
-              </div>
-              <p className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5] leading-snug">
-                {explainData.summary_narrative || "Prediction matches expected production baseline."}
-              </p>
-            </div>
-
-            {/* 2. MAIN DRIVERS */}
-            <div className="space-y-3">
-              <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
-                <Activity className="h-4 w-4 text-slate-600 dark:text-[#A1A1AA]" />
-                {t("explain.main_factors", "Main Factors Affecting Prediction")}
-              </h2>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* Positive Supporting Factors */}
-                <div className="rounded-3xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-500/[0.08] p-5 space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                    <span>🟢 {t("explain.supporting", "Supporting Production")}</span>
-                  </div>
-
-                  {mainPositiveDrivers.length === 0 ? (
-                    <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
-                      No strong positive yield boosts identified for this observation.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {mainPositiveDrivers.map((driver, idx) => (
-                        <div key={idx} className="rounded-2xl border border-emerald-200/60 dark:border-emerald-900/50 bg-white dark:bg-[#151719] p-3.5 shadow-sm text-xs">
-                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5] flex justify-between">
-                            <span>{driver.display_name}</span>
-                            <span className="text-emerald-700 dark:text-emerald-400 font-black">
-                              +{Math.abs(driver.shap_value).toFixed(2)} L/day
-                            </span>
+                  {showTechnical && (
+                    <div className="p-6 border-t border-slate-100 dark:border-[#27272A] space-y-6">
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                        <div className="lg:col-span-2 space-y-4">
+                          <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] mb-1">
+                              SHAP Feature Contribution Waterfall
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mb-4">
+                              Horizontal bar length indicates exact SHAP
+                              numerical weight on the model prediction.
+                            </p>
+                            <FeatureImportanceChart
+                              features={explainData.features}
+                            />
                           </div>
-                          <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA] mt-1">
-                            Model-estimated contribution: +{Math.abs(driver.shap_value).toFixed(2)} L/day relative to baseline
-                          </p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                {/* Negative Lowering Factors */}
-                <div className="rounded-3xl border border-rose-100 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
-                    <span>🔴 {t("explain.lowering", "Lowering Production")}</span>
-                  </div>
-
-                  {mainNegativeDrivers.length === 0 ? (
-                    <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
-                      No significant environmental or feed yield penalties detected.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {mainNegativeDrivers.map((driver, idx) => (
-                        <div key={idx} className="rounded-2xl border border-rose-200/60 dark:border-rose-900/50 bg-white dark:bg-[#151719] p-3.5 shadow-sm text-xs">
-                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5] flex justify-between">
-                            <span>{driver.display_name}</span>
-                            <span className="text-rose-700 dark:text-rose-400 font-black">
-                              -{Math.abs(driver.shap_value).toFixed(2)} L/day
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA] mt-1">
-                            Model-estimated contribution: -{Math.abs(driver.shap_value).toFixed(2)} L/day relative to baseline
-                          </p>
+                        <div className="space-y-4">
+                          <TopContributorsCard
+                            title="🟢 Positive Drivers (+ Boosts)"
+                            items={explainData.top_positive ?? []}
+                            showTechnical={showTechnical}
+                          />
+                          <TopContributorsCard
+                            title="🔴 Negative Drivers (- Penalties)"
+                            items={explainData.top_negative ?? []}
+                            showTechnical={showTechnical}
+                          />
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 3. RECOMMENDED MANAGEMENT ACTION */}
-            <div className="rounded-3xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/80 dark:bg-emerald-500/10 p-6 shadow-sm space-y-2">
-              <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-900 dark:text-emerald-300">
-                <Compass className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
-                <span>{t("explain.recommended_action", "Recommended Management Action")}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] leading-relaxed">
-                  {explainData.actionable_advice ||
-                    "Production is currently within the model's expected range. Continue monitoring feed, health, and environmental conditions."}
-                </p>
-              </div>
-            </div>
-
-            {/* 4. TECHNICAL EXPLANATION (Collapsible Expander) */}
-            <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setShowTechnical(!showTechnical)}
-                className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-[#1B1D20] transition"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
-                    🔬 {t("explain.tech_exp", "Optional Technical Explanation (SHAP Attribution Waterfall)")}
-                  </span>
-                  <span className="rounded-full bg-slate-100 dark:bg-[#1B1D20] px-2 py-0.5 text-[11px] font-semibold text-slate-600 dark:text-[#A1A1AA]">
-                    {t("explain.advanced_detail", "Advanced Detail")}
-                  </span>
-                </div>
-                <ChevronDown className={`h-4 w-4 text-slate-500 dark:text-[#A1A1AA] transition-transform ${showTechnical ? "rotate-180" : ""}`} />
-              </button>
-
-              {showTechnical && (
-                <div className="p-6 border-t border-slate-100 dark:border-[#27272A] space-y-6">
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-4">
-                      <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] mb-1">
-                          SHAP Feature Contribution Waterfall
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mb-4">
-                          Horizontal bar length indicates exact SHAP numerical weight on the model prediction.
-                        </p>
-                        <FeatureImportanceChart features={explainData.features} />
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <TopContributorsCard
-                        title="🟢 Positive Drivers (+ Boosts)"
-                        items={explainData.top_positive ?? []}
-                      />
-                      <TopContributorsCard
-                        title="🔴 Negative Drivers (- Penalties)"
-                        items={explainData.top_negative ?? []}
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-        ) : null}
-        </>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </DashboardLayout>

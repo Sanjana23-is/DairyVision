@@ -19,6 +19,7 @@ from .api.v1.digital_twin import router as digital_twin_router
 from .api.v1.what_if import router as what_if_router
 from .api.v1.dashboard import router as dashboard_router
 from .api.v1.dairy import router as dairy_router
+from .api.v1.locations import router as locations_router
 from .core.config import get_settings
 from .core.logging import configure_logging
 from .database.init_db import ensure_database_schema
@@ -148,6 +149,7 @@ app.include_router(digital_twin_router, prefix="/api/v1")
 app.include_router(what_if_router, prefix="/api/v1")
 app.include_router(dashboard_router, prefix="/api/v1")
 app.include_router(dairy_router, prefix="/api/v1")
+app.include_router(locations_router, prefix="/api/v1")
 
 
 @app.get("/")

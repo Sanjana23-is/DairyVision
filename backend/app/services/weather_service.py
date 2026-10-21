@@ -78,6 +78,17 @@ class WeatherService:
                     self.db.commit()
                     self.db.refresh(farm)
                     logger.info("Auto-geocoded farm %s (%s, %s) to lat=%f, lon=%f", farm.id, farm.location_city, farm.location_country, lat, lon)
+            elif farm.name and farm.name.strip().lower() not in {"farm", "my farm", "dairy"}:
+                coords = self.provider.geocode_location(farm.name, "India")
+                if coords:
+                    lat, lon = coords
+                    farm.latitude = lat
+                    farm.longitude = lon
+                    farm.location_city = farm.name
+                    farm.location_country = "India"
+                    self.db.commit()
+                    self.db.refresh(farm)
+                    logger.info("Auto-geocoded farm %s from name '%s' to lat=%f, lon=%f", farm.id, farm.name, lat, lon)
 
         if farm.latitude is None or farm.longitude is None:
             raise WeatherNotFound("No weather snapshot available and farm location could not be resolved")

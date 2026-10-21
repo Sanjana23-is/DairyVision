@@ -193,6 +193,7 @@ export default function CowListPage() {
           </div>
           <button
             type="button"
+            data-testid="add-cow-button"
             onClick={() => {
               createMut.reset();
               setAdding(true);

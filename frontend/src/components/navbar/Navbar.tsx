@@ -153,6 +153,7 @@ export default function Navbar() {
         <div className="relative">
           <button
             type="button"
+            data-testid="language-dropdown-toggle"
             onClick={() => {
               setIsFarmOpen(false);
               setIsUserMenuOpen(false);
@@ -177,6 +178,7 @@ export default function Navbar() {
                   <button
                     key={opt.code}
                     type="button"
+                    data-testid={`lang-option-${opt.code}`}
                     onClick={() => {
                       setLanguage(opt.code);
                       setIsLangOpen(false);

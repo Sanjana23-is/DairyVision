@@ -42,7 +42,7 @@ class WeatherRepository:
         self.db.refresh(weather_log)
         return weather_log
 
-    def find_nearest_for_farm(self, farm_id: str, target_time: datetime) -> Optional[WeatherLog]:
+    def find_nearest_for_farm(self, farm_id: str, target_time: datetime, max_delta_hours: float = 24.0) -> Optional[WeatherLog]:
         weather_logs = self.db.query(WeatherLog).filter(WeatherLog.farm_id == farm_id).all()
         if not weather_logs:
             return None
@@ -52,4 +52,7 @@ class WeatherRepository:
             weather_logs,
             key=lambda record: abs((record.recorded_at.astimezone(timezone.utc) - target_time).total_seconds()),
         )
+        diff_hours = abs((closest.recorded_at.astimezone(timezone.utc) - target_time).total_seconds()) / 3600.0
+        if diff_hours > max_delta_hours:
+            return None
         return closest

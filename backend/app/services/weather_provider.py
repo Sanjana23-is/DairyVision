@@ -124,19 +124,47 @@ class OpenMeteoWeatherProvider(WeatherProvider):
         if not times:
             raise RuntimeError("Weather provider did not return hourly data")
 
+        temp_list = hourly.get("temperature_2m", [])
+        hum_list = hourly.get("relativehumidity_2m", []) or hourly.get("relative_humidity_2m", [])
+
+        # Find valid indices where temperature and humidity are both present
+        valid_indices = [
+            i
+            for i in range(len(times))
+            if i < len(temp_list)
+            and temp_list[i] is not None
+            and i < len(hum_list)
+            and hum_list[i] is not None
+        ]
+
+        if not valid_indices:
+            raise RuntimeError(
+                f"Weather provider response for {date_str} contained no valid temperature and humidity readings"
+            )
+
         nearest_index = min(
-            range(len(times)),
+            valid_indices,
             key=lambda idx: abs(
                 (datetime.fromisoformat(times[idx]).replace(tzinfo=timezone.utc) - timestamp).total_seconds()
             ),
         )
 
+        rain_list = hourly.get("rain", [])
+        wind_list = hourly.get("windspeed_10m", []) or hourly.get("wind_speed_10m", [])
+        press_list = hourly.get("surface_pressure", [])
+        cloud_list = hourly.get("cloudcover", []) or hourly.get("cloud_cover", [])
+
+        rain_val = rain_list[nearest_index] if nearest_index < len(rain_list) and rain_list[nearest_index] is not None else 0.0
+        wind_val = wind_list[nearest_index] if nearest_index < len(wind_list) and wind_list[nearest_index] is not None else 0.0
+        press_val = press_list[nearest_index] if nearest_index < len(press_list) and press_list[nearest_index] is not None else 1013.25
+        cloud_val = cloud_list[nearest_index] if nearest_index < len(cloud_list) and cloud_list[nearest_index] is not None else 0.0
+
         return WeatherSnapshot(
-            temperature=float(hourly["temperature_2m"][nearest_index]),
-            humidity=float(hourly["relativehumidity_2m"][nearest_index]),
-            rainfall=float(hourly["rain"][nearest_index]),
-            wind_speed=float(hourly["windspeed_10m"][nearest_index]),
-            pressure=float(hourly["surface_pressure"][nearest_index]),
-            cloud_cover=float(hourly["cloudcover"][nearest_index]),
+            temperature=float(temp_list[nearest_index]),
+            humidity=float(hum_list[nearest_index]),
+            rainfall=float(rain_val),
+            wind_speed=float(wind_val),
+            pressure=float(press_val),
+            cloud_cover=float(cloud_val),
             weather_code=None,
         )

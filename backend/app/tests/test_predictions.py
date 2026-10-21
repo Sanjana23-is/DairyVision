@@ -391,3 +391,96 @@ def test_list_milk_predictions_endpoint_serialization(db_session: Session, tmp_p
     assert pydantic_item.confidence_data_status is not None
 
 
+def test_prediction_auto_fetches_historical_weather_for_observation(db_session: Session, tmp_path):
+    """
+    Regression test: Verifies that when an observation has no weather log,
+    predict_for_observation automatically retrieves weather for the observation date
+    using the farm's coordinates, calculates THI via the scientific utility, and
+    successfully generates the milk yield prediction.
+    """
+    from unittest.mock import MagicMock, patch
+    from app.services.weather_provider import WeatherProvider, WeatherSnapshot
+    from app.services.weather_service import WeatherService
+    from app.core.scientific import calculate_thi
+
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f"u{user_id}@example.com", full_name="Lakshmi Test User")
+    db_session.add(user)
+    db_session.flush()
+
+    farm = Farm(
+        id=str(uuid4()),
+        name="Luna Dairy Farm",
+        location_city="Bengaluru",
+        location_country="India",
+        timezone="UTC",
+        created_by=user.id,
+        latitude=12.9716,
+        longitude=77.5946,
+    )
+    db_session.add(farm)
+    db_session.flush()
+
+    cow = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id="COW-LAKSHMI-01",
+        name="Lakshmi",
+        owner_id=user.id,
+        created_by=user.id,
+        birth_date=date(2022, 1, 1),
+        weight_kg=520.0,
+    )
+    db_session.add(cow)
+    db_session.flush()
+
+    # Historical observation on 26 September 2026 without a weather log
+    obs_date = date(2026, 9, 26)
+    obs = DailyObservation(
+        id=str(uuid4()),
+        cow_id=cow.id,
+        observation_date=obs_date,
+        owner_id=user.id,
+        feed_quantity_kg=22.0,
+        milk_produced_liters=18.5,
+        weather_log_id=None,
+    )
+    db_session.add(obs)
+    db_session.commit()
+
+    model_path = _make_dummy_model_path(tmp_path)
+    service = PredictionService(db_session, model_path=model_path)
+
+    # Mock WeatherProvider to simulate Open-Meteo response on 2026-09-26
+    mock_provider = MagicMock(spec=WeatherProvider)
+    mock_provider.fetch_snapshot.return_value = WeatherSnapshot(
+        temperature=27.5,
+        humidity=52.0,
+        rainfall=0.0,
+        wind_speed=6.8,
+        pressure=911.8,
+        cloud_cover=34.0,
+    )
+
+    with patch("app.services.weather_service.OpenMeteoWeatherProvider", return_value=mock_provider):
+        pred = service.predict_for_observation(user.id, obs.id)
+
+    # 1. Prediction must succeed
+    assert pred is not None
+    assert pred.predicted_milk_yield is not None
+    assert pred.observation_id == obs.id
+
+    # 2. Observation must be linked to newly created weather log
+    db_session.refresh(obs)
+    assert obs.weather_log_id is not None
+
+    # 3. Weather log must have exact values and scientifically calculated THI
+    wl = db_session.get(WeatherLog, obs.weather_log_id)
+    assert wl is not None
+    assert float(wl.temperature) == 27.5
+    assert float(wl.humidity) == 52.0
+    expected_thi = calculate_thi(27.5, 52.0)
+    assert abs(float(wl.thi) - expected_thi) < 0.01
+
+
+

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { fetchFarms, Farm } from "@/services/farm";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchFarms, Farm, updateFarm } from "@/services/farm";
 import { fetchCows } from "@/services/cow";
 import { fetchHealthAlerts } from "@/services/healthAlert";
 import { fetchObservations } from "@/services/observation";
 import { useAuth } from "@/context/AuthContext";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import EditFarmDialog from "@/components/farms/EditFarmDialog";
 import {
   ArrowLeft,
   MapPin,
@@ -18,13 +19,16 @@ import {
   Gauge,
   Activity,
   Sparkles,
+  Pencil,
 } from "lucide-react";
 
 export default function FarmWorkspacePage() {
   const { farmId } = useParams<{ farmId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { currentFarmId, setCurrentFarm } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "cows" | "observations" | "predictions" | "alerts">("overview");
+  const [isEditingFarm, setIsEditingFarm] = useState(false);
 
   const { data: farms = [], isLoading: isFarmsLoading } = useQuery({
     queryKey: ["farms"],
@@ -32,6 +36,14 @@ export default function FarmWorkspacePage() {
   });
 
   const currentFarm = farms.find((f: Farm) => f.id === farmId) || null;
+
+  const updateMut = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) => updateFarm(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["farms"] });
+      setIsEditingFarm(false);
+    },
+  });
 
   const { data: cows = [] } = useQuery({
     queryKey: ["cows", farmId],
@@ -108,7 +120,7 @@ export default function FarmWorkspacePage() {
             <div className="flex items-center gap-3">
               <span className="text-3xl">🌾</span>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-2xl font-black text-slate-950 dark:text-[#F4F4F5]">{currentFarm.name}</h1>
                   {isActive ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
@@ -124,10 +136,23 @@ export default function FarmWorkspacePage() {
                       Set as Active Farm
                     </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingFarm(true)}
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-[#1B1D20] border border-slate-200 dark:border-[#27272A] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-200 dark:hover:bg-[#27272A] transition"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    <span>Edit Location</span>
+                  </button>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#A1A1AA] mt-1">
-                  <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <MapPin className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                   <span>{locationStr}</span>
+                  {currentFarm.latitude && currentFarm.longitude && (
+                    <span className="ml-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200/50 dark:border-emerald-800/40">
+                      {currentFarm.latitude.toFixed(4)}°, {currentFarm.longitude.toFixed(4)}°
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -285,6 +310,21 @@ export default function FarmWorkspacePage() {
           </div>
         )}
       </div>
+
+      {/* Edit Farm Dialog */}
+      <EditFarmDialog
+        open={isEditingFarm}
+        farm={currentFarm}
+        onClose={() => setIsEditingFarm(false)}
+        loading={updateMut.isPending}
+        error={
+          updateMut.error
+            ? ((updateMut.error as any)?.response?.data?.detail || updateMut.error.message)
+            : undefined
+        }
+        onSave={(id, payload) => updateMut.mutate({ id, payload })}
+      />
     </DashboardLayout>
   );
 }
+

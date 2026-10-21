@@ -211,6 +211,9 @@ class MilkPredictionResponse(MilkPredictionBase):
 
 class FarmBase(BaseModel):
     name: str
+    description: Optional[str] = None
+    location_city: Optional[str] = None
+    location_country: Optional[str] = "India"
     timezone: Optional[str] = "UTC"
     latitude: Optional[float] = None
     longitude: Optional[float] = None
@@ -223,6 +226,9 @@ class FarmCreate(FarmBase):
 
 class FarmUpdate(BaseModel):
     name: Optional[str] = None
+    description: Optional[str] = None
+    location_city: Optional[str] = None
+    location_country: Optional[str] = None
     timezone: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
