@@ -27,6 +27,7 @@ from app.schemas.what_if import (
     CowWhatIfRequest,
     CowWhatIfResponse,
 )
+from app.core.scientific import calculate_thi
 
 logger = logging.getLogger(__name__)
 
@@ -246,7 +247,7 @@ class WhatIfService:
             temp = merged.temperature
             hum = merged.humidity
             if scenario.thi is None:
-                merged.thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+                merged.thi = calculate_thi(temp, hum)
             merged.temp_humidity = temp * hum
 
         if merged.weight and merged.weight > 0 and merged.feed is not None:
@@ -440,7 +441,7 @@ class WhatIfService:
         if base_features.thi is None:
             temp = base_features.temperature
             hum = base_features.humidity
-            base_features.thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+            base_features.thi = calculate_thi(temp, hum)
 
         if base_features.temp_humidity is None and base_features.temperature and base_features.humidity:
             base_features.temp_humidity = base_features.temperature * base_features.humidity
@@ -466,7 +467,7 @@ class WhatIfService:
 
         temp = scenario_fields.temperature if scenario_fields.temperature is not None else 25.0
         hum = scenario_fields.humidity if scenario_fields.humidity is not None else 65.0
-        calc_thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+        calc_thi = calculate_thi(temp, hum)
 
         if request.scenario.cooling_intervention_thi_reduction:
             calc_thi = max(40.0, calc_thi - request.scenario.cooling_intervention_thi_reduction)
@@ -628,7 +629,7 @@ class WhatIfService:
                 if base_features.thi is None:
                     temp = base_features.temperature
                     hum = base_features.humidity
-                    base_features.thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+                    base_features.thi = calculate_thi(temp, hum)
 
                 if base_features.temp_humidity is None and base_features.temperature and base_features.humidity:
                     base_features.temp_humidity = base_features.temperature * base_features.humidity
@@ -654,7 +655,7 @@ class WhatIfService:
 
                 temp = scenario_fields.temperature if scenario_fields.temperature is not None else 25.0
                 hum = scenario_fields.humidity if scenario_fields.humidity is not None else 65.0
-                calc_thi = (1.8 * temp + 32.0) - ((0.55 - 0.0055 * hum) * (1.8 * temp - 26.0))
+                calc_thi = calculate_thi(temp, hum)
 
                 if request.scenario.cooling_intervention_thi_reduction:
                     calc_thi = max(40.0, calc_thi - request.scenario.cooling_intervention_thi_reduction)

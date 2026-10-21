@@ -100,8 +100,8 @@ class WeatherService:
     def calculate_thi(temperature: Optional[float], humidity: Optional[float]) -> Optional[float]:
         if temperature is None or humidity is None:
             return None
-        # Standard cattle THI formula using temperature (°C) and relative humidity (%).
-        return round((1.8 * temperature + 32) - (0.55 - 0.0055 * humidity) * (1.8 * temperature - 26), 2)
+        from app.core.scientific import calculate_thi as calc_thi
+        return calc_thi(temperature, humidity)
 
     @staticmethod
     def _merge_snapshot(payload_data: dict[str, object], snapshot: WeatherSnapshot) -> dict[str, object]:
