@@ -1,0 +1,24 @@
+{
+  "Model_A_Control_16.4": {
+    "MAE": 2.0406,
+    "RMSE": 2.5796,
+    "R2": 0.1848,
+    "Prediction_Min": 16.91,
+    "Prediction_Max": 25.1,
+    "Prediction_Mean": 21.16,
+    "THI_Train_Mean": 58.32,
+    "THI_Train_Min": 33.41,
+    "THI_Train_Max": 94.85
+  },
+  "Model_B_Candidate_46.4": {
+    "MAE": 2.0411,
+    "RMSE": 2.5769,
+    "R2": 0.1866,
+    "Prediction_Min": 16.87,
+    "Prediction_Max": 24.99,
+    "Prediction_Mean": 21.16,
+    "THI_Train_Mean": 88.32,
+    "THI_Train_Min": 63.41,
+    "THI_Train_Max": 124.85
+  }
+}

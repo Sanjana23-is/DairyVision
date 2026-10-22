@@ -1,0 +1,25 @@
+{
+  "test_cow": {
+    "age": 4.0,
+    "weight": 550.0,
+    "health_status": 1,
+    "feed": 30.0,
+    "temperature": 30.0,
+    "humidity": 60.0
+  },
+  "live_weather": {
+    "temperature": 30.0,
+    "humidity": 60.0
+  },
+  "live_backend_thi_thom": 79.84,
+  "candidate_thi_nrc": 79.76,
+  "delta_live_vs_candidate_thi": 0.08,
+  "control_thi_nrc": 49.76,
+  "delta_live_vs_control_thi": 30.08,
+  "predictions": {
+    "model_A_in_distribution (THI=49.76)": 19.579,
+    "model_A_live_injected   (THI=79.84)": 19.632,
+    "model_B_in_distribution (THI=79.76)": 19.742,
+    "model_B_live_injected   (THI=79.84)": 19.742
+  }
+}

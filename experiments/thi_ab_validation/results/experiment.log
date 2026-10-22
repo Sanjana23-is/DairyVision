@@ -1,0 +1,31 @@
+2026-10-21 13:22:45,846 [INFO] === STARTING ISOLATED THI A/B EXPERIMENT ===
+2026-10-21 13:22:45,846 [INFO] Loading raw datasets from datasets/...
+2026-10-21 13:22:45,853 [INFO] Disease dataset: 3000 rows
+2026-10-21 13:22:45,853 [INFO] Yield dataset: 3000 rows
+2026-10-21 13:22:45,854 [INFO] Merged dataset: 3000 rows
+2026-10-21 13:22:45,856 [INFO] Cleaned unique cattle: 3000 rows
+2026-10-21 13:22:45,860 [INFO] Checking data leakage: 3000 total rows, 3000 unique Cattle_ID
+2026-10-21 13:22:45,860 [INFO] Data check confirmed: Every row corresponds to a strictly unique Cattle_ID. No cross-row cow identity leakage.
+2026-10-21 13:22:45,861 [INFO] Data split created: 2400 train rows (80%), 600 test rows (20%)
+2026-10-21 13:22:45,861 [INFO] Train/test separation verified: 0 overlapping records.
+2026-10-21 13:22:45,925 [INFO] Checking production feature contract...
+2026-10-21 13:22:46,014 [INFO] Feature contract verified: All 13 training features exist in backend FeatureVector schema.
+2026-10-21 13:22:46,014 [INFO] Training Model A (Control: +16.4)...
+2026-10-21 13:22:46,113 [INFO] Training Model B (Candidate: +46.4)...
+2026-10-21 13:22:46,182 [INFO] === HELD-OUT TEST EVALUATION RESULTS ===
+2026-10-21 13:22:46,182 [INFO] Model A (+16.4):  R2=0.1848  MAE=2.0406  RMSE=2.5796  Pred Range=[16.91, 25.10]
+2026-10-21 13:22:46,182 [INFO] Model B (+46.4):  R2=0.1866  MAE=2.0411  RMSE=2.5769  Pred Range=[16.87, 24.99]
+2026-10-21 13:22:46,187 [INFO] 
+Heat Stress Band Breakdown:
+               Band  Count   MAE_A   MAE_B  RMSE_A  RMSE_B  Mean_Pred_A  Mean_Pred_B
+0     Comfort (<68)     40  2.0547  2.0596  2.6010  2.6072        21.52        21.53
+1      Mild (68-72)     38  2.2969  2.2918  2.7381  2.7330        21.20        21.21
+2  Moderate (72-79)     86  2.1423  2.1463  2.6847  2.6881        21.15        21.14
+3     Severe (>=79)    436  1.9969  1.9968  2.5420  2.5374        21.13        21.13
+2026-10-21 13:22:46,189 [INFO] === LIVE INFERENCE AUDIT ===
+2026-10-21 13:22:46,189 [INFO] Live Backend Thom THI: 79.84
+2026-10-21 13:22:46,189 [INFO] Model B Candidate THI: 79.76 (Delta = 0.08)
+2026-10-21 13:22:46,189 [INFO] Model A Control THI:   49.76 (Delta = 30.08)
+2026-10-21 13:22:46,189 [INFO] Model B Prediction (In-Dist vs Live): 19.742 vs 19.742
+2026-10-21 13:22:46,189 [INFO] Model A Prediction (In-Dist vs Live): 19.579 vs 19.632
+2026-10-21 13:22:46,189 [INFO] === EXPERIMENT COMPLETE ===
