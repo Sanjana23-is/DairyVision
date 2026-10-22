@@ -291,11 +291,17 @@ class AuthService:
                 existing = self.db.scalar(select(User).where(User.id == user_id))
                 has_changes = True
 
+        name_candidate = full_name or getattr(user_data, "user_metadata", {}).get("full_name")
+        if not name_candidate or str(name_candidate).strip() == email or "@" in str(name_candidate):
+            clean_name = "Farmer"
+        else:
+            clean_name = str(name_candidate).strip()
+
         if existing is None:
             existing = User(
                 id=user_id,
                 email=email,
-                full_name=full_name or getattr(user_data, "user_metadata", {}).get("full_name") or email,
+                full_name=clean_name,
                 avatar_url=getattr(user_data, "avatar_url", None),
                 is_active=True,
                 is_superuser=False,
@@ -307,14 +313,12 @@ class AuthService:
                 existing.email = email
                 has_changes = True
 
-            expected_full_name = (
-                full_name
-                or existing.full_name
-                or getattr(user_data, "user_metadata", {}).get("full_name")
-                or email
-            )
-            if existing.full_name != expected_full_name:
-                existing.full_name = expected_full_name
+            current_name = existing.full_name
+            if not current_name or current_name == email or "@" in current_name:
+                existing.full_name = clean_name
+                has_changes = True
+            elif full_name and full_name.strip() and full_name.strip() != current_name and "@" not in full_name:
+                existing.full_name = full_name.strip()
                 has_changes = True
 
             expected_avatar_url = getattr(user_data, "avatar_url", None)
@@ -475,12 +479,16 @@ class AuthService:
         user_id = str(getattr(user_data, "id", ""))
         db_user = self.db.scalar(select(User).where(User.id == user_id)) if user_id else None
 
-        user_metadata = getattr(user_data, "user_metadata", {}) or {}
-        full_name = (
+        email_str = str(getattr(user_data, "email", ""))
+        raw_name = (
             (db_user.full_name if db_user and db_user.full_name else None)
             or user_metadata.get("full_name")
             or getattr(user_data, "full_name", None)
         )
+        if not raw_name or str(raw_name).strip() == email_str or "@" in str(raw_name) or str(raw_name).strip() == "":
+            full_name = "Farmer"
+        else:
+            full_name = str(raw_name).strip()
 
         return AuthUser(
             id=user_id,

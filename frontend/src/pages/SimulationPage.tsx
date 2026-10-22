@@ -30,8 +30,18 @@ import {
   Coins,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  translateRecommendationTitle,
+  translateRecommendationDescription,
+} from "@/services/recommendation";
+import { getLocalizedBreed, getLocalizedHealthStatus } from "@/utils/digitalTwinI18n";
+import {
+  getLocalizedFinancialExplanation,
+  getLocalizedSimulationSummary,
+} from "@/utils/simulationI18n";
 
 function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact: FinancialImpact; isHerd?: boolean; cowsCount?: number }) {
+  const { t } = useLanguage();
   const isPositive = impact.decision_classification === "positive";
   const isNegative = impact.decision_classification === "negative";
 
@@ -45,10 +55,12 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
-              {isHerd ? "Herd Estimated Financial Impact" : "Estimated Financial Impact"}
+              {isHerd ? t("sim.fin.herd_title", "Herd Estimated Financial Impact") : t("sim.fin.cow_title", "Estimated Financial Impact")}
             </h3>
             <p className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-              {isHerd ? `Aggregate economic return across ${cowsCount} active cows` : "Projected economic return based on yield & feed deltas"}
+              {isHerd
+                ? t("sim.fin.herd_subtitle", "Aggregate economic return across {count} active cows").replace("{count}", String(cowsCount))
+                : t("sim.fin.cow_subtitle", "Projected economic return based on yield & feed deltas")}
             </p>
           </div>
         </div>
@@ -63,7 +75,11 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
                 : "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/40"
             }`}
           >
-            {isPositive ? "Positive Financial Impact" : isNegative ? "Negative Financial Impact" : "Near Break-Even"}
+            {isPositive
+              ? t("sim.fin.positive_impact", "Positive Financial Impact")
+              : isNegative
+              ? t("sim.fin.negative_impact", "Negative Financial Impact")
+              : t("sim.fin.break_even", "Near Break-Even")}
           </span>
           <span className="rounded-full bg-slate-100 dark:bg-[#1B1D20] px-2.5 py-1 text-xs font-bold text-slate-700 dark:text-[#A1A1AA] border border-slate-200 dark:border-[#27272A]">
             {impact.currency}
@@ -75,7 +91,7 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
       <div className="grid gap-4 sm:grid-cols-2">
         <div className={`rounded-2xl border p-4 ${impact.daily_net_benefit >= 0 ? "border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-[#151719]" : "border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#151719]"}`}>
           <span className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider block">
-            {isHerd ? "Herd Estimated Daily Net Impact" : "Estimated Daily Net Impact"}
+            {isHerd ? t("sim.fin.herd_daily_impact", "Herd Estimated Daily Net Impact") : t("sim.fin.daily_impact", "Estimated Daily Net Impact")}
           </span>
           <span className={`text-2xl font-black mt-1 block ${impact.daily_net_benefit >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}>
             {impact.daily_net_benefit >= 0 ? "+" : ""}₹{impact.daily_net_benefit.toFixed(2)}/day
@@ -84,7 +100,7 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
 
         <div className={`rounded-2xl border p-4 ${impact.monthly_net_benefit >= 0 ? "border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-[#151719]" : "border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#151719]"}`}>
           <span className="text-xs font-bold text-slate-500 dark:text-[#A1A1AA] uppercase tracking-wider block">
-            {isHerd ? "Herd Estimated Monthly Net Impact (30d)" : "Estimated Monthly Net Impact (30d)"}
+            {isHerd ? t("sim.fin.herd_monthly_impact", "Herd Estimated Monthly Net Impact (30d)") : t("sim.fin.monthly_impact", "Estimated Monthly Net Impact (30d)")}
           </span>
           <span className={`text-2xl font-black mt-1 block ${impact.monthly_net_benefit >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}>
             {impact.monthly_net_benefit >= 0 ? "+" : ""}₹{impact.monthly_net_benefit.toFixed(2)}/month
@@ -95,19 +111,19 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
       {/* Financial Breakdown Table */}
       <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4 space-y-2 text-xs">
         <div className="flex items-center justify-between text-slate-700 dark:text-[#A1A1AA]">
-          <span>{isHerd ? "Herd Additional Milk Revenue" : "Additional Milk Revenue"} ({impact.delta_milk_liters >= 0 ? "+" : ""}{impact.delta_milk_liters} L @ ₹{impact.milk_price_per_liter}/L):</span>
+          <span>{isHerd ? t("sim.fin.herd_milk_revenue", "Herd Additional Milk Revenue") : t("sim.fin.milk_revenue", "Additional Milk Revenue")} ({impact.delta_milk_liters >= 0 ? "+" : ""}{impact.delta_milk_liters} L @ ₹{impact.milk_price_per_liter}/L):</span>
           <span className={`font-bold ${impact.daily_revenue_change >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}>
             {impact.daily_revenue_change >= 0 ? "+" : ""}₹{impact.daily_revenue_change.toFixed(2)}/day
           </span>
         </div>
         <div className="flex items-center justify-between text-slate-700 dark:text-[#A1A1AA]">
-          <span>{isHerd ? "Herd Additional Feed Cost" : "Additional Feed Cost"} ({impact.delta_feed_kg >= 0 ? "+" : ""}{impact.delta_feed_kg} kg @ ₹{impact.feed_cost_per_kg}/kg):</span>
+          <span>{isHerd ? t("sim.fin.herd_feed_cost", "Herd Additional Feed Cost") : t("sim.fin.feed_cost", "Additional Feed Cost")} ({impact.delta_feed_kg >= 0 ? "+" : ""}{impact.delta_feed_kg} kg @ ₹{impact.feed_cost_per_kg}/kg):</span>
           <span className={`font-bold ${impact.daily_feed_cost_change <= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}`}>
             {impact.daily_feed_cost_change > 0 ? "-" : ""}₹{Math.abs(impact.daily_feed_cost_change).toFixed(2)}/day
           </span>
         </div>
         <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#27272A] pt-2 font-bold text-slate-900 dark:text-[#F4F4F5] text-sm">
-          <span>Net Estimated Benefit:</span>
+          <span>{t("sim.fin.net_benefit", "Net Estimated Benefit:")}</span>
           <span className={impact.daily_net_benefit >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}>
             {impact.daily_net_benefit >= 0 ? "+" : ""}₹{impact.daily_net_benefit.toFixed(2)}/day
           </span>
@@ -116,7 +132,7 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
         {/* Derived Metric: Revenue per ₹1 feed cost */}
         {impact.revenue_per_feed_cost_ratio != null && (
           <div className="border-t border-slate-100 dark:border-[#27272A] pt-2 flex items-center justify-between text-slate-600 dark:text-[#A1A1AA] font-semibold text-[11.5px]">
-            <span>Revenue generated per ₹1 of additional feed cost:</span>
+            <span>{t("sim.fin.revenue_ratio", "Revenue generated per ₹1 of additional feed cost:")}</span>
             <span className="font-bold text-slate-900 dark:text-[#F4F4F5] bg-slate-100 dark:bg-[#151719] px-2 py-0.5 rounded">
               ₹{impact.revenue_per_feed_cost_ratio.toFixed(2)}
             </span>
@@ -129,21 +145,35 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
         <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/70 dark:bg-emerald-500/10 p-4 space-y-1.5">
           <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-emerald-300 flex items-center gap-1.5">
             <Coins className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
-            Why This Impact?
+            {t("sim.fin.why_impact", "Why This Impact?")}
           </h4>
           <p className="text-xs font-medium leading-relaxed text-emerald-950 dark:text-emerald-200">
-            {impact.explanation_text}
+            {getLocalizedFinancialExplanation(impact, t)}
           </p>
         </div>
       )}
 
       {/* Transparent Assumptions Badge */}
       <div className="rounded-xl bg-slate-100/80 dark:bg-[#1B1D20] p-3 text-[11.5px] text-slate-600 dark:text-[#A1A1AA] flex items-center gap-2">
-        <span className="font-bold text-slate-700 dark:text-[#F4F4F5]">Transparency Note:</span>
+        <span className="font-bold text-slate-700 dark:text-[#F4F4F5]">{t("sim.fin.transparency_note", "Transparency Note:")}</span>
         {impact.using_default_assumptions ? (
-          <span>Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on default regional estimates (Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg) over a standard 30-day monthly horizon. Configure farm settings for customized rates.</span>
+          <span>
+            {t(
+              "sim.fin.transparency_desc_default",
+              "Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on default regional estimates (Milk: ₹{milk}/L, Feed: ₹{feed}/kg) over a standard 30-day monthly horizon. Configure farm settings for customized rates."
+            )
+              .replace("{milk}", String(impact.milk_price_per_liter))
+              .replace("{feed}", String(impact.feed_cost_per_kg))}
+          </span>
         ) : (
-          <span>Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on farm-configured rates (Milk: ₹{impact.milk_price_per_liter}/L, Feed: ₹{impact.feed_cost_per_kg}/kg) over a standard 30-day monthly horizon.</span>
+          <span>
+            {t(
+              "sim.fin.transparency_desc_custom",
+              "Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on farm-configured rates (Milk: ₹{milk}/L, Feed: ₹{feed}/kg) over a standard 30-day monthly horizon."
+            )
+              .replace("{milk}", String(impact.milk_price_per_liter))
+              .replace("{feed}", String(impact.feed_cost_per_kg))}
+          </span>
         )}
       </div>
     </div>
@@ -184,7 +214,8 @@ export default function SimulationPage() {
       if (paramCowId && cows.some((c) => c.id === paramCowId)) {
         setSelectedCowId(paramCowId);
       } else if (!selectedCowId) {
-        setSelectedCowId(cows[0].id);
+        const preferredCow = cows.find((c) => c.name === "Ganga" || c.tag_id === "KA-01-G-101") || cows[0];
+        setSelectedCowId(preferredCow.id);
       }
     }
   }, [cows, paramCowId, selectedCowId]);
@@ -341,7 +372,7 @@ export default function SimulationPage() {
           <div className="flex items-center gap-3 rounded-3xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 p-4 text-rose-950 dark:text-rose-200 shadow-sm">
             <ShieldAlert className="h-6 w-6 shrink-0 text-rose-600 dark:text-rose-400" />
             <div>
-              <h4 className="text-sm font-bold">Simulation Notice</h4>
+              <h4 className="text-sm font-bold">{t("sim.notice", "Simulation Notice")}</h4>
               <p className="text-xs text-rose-800 dark:text-rose-300">
                 {((mode === "cow" ? cowMutation.error : herdMutation.error) as any)?.response?.data?.detail ||
                   (mode === "cow" ? cowMutation.error : herdMutation.error)?.message}
@@ -355,9 +386,9 @@ export default function SimulationPage() {
           <div className="flex items-center gap-3 rounded-3xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 text-amber-950 dark:text-amber-200 shadow-sm">
             <ShieldAlert className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>
-              <h4 className="text-sm font-bold">Extrapolation Boundary Notice</h4>
+              <h4 className="text-sm font-bold">{t("sim.extrap_title", "Extrapolation Boundary Notice")}</h4>
               <p className="text-xs text-amber-800 dark:text-amber-300">
-                Simulated parameters push beyond typical historical training bounds. Predictions and financial estimates reflect trends but carry higher uncertainty.
+                {t("sim.extrap_desc", "Simulated parameters push beyond typical historical training bounds. Predictions and financial estimates reflect trends but carry higher uncertainty.")}
               </p>
             </div>
           </div>
@@ -408,7 +439,7 @@ export default function SimulationPage() {
               <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-0.5">
                 {mode === "cow"
                   ? t("sim.scenario_panel_desc", "Select an individual cow and adjust scenario parameters.")
-                  : "Adjust environmental and feeding sliders for herd simulation."}
+                  : t("sim.scenario_panel_desc_herd", "Adjust environmental and feeding sliders for herd simulation.")}
               </p>
             </div>
 
@@ -425,11 +456,11 @@ export default function SimulationPage() {
                   className="w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] px-4 py-2.5 text-sm font-bold text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-500 focus:bg-white dark:focus:bg-[#1B1D20] focus:outline-none"
                 >
                   {cows.length === 0 ? (
-                    <option value="">No cows available</option>
+                    <option value="">{t("sim.no_cows", "No cows available")}</option>
                   ) : (
                     cows.map((c) => (
                       <option key={c.id} value={c.id} className="dark:bg-[#1B1D20]">
-                        🐄 {c.name || `Cow ${c.tag_id}`} (Tag: {c.tag || c.tag_id || "N/A"})
+                        🐄 {c.name || `${t("sim.cow", "Cow")} ${c.tag_id}`} ({t("sim.tag", "Tag")}: {c.tag || c.tag_id || "N/A"})
                       </option>
                     ))
                   )}
@@ -544,7 +575,7 @@ export default function SimulationPage() {
                 <div className="grid grid-cols-2 gap-3 pt-1 animate-in fade-in">
                   <div>
                     <label className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] block mb-1">
-                      Milk Price (₹/L)
+                      {t("sim.milk_price", "Milk Price (₹/L)")}
                     </label>
                     <input
                       type="number"
@@ -555,7 +586,7 @@ export default function SimulationPage() {
                   </div>
                   <div>
                     <label className="text-[11px] font-bold text-slate-600 dark:text-[#A1A1AA] block mb-1">
-                      Feed Cost (₹/kg)
+                      {t("sim.feed_cost", "Feed Cost (₹/kg)")}
                     </label>
                     <input
                       type="number"
@@ -606,11 +637,11 @@ export default function SimulationPage() {
                         🐄 {cowResult.cow_name}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-0.5">
-                        Tag: {cowResult.tag_id} {cowResult.breed_name ? `• Breed: ${cowResult.breed_name}` : ""}
+                        {t("sim.tag", "Tag")}: {cowResult.tag_id} {cowResult.breed_name ? `• ${t("twin.breed_label", "Breed")}: ${getLocalizedBreed(cowResult.breed_name, t)}` : ""}
                       </p>
                     </div>
                     <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
-                      Single Cow Scenario
+                      {t("sim.single_cow_scenario", "Single Cow Scenario")}
                     </span>
                   </div>
 
@@ -624,7 +655,7 @@ export default function SimulationPage() {
                       }`}
                     >
                       <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-[#A1A1AA]">
-                        Predicted Milk Yield
+                        {t("sim.predicted_milk_yield", "Predicted Milk Yield")}
                       </div>
                       <div className="mt-2 flex items-baseline gap-2">
                         <span className="text-3xl font-black text-slate-950 dark:text-[#F4F4F5]">
@@ -645,24 +676,24 @@ export default function SimulationPage() {
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-slate-500 dark:text-[#A1A1AA]">
-                        Baseline Yield: {cowResult.baseline_milk_yield_l.toFixed(1)} L/day
+                        {t("sim.baseline_yield", "Baseline Yield")}: {cowResult.baseline_milk_yield_l.toFixed(1)} L/day
                       </p>
                     </div>
 
                     <div className="rounded-2xl border border-sky-100 dark:border-[#27272A] bg-gradient-to-br from-sky-50 to-white dark:from-[#1B1D20] dark:to-[#151719] p-4">
                       <div className="text-xs font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300">
-                        Digital Twin Vitality Score
+                        {t("sim.vitality_score", "Digital Twin Vitality Score")}
                       </div>
                       <div className="mt-2 flex items-baseline gap-2">
                         <span className="text-3xl font-black text-sky-950 dark:text-sky-200">
                           {cowResult.simulated_vitality_score.toFixed(0)}%
                         </span>
                         <span className="text-xs font-semibold text-sky-700 dark:text-sky-400">
-                          Baseline: {cowResult.baseline_vitality_score.toFixed(0)}%
+                          {t("sim.baseline", "Baseline")}: {cowResult.baseline_vitality_score.toFixed(0)}%
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-sky-700 dark:text-sky-400">
-                        Health Status: {cowResult.simulated_health_status}
+                        {t("sim.health_status_label", "Health Status")}: {getLocalizedHealthStatus(cowResult.simulated_health_status, t)}
                       </p>
                     </div>
                   </div>
@@ -671,15 +702,15 @@ export default function SimulationPage() {
                   <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-4 space-y-3">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
                       <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      Thermal Stress & Risk Shift
+                      {t("sim.thermal_stress_shift", "Thermal Stress & Risk Shift")}
                     </h4>
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div>
-                        <span className="text-slate-500 dark:text-[#A1A1AA] block">Baseline THI</span>
+                        <span className="text-slate-500 dark:text-[#A1A1AA] block">{t("sim.baseline_thi", "Baseline THI")}</span>
                         <strong className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">{cowResult.baseline_thi}</strong>
                       </div>
                       <div>
-                        <span className="text-slate-500 dark:text-[#A1A1AA] block">Simulated THI</span>
+                        <span className="text-slate-500 dark:text-[#A1A1AA] block">{t("sim.simulated_thi", "Simulated THI")}</span>
                         <strong className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">{cowResult.simulated_thi}</strong>
                       </div>
                     </div>
@@ -689,10 +720,10 @@ export default function SimulationPage() {
                   <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/70 dark:bg-emerald-500/10 p-4 space-y-2">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
                       <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      Why This Result Changed:
+                      {t("sim.why_result_changed", "Why This Result Changed:")}
                     </h4>
                     <p className="text-xs font-medium leading-relaxed text-emerald-950 dark:text-emerald-200">
-                      {cowResult.explanation_summary}
+                      {getLocalizedSimulationSummary(cowResult, t)}
                     </p>
                   </div>
                 </div>
@@ -707,7 +738,7 @@ export default function SimulationPage() {
                   <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm space-y-3">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
                       <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      Cow Scenario AI Advice
+                      {t("sim.cow_scenario_advice", "Cow Scenario AI Advice")}
                     </h4>
                     <div className="space-y-2">
                       {cowResult.recommendations.map((rec, idx) => (
@@ -715,8 +746,12 @@ export default function SimulationPage() {
                           key={idx}
                           className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-3.5 text-xs font-medium text-slate-800 dark:text-[#F4F4F5]"
                         >
-                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">{rec.title}</div>
-                          <div className="mt-1 text-slate-600 dark:text-[#A1A1AA]">{rec.description}</div>
+                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">
+                            {translateRecommendationTitle(rec.title, t)}
+                          </div>
+                          <div className="mt-1 text-slate-600 dark:text-[#A1A1AA]">
+                            {translateRecommendationDescription(rec.description, t)}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -735,7 +770,7 @@ export default function SimulationPage() {
                     }`}
                   >
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-[#A1A1AA]">
-                      Herd Milk Production Impact
+                      {t("sim.herd_milk_impact", "Herd Milk Production Impact")}
                     </div>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-slate-950 dark:text-[#F4F4F5]">
@@ -756,24 +791,24 @@ export default function SimulationPage() {
                       </span>
                     </div>
                     <p className="mt-1.5 text-xs text-slate-500 dark:text-[#A1A1AA]">
-                      Baseline Herd Yield: {herdResult.baseline_total_yield_l.toFixed(1)} L/day ({herdResult.total_cows_simulated} cows)
+                      {t("sim.baseline_herd_yield", "Baseline Herd Yield")}: {herdResult.baseline_total_yield_l.toFixed(1)} L/day ({herdResult.total_cows_simulated} {t("sim.cows", "cows")})
                     </p>
                   </div>
 
                   <div className="rounded-3xl border border-sky-200 dark:border-[#27272A] bg-gradient-to-br from-sky-50 to-white dark:from-[#1B1D20] dark:to-[#151719] p-5 shadow-sm">
                     <div className="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-sky-300">
-                      Herd Scope Summary
+                      {t("sim.herd_scope_summary", "Herd Scope Summary")}
                     </div>
                     <div className="mt-3 flex items-baseline gap-2">
                       <span className="text-3xl font-black text-sky-950 dark:text-sky-200">
-                        {herdResult.total_cows_simulated} Cows
+                        {herdResult.total_cows_simulated} {t("sim.cows", "Cows")}
                       </span>
                       <span className="text-xs font-bold text-sky-800 dark:text-sky-300">
-                        Simulated Active Herd
+                        {t("sim.simulated_active_herd", "Simulated Active Herd")}
                       </span>
                     </div>
                     <p className="mt-1.5 text-xs text-sky-700 dark:text-sky-400">
-                      Farm-wide environmental & feed scenario
+                      {t("sim.farm_wide_scenario", "Farm-wide environmental & feed scenario")}
                     </p>
                   </div>
                 </div>
@@ -787,21 +822,21 @@ export default function SimulationPage() {
                 <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm space-y-4">
                   <h4 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] flex items-center gap-2">
                     <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    Individual Cow Scenario Breakdown
+                    {t("sim.cow_breakdown", "Individual Cow Scenario Breakdown")}
                   </h4>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="border-b border-slate-100 dark:border-[#27272A] text-slate-500 dark:text-[#A1A1AA] font-bold uppercase tracking-wider">
-                          <th className="pb-3">Cow Name</th>
-                          <th className="pb-3">Baseline Yield</th>
-                          <th className="pb-3">Simulated Yield</th>
-                          <th className="pb-3">Delta (L)</th>
-                          <th className="pb-3">THI Shift</th>
-                          <th className="pb-3">Health Status</th>
+                          <th className="pb-3">{t("sim.table.cow_name", "Cow Name")}</th>
+                          <th className="pb-3">{t("sim.table.baseline_yield", "Baseline Yield")}</th>
+                          <th className="pb-3">{t("sim.table.simulated_yield", "Simulated Yield")}</th>
+                          <th className="pb-3">{t("sim.table.delta", "Delta (L)")}</th>
+                          <th className="pb-3">{t("sim.table.thi_shift", "THI Shift")}</th>
+                          <th className="pb-3">{t("sim.table.health_status", "Health Status")}</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#27272A]">
+                      <tbody className="divide-y border-slate-100 dark:border-[#27272A]">
                         {herdResult.cow_comparisons.map((c) => (
                           <tr key={c.cow_id} className="hover:bg-slate-50/80 dark:hover:bg-[#1B1D20]/60 transition">
                             <td className="py-3 font-bold text-slate-900 dark:text-[#F4F4F5]">
@@ -825,7 +860,7 @@ export default function SimulationPage() {
                                     : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
                                 }`}
                               >
-                                {c.simulated_health_status}
+                                {getLocalizedHealthStatus(c.simulated_health_status, t)}
                               </span>
                             </td>
                           </tr>
@@ -840,7 +875,7 @@ export default function SimulationPage() {
                   <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm space-y-3">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
                       <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      Herd Scenario AI Action Plan
+                      {t("sim.herd_scenario_action_plan", "Herd Scenario AI Action Plan")}
                     </h4>
                     <div className="space-y-2">
                       {herdResult.herd_recommendations.map((rec, idx) => (
@@ -848,8 +883,12 @@ export default function SimulationPage() {
                           key={idx}
                           className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-3.5 text-xs font-medium text-slate-800 dark:text-[#F4F4F5]"
                         >
-                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">{rec.title}</div>
-                          <div className="mt-1 text-slate-600 dark:text-[#A1A1AA]">{rec.description}</div>
+                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">
+                            {translateRecommendationTitle(rec.title, t)}
+                          </div>
+                          <div className="mt-1 text-slate-600 dark:text-[#A1A1AA]">
+                            {translateRecommendationDescription(rec.description, t)}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -858,7 +897,7 @@ export default function SimulationPage() {
               </>
             ) : (
               <div className="flex items-center justify-center rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-12 text-slate-400 dark:text-[#A1A1AA] text-sm">
-                Select parameters to run what-if simulation.
+                {t("sim.select_params_prompt", "Select parameters to run what-if simulation.")}
               </div>
             )}
           </div>

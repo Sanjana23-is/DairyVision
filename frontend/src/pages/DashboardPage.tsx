@@ -12,6 +12,7 @@ import {
 } from "@/services/dashboard";
 import { fetchHealthAlerts, HealthAlert } from "@/services/healthAlert";
 import ExecutiveReportModal from "@/components/reports/ExecutiveReportModal";
+import { getFarmerDisplayName } from "@/utils/userUtils";
 import {
   Users,
   Droplet,
@@ -123,29 +124,70 @@ export function DashboardPage() {
 
   // Chart Points (Actual vs Expected)
   const chartPoints = useMemo<MilkChartPoint[]>(() => {
-    const obsTrendMap = new Map<string, number>();
+    const obsTrendMap = new Map<string, { total_milk: number | null; count: number }>();
     trends?.observation_trends?.forEach((item) => {
-      obsTrendMap.set(String(item.date), item.total_milk_produced);
+      obsTrendMap.set(String(item.date), {
+        total_milk: item.total_milk_produced,
+        count: item.observation_count,
+      });
     });
 
-    const predTrendMap = new Map<string, number>();
+    const predTrendMap = new Map<
+      string,
+      {
+        expected: number | null;
+        targetType: "prediction" | "baseline" | null;
+        predicted: number | null;
+        baseline: number | null;
+      }
+    >();
+
     trends?.milk_yield_trends?.forEach((item) => {
-      const totalPred = (item.average_predicted_milk_yield || 0) * (activeCowCount || 1);
-      predTrendMap.set(String(item.date), Number(totalPred.toFixed(1)));
+      const isModelPred = item.target_type === "model_prediction" || (item.prediction_count && item.prediction_count > 0);
+      const isBaseline = item.target_type === "baseline";
+      const expectedVal =
+        item.expected_yield !== undefined && item.expected_yield !== null
+          ? Number(item.expected_yield)
+          : item.total_predicted_milk_yield !== undefined && item.total_predicted_milk_yield !== null
+          ? Number(item.total_predicted_milk_yield)
+          : typeof item.average_predicted_milk_yield === "number" && item.average_predicted_milk_yield > 0
+          ? Number((item.average_predicted_milk_yield * (activeCowCount || 1)).toFixed(1))
+          : null;
+
+      predTrendMap.set(String(item.date), {
+        expected: expectedVal !== null ? Number(expectedVal.toFixed(1)) : null,
+        targetType: isModelPred ? "prediction" : isBaseline ? "baseline" : null,
+        predicted: isModelPred ? (expectedVal !== null ? Number(expectedVal.toFixed(1)) : null) : null,
+        baseline: isBaseline ? (expectedVal !== null ? Number(expectedVal.toFixed(1)) : null) : null,
+      });
     });
 
-    const allDates = Array.from(new Set([...obsTrendMap.keys(), ...predTrendMap.keys()])).sort();
+    // Plot across the dates for which valid daily observations exist
+    const obsDates = Array.from(obsTrendMap.keys()).sort();
+    const allDates =
+      obsDates.length > 0
+        ? obsDates
+        : Array.from(new Set([...obsTrendMap.keys(), ...predTrendMap.keys()])).sort();
 
     if (allDates.length === 0) return [];
 
     return allDates.map((dateStr) => {
-      const act = obsTrendMap.get(dateStr) ?? null;
-      const pred = predTrendMap.get(dateStr) ?? null;
+      const obs = obsTrendMap.get(dateStr);
+      const pred = predTrendMap.get(dateStr);
+      const act =
+        obs?.total_milk !== undefined && obs.total_milk !== null
+          ? Number(obs.total_milk.toFixed(1))
+          : null;
+      const targetVal = pred?.expected ?? null;
+
       return {
         date: dateStr,
         label: formatTrendLabel(dateStr),
-        actual: act !== null ? Number(act.toFixed(1)) : null,
-        predicted: pred !== null ? Number(pred.toFixed(1)) : null,
+        actual: act,
+        target: targetVal,
+        targetType: pred?.targetType ?? null,
+        predicted: pred?.predicted ?? null,
+        baseline: pred?.baseline ?? null,
       };
     });
   }, [trends, activeCowCount]);
@@ -219,7 +261,7 @@ export function DashboardPage() {
   }, [actualMilkToday, expectedMilkToday, activeCowCount, summary, activeAlertsCount, t]);
 
   const displayedFarmName = currentFarmName || summary?.farm?.name || "Luna Farm";
-  const displayedUserName = user?.full_name || "Farm Manager";
+  const displayedUserName = getFarmerDisplayName(user);
 
   const temp = summary?.todays_weather?.temperature ?? 26.0;
   const humidity = summary?.todays_weather?.humidity ?? 60.0;

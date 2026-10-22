@@ -15,23 +15,39 @@ export type MilkChartPoint = {
   date: string;
   label: string;
   actual: number | null;
-  predicted: number | null;
+  target?: number | null;
+  targetType?: "prediction" | "baseline" | null;
+  predicted?: number | null;
+  baseline?: number | null;
 };
 
 // Custom Glassmorphism Hover Tooltip
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload || !payload.length) return null;
 
-  const actualObj = payload.find((p: any) => p.dataKey === "actual");
-  const predObj = payload.find((p: any) => p.dataKey === "predicted");
+  const dataPoint: MilkChartPoint = payload[0]?.payload;
+  const actualVal = dataPoint?.actual ?? null;
+  const targetVal =
+    dataPoint?.target !== undefined && dataPoint?.target !== null
+      ? Number(dataPoint.target)
+      : dataPoint?.predicted !== undefined && dataPoint?.predicted !== null
+      ? Number(dataPoint.predicted)
+      : dataPoint?.baseline !== undefined && dataPoint?.baseline !== null
+      ? Number(dataPoint.baseline)
+      : null;
 
-  const actualVal = actualObj?.value !== undefined && actualObj?.value !== null ? Number(actualObj.value) : null;
-  const predVal = predObj?.value !== undefined && predObj?.value !== null ? Number(predObj.value) : null;
+  const targetType =
+    dataPoint?.targetType ??
+    (dataPoint?.predicted !== null && dataPoint?.predicted !== undefined
+      ? "prediction"
+      : dataPoint?.baseline !== null && dataPoint?.baseline !== undefined
+      ? "baseline"
+      : null);
 
-  const diff = actualVal !== null && predVal !== null ? actualVal - predVal : null;
+  const diff = actualVal !== null && targetVal !== null ? actualVal - targetVal : null;
 
   return (
-    <div className="rounded-xl border border-slate-200/90 dark:border-[#27272A] bg-white/95 dark:bg-[#151719]/95 p-3.5 shadow-xl backdrop-blur-md text-xs text-slate-800 dark:text-[#F4F4F5] space-y-2 min-w-[170px] select-none">
+    <div className="rounded-xl border border-slate-200/90 dark:border-[#27272A] bg-white/95 dark:bg-[#151719]/95 p-3.5 shadow-xl backdrop-blur-md text-xs text-slate-800 dark:text-[#F4F4F5] space-y-2 min-w-[200px] select-none">
       <div className="font-bold text-slate-900 dark:text-[#F4F4F5] border-b border-slate-100 dark:border-[#27272A] pb-1.5 flex items-center justify-between">
         <span>{label}</span>
         <span className="text-[10px] text-slate-400 dark:text-[#71717A] font-normal">Daily Yield</span>
@@ -47,30 +63,57 @@ function CustomTooltip({ active, payload, label }: any) {
         </div>
       ) : (
         <div className="flex items-center justify-between text-slate-400 dark:text-[#71717A]">
-          <span>Actual Milk:</span>
-          <span className="italic">No log</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-600 inline-block" />
+            Actual Milk:
+          </span>
+          <span className="italic">No valid observation</span>
         </div>
       )}
 
-      {predVal !== null ? (
+      {targetVal !== null ? (
         <div className="flex items-center justify-between gap-4">
           <span className="flex items-center gap-1.5 text-slate-600 dark:text-[#A1A1AA] font-medium">
-            <span className="h-2 w-2 rounded-full bg-sky-500 inline-block" />
-            Predicted Target:
+            <span
+              className={`h-2 w-2 rounded-full ${
+                targetType === "prediction" ? "bg-sky-500" : "bg-indigo-500"
+              } inline-block`}
+            />
+            {targetType === "prediction" ? "Predicted Target (AI):" : "Expected Baseline:"}
           </span>
-          <span className="font-bold text-sky-700 dark:text-sky-400">{predVal.toFixed(1)} L</span>
+          <div className="text-right">
+            <span
+              className={`font-bold ${
+                targetType === "prediction"
+                  ? "text-sky-700 dark:text-sky-400"
+                  : "text-indigo-700 dark:text-indigo-400"
+              }`}
+            >
+              {targetVal.toFixed(1)} L
+            </span>
+            <span className="block text-[9px] text-slate-400 dark:text-[#71717A] font-medium">
+              {targetType === "prediction" ? "ML Model Forecast" : "Historical Rolling Baseline"}
+            </span>
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-between text-slate-400 dark:text-[#71717A]">
-          <span>Predicted Target:</span>
-          <span className="italic">No target</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-600 inline-block" />
+            Expected Target:
+          </span>
+          <span className="italic">Unavailable</span>
         </div>
       )}
 
       {diff !== null && (
         <div className="flex items-center justify-between border-t border-slate-100 dark:border-[#27272A] pt-1.5 text-[11px]">
           <span className="text-slate-500 dark:text-[#71717A] font-medium">Variance:</span>
-          <span className={`font-bold ${diff >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+          <span
+            className={`font-bold ${
+              diff >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
+            }`}
+          >
             {diff >= 0 ? `+${diff.toFixed(1)} L` : `${diff.toFixed(1)} L`}
           </span>
         </div>
@@ -103,20 +146,24 @@ export default function MilkProductionChart({
             </h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mt-1">
-            {t("dashboard.actual_vs_predicted", "Actual daily output vs AI-predicted yield targets")}
+            {t("dashboard.actual_vs_predicted", "Actual daily output vs AI-predicted yield targets and historical baselines")}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
           {/* Legend */}
-          <div className="flex items-center gap-3 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
             <span className="flex items-center gap-1.5 text-slate-700 dark:text-[#F4F4F5]">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 dark:bg-emerald-500"></span>
               Actual Milk
             </span>
             <span className="flex items-center gap-1.5 text-slate-700 dark:text-[#F4F4F5]">
               <span className="h-2.5 w-2.5 rounded-full bg-sky-500 border border-sky-600"></span>
-              Predicted Target
+              Predicted Target (AI)
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-700 dark:text-[#F4F4F5]">
+              <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 border border-indigo-600"></span>
+              Expected Baseline
             </span>
           </div>
 
@@ -126,7 +173,9 @@ export default function MilkProductionChart({
               type="button"
               onClick={() => setRange(7)}
               className={`rounded-lg px-3 py-1 transition-all duration-150 ${
-                range === 7 ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-2xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                range === 7
+                  ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-2xs font-bold"
+                  : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
               }`}
             >
               7 Days
@@ -135,7 +184,9 @@ export default function MilkProductionChart({
               type="button"
               onClick={() => setRange(30)}
               className={`rounded-lg px-3 py-1 transition-all duration-150 ${
-                range === 30 ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-2xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                range === 30
+                  ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-2xs font-bold"
+                  : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
               }`}
             >
               30 Days
@@ -180,15 +231,16 @@ export default function MilkProductionChart({
               />
               <Tooltip content={<CustomTooltip />} />
 
-              {/* Predicted Target Area & Dashed Line */}
+              {/* Target Area & Dashed Line (Predicted Target / Expected Baseline) */}
               <Area
                 type="monotone"
-                dataKey="predicted"
-                name="Predicted Target"
+                dataKey="target"
+                name="Expected Target"
                 stroke="#38bdf8"
                 strokeWidth={2}
                 strokeDasharray="4 4"
                 fill="url(#predGradient)"
+                connectNulls={false}
                 isAnimationActive={true}
               />
 
@@ -200,6 +252,7 @@ export default function MilkProductionChart({
                 stroke="#10b981"
                 strokeWidth={2.5}
                 fill="url(#actualGradient)"
+                connectNulls={false}
                 isAnimationActive={true}
               />
             </AreaChart>
@@ -211,17 +264,38 @@ export default function MilkProductionChart({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 dark:border-[#27272A] pt-3 text-xs text-slate-500 dark:text-[#A1A1AA]">
         <div className="flex items-center gap-1.5">
           <Calendar className="h-3.5 w-3.5 text-slate-400 dark:text-[#71717A]" />
-          <span>{t("dashboard.showing_last", "Showing last")} <strong className="text-slate-800 dark:text-[#F4F4F5]">{displayedPoints.length} {t("dashboard.days", "days")}</strong></span>
+          <span>
+            {t("dashboard.showing_last", "Showing last")}{" "}
+            <strong className="text-slate-800 dark:text-[#F4F4F5]">
+              {displayedPoints.length} {t("dashboard.days", "days")}
+            </strong>
+          </span>
         </div>
         <div className="flex flex-wrap gap-4 text-xs">
-          {displayedPoints.slice(-4).map((p) => (
-            <div key={p.label} className="truncate">
-              <span className="font-bold text-slate-800 dark:text-[#F4F4F5]">{p.label}:</span>{" "}
-              <span className="text-emerald-700 dark:text-emerald-400 font-bold">{p.actual !== null ? `${p.actual}L` : "-"}</span>{" "}
-              <span className="text-slate-300 dark:text-[#27272A]">/</span>{" "}
-              <span className="text-sky-700 dark:text-sky-400 font-semibold">{p.predicted !== null ? `${p.predicted}L` : "-"}</span>
-            </div>
-          ))}
+          {displayedPoints.slice(-4).map((p) => {
+            const tVal = p.target !== undefined && p.target !== null ? p.target : p.predicted;
+            return (
+              <div key={p.date || p.label} className="truncate">
+                <span className="font-bold text-slate-800 dark:text-[#F4F4F5]">{p.label}:</span>{" "}
+                <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                  {p.actual !== null ? `${p.actual}L` : "-"}
+                </span>{" "}
+                <span className="text-slate-300 dark:text-[#27272A]">/</span>{" "}
+                <span
+                  className={`${
+                    p.targetType === "prediction"
+                      ? "text-sky-700 dark:text-sky-400 font-semibold"
+                      : "text-indigo-700 dark:text-indigo-400 font-semibold"
+                  }`}
+                >
+                  {tVal !== null && tVal !== undefined ? `${tVal}L` : "-"}
+                </span>
+                {p.targetType === "baseline" && (
+                  <span className="text-[10px] text-slate-400 ml-1 font-normal">(baseline)</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

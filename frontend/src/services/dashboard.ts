@@ -55,7 +55,10 @@ export type DashboardSummary = {
 export type DashboardTrends = {
   milk_yield_trends: Array<{
     date: string;
-    average_predicted_milk_yield: number;
+    average_predicted_milk_yield?: number | null;
+    total_predicted_milk_yield?: number | null;
+    expected_yield?: number | null;
+    target_type?: "model_prediction" | "baseline" | null;
     prediction_count: number;
   }>;
   health_alert_trends: Array<{
@@ -74,7 +77,7 @@ export type DashboardTrends = {
   observation_trends: Array<{
     date: string;
     observation_count: number;
-    total_milk_produced: number;
+    total_milk_produced: number | null;
   }>;
   recommendation_category_distribution: Array<{ category: string; count: number }>;
   health_alert_distribution: Array<{ category: string; count: number }>;

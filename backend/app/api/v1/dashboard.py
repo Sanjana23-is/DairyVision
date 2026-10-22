@@ -44,16 +44,17 @@ def get_dashboard_summary(
 @router.get("/farms/{farm_id}/trends", response_model=TrendsResponse)
 def get_dashboard_trends(
     farm_id: str,
+    days: int = 35,
     user_id: str = Depends(get_current_user_id),
     service: DashboardService = Depends(get_dashboard_service),
 ) -> Any:
     try:
         service.ensure_farm_accessible(user_id, farm_id)
         return {
-            "milk_yield_trends": service.get_milk_yield_trends(user_id, farm_id),
-            "health_alert_trends": service.get_health_alert_trends(user_id, farm_id),
-            "weather_trends": service.get_weather_trends(user_id, farm_id),
-            "observation_trends": service.get_observation_trends(user_id, farm_id),
+            "milk_yield_trends": service.get_milk_yield_trends(user_id, farm_id, days=days),
+            "health_alert_trends": service.get_health_alert_trends(user_id, farm_id, days=days),
+            "weather_trends": service.get_weather_trends(user_id, farm_id, days=days),
+            "observation_trends": service.get_observation_trends(user_id, farm_id, days=days),
             "recommendation_category_distribution": service.get_recommendation_category_distribution(user_id, farm_id),
             "health_alert_distribution": service.get_health_alert_distribution(user_id, farm_id),
             "cow_health_status_distribution": service.get_cow_health_status_distribution(user_id, farm_id),

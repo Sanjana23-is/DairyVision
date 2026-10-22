@@ -40,7 +40,8 @@ export function ProtectedRoute() {
   }
 
   // Enforce farm selection: If user is authenticated but no farm is selected, redirect to /select-farm
-  if (!currentFarmId && location.pathname !== "/select-farm") {
+  const effectiveFarmId = currentFarmId || (typeof window !== "undefined" ? localStorage.getItem("current_farm_id") : null);
+  if (!effectiveFarmId && location.pathname !== "/select-farm") {
     return <Navigate to="/select-farm" replace />;
   }
 

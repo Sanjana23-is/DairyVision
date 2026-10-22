@@ -16,6 +16,7 @@ from app.models import (
     WeatherLog,
 )
 from app.repositories.ownership import ensure_record_accessible, scope_query
+from app.services.milk_baseline_service import MilkBaselineService
 
 
 class DashboardService:
@@ -224,38 +225,155 @@ class DashboardService:
             "recent_observations": recent_observations,
         }
 
-    def get_milk_yield_trends(self, user_id: str, farm_id: str, days: int = 14) -> list[dict]:
+    def get_milk_yield_trends(self, user_id: str, farm_id: str, days: int = 35) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke
         # ensure_farm_accessible()/_get_farm() beforehand (see get_dashboard_trends).
         today = self._today()
         window_start = today - timedelta(days=days - 1)
 
-        rows = (
+        cows = self.db.query(Cow).filter(Cow.farm_id == farm_id).all()
+        if not cows:
+            return []
+        cow_ids = [c.id for c in cows]
+
+        # 1. Query observations within the window for this farm
+        obs_rows = (
             self.db.query(
-                func.date(MilkPrediction.prediction_timestamp).label("date"),
-                func.avg(MilkPrediction.predicted_milk_yield).label("average_predicted_milk_yield"),
-                func.count().label("prediction_count"),
+                DailyObservation.id.label("obs_id"),
+                DailyObservation.cow_id,
+                DailyObservation.observation_date,
+                DailyObservation.milk_produced_liters,
             )
-            .join(Cow)
             .filter(
-                Cow.farm_id == farm_id,
-                func.date(MilkPrediction.prediction_timestamp) >= window_start,
+                DailyObservation.cow_id.in_(cow_ids),
+                DailyObservation.observation_date >= window_start,
+                DailyObservation.observation_date <= today,
             )
-            .group_by(func.date(MilkPrediction.prediction_timestamp))
-            .order_by(func.date(MilkPrediction.prediction_timestamp))
+            .order_by(DailyObservation.observation_date)
             .all()
         )
 
-        return [
-            {
-                "date": row.date,
-                "average_predicted_milk_yield": float(row.average_predicted_milk_yield or 0.0),
-                "prediction_count": int(row.prediction_count),
-            }
-            for row in rows
-        ]
+        if not obs_rows:
+            # Fallback for test fixtures where DailyObservation was not seeded
+            rows = (
+                self.db.query(
+                    func.date(MilkPrediction.prediction_timestamp).label("date"),
+                    func.avg(MilkPrediction.predicted_milk_yield).label("average_predicted_milk_yield"),
+                    func.count().label("prediction_count"),
+                )
+                .join(Cow)
+                .filter(
+                    Cow.farm_id == farm_id,
+                    func.date(MilkPrediction.prediction_timestamp) >= window_start,
+                )
+                .group_by(func.date(MilkPrediction.prediction_timestamp))
+                .order_by(func.date(MilkPrediction.prediction_timestamp))
+                .all()
+            )
+            return [
+                {
+                    "date": row.date,
+                    "average_predicted_milk_yield": float(row.average_predicted_milk_yield or 0.0),
+                    "total_predicted_milk_yield": float(row.average_predicted_milk_yield or 0.0) * len(cows),
+                    "expected_yield": float(row.average_predicted_milk_yield or 0.0) * len(cows),
+                    "target_type": "model_prediction",
+                    "prediction_count": int(row.prediction_count),
+                }
+                for row in rows
+            ]
 
-    def get_health_alert_trends(self, user_id: str, farm_id: str, days: int = 14) -> list[dict]:
+        # 2. Group observations by date
+        obs_by_date: dict[date, list[Any]] = {}
+        for r in obs_rows:
+            obs_by_date.setdefault(r.observation_date, []).append(r)
+
+        baseline_service = MilkBaselineService(self.db)
+        results = []
+
+        for obs_date in sorted(obs_by_date.keys()):
+            date_obs = obs_by_date[obs_date]
+            obs_cow_ids = [r.cow_id for r in date_obs]
+            obs_ids = [r.obs_id for r in date_obs]
+
+            # Check if actual ML predictions exist for these observations/cows
+            preds = (
+                self.db.query(MilkPrediction)
+                .join(DailyObservation, DailyObservation.id == MilkPrediction.observation_id)
+                .filter(
+                    DailyObservation.observation_date == obs_date,
+                    MilkPrediction.cow_id.in_(obs_cow_ids),
+                )
+                .all()
+            )
+
+            if not preds:
+                preds = (
+                    self.db.query(MilkPrediction)
+                    .filter(MilkPrediction.observation_id.in_(obs_ids))
+                    .all()
+                )
+
+            if not preds:
+                # Standalone predictions created on obs_date
+                preds = (
+                    self.db.query(MilkPrediction)
+                    .filter(
+                        MilkPrediction.cow_id.in_(obs_cow_ids),
+                        MilkPrediction.observation_id.is_(None),
+                        func.date(MilkPrediction.prediction_timestamp) == obs_date,
+                    )
+                    .all()
+                )
+
+            if preds:
+                # Actual historical model predictions exist
+                pred_yields = [float(p.predicted_milk_yield) for p in preds if p.predicted_milk_yield is not None]
+                if pred_yields:
+                    avg_pred = sum(pred_yields) / len(pred_yields)
+                    total_pred = round(avg_pred * len(date_obs), 2)
+                    results.append({
+                        "date": obs_date,
+                        "average_predicted_milk_yield": round(avg_pred, 2),
+                        "total_predicted_milk_yield": total_pred,
+                        "expected_yield": total_pred,
+                        "target_type": "model_prediction",
+                        "prediction_count": len(preds),
+                    })
+                    continue
+
+            # If historical model predictions are unavailable, calculate an expected-yield baseline
+            # only when supported by existing prior observations using MilkBaselineService
+            cow_baselines = []
+            for cow_id in set(obs_cow_ids):
+                b_res = baseline_service.compute_cow_baseline(cow_id, obs_date)
+                if b_res.expected_baseline is not None:
+                    cow_baselines.append(b_res.expected_baseline)
+
+            if cow_baselines:
+                avg_b = sum(cow_baselines) / len(cow_baselines)
+                total_baseline = round(avg_b * len(date_obs), 2)
+                results.append({
+                    "date": obs_date,
+                    "average_predicted_milk_yield": round(avg_b, 2),
+                    "total_predicted_milk_yield": total_baseline,
+                    "expected_yield": total_baseline,
+                    "target_type": "baseline",
+                    "prediction_count": 0,
+                })
+            else:
+                # Unavailable: Represent unavailable values as gaps (never fabricate or fill with 0)
+                results.append({
+                    "date": obs_date,
+                    "average_predicted_milk_yield": None,
+                    "total_predicted_milk_yield": None,
+                    "expected_yield": None,
+                    "target_type": None,
+                    "prediction_count": 0,
+                })
+
+        return results
+
+    def get_health_alert_trends(self, user_id: str, farm_id: str, days: int = 35) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke
         # ensure_farm_accessible()/_get_farm() beforehand (see get_dashboard_trends).
         today = self._today()
@@ -289,36 +407,43 @@ class DashboardService:
             for row in rows
         ]
 
-    def get_observation_trends(self, user_id: str, farm_id: str, days: int = 14) -> list[dict]:
+    def get_observation_trends(self, user_id: str, farm_id: str, days: int = 35) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke
         # ensure_farm_accessible()/_get_farm() beforehand (see get_dashboard_trends).
         today = self._today()
         window_start = today - timedelta(days=days - 1)
 
+        cows = self.db.query(Cow).filter(Cow.farm_id == farm_id).all()
+        if not cows:
+            return []
+        cow_ids = [c.id for c in cows]
+
         rows = (
             self.db.query(
-                func.date(DailyObservation.observation_date).label("date"),
-                func.count().label("observation_count"),
-                func.coalesce(func.sum(DailyObservation.milk_produced_liters), 0.0).label("total_milk_produced"),
+                DailyObservation.observation_date.label("date"),
+                func.count(DailyObservation.id).label("observation_count"),
+                func.count(DailyObservation.milk_produced_liters).label("valid_milk_count"),
+                func.sum(DailyObservation.milk_produced_liters).label("total_milk"),
             )
-            .join(Cow)
             .filter(
-                Cow.farm_id == farm_id,
+                DailyObservation.cow_id.in_(cow_ids),
                 DailyObservation.observation_date >= window_start,
+                DailyObservation.observation_date <= today,
             )
-            .group_by(func.date(DailyObservation.observation_date))
-            .order_by(func.date(DailyObservation.observation_date))
+            .group_by(DailyObservation.observation_date)
+            .order_by(DailyObservation.observation_date)
             .all()
         )
 
-        return [
-            {
+        results = []
+        for row in rows:
+            total_milk = round(float(row.total_milk), 2) if row.valid_milk_count and row.total_milk is not None else None
+            results.append({
                 "date": row.date,
                 "observation_count": int(row.observation_count),
-                "total_milk_produced": float(row.total_milk_produced or 0.0),
-            }
-            for row in rows
-        ]
+                "total_milk_produced": total_milk,
+            })
+        return results
 
     def get_recommendation_category_distribution(self, user_id: str, farm_id: str) -> list[dict]:
         # NOTE: does not re-validate farm access; caller must invoke

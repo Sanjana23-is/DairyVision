@@ -3,12 +3,15 @@ import { useForm, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
+import { getFarmerDisplayName } from "@/utils/userUtils";
 import FarmLocationPicker, {
   FarmLocationData,
 } from "./FarmLocationPicker";
 
 const schema = z.object({
   name: z.string().min(1, "Farm name is required"),
+  farmer_name: z.string().min(1, "Farmer name is required").optional(),
   description: z.string().optional(),
   location_city: z.string().optional(),
   location_country: z.string().optional(),
@@ -48,6 +51,7 @@ export default function AddFarmDialog({
   error?: string;
 }) {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const resolver = zodResolver(schema) as unknown as Resolver<FormData>;
 
   const [locationData, setLocationData] =
@@ -63,8 +67,10 @@ export default function AddFarmDialog({
 
   useEffect(() => {
     if (open) {
+      const defaultFarmerName = getFarmerDisplayName(user);
       reset({
         name: "",
+        farmer_name: defaultFarmerName !== "Farmer" ? defaultFarmerName : "",
         description: "",
         location_city: "",
         location_country: "India",
@@ -73,7 +79,7 @@ export default function AddFarmDialog({
       });
       setLocationData(initialLocationData);
     }
-  }, [open, reset]);
+  }, [open, reset, user]);
 
   const handleLocationChange = (newData: FarmLocationData) => {
     setLocationData(newData);
@@ -93,7 +99,7 @@ export default function AddFarmDialog({
       >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#27272A] pb-3">
           <h3 className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5]">
-            {t("farm.modal_create_title")}
+            {t("farm.modal_create_title", "Create Farm")}
           </h3>
           <span className="text-xs text-slate-500 dark:text-[#A1A1AA]">
             DairyVision AI
@@ -103,7 +109,23 @@ export default function AddFarmDialog({
         <div className="space-y-4">
           <div>
             <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">
-              {t("farm.field_name")} <span className="text-rose-500">*</span>
+              {t("farm.farmer_name", "Farmer's Full Name")} <span className="text-rose-500">*</span>
+            </label>
+            <input
+              placeholder="e.g. Ramesh Patel"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-2 text-xs text-slate-900 dark:text-[#F4F4F5] focus:border-emerald-600 focus:outline-none"
+              {...register("farmer_name")}
+            />
+            {errors.farmer_name && (
+              <div className="text-rose-600 dark:text-rose-400 text-xs mt-0.5">
+                {String(errors.farmer_name.message)}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">
+              {t("farm.field_name", "Farm Name")} <span className="text-rose-500">*</span>
             </label>
             <input
               placeholder="e.g. Kaveri Dairy Farm"
@@ -126,7 +148,7 @@ export default function AddFarmDialog({
 
           <div>
             <label className="text-xs font-bold text-slate-700 dark:text-[#F4F4F5]">
-              {t("farm.description")}
+              {t("farm.description", "Description")}
             </label>
             <textarea
               rows={2}
@@ -164,4 +186,3 @@ export default function AddFarmDialog({
     </div>
   );
 }
-

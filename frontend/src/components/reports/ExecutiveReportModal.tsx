@@ -290,7 +290,9 @@ export default function ExecutiveReportModal({
                     return (
                       <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-[#1B1D20]/80">
                         <td className="p-3 font-bold text-slate-900 dark:text-[#F4F4F5]">{row.date}</td>
-                        <td className="p-3 font-black text-sky-950 dark:text-emerald-400">{row.total_milk_produced.toFixed(1)} L</td>
+                        <td className="p-3 font-black text-sky-950 dark:text-emerald-400">
+                          {row.total_milk_produced != null ? `${row.total_milk_produced.toFixed(1)} L` : "N/A"}
+                        </td>
                         <td className="p-3 text-slate-700 dark:text-[#F4F4F5]">
                           {predRow?.average_predicted_milk_yield
                             ? `${predRow.average_predicted_milk_yield.toFixed(1)} L`

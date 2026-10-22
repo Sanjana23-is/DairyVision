@@ -241,7 +241,7 @@ class FarmBase(BaseModel):
 
 
 class FarmCreate(FarmBase):
-    pass
+    farmer_name: Optional[str] = None
 
 
 class FarmUpdate(BaseModel):

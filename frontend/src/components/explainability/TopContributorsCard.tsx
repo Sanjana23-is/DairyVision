@@ -1,4 +1,5 @@
 import { ExplainabilityFeature } from "@/services/explainability";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   getFarmerFeatureLabel,
   getFarmerExplanation,
@@ -14,6 +15,8 @@ export default function TopContributorsCard({
   items: ExplainabilityFeature[];
   showTechnical?: boolean;
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-5 shadow-sm">
       <div className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">
@@ -22,17 +25,18 @@ export default function TopContributorsCard({
       <ul className="mt-4 space-y-3.5 text-sm text-slate-600 dark:text-[#A1A1AA]">
         {items.length === 0 ? (
           <li className="text-xs text-slate-400 dark:text-[#A1A1AA]/70">
-            No significant factors
+            {t("explain.no_factors", "No significant factors")}
           </li>
         ) : (
           items.slice(0, 5).map((f) => {
             const isPositive = (f.shap_value ?? 0) >= 0;
-            const farmerName = getFarmerFeatureLabel(f.feature, f.display_name);
-            const { icon, category } = getFarmerCategory(f.feature);
+            const farmerName = getFarmerFeatureLabel(f.feature, f.display_name, t);
+            const { icon, category } = getFarmerCategory(f.feature, t);
             const explanation = getFarmerExplanation(
               f.feature,
               f.shap_value,
               f.value_formatted,
+              t,
             );
 
             return (
@@ -52,7 +56,7 @@ export default function TopContributorsCard({
                       )}
                     </div>
                     <div className="text-xs text-slate-500 dark:text-[#A1A1AA]">
-                      Observed:{" "}
+                      {t("explain.observed", "Observed:")}{" "}
                       <strong className="text-slate-700 dark:text-slate-300">
                         {f.value_formatted || String(f.value ?? "—")}
                       </strong>
@@ -81,7 +85,9 @@ export default function TopContributorsCard({
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">
-                      {isPositive ? "Model Boost" : "Model Penalty"}
+                      {isPositive
+                        ? t("explain.model_boost", "Model Boost")
+                        : t("explain.model_penalty", "Model Penalty")}
                     </div>
                   </div>
                 </div>

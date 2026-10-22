@@ -21,6 +21,7 @@ export async function fetchFarms() {
 
 export type CreateFarmPayload = {
   name: string;
+  farmer_name?: string;
   description?: string;
   location_city?: string;
   location_country?: string;

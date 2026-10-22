@@ -9,9 +9,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFarms, Farm, createFarm } from "@/services/farm";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
 import { NotificationDropdown } from "@/components/navbar/NotificationDropdown";
+import { getFarmerDisplayName } from "@/utils/userUtils";
 
 export default function Navbar() {
-  const { user, currentFarmId, currentFarmName, setCurrentFarm, logout } = useAuth();
+  const { user, currentFarmId, currentFarmName, setCurrentFarm, logout, updateUserProfile } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const [isFarmOpen, setIsFarmOpen] = useState(false);
@@ -70,7 +71,8 @@ export default function Navbar() {
     navigate("/profile");
   };
 
-  const initialLetter = user?.full_name ? user.full_name.charAt(0).toUpperCase() : null;
+  const farmerName = getFarmerDisplayName(user);
+  const initialLetter = farmerName && farmerName !== "Farmer" ? farmerName.charAt(0).toUpperCase() : null;
   const activeLangOption = LANGUAGE_OPTIONS.find((l) => l.code === language) || LANGUAGE_OPTIONS[0];
 
   return (
@@ -219,7 +221,7 @@ export default function Navbar() {
             className="group flex items-center gap-2.5 rounded-full p-1 transition-all duration-150 hover:bg-slate-100 dark:hover:bg-[#151719] focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           >
             <div className="hidden sm:block text-xs font-bold text-slate-800 dark:text-[#F4F4F5] group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition-colors pl-1">
-              {user?.full_name || user?.email || "Farm Manager"}
+              {farmerName}
             </div>
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-extrabold text-xs transition-all duration-150 group-hover:scale-105 group-hover:border-emerald-400 group-hover:bg-emerald-500/20">
               {initialLetter || <User className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
@@ -247,7 +249,7 @@ export default function Navbar() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-slate-900 dark:text-[#F4F4F5] truncate">
-                      {user?.full_name || "Farm Manager"}
+                      {farmerName}
                     </p>
                     <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA] truncate font-medium mt-0.5">
                       {user?.email || "user@farm.com"}
@@ -342,7 +344,12 @@ export default function Navbar() {
         }}
         loading={createMut.status === "pending"}
         error={createMut.error ? ((createMut.error as any)?.response?.data?.detail || createMut.error.message) : undefined}
-        onCreate={(payload) => createMut.mutate(payload)}
+        onCreate={(payload) => {
+          if (payload.farmer_name?.trim()) {
+            updateUserProfile(payload.farmer_name.trim()).catch(() => {});
+          }
+          createMut.mutate(payload);
+        }}
       />
     </div>
   );

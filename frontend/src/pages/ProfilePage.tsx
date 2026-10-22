@@ -7,6 +7,7 @@ import { LANGUAGE_OPTIONS, SupportedLanguage } from "@/i18n/translations";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { User, Shield, Building, LogOut, ArrowLeft, Save, CheckCircle2, AlertCircle, Globe, Sun, Moon, Monitor, Palette } from "lucide-react";
+import { getFarmerDisplayName } from "@/utils/userUtils";
 
 export function ProfilePage() {
   const { user, currentFarmName, logout, updateUserProfile } = useAuth();
@@ -15,15 +16,16 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [fullName, setFullName] = useState(user?.full_name || "");
+  const farmerDisplayName = getFarmerDisplayName(user);
+  const [fullName, setFullName] = useState(() => (user?.full_name && !user.full_name.includes("@") && user.full_name !== user.email ? user.full_name : ""));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
-    if (user?.full_name) {
+    if (user?.full_name && !user.full_name.includes("@") && user.full_name !== user.email) {
       setFullName(user.full_name);
     }
-  }, [user?.full_name]);
+  }, [user?.full_name, user?.email]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,11 +84,11 @@ export function ProfilePage() {
           {/* Header Avatar & Identity */}
           <div className="flex items-center gap-4 border-b border-slate-100 dark:border-[#27272A] pb-6">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-black text-2xl">
-              {fullName.trim() ? fullName.trim().charAt(0).toUpperCase() : <User className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />}
+              {fullName.trim() ? fullName.trim().charAt(0).toUpperCase() : farmerDisplayName !== "Farmer" ? farmerDisplayName.charAt(0).toUpperCase() : <User className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />}
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-[#F4F4F5]">
-                {user?.full_name || "Farm Manager"}
+                {fullName.trim() || farmerDisplayName}
               </h2>
               <p className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium mt-0.5">{user?.email || "N/A"}</p>
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 mt-2">
@@ -140,7 +142,7 @@ export function ProfilePage() {
               {/* Read-Only Email Field */}
               <div className="space-y-1.5">
                 <label className="block font-bold text-slate-700 dark:text-[#F4F4F5]">
-                  Email Address <span className="text-slate-400 dark:text-[#A1A1AA] font-normal">(Primary)</span>
+                  Email Address <span className="text-slate-400 dark:text-[#A1A1AA] font-normal">(Account Details)</span>
                 </label>
                 <div className="relative">
                   <input
@@ -151,7 +153,7 @@ export function ProfilePage() {
                   />
                 </div>
                 <p className="text-[11px] text-slate-400 dark:text-[#A1A1AA] font-medium">
-                  Email is linked to your authentication credentials.
+                  Email is used for account credentials and secure login.
                 </p>
               </div>
 

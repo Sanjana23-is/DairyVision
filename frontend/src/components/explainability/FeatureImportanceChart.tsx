@@ -9,21 +9,23 @@ import {
   Cell,
 } from "recharts";
 import type { ExplainabilityFeature } from "@/services/explainability";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   getFarmerFeatureLabel,
   getFarmerExplanation,
 } from "@/utils/featureTranslator";
 
 // Custom Tooltip for SHAP Feature Importance
-function CustomShapTooltip({ active, payload }: any) {
+function CustomShapTooltip({ active, payload, t }: any) {
   if (!active || !payload || !payload.length) return null;
   const item = payload[0].payload;
   const shapVal = item.shap_value ?? 0;
-  const farmerName = getFarmerFeatureLabel(item.feature, item.display_name);
+  const farmerName = getFarmerFeatureLabel(item.feature, item.display_name, t);
   const explanation = getFarmerExplanation(
     item.feature,
     shapVal,
     item.value_formatted,
+    t,
   );
 
   return (
@@ -37,7 +39,7 @@ function CustomShapTooltip({ active, payload }: any) {
         </div>
       </div>
       <div className="flex items-center justify-between gap-4 text-slate-600 dark:text-[#A1A1AA] pt-1 border-t border-slate-100 dark:border-[#27272A]">
-        <span>Model Adjustment:</span>
+        <span>{t ? t("explain.model_adjustment", "Model Adjustment:") : "Model Adjustment:"}</span>
         <span
           className={`font-black ${shapVal >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
         >
@@ -56,10 +58,12 @@ export default function FeatureImportanceChart({
 }: {
   features: ExplainabilityFeature[];
 }) {
+  const { t } = useLanguage();
+
   if (!features || features.length === 0) {
     return (
       <div className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-6 text-slate-600 dark:text-[#A1A1AA] text-sm text-center">
-        No feature importance data available.
+        {t("explain.no_feature_data", "No feature importance data available.")}
       </div>
     );
   }
@@ -71,7 +75,7 @@ export default function FeatureImportanceChart({
 
   const chartData = sortedFeatures.map((f) => ({
     feature: f.feature,
-    display_name: getFarmerFeatureLabel(f.feature, f.display_name),
+    display_name: getFarmerFeatureLabel(f.feature, f.display_name, t),
     shap_value: f.shap_value ?? 0,
     value_formatted: f.value_formatted,
   }));
@@ -83,20 +87,18 @@ export default function FeatureImportanceChart({
       <div className="flex items-center justify-between mb-2 px-2">
         <div>
           <h4 className="text-sm font-semibold text-slate-800 dark:text-[#F4F4F5]">
-            Farmer Factor Attribution (SHAP)
+            {t("explain.factor_attribution", "Farmer Factor Attribution (SHAP)")}
           </h4>
           <p className="text-[11px] text-slate-400 dark:text-[#71717A]">
-            Model adjustments relative to baseline herd yield.
+            {t("explain.adjustments_relative", "Model adjustments relative to baseline herd yield.")}
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> + Yield
-            Boost
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> {t("explain.yield_boost", "+ Yield Boost")}
           </span>
           <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
-            <span className="h-2 w-2 rounded-full bg-rose-500" /> - Yield
-            Penalty
+            <span className="h-2 w-2 rounded-full bg-rose-500" /> {t("explain.yield_penalty", "- Yield Penalty")}
           </span>
         </div>
       </div>
@@ -129,7 +131,7 @@ export default function FeatureImportanceChart({
               axisLine={false}
               tick={{ fontSize: 11, fill: "#A1A1AA", fontWeight: 500 }}
             />
-            <Tooltip content={<CustomShapTooltip />} />
+            <Tooltip content={<CustomShapTooltip t={t} />} />
             <Bar
               dataKey="shap_value"
               radius={[0, 4, 4, 0]}

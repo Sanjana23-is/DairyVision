@@ -6,6 +6,11 @@ import { fetchHerdDigitalTwin, HerdDigitalTwin, CowDigitalTwin } from "@/service
 import DigitalTwinCowCard from "@/components/digitalTwin/DigitalTwinCowCard";
 import { AlertTriangle, Layers, RefreshCw, SortAsc } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  getLocalizedHealthStatus,
+  getLocalizedHeatStress,
+  getLocalizedLactationStage,
+} from "@/utils/digitalTwinI18n";
 
 
 type FilterType = "all" | "attention" | "critical" | "heat";
@@ -111,7 +116,7 @@ export default function DigitalTwinPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-amber-950 dark:text-amber-200">
-                  {attentionCount} {attentionCount === 1 ? t("twin.cow_requires", "Cow Requires") : t("twin.cows_require", "Cows Require")} Immediate Monitoring
+                  {attentionCount} {attentionCount === 1 ? t("twin.cow_requires", "Cow Requires Immediate Monitoring") : t("twin.cows_require", "Cows Require Immediate Monitoring")}
                 </h4>
                 <p className="text-xs text-amber-800 dark:text-amber-300">
                   {t("twin.flagged_reason", "Flagged due to active health warnings, critical risk status, or high ambient heat stress.")}
@@ -153,7 +158,7 @@ export default function DigitalTwinPage() {
                 {isLoading ? "…" : `${herdSummary?.total_daily_yield_l.toFixed(1)} L`}
               </span>
               <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                Target: {herdSummary?.total_predicted_yield_l.toFixed(1)} L
+                {t("twin.target", "Target")}: {herdSummary?.total_predicted_yield_l.toFixed(1)} L
               </span>
             </div>
             <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">
@@ -168,11 +173,11 @@ export default function DigitalTwinPage() {
             <div className="mt-3 flex items-center gap-3">
               <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
                 {isLoading ? "…" : herdSummary?.health_distribution["Healthy"] || 0}
-                <span className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA]"> Healthy</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA]"> {t("twin.healthy", "Healthy")}</span>
               </span>
               <span className="text-2xl font-black text-rose-700 dark:text-rose-400">
                 {isLoading ? "…" : herdSummary?.attention_cow_count || 0}
-                <span className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA]"> Attention</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-[#A1A1AA]"> {t("twin.attention", "Attention")}</span>
               </span>
             </div>
             <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
@@ -216,7 +221,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "all" ? "bg-white dark:bg-[#151719] text-slate-900 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  All ({rawCowStates.length})
+                  {t("twin.filter_all", "All")} ({rawCowStates.length})
                 </button>
                 <button
                   onClick={() => setFilterCategory("attention")}
@@ -224,7 +229,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "attention" ? "bg-amber-500 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Attention ({attentionCount})
+                  {t("twin.filter_attention", "Attention")} ({attentionCount})
                 </button>
                 <button
                   onClick={() => setFilterCategory("critical")}
@@ -232,7 +237,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "critical" ? "bg-rose-600 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Health Risk ({rawCowStates.filter((c) => c.health_status !== "Healthy").length})
+                  {t("twin.filter_health_risk", "Health Risk")} ({rawCowStates.filter((c) => c.health_status !== "Healthy").length})
                 </button>
                 <button
                   onClick={() => setFilterCategory("heat")}
@@ -240,7 +245,7 @@ export default function DigitalTwinPage() {
                     filterCategory === "heat" ? "bg-orange-500 text-white shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                   }`}
                 >
-                  Heat Stress ({rawCowStates.filter((c) => c.heat_stress_level === "High" || c.heat_stress_level === "Moderate").length})
+                  {t("twin.filter_heat_stress", "Heat Stress")} ({rawCowStates.filter((c) => c.heat_stress_level === "High" || c.heat_stress_level === "Moderate").length})
                 </button>
               </div>
 
@@ -252,10 +257,10 @@ export default function DigitalTwinPage() {
                   onChange={(e) => setSortOption(e.target.value as SortType)}
                   className="bg-transparent border-none text-xs font-bold text-slate-800 dark:text-[#F4F4F5] focus:outline-none"
                 >
-                  <option value="vitality_asc" className="dark:bg-[#1B1D20]">Vitality (Lowest First)</option>
-                  <option value="vitality_desc" className="dark:bg-[#1B1D20]">Vitality (Highest First)</option>
-                  <option value="yield_desc" className="dark:bg-[#1B1D20]">Milk Yield (High to Low)</option>
-                  <option value="name" className="dark:bg-[#1B1D20]">Cow Name</option>
+                  <option value="vitality_asc" className="dark:bg-[#1B1D20]">{t("twin.sort_vitality_asc", "Vitality (Lowest First)")}</option>
+                  <option value="vitality_desc" className="dark:bg-[#1B1D20]">{t("twin.sort_vitality_desc", "Vitality (Highest First)")}</option>
+                  <option value="yield_desc" className="dark:bg-[#1B1D20]">{t("twin.sort_yield_desc", "Milk Yield (High to Low)")}</option>
+                  <option value="name" className="dark:bg-[#1B1D20]">{t("twin.sort_name", "Cow Name")}</option>
                 </select>
               </div>
             </div>
@@ -264,15 +269,15 @@ export default function DigitalTwinPage() {
           {/* Herd Cards List */}
           {isLoading ? (
             <div className="p-8 text-center text-sm font-semibold text-slate-500 dark:text-[#A1A1AA]">
-              Loading real-time herd state grid…
+              {t("twin.loading_grid", "Loading real-time herd state grid…")}
             </div>
           ) : isError ? (
             <div className="p-6 text-center text-sm font-semibold text-rose-600 dark:text-rose-400">
-              Failed to load herd state records.
+              {t("twin.error_loading", "Failed to load herd state records.")}
             </div>
           ) : sortedCowStates.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500 dark:text-[#A1A1AA]">
-              No cows match the selected filter category ({filterCategory}).
+              {t("twin.empty_filter", "No cows match the selected filter category.")}
             </div>
           ) : (
             <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -303,7 +308,7 @@ export default function DigitalTwinPage() {
                             {cow.cow_name}
                           </h4>
                           <span className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium">
-                            {cow.lactation_stage || "Active Lactation"}
+                            {getLocalizedLactationStage(cow.lactation_stage, t)}
                           </span>
                         </div>
                       </div>
@@ -318,14 +323,14 @@ export default function DigitalTwinPage() {
                             : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
                         }`}
                       >
-                        {cow.health_status}
+                        {getLocalizedHealthStatus(cow.health_status, t)}
                       </span>
                     </div>
 
                     {/* Vitality Index Bar */}
                     <div className="mt-3.5 space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-500 dark:text-[#A1A1AA]">Vitality Index</span>
+                        <span className="font-semibold text-slate-500 dark:text-[#A1A1AA]">{t("twin.vitality_index_label", "Vitality Index")}</span>
                         <span
                           className={`font-black ${
                             cow.vitality_score >= 80
@@ -355,7 +360,7 @@ export default function DigitalTwinPage() {
                     {/* Footer Metrics */}
                     <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 dark:border-[#27272A] pt-2.5 text-xs">
                       <span className="font-medium text-slate-600 dark:text-[#A1A1AA]">
-                        Yield: <strong className="text-slate-900 dark:text-[#F4F4F5]">{cow.production.current_yield_l != null ? `${cow.production.current_yield_l} L` : "N/A"}</strong>
+                        {t("twin.yield", "Yield")}: <strong className="text-slate-900 dark:text-[#F4F4F5]">{cow.production.current_yield_l != null ? `${cow.production.current_yield_l} L` : t("twin.not_applicable", "N/A")}</strong>
                       </span>
                       <span
                         className={`font-medium ${
@@ -366,7 +371,7 @@ export default function DigitalTwinPage() {
                             : "text-slate-500 dark:text-[#A1A1AA]"
                         }`}
                       >
-                        THI: {cow.heat_stress_level}
+                        THI: {getLocalizedHeatStress(cow.heat_stress_level, t)}
                       </span>
                     </div>
                   </div>

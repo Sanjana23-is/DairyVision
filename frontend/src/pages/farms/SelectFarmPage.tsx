@@ -6,6 +6,7 @@ import { fetchCows } from "@/services/cow";
 import { fetchHealthAlerts } from "@/services/healthAlert";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getFarmerDisplayName } from "@/utils/userUtils";
 import AddFarmDialog from "@/components/farms/AddFarmDialog";
 import FarmLocationPicker, {
   FarmLocationData,
@@ -19,7 +20,7 @@ import {
 } from "lucide-react";
 
 export default function SelectFarmPage() {
-  const { user, setCurrentFarm } = useAuth();
+  const { user, setCurrentFarm, updateUserProfile } = useAuth();
   const { t } = useLanguage();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ export default function SelectFarmPage() {
   const [isCreatingModal, setIsCreatingModal] = useState(false);
 
   // Form state for onboarding (0 farms)
+  const defaultFarmer = getFarmerDisplayName(user);
+  const [farmerName, setFarmerName] = useState(defaultFarmer !== "Farmer" ? defaultFarmer : "");
   const [farmName, setFarmName] = useState("");
   const [locationData, setLocationData] = useState<FarmLocationData>({
     country: "India",
@@ -97,15 +100,17 @@ export default function SelectFarmPage() {
 
   const handleOnboardingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!farmName.trim()) return;
+    if (!farmName.trim() || !farmerName.trim()) return;
     const payload: CreateFarmPayload = {
       name: farmName.trim(),
+      farmer_name: farmerName.trim(),
       location_city: locationData.location_city.trim() || undefined,
       location_country: "India",
       latitude: locationData.latitude,
       longitude: locationData.longitude,
       description: description.trim() || undefined,
     };
+    updateUserProfile(farmerName.trim()).catch(() => {});
     createMut.mutate(payload);
   };
 
@@ -179,6 +184,20 @@ export default function SelectFarmPage() {
             <form onSubmit={handleOnboardingSubmit} className="space-y-4 text-xs font-sans">
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">
+                  {t("farm.farmer_name", "Farmer's Full Name")} <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={farmerName}
+                  onChange={(e) => setFarmerName(e.target.value)}
+                  placeholder="e.g. Ramesh Patel"
+                  className="h-11 w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3.5 text-[14px] text-slate-900 dark:text-[#F4F4F5] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 focus:ring-emerald-600/20 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-slate-700 dark:text-[#F4F4F5] mb-1.5">
                   {t("farm.field_name", "Farm Name")} <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -216,7 +235,7 @@ export default function SelectFarmPage() {
 
               <button
                 type="submit"
-                disabled={createMut.isPending || !farmName.trim()}
+                disabled={createMut.isPending || !farmName.trim() || !farmerName.trim()}
                 className="h-12 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[15px] shadow-sm transition-all duration-150 border-0 disabled:opacity-50"
               >
                 <span>{createMut.isPending ? t("action.creating", "Creating…") : t("farm.create_and_continue", "Create Farm & Continue →")}</span>
@@ -229,7 +248,7 @@ export default function SelectFarmPage() {
             {/* Header inside parent card */}
             <div className="space-y-1">
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                {t("farm.welcome_back", "WELCOME BACK")}, {user?.full_name?.toUpperCase() || "FARM MANAGER"}
+                {t("farm.welcome_back", "WELCOME BACK")}, {getFarmerDisplayName(user).toUpperCase()}
               </span>
               <h1 className="text-[26px] sm:text-[30px] font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5] leading-snug">
                 {t("farm.choose_farm", "Choose a farm to continue")}
@@ -341,7 +360,12 @@ export default function SelectFarmPage() {
         }}
         loading={createMut.status === "pending"}
         error={createMut.error ? ((createMut.error as any)?.response?.data?.detail || createMut.error.message) : undefined}
-        onCreate={(payload) => createMut.mutate(payload)}
+        onCreate={(payload) => {
+          if (payload.farmer_name?.trim()) {
+            updateUserProfile(payload.farmer_name.trim()).catch(() => {});
+          }
+          createMut.mutate(payload);
+        }}
       />
     </div>
   );

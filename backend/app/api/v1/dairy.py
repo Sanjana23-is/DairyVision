@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ from app.models import (
     Farm,
     MilkPrediction,
     Recommendation,
+    User,
     UserPreference,
 )
 from app.exceptions import ObservationForbidden, ObservationValidationError
@@ -58,7 +59,14 @@ def create_farm(
     user_id: str = Depends(get_current_user_id),
     service: CRUDService = Depends(get_crud_service),
 ) -> FarmResponse:
-    return service.create_owned(Farm, user_id, **payload.model_dump(exclude_none=True))
+    data = payload.model_dump(exclude_none=True)
+    farmer_name = data.pop("farmer_name", None)
+    if farmer_name and str(farmer_name).strip():
+        user = service.db.scalar(select(User).where(User.id == user_id))
+        if user:
+            user.full_name = str(farmer_name).strip()
+            service.db.commit()
+    return service.create_owned(Farm, user_id, **data)
 
 
 @router.get("/farms", response_model=list[FarmResponse])

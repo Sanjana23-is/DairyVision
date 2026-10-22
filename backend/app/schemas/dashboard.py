@@ -121,6 +121,9 @@ class CategoryDistributionItem(BaseModel):
 class DateTrendItem(BaseModel):
     date: date
     average_predicted_milk_yield: Optional[float] = None
+    total_predicted_milk_yield: Optional[float] = None
+    expected_yield: Optional[float] = None
+    target_type: Optional[str] = None
     prediction_count: Optional[int] = None
     total_alerts: Optional[int] = None
     critical_count: Optional[int] = None

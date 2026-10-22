@@ -28,10 +28,14 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  getFarmerFeatureLabel,
-  getFarmerExplanation,
-  getFarmerCategory,
-} from "@/utils/featureTranslator";
+  formatLocalizedPredictionDate,
+  getLocalizedConfidenceDetails,
+  getLocalizedFeatureLabel,
+  getLocalizedFeatureCategory,
+  getLocalizedFarmerExplanation,
+  getLocalizedSummaryNarrative,
+  getLocalizedActionableAdvice,
+} from "@/utils/explainabilityI18n";
 
 export type CompletePredictionRecord = {
   id: string;
@@ -48,37 +52,8 @@ export type CompletePredictionRecord = {
   raw: MilkPrediction;
 };
 
-function formatPredictionDate(dateStr?: string | null): string {
-  if (!dateStr) return "Recent";
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
-function getConfidenceDetails(conf?: number | null) {
-  if (conf == null || isNaN(conf)) {
-    return { label: "Estimated", scoreText: "—" };
-  }
-  const pct = conf <= 1 ? Math.round(conf * 100) : Math.round(conf);
-  if (pct >= 80) {
-    return { label: "High Confidence", scoreText: `${pct}%` };
-  } else if (pct >= 60) {
-    return { label: "Moderate Confidence", scoreText: `${pct}%` };
-  } else {
-    return { label: "Fair Confidence", scoreText: `${pct}%` };
-  }
-}
-
 export default function ExplainabilityPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryPredId = searchParams.get("predictionId");
   const { currentFarmId } = useAuth();
@@ -142,7 +117,7 @@ export default function ExplainabilityPage() {
           (p.observation_id && obsMap.get(p.observation_id)) ||
           p.prediction_timestamp ||
           "";
-        const conf = getConfidenceDetails(p.confidence_score);
+        const conf = getLocalizedConfidenceDetails(p.confidence_score, t);
 
         return {
           id: p.id,
@@ -150,7 +125,11 @@ export default function ExplainabilityPage() {
           cow_name: cowName,
           observation_id: p.observation_id,
           observation_date_raw: obsDateRaw,
-          observation_date_formatted: formatPredictionDate(obsDateRaw),
+          observation_date_formatted: formatLocalizedPredictionDate(
+            obsDateRaw,
+            language,
+            t,
+          ),
           predicted_milk_yield: p.predicted_milk_yield,
           confidence_score: p.confidence_score,
           confidence_label: conf.label,
@@ -159,7 +138,7 @@ export default function ExplainabilityPage() {
           raw: p,
         };
       });
-  }, [rawPredictions, cows, observations]);
+  }, [rawPredictions, cows, observations, language, t]);
 
   // Unique cows list for dropdown (display each cow only once)
   const uniqueCows = useMemo(() => {
@@ -222,14 +201,19 @@ export default function ExplainabilityPage() {
     }
 
     // 2. If no queryPredId or record not yet selected
-    if (!selectedCowId) {
+    const currentHasPreds = selectedCowId
+      ? allPredictionRecords.some((r) => r.cow_id === selectedCowId)
+      : false;
+
+    if (!selectedCowId || !currentHasPreds) {
       // Find the first cow with prediction history
       const cowWithPreds = uniqueCows.find((c) =>
         allPredictionRecords.some((r) => r.cow_id === c.id),
       );
       const targetCowId = cowWithPreds ? cowWithPreds.id : uniqueCows[0]?.id;
-      if (targetCowId) {
+      if (targetCowId && targetCowId !== selectedCowId) {
         setSelectedCowId(targetCowId);
+        return;
       }
     } else {
       // We have selectedCowId, check if selectedPredictionRecord belongs to this cow
@@ -361,7 +345,7 @@ export default function ExplainabilityPage() {
                 }`}
               >
                 <Activity className="h-3.5 w-3.5" />
-                Cow Local (SHAP)
+                {t("explain.cow_local", "Cow Local (SHAP)")}
               </button>
               <button
                 type="button"
@@ -373,7 +357,7 @@ export default function ExplainabilityPage() {
                 }`}
               >
                 <Cpu className="h-3.5 w-3.5" />
-                Model Architecture
+                {t("explain.model_arch", "Model Architecture")}
               </button>
             </div>
 
@@ -395,7 +379,7 @@ export default function ExplainabilityPage() {
                     className="appearance-none rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] pl-2.5 pr-7 py-1 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                   >
                     {uniqueCows.length === 0 ? (
-                      <option value="">No cows found</option>
+                      <option value="">{t("explain.no_cows_found", "No cows found")}</option>
                     ) : (
                       uniqueCows.map((c) => (
                         <option
@@ -430,7 +414,7 @@ export default function ExplainabilityPage() {
                 </div>
                 {currentCowInfo && (
                   <span className="text-xs font-medium text-slate-400 dark:text-[#71717A]">
-                    Showing history for{" "}
+                    {t("explain.showing_history_for", "Showing history for")}{" "}
                     <span className="font-semibold text-slate-700 dark:text-[#F4F4F5]">
                       🐄 {currentCowInfo.name}
                     </span>
@@ -440,7 +424,7 @@ export default function ExplainabilityPage() {
 
               {isPredictionsLoading ? (
                 <div className="py-8 text-center text-xs text-slate-500 dark:text-[#A1A1AA]">
-                  Loading prediction history...
+                  {t("explain.loading_history", "Loading prediction history...")}
                 </div>
               ) : cowPredictionHistory.length === 0 ? (
                 /* Clean Empty State */
@@ -455,9 +439,10 @@ export default function ExplainabilityPage() {
                     )}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
-                    Record a daily observation for{" "}
-                    {currentCowInfo?.name || "this cow"} to generate milk yield
-                    predictions and AI decision factors.
+                    {t(
+                      "explain.record_observation_prompt",
+                      "Record a daily observation for {cowName} to generate milk yield predictions and AI decision factors.",
+                    ).replace("{cowName}", currentCowInfo?.name || "this cow")}
                   </p>
                 </div>
               ) : (
@@ -467,6 +452,15 @@ export default function ExplainabilityPage() {
                     {displayedPredictions.map((pred) => {
                       const isSelected =
                         selectedPredictionRecord?.id === pred.id;
+                      const conf = getLocalizedConfidenceDetails(
+                        pred.confidence_score,
+                        t,
+                      );
+                      const formattedDate = formatLocalizedPredictionDate(
+                        pred.observation_date_raw,
+                        language,
+                        t,
+                      );
 
                       return (
                         <div
@@ -487,10 +481,10 @@ export default function ExplainabilityPage() {
                             </div>
                             <div>
                               <div className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5]">
-                                {pred.observation_date_formatted}
+                                {formattedDate}
                               </div>
                               <div className="text-[11px] text-slate-500 dark:text-[#71717A]">
-                                {pred.confidence_label} · {pred.confidence_text}
+                                {conf.label} · {conf.scoreText}
                               </div>
                             </div>
                           </div>
@@ -499,7 +493,7 @@ export default function ExplainabilityPage() {
                           <div className="flex items-center gap-2 sm:gap-4">
                             <div>
                               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A] block">
-                                Predicted Yield
+                                {t("explain.predicted_yield_label", "Predicted Yield")}
                               </span>
                               <span className="text-base font-black text-slate-900 dark:text-[#F4F4F5]">
                                 {pred.predicted_milk_yield.toFixed(1)}{" "}
@@ -515,11 +509,11 @@ export default function ExplainabilityPage() {
                             {isSelected ? (
                               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 text-xs font-bold">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                Selected Explanation
+                                {t("explain.selected_explanation", "Selected Explanation")}
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                                View Explanation{" "}
+                                {t("explain.view_explanation", "View Explanation")}{" "}
                                 <ArrowRight className="h-3.5 w-3.5" />
                               </span>
                             )}
@@ -538,11 +532,16 @@ export default function ExplainabilityPage() {
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-[#A1A1AA] hover:text-emerald-600 dark:hover:text-emerald-400 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] transition shadow-sm"
                       >
                         {showAllHistory ? (
-                          <>Show Recent 5 Only</>
+                          <>{t("explain.show_recent_5", "Show Recent 5 Only")}</>
                         ) : (
                           <>
-                            View More Prediction History (
-                            {cowPredictionHistory.length - 5} more) →
+                            {t(
+                              "explain.view_more_history",
+                              "View More Prediction History ({count} more) →",
+                            ).replace(
+                              "{count}",
+                              String(cowPredictionHistory.length - 5),
+                            )}
                           </>
                         )}
                       </button>
@@ -557,20 +556,32 @@ export default function ExplainabilityPage() {
               cowPredictionHistory.length === 0 ? null : (
                 <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-600 dark:text-[#A1A1AA] shadow-sm">
                   <p className="text-base font-bold">
-                    Please select a prediction record above to view its AI
-                    decision factors.
+                    {t(
+                      "explain.select_prediction_prompt",
+                      "Please select a prediction record above to view its AI decision factors.",
+                    )}
                   </p>
                 </div>
               )
             ) : isExplainLoading ? (
               <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-500 dark:text-[#A1A1AA] shadow-sm">
-                Loading AI decision factors for 🐄{" "}
-                {selectedPredictionRecord.cow_name} (
-                {selectedPredictionRecord.observation_date_formatted})...
+                {t(
+                  "explain.loading_factors",
+                  "Loading AI decision factors for 🐄 {name} ({date})...",
+                )
+                  .replace("{name}", selectedPredictionRecord.cow_name)
+                  .replace(
+                    "{date}",
+                    formatLocalizedPredictionDate(
+                      selectedPredictionRecord.observation_date_raw,
+                      language,
+                      t,
+                    ),
+                  )}
               </div>
             ) : isError ? (
               <div className="rounded-3xl border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-6 text-rose-800 dark:text-rose-300 shadow-sm">
-                Error loading explainability:{" "}
+                {t("explain.error_loading", "Error loading explainability:")}{" "}
                 {(error as any)?.message || "Unknown error"}
               </div>
             ) : explainData ? (
@@ -591,7 +602,11 @@ export default function ExplainabilityPage() {
                       {t("explain.observation_date", "Observation Date")}
                     </span>
                     <span className="text-sm font-bold text-slate-800 dark:text-[#F4F4F5]">
-                      {selectedPredictionRecord.observation_date_formatted}
+                      {formatLocalizedPredictionDate(
+                        selectedPredictionRecord.observation_date_raw,
+                        language,
+                        t,
+                      )}
                     </span>
                   </div>
 
@@ -628,8 +643,11 @@ export default function ExplainabilityPage() {
                     </span>
                   </div>
                   <p className="text-lg font-bold text-slate-900 dark:text-[#F4F4F5] leading-snug">
-                    {explainData.summary_narrative ||
-                      "Prediction matches expected production baseline."}
+                    {getLocalizedSummaryNarrative(
+                      explainData.summary_narrative,
+                      t,
+                      selectedPredictionRecord.cow_name,
+                    )}
                   </p>
                 </div>
 
@@ -644,8 +662,10 @@ export default function ExplainabilityPage() {
                       )}
                     </h2>
                     <span className="text-[11px] text-slate-400 dark:text-[#71717A]">
-                      TreeSHAP statistical attributions relative to herd
-                      baseline
+                      {t(
+                        "explain.shap_attribution_note",
+                        "TreeSHAP statistical attributions relative to herd baseline",
+                      )}
                     </span>
                   </div>
 
@@ -661,30 +681,34 @@ export default function ExplainabilityPage() {
                           )}
                         </span>
                         <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
-                          Positive SHAP
+                          {t("explain.positive_shap", "Positive SHAP")}
                         </span>
                       </div>
 
                       {mainPositiveDrivers.length === 0 ? (
                         <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
-                          No strong positive yield boosts identified for this
-                          observation.
+                          {t(
+                            "explain.no_positive_boosts",
+                            "No strong positive yield boosts identified for this observation.",
+                          )}
                         </p>
                       ) : (
                         <div className="space-y-2">
                           {mainPositiveDrivers.map((driver, idx) => {
-                            const farmerName = getFarmerFeatureLabel(
+                            const farmerName = getLocalizedFeatureLabel(
                               driver.feature,
                               driver.display_name,
+                              t,
                             );
-                            const { icon, category } = getFarmerCategory(
-                              driver.feature,
-                            );
-                            const explanation = getFarmerExplanation(
-                              driver.feature,
-                              driver.shap_value,
-                              driver.value_formatted,
-                            );
+                            const { icon, category } =
+                              getLocalizedFeatureCategory(driver.feature, t);
+                            const explanation =
+                              getLocalizedFarmerExplanation(
+                                driver.feature,
+                                driver.shap_value,
+                                driver.value_formatted,
+                                t,
+                              );
 
                             return (
                               <div
@@ -703,7 +727,7 @@ export default function ExplainabilityPage() {
                                 </div>
                                 <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-[#A1A1AA]">
                                   <span>
-                                    Observed:{" "}
+                                    {t("explain.observed", "Observed:")}{" "}
                                     <strong className="text-slate-700 dark:text-slate-300">
                                       {driver.value_formatted ||
                                         String(driver.value ?? "—")}
@@ -735,30 +759,34 @@ export default function ExplainabilityPage() {
                           )}
                         </span>
                         <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono">
-                          Negative SHAP
+                          {t("explain.negative_shap", "Negative SHAP")}
                         </span>
                       </div>
 
                       {mainNegativeDrivers.length === 0 ? (
                         <p className="text-xs text-slate-500 dark:text-[#A1A1AA] italic">
-                          No significant environmental or feed yield penalties
-                          detected.
+                          {t(
+                            "explain.no_negative_penalties",
+                            "No significant environmental or feed yield penalties detected.",
+                          )}
                         </p>
                       ) : (
                         <div className="space-y-2">
                           {mainNegativeDrivers.map((driver, idx) => {
-                            const farmerName = getFarmerFeatureLabel(
+                            const farmerName = getLocalizedFeatureLabel(
                               driver.feature,
                               driver.display_name,
+                              t,
                             );
-                            const { icon, category } = getFarmerCategory(
-                              driver.feature,
-                            );
-                            const explanation = getFarmerExplanation(
-                              driver.feature,
-                              driver.shap_value,
-                              driver.value_formatted,
-                            );
+                            const { icon, category } =
+                              getLocalizedFeatureCategory(driver.feature, t);
+                            const explanation =
+                              getLocalizedFarmerExplanation(
+                                driver.feature,
+                                driver.shap_value,
+                                driver.value_formatted,
+                                t,
+                              );
 
                             return (
                               <div
@@ -777,7 +805,7 @@ export default function ExplainabilityPage() {
                                 </div>
                                 <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-[#A1A1AA]">
                                   <span>
-                                    Observed:{" "}
+                                    {t("explain.observed", "Observed:")}{" "}
                                     <strong className="text-slate-700 dark:text-slate-300">
                                       {driver.value_formatted ||
                                         String(driver.value ?? "—")}
@@ -814,8 +842,10 @@ export default function ExplainabilityPage() {
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                     <p className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] leading-relaxed">
-                      {explainData.actionable_advice ||
-                        "Production is currently within the model's expected range. Continue monitoring feed, health, and environmental conditions."}
+                      {getLocalizedActionableAdvice(
+                        explainData.actionable_advice,
+                        t,
+                      )}
                     </p>
                   </div>
                 </div>
@@ -850,11 +880,10 @@ export default function ExplainabilityPage() {
                         <div className="lg:col-span-2 space-y-4">
                           <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] p-4">
                             <h3 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] mb-1">
-                              SHAP Feature Contribution Waterfall
+                              {t("explain.waterfall_title", "SHAP Feature Contribution Waterfall")}
                             </h3>
                             <p className="text-xs text-slate-500 dark:text-[#A1A1AA] mb-4">
-                              Horizontal bar length indicates exact SHAP
-                              numerical weight on the model prediction.
+                              {t("explain.waterfall_subtitle", "Horizontal bar length indicates exact SHAP numerical weight on the model prediction.")}
                             </p>
                             <FeatureImportanceChart
                               features={explainData.features}
@@ -864,12 +893,12 @@ export default function ExplainabilityPage() {
 
                         <div className="space-y-4">
                           <TopContributorsCard
-                            title="🟢 Positive Drivers (+ Boosts)"
+                            title={t("explain.positive_drivers_title", "🟢 Positive Drivers (+ Boosts)")}
                             items={explainData.top_positive ?? []}
                             showTechnical={showTechnical}
                           />
                           <TopContributorsCard
-                            title="🔴 Negative Drivers (- Penalties)"
+                            title={t("explain.negative_drivers_title", "🔴 Negative Drivers (- Penalties)")}
                             items={explainData.top_negative ?? []}
                             showTechnical={showTechnical}
                           />

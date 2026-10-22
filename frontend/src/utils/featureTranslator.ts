@@ -193,37 +193,66 @@ export const FEATURE_TRANSLATIONS: Record<string, FeatureTranslation> = {
 };
 
 /**
+ * Category translation key mapping
+ */
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  "Heat & Environment": "feat.cat.heat_env",
+  "Nutrition & Feeding": "feat.cat.nutrition",
+  "Cow Biometrics": "feat.cat.biometrics",
+  "Production History": "feat.cat.history",
+  "General Biometrics": "feat.cat.general",
+};
+
+/**
  * Get the farmer-friendly display name for an engineering feature key.
  */
 export function getFarmerFeatureLabel(
   featureKey: string,
   fallbackDisplayName?: string,
+  t?: (key: string, fallback?: string) => string,
 ): string {
   const normalized = featureKey.toLowerCase().trim();
+  let defaultLabel = fallbackDisplayName;
   if (FEATURE_TRANSLATIONS[normalized]) {
-    return FEATURE_TRANSLATIONS[normalized].farmerLabel;
+    defaultLabel = FEATURE_TRANSLATIONS[normalized].farmerLabel;
+  } else if (!defaultLabel) {
+    defaultLabel = featureKey.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
-  return (
-    fallbackDisplayName ||
-    featureKey.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-  );
+
+  if (t) {
+    return t(`feat.${normalized}.label`, defaultLabel);
+  }
+  return defaultLabel;
 }
 
 /**
  * Get category and icon for a feature.
  */
-export function getFarmerCategory(featureKey: string): {
+export function getFarmerCategory(
+  featureKey: string,
+  t?: (key: string, fallback?: string) => string,
+): {
   category: string;
   icon: string;
 } {
   const normalized = featureKey.toLowerCase().trim();
+  let rawCategory = "General Biometrics";
+  let icon = "📋";
+
   if (FEATURE_TRANSLATIONS[normalized]) {
+    rawCategory = FEATURE_TRANSLATIONS[normalized].category;
+    icon = FEATURE_TRANSLATIONS[normalized].categoryIcon;
+  }
+
+  if (t) {
+    const key = CATEGORY_KEY_MAP[rawCategory] || "feat.cat.general";
     return {
-      category: FEATURE_TRANSLATIONS[normalized].category,
-      icon: FEATURE_TRANSLATIONS[normalized].categoryIcon,
+      category: t(key, rawCategory),
+      icon,
     };
   }
-  return { category: "General Biometrics", icon: "📋" };
+
+  return { category: rawCategory, icon };
 }
 
 /**
@@ -234,20 +263,26 @@ export function getFarmerExplanation(
   featureKey: string,
   shapValue: number,
   formattedValue?: string | null,
+  t?: (key: string, fallback?: string) => string,
 ): string {
   const normalized = featureKey.toLowerCase().trim();
   const trans = FEATURE_TRANSLATIONS[normalized];
   const valueSnippet = formattedValue ? ` (${formattedValue})` : "";
   const absImpact = Math.abs(shapValue).toFixed(2);
+  const modAdj = t ? t("explain.model_adjustment_inline", "Model adjustment:") : "Model adjustment:";
 
   if (shapValue > 0.05) {
-    const base =
-      trans?.positiveContributionText || `Pushed the model forecast higher.`;
-    return `${base} (Model adjustment: +${absImpact} L/day${valueSnippet})`;
+    const defaultText = trans?.positiveContributionText || `Pushed the model forecast higher.`;
+    const base = t ? t(`feat.${normalized}.pos`, defaultText) : defaultText;
+    return `${base} (${modAdj} +${absImpact} L/day${valueSnippet})`;
   } else if (shapValue < -0.05) {
-    const base =
-      trans?.negativeContributionText || `Pushed the model forecast lower.`;
-    return `${base} (Model adjustment: -${absImpact} L/day${valueSnippet})`;
+    const defaultText = trans?.negativeContributionText || `Pushed the model forecast lower.`;
+    const base = t ? t(`feat.${normalized}.neg`, defaultText) : defaultText;
+    return `${base} (${modAdj} -${absImpact} L/day${valueSnippet})`;
   }
-  return `Neutral impact on the model forecast relative to baseline${valueSnippet}.`;
+
+  const neutral = t
+    ? t("explain.neutral_impact", "Neutral impact on the model forecast relative to baseline")
+    : "Neutral impact on the model forecast relative to baseline";
+  return `${neutral}${valueSnippet}.`;
 }
