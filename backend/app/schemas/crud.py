@@ -110,10 +110,12 @@ class RecommendationBase(BaseModel):
     anomaly_id: Optional[str] = None
     title: str
     why_reason: Optional[str] = None
+    category: Optional[str] = None
     recommendation_type: str
     priority: str
     description: Optional[str] = None
     action_item: Optional[str] = None
+    completed: Optional[bool] = False
     is_completed: Optional[bool] = False
     metadata_json: Optional[dict[str, Any]] = None
 
@@ -125,10 +127,12 @@ class RecommendationCreate(RecommendationBase):
 class RecommendationUpdate(BaseModel):
     title: Optional[str] = None
     why_reason: Optional[str] = None
+    category: Optional[str] = None
     recommendation_type: Optional[str] = None
     priority: Optional[str] = None
     description: Optional[str] = None
     action_item: Optional[str] = None
+    completed: Optional[bool] = None
     is_completed: Optional[bool] = None
     metadata_json: Optional[dict[str, Any]] = None
 

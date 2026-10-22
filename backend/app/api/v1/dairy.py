@@ -41,6 +41,7 @@ from app.schemas.crud import (
     UserPreferenceUpdate,
 )
 from app.schemas.observation import ObservationCreate, ObservationResponse, ObservationUpdate
+from app.schemas.recommendation import BatchCompleteRequest
 from app.services.crud_service import CRUDService
 from app.services.observation_service import ObservationService
 
@@ -393,11 +394,12 @@ def list_recommendations(
     deduped_results: list[Recommendation] = []
     for rec in all_results:
         key_completed = rec.completed if completed is None else True
+        ident = rec.category if (rec.cow_id and not rec.completed) else rec.title
         key = (
             rec.farm_id or "",
             rec.cow_id or "",
             rec.recommendation_type or "",
-            rec.title or "",
+            ident or "",
             key_completed,
         )
         if key not in seen_keys:
@@ -406,6 +408,33 @@ def list_recommendations(
 
     return deduped_results
 
+
+@router.post("/recommendations/batch-complete")
+def batch_complete_recommendations(
+    payload: BatchCompleteRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    query = scope_query(db.query(Recommendation), Recommendation, user_id).filter(
+        Recommendation.completed.is_(False)
+    )
+    if payload.recommendation_ids:
+        query = query.filter(Recommendation.id.in_(payload.recommendation_ids))
+    elif payload.cow_id:
+        query = query.filter(Recommendation.cow_id == payload.cow_id)
+        if payload.farm_id:
+            query = query.filter(Recommendation.farm_id == payload.farm_id)
+    elif payload.farm_id:
+        query = query.filter(Recommendation.farm_id == payload.farm_id)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must provide recommendation_ids, cow_id, or farm_id",
+        )
+
+    updated_count = query.update({"completed": True}, synchronize_session=False)
+    db.commit()
+    return {"success": True, "updated_count": updated_count}
 
 
 @router.get("/recommendations/{recommendation_id}", response_model=RecommendationResponse)

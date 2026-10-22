@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 
@@ -338,22 +339,31 @@ class RecommendationService:
 
             existing_query = self.db.query(Recommendation).filter(
                 Recommendation.owner_id == user_id,
-                Recommendation.title == rec_title,
                 Recommendation.completed.is_(False),
             )
+            if target_cow_id:
+                existing_query = existing_query.filter(
+                    Recommendation.cow_id == target_cow_id,
+                    or_(
+                        Recommendation.title == rec_title,
+                        Recommendation.category == item["category"],
+                    ),
+                )
+            else:
+                existing_query = existing_query.filter(
+                    Recommendation.cow_id.is_(None),
+                    Recommendation.title == rec_title,
+                )
+
             if target_farm_id:
                 existing_query = existing_query.filter(Recommendation.farm_id == target_farm_id)
             else:
                 existing_query = existing_query.filter(Recommendation.farm_id.is_(None))
 
-            if target_cow_id:
-                existing_query = existing_query.filter(Recommendation.cow_id == target_cow_id)
-            else:
-                existing_query = existing_query.filter(Recommendation.cow_id.is_(None))
-
             existing = existing_query.order_by(Recommendation.created_at.desc()).first()
 
             if existing:
+                existing.title = rec_title
                 existing.description = item.get("description")
                 existing.why_reason = item.get("why_reason")
                 existing.category = item["category"]
@@ -389,6 +399,16 @@ class RecommendationService:
                 )
                 recommendation_objects.append(self.repo.save(recommendation))
 
+        # If specific actionable recommendations exist for the cow, retire any generic baseline monitoring
+        if target_cow_id and any(item["category"] != RecommendationCategory.GENERAL_FARM_MANAGEMENT.value for item in results):
+            self.db.query(Recommendation).filter(
+                Recommendation.owner_id == user_id,
+                Recommendation.cow_id == target_cow_id,
+                Recommendation.category == RecommendationCategory.GENERAL_FARM_MANAGEMENT.value,
+                Recommendation.completed.is_(False),
+            ).update({"completed": True}, synchronize_session=False)
+            self.db.commit()
+
         self.deduplicate_recommendations(user_id=user_id)
 
         return recommendation_objects
@@ -406,11 +426,12 @@ class RecommendationService:
             to_delete_ids = []
 
             for rec in recommendations:
+                # Key by (owner, farm, cow, category) for cow-specific items or (owner, farm, None, title) for general farm
                 key = (
                     rec.owner_id,
                     rec.farm_id or "",
                     rec.cow_id or "",
-                    rec.title or "",
+                    rec.category if rec.cow_id else (rec.title or ""),
                 )
                 if key in seen_keys:
                     to_delete_ids.append(rec.id)

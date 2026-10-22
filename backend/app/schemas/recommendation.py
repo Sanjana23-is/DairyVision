@@ -29,3 +29,10 @@ class RecommendationGenerateRequest(BaseModel):
     weather_log_id: Optional[str] = None
     anomaly_id: Optional[str] = None
 
+
+class BatchCompleteRequest(BaseModel):
+    recommendation_ids: Optional[list[str]] = None
+    cow_id: Optional[str] = None
+    farm_id: Optional[str] = None
+
+

@@ -366,3 +366,138 @@ def test_get_recommendations_endpoint_serialization(db_session: Session):
     assert item.created_at is not None
     assert not hasattr(item, "updated_at") or getattr(item, "updated_at", None) is None
 
+
+def test_batch_complete_recommendations_by_cow(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    rec1 = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow.id,
+        title="Check feed quality",
+        category="Feeding Strategy",
+        priority="High",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    rec2 = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow.id,
+        title="Monitor heat stress",
+        category="Heat Stress Management",
+        priority="Medium",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    db_session.add_all([rec1, rec2])
+    db_session.commit()
+
+    from app.api.v1.dairy import batch_complete_recommendations
+    from app.schemas.recommendation import BatchCompleteRequest
+
+    res = batch_complete_recommendations(
+        BatchCompleteRequest(cow_id=cow.id),
+        user_id=user.id,
+        db=db_session,
+    )
+    assert res["success"] is True
+    assert res["updated_count"] == 2
+
+    # Verify both recommendations are marked completed
+    completed_recs = db_session.query(Recommendation).filter(Recommendation.cow_id == cow.id).all()
+    assert len(completed_recs) == 2
+    assert all(r.completed is True for r in completed_recs)
+
+
+def test_generating_new_heat_stress_updates_existing_category_recommendation(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    service = RecommendationService(db_session)
+
+    # First generation with elevated THI (low priority heat stress)
+    w1 = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        owner_id=user.id,
+        temperature=28.0,
+        humidity=65.0,
+        thi=72.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(w1)
+    db_session.commit()
+
+    recs1 = service.generate_recommendations(user.id, observation_id=obs.id, weather_log_id=w1.id)
+    heat_recs1 = [r for r in recs1 if r.category == "Heat Stress Management"]
+    assert len(heat_recs1) == 1
+    first_rec_id = heat_recs1[0].id
+    assert heat_recs1[0].priority == "Low"
+
+    # Second generation with extreme THI (high priority heat stress)
+    w2 = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        owner_id=user.id,
+        temperature=35.0,
+        humidity=80.0,
+        thi=80.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(w2)
+    db_session.commit()
+
+    recs2 = service.generate_recommendations(user.id, observation_id=obs.id, weather_log_id=w2.id)
+    heat_recs2 = [r for r in recs2 if r.category == "Heat Stress Management"]
+
+    # Verify the existing heat stress recommendation was updated rather than duplicated
+    all_uncompleted_heat = db_session.query(Recommendation).filter(
+        Recommendation.cow_id == cow.id,
+        Recommendation.category == "Heat Stress Management",
+        Recommendation.completed.is_(False),
+    ).all()
+    assert len(all_uncompleted_heat) == 1
+    assert all_uncompleted_heat[0].id == first_rec_id
+    assert all_uncompleted_heat[0].priority == "High"
+    assert "Activate emergency" in all_uncompleted_heat[0].title
+
+
+def test_actionable_recommendation_retires_generic_monitoring(db_session: Session):
+    user, farm, cow, obs = _create_owner_entities(db_session)
+    service = RecommendationService(db_session)
+
+    # Create baseline monitoring recommendation
+    baseline_rec = Recommendation(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        cow_id=cow.id,
+        title="Continue monitoring farm conditions",
+        category="General Farm Management",
+        priority="Low",
+        recommendation_type="generated",
+        owner_id=user.id,
+        completed=False,
+    )
+    db_session.add(baseline_rec)
+    db_session.commit()
+
+    # Now generate an actionable recommendation (e.g. fever alert)
+    obs.body_temperature_c = 40.2
+    db_session.add(obs)
+    db_session.commit()
+
+    service.generate_recommendations(user.id, observation_id=obs.id)
+
+    # Verify baseline is now marked completed
+    db_session.refresh(baseline_rec)
+    assert baseline_rec.completed is True
+
+    # And veterinary attention recommendation is active
+    vet_recs = db_session.query(Recommendation).filter(
+        Recommendation.cow_id == cow.id,
+        Recommendation.category == "Veterinary Attention",
+        Recommendation.completed.is_(False),
+    ).all()
+    assert len(vet_recs) == 1
+
+
