@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from sklearn.ensemble import IsolationForest
 
 from app.models import AnomalyRecord, Cow, DailyObservation, Farm, MilkPrediction, WeatherLog
+from app.services.milk_baseline_service import MilkBaselineService, BaselineStatus
+from app.services.milk_anomaly_service import MilkAnomalyService, AnomalyStatus
 
 logger = logging.getLogger(__name__)
 
@@ -60,19 +62,37 @@ class AnomalyDetectionService:
         tags: List[str] = []
         score_components: List[float] = []
 
-        # 1. Milk yield anomaly vs prediction or typical threshold
+        # 1. Milk yield anomaly vs prediction or historical baseline
         milk_drop_ratio = 0.0
-        if milk is not None and prediction is not None and float(prediction.predicted_milk_yield) > 0:
-            exp = float(prediction.predicted_milk_yield)
-            if milk < exp:
-                milk_drop_ratio = (exp - milk) / exp
-                if milk_drop_ratio >= 0.30:
+        milk_drop_liters = 0.0
+        expected_milk: Optional[float] = None
+        baseline_status_str = "insufficient_history"
+
+        # Check prediction first, then historical baseline
+        if prediction is not None and float(prediction.predicted_milk_yield) > 0:
+            expected_milk = float(prediction.predicted_milk_yield)
+            baseline_status_str = "ml_prediction"
+        else:
+            try:
+                baseline_service = MilkBaselineService(self.db)
+                obs_date = obs.observation_date
+                base_res = baseline_service.compute_cow_baseline(cow.id, obs_date)
+                baseline_status_str = base_res.baseline_status.value
+                if base_res.expected_baseline is not None and base_res.expected_baseline > 0:
+                    expected_milk = float(base_res.expected_baseline)
+            except Exception as exc:
+                logger.debug("Failed to compute cow baseline for observation %s: %s", obs.id, exc)
+
+        if milk is not None and expected_milk is not None and expected_milk > 0:
+            if milk < expected_milk:
+                milk_drop_liters = round(expected_milk - milk, 2)
+                milk_drop_ratio = round(milk_drop_liters / expected_milk, 3)
+                if milk_drop_ratio >= 0.25 and milk_drop_liters >= 1.5:
                     tags.append("Abnormal Milk Drop")
                     score_components.append(min(1.0, milk_drop_ratio))
-
-        if milk is not None and milk <= 5.0 and "Abnormal Milk Drop" not in tags:
-            tags.append("Abnormal Milk Drop")
-            score_components.append(0.6)
+                elif milk_drop_ratio >= 0.15 and milk_drop_liters >= 1.0:
+                    tags.append("Mild Milk Production Drop")
+                    score_components.append(min(0.5, milk_drop_ratio))
 
         # 2. Feed intake anomaly
         if feed is not None:
@@ -112,15 +132,15 @@ class AnomalyDetectionService:
                     o_thi = float(getattr(w_log, "thi")) if w_log and getattr(w_log, "thi", None) is not None else 70.0
                     data_rows.append([float(getattr(o, "milk_produced_liters")), float(getattr(o, "feed_quantity_kg")), o_thi])
 
-            if len(data_rows) >= 5 and milk is not None and feed is not None:
+            if len(data_rows) >= 10 and milk is not None and feed is not None:
                 cur_thi = thi if thi is not None else 70.0
                 X = np.array(data_rows)
-                clf = IsolationForest(contamination=0.1, random_state=42)  # type: ignore
+                clf = IsolationForest(contamination=0.08, random_state=42)  # type: ignore
                 clf.fit(X)
                 raw_score = -clf.decision_function(np.array([[milk, feed, cur_thi]]))[0]
                 ml_score = max(0.0, min(1.0, (raw_score + 0.2) / 0.4))
                 if clf.predict(np.array([[milk, feed, cur_thi]]))[0] == -1 and not tags:
-                    tags.append("Isolation Forest Outlier")
+                    tags.append("Unusual Pattern")
         except Exception as exc:
             logger.debug("ML Anomaly isolation forest skipped: %s", str(exc))
 
@@ -136,9 +156,9 @@ class AnomalyDetectionService:
         anomaly_score = round(max(0.0, min(1.0, anomaly_score)), 2)
 
         # Assign severity
-        if anomaly_score >= 0.75 or "High Temperature Spike" in tags or milk_drop_ratio >= 0.40:
+        if anomaly_score >= 0.80 or "High Temperature Spike" in tags or milk_drop_ratio >= 0.40:
             severity = "Critical"
-        elif anomaly_score >= 0.35 or len(tags) > 0:
+        elif anomaly_score >= 0.45 or "Abnormal Milk Drop" in tags or "Unusual Feed Intake" in tags or "Extreme Heat Stress" in tags:
             severity = "Warning"
         else:
             severity = "Normal"
@@ -151,7 +171,10 @@ class AnomalyDetectionService:
 
         details_json = {
             "milk_produced_liters": milk,
-            "expected_milk_yield": float(prediction.predicted_milk_yield) if prediction else None,
+            "expected_milk_yield": expected_milk,
+            "milk_drop_liters": milk_drop_liters if milk_drop_liters > 0 else 0.0,
+            "milk_drop_percentage": round(milk_drop_ratio * 100, 1) if milk_drop_ratio > 0 else 0.0,
+            "baseline_status": baseline_status_str,
             "feed_quantity_kg": feed,
             "thi": thi,
             "body_temperature_c": temp,

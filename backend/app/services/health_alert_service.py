@@ -305,7 +305,7 @@ class HealthAlertService:
         if is_acute_fever or is_acute_heat or is_acute_condition or len(fever_readings) >= 2 or len(heat_readings) >= 2:
             level = "Critical"
             confidence = 0.88 + (0.05 if len(obs_window) > 1 else 0.0)
-        elif len(fever_readings) == 1 or len(heat_readings) == 1 or len(milk_drop_readings) >= 1 or len(condition_readings) >= 1 or (current_thi and current_thi >= 70.0):
+        elif len(fever_readings) == 1 or len(heat_readings) == 1 or len(milk_drop_readings) >= 1 or len(condition_readings) >= 1 or (current_thi and current_thi >= 75.0):
             level = "Warning"
             confidence = 0.55
         else:
@@ -316,18 +316,18 @@ class HealthAlertService:
 
         # Synthesize Multi-Observation Farmer-Friendly Evidence Summary
         summary_parts = []
-        if len(heat_readings) > 1:
-            summary_parts.append(f"{cow_name} has experienced high heat-stress conditions across {len(heat_readings)} recent observations.")
-        elif len(heat_readings) == 1:
+        if len(heat_readings) > 1 or (current_thi and current_thi >= 80.0):
             thi_val = f" (THI {current_thi:.1f})" if current_thi else ""
-            summary_parts.append(f"Recent weather monitoring indicates heat-stress conditions{thi_val} for {cow_name}.")
+            summary_parts.append(f"{cow_name} has experienced high heat-stress conditions{thi_val} across recent observations.")
+        elif len(heat_readings) == 1 or (current_thi and current_thi >= 75.0):
+            thi_val = f" (THI {current_thi:.1f})" if current_thi else ""
+            summary_parts.append(f"Recent weather monitoring indicates moderate heat-stress conditions{thi_val} for {cow_name}.")
 
-        if len(fever_readings) > 1:
+        if len(fever_readings) > 1 or (latest_temp and latest_temp > 39.8):
             summary_parts.append(f"{cow_name} has experienced elevated body temperature across {len(fever_readings)} recent observations.")
         elif len(fever_readings) == 1 or (latest_temp and latest_temp > 39.5):
             temp_val = f" ({latest_temp:.1f} °C)" if latest_temp else ""
             summary_parts.append(f"{cow_name} recorded body temperature above normal range{temp_val}.")
-
 
         if len(milk_drop_readings) > 0:
             avg_drop_pct = int((sum(milk_drop_readings) / len(milk_drop_readings)) * 100)
@@ -337,7 +337,9 @@ class HealthAlertService:
             cond_name = latest_health_cond if latest_health_cond and latest_health_cond != "normal" else "abnormal symptoms"
             summary_parts.append(f"Recorded with {cond_name} during recent observation.")
 
+        # Ensure complete consistency: if no warning/critical symptoms exist, level MUST be Healthy
         if not summary_parts:
+            level = "Healthy"
             summary_desc = f"Health monitoring indicates {cow_name} is in a Healthy state."
         else:
             summary_desc = " ".join(summary_parts)

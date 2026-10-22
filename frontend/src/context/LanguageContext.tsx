@@ -6,10 +6,12 @@ import {
 import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 
+export type TranslationParams = Record<string, string | number>;
+
 interface LanguageContextValue {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string, params?: TranslationParams) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(
@@ -69,9 +71,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
   }, [language]);
 
-  const t = (key: string, fallback?: string): string => {
+  const t = (key: string, fallback?: string, params?: TranslationParams): string => {
     const langDict = translations[language] || translations["en"];
-    return langDict[key] || translations["en"][key] || fallback || key;
+    let text = langDict[key] || translations["en"][key] || fallback || key;
+    if (params) {
+      for (const [pKey, pVal] of Object.entries(params)) {
+        text = text.replace(new RegExp(`\\{${pKey}\\}`, "g"), String(pVal));
+      }
+    }
+    return text;
   };
 
   return (

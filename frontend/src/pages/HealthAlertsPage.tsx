@@ -7,12 +7,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { fetchHealthAlerts, fetchHealthSummary, resolveHealthAlert } from "@/services/healthAlert";
 import { fetchAnomalies, fetchAnomalySummary, triggerAnomalyScan, resolveAnomaly } from "@/services/anomaly";
 import { fetchCows } from "@/services/cow";
+import { fetchObservations } from "@/services/observation";
 import {
   correlateHerdRiskCases,
   calculateHerdRiskKPIs,
   filterCasesBySummaryType,
   exportRiskReportCSV,
-  UnifiedRiskCase,
   SummaryFilterType,
 } from "@/services/riskCorrelation";
 import RiskKpiRow from "@/components/healthRisk/RiskKpiRow";
@@ -21,12 +21,22 @@ import UnifiedRiskDetailModal from "@/components/healthRisk/UnifiedRiskDetailMod
 
 export default function HealthAlertsPage() {
   const { currentFarmId, currentFarmName } = useAuth();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const qc = useQueryClient();
 
-  const [activeFilter, setActiveFilter] = useState<SummaryFilterType>("high_attention");
-  const [selectedCase, setSelectedCase] = useState<UnifiedRiskCase | null>(null);
-  const [lastUpdated] = useState<string>(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  const [activeFilter, setActiveFilter] = useState<SummaryFilterType>("all_attention");
+  const [selectedCowId, setSelectedCowId] = useState<string | null>(null);
+  const lastUpdated = useMemo(() => {
+    const localeMap: Record<string, string> = {
+      en: "en-IN",
+      hi: "hi-IN",
+      mr: "mr-IN",
+      pa: "pa-IN",
+      gu: "gu-IN",
+      kn: "kn-IN",
+    };
+    return new Date().toLocaleTimeString(localeMap[language] || "en-IN", { hour: "2-digit", minute: "2-digit" });
+  }, [language]);
   const [toast, setToast] = useState<{
     type: "success" | "error";
     message: string;
@@ -65,7 +75,14 @@ export default function HealthAlertsPage() {
     staleTime: 1000 * 30,
   });
 
-  // 4. Run Risk Scan Mutation
+  // 4. Fetch Observations for Historical Baselines & Evidence
+  const { data: observations = [], isLoading: isObsLoading } = useQuery({
+    queryKey: ["observations", currentFarmId],
+    queryFn: () => fetchObservations(currentFarmId || undefined),
+    staleTime: 1000 * 60,
+  });
+
+  // 5. Run Risk Scan Mutation
   const scanMutation = useMutation({
     mutationFn: () => triggerAnomalyScan(currentFarmId || undefined),
     onSuccess: (res) => {
@@ -73,20 +90,23 @@ export default function HealthAlertsPage() {
       qc.invalidateQueries({ queryKey: ["anomalies"] });
       qc.invalidateQueries({ queryKey: ["healthSummary"] });
       qc.invalidateQueries({ queryKey: ["healthAlerts"] });
+      qc.invalidateQueries({ queryKey: ["observations"] });
       setToast({
         type: "success",
-        message: `Herd Risk Scan Complete! Evaluated ${res.scanned_observations} observations across the herd.`,
+        message: t("health.scan_success", "Herd Risk Scan Complete! Evaluated {count} observations across the herd.", {
+          count: res.scanned_observations,
+        }),
       });
     },
     onError: (err: any) => {
       setToast({
         type: "error",
-        message: err?.message || "Failed to complete risk scan.",
+        message: err?.message || t("health.scan_failed", "Failed to complete risk scan."),
       });
     },
   });
 
-  // 5. Resolve Cow Risk Case Mutation
+  // 6. Resolve Cow Risk Case Mutation
   const resolveMutation = useMutation({
     mutationFn: async ({ alertIds, anomalyIds }: { alertIds: string[]; anomalyIds: string[] }) => {
       const promises: Promise<any>[] = [];
@@ -105,22 +125,22 @@ export default function HealthAlertsPage() {
       qc.invalidateQueries({ queryKey: ["anomalySummary"] });
       setToast({
         type: "success",
-        message: "Cow risk case marked as resolved.",
+        message: t("health.resolve_success", "Cow risk case marked as resolved."),
       });
-      setSelectedCase(null);
+      setSelectedCowId(null);
     },
     onError: (err: any) => {
       setToast({
         type: "error",
-        message: err?.message || "Unable to resolve risk case.",
+        message: err?.message || t("health.resolve_failed", "Unable to resolve risk case."),
       });
     },
   });
 
-  // 6. Risk Correlation Layer (Guaranteed 1 Case Per Cow)
+  // 7. Risk Correlation Layer (Guaranteed 1 Case Per Cow with 5 Core Dimensions)
   const correlatedCases = useMemo(() => {
-    return correlateHerdRiskCases(healthAlerts, anomalies, cows);
-  }, [healthAlerts, anomalies, cows]);
+    return correlateHerdRiskCases(healthAlerts, anomalies, cows, observations, t);
+  }, [healthAlerts, anomalies, cows, observations, t]);
 
   const kpis = useMemo(() => {
     return calculateHerdRiskKPIs(healthSummary, anomalySummary, correlatedCases, cows);
@@ -131,7 +151,13 @@ export default function HealthAlertsPage() {
     return filterCasesBySummaryType(correlatedCases, activeFilter);
   }, [correlatedCases, activeFilter]);
 
-  const isInitialLoading = isCowsLoading || isAlertsLoading || isAnomaliesLoading;
+  // Dynamically resolve active selected case from correlatedCases
+  const selectedCase = useMemo(() => {
+    if (!selectedCowId) return null;
+    return correlatedCases.find((c) => c.cow_id === selectedCowId) || null;
+  }, [correlatedCases, selectedCowId]);
+
+  const isInitialLoading = isCowsLoading || isAlertsLoading || isAnomaliesLoading || isObsLoading;
 
   return (
     <DashboardLayout>
@@ -171,7 +197,7 @@ export default function HealthAlertsPage() {
             {/* Export CSV Button */}
             <button
               type="button"
-              onClick={() => exportRiskReportCSV(correlatedCases, currentFarmName || "Herd")}
+              onClick={() => exportRiskReportCSV(correlatedCases, currentFarmName || "Herd", t)}
               disabled={correlatedCases.length === 0}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all disabled:opacity-40 cursor-pointer shadow-2xs"
             >
@@ -213,8 +239,8 @@ export default function HealthAlertsPage() {
         <PriorityCowsGrid
           cases={filteredCases}
           activeFilter={activeFilter}
-          onSelectCase={(riskCase) => setSelectedCase(riskCase)}
-          onOpenMore={(riskCase) => setSelectedCase(riskCase)}
+          onSelectCase={(riskCase) => setSelectedCowId(riskCase.cow_id)}
+          onOpenMore={(riskCase) => setSelectedCowId(riskCase.cow_id)}
           isLoading={isInitialLoading}
         />
       </div>
@@ -222,7 +248,7 @@ export default function HealthAlertsPage() {
       {/* 4. UNIFIED RISK DETAIL / MORE MODAL (COW-LEVEL) */}
       <UnifiedRiskDetailModal
         riskCase={selectedCase}
-        onClose={() => setSelectedCase(null)}
+        onClose={() => setSelectedCowId(null)}
         onResolve={({ alertIds, anomalyIds }) => {
           resolveMutation.mutate({ alertIds, anomalyIds });
         }}

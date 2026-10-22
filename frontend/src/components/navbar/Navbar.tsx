@@ -74,7 +74,7 @@ export default function Navbar() {
   const activeLangOption = LANGUAGE_OPTIONS.find((l) => l.code === language) || LANGUAGE_OPTIONS[0];
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 select-none border-b border-slate-100 dark:border-[#27272A] bg-white/80 dark:bg-[#0D0E10]/90 backdrop-blur-md sticky top-0 z-30 font-sans text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
+    <div className="flex items-center justify-between px-6 py-3 select-none border-b border-slate-100 dark:border-[#27272A] bg-white/80 dark:bg-[#0D0E10]/90 backdrop-blur-md sticky top-0 z-[60] font-sans text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
       {/* Farm Selector Dropdown */}
       <div className="flex items-center gap-4">
         <div className="relative">
@@ -97,10 +97,10 @@ export default function Navbar() {
           {isFarmOpen && (
             <>
               <div
-                className="fixed inset-0 z-40"
+                className="fixed inset-0 z-[65]"
                 onClick={() => setIsFarmOpen(false)}
               />
-              <div className="absolute left-0 top-11 z-50 w-64 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-2 shadow-xl ring-1 ring-black/20 text-xs">
+              <div className="absolute left-0 top-11 z-[70] w-64 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] py-2 shadow-xl ring-1 ring-black/20 text-xs">
                 <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-[#71717A]">
                   Switch Farm Workspace
                 </div>
@@ -169,8 +169,8 @@ export default function Navbar() {
 
           {isLangOpen && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
-              <div className="absolute right-0 top-11 z-50 w-44 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-1.5 shadow-xl text-xs space-y-0.5 select-none ring-1 ring-black/20">
+              <div className="fixed inset-0 z-[65]" onClick={() => setIsLangOpen(false)} />
+              <div className="absolute right-0 top-11 z-[70] w-44 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-1.5 shadow-xl text-xs space-y-0.5 select-none ring-1 ring-black/20">
                 <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-[#71717A]">
                   Select Language
                 </div>

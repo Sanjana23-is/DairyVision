@@ -49,7 +49,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.healthy}
             </span>
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-              {kpis.healthy === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.healthy} ${t("health.cows", "cows")}`} {t("status.stable", "stable")}
+              {t("health.cows_stable_count", "{count} cows stable", { count: kpis.healthy })}
             </span>
           </div>
         </div>
@@ -88,7 +88,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.monitor}
             </span>
             <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
-              {kpis.monitor === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.monitor} ${t("health.cows", "cows")}`}
+              {t("health.cows_count", "{count} cows", { count: kpis.monitor })}
             </span>
           </div>
         </div>
@@ -127,7 +127,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.high_attention}
             </span>
             <span className="text-xs font-semibold text-rose-700 dark:text-rose-400">
-              {kpis.high_attention === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.high_attention} ${t("health.cows", "cows")}`}
+              {t("health.cows_count", "{count} cows", { count: kpis.high_attention })}
             </span>
           </div>
         </div>
@@ -166,7 +166,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.cases_this_week}
             </span>
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              {kpis.cases_this_week === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.cases_this_week} ${t("health.cows", "cows")}`}
+              {t("health.cows_count", "{count} cows", { count: kpis.cases_this_week })}
             </span>
           </div>
         </div>
