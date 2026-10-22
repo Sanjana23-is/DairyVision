@@ -1,6 +1,5 @@
 import {
   GroupedCowRecommendation,
-  getCategoryIcon,
   getCategoryTranslationKey,
   translateRecommendationTitle,
 } from "@/services/recommendation";
@@ -21,9 +20,9 @@ export default function RecommendationsTable({
 
   if (!data || data.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-600 dark:text-[#A1A1AA]">
+      <div className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-8 text-center text-slate-600 dark:text-[#A1A1AA]">
         <p className="text-base font-semibold">
-          🌱 {t("rec.empty.title", "No recommendations found.")}
+          {t("rec.empty.title", "No recommendations found.")}
         </p>
         <p className="mt-1 text-xs text-slate-400 dark:text-[#A1A1AA]/70">
           {t("rec.empty.subtitle", "No advisory actions currently match your selected filters.")}
@@ -61,36 +60,53 @@ export default function RecommendationsTable({
         ? t("rec.priority.medium", "Medium Priority")
         : t("rec.priority.low", "Low Priority");
 
+    if (isCritical || isHigh) {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded border border-rose-200/60 dark:border-rose-900/40">
+          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+          <span>{label}</span>
+        </span>
+      );
+    }
+
+    if (isMed) {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200/60 dark:border-amber-900/40">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+          <span>{label}</span>
+        </span>
+      );
+    }
+
     return (
-      <span
-        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-          isCritical || isHigh
-            ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40"
-            : isMed
-            ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40"
-            : "bg-slate-100 dark:bg-[#1B1D20] text-slate-700 dark:text-[#A1A1AA] border border-slate-200 dark:border-[#27272A]"
-        }`}
-      >
-        {label}
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-[#A1A1AA] bg-slate-100 dark:bg-[#1B1D20] px-2 py-0.5 rounded border border-slate-200/80 dark:border-[#27272A]">
+        <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
+        <span>{label}</span>
       </span>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
-      <table className="w-full table-auto text-left">
-        <thead className="bg-slate-50 dark:bg-[#1B1D20] text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
+    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
+      <table className="w-full text-left border-collapse min-w-[860px]">
+        <thead className="bg-slate-50/80 dark:bg-[#181A1D] text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
           <tr>
-            <th className="px-4 py-3.5 whitespace-nowrap">{t("rec.col.cow", "Subject Cow")}</th>
-            <th className="px-4 py-3.5 min-w-[280px]">
-              {t("rec.col.action", "Consolidated Action & Categories")}
+            <th className="px-5 py-3.5 w-[16%] min-w-[130px] whitespace-nowrap">
+              {t("rec.col.cow", "Subject Cow")}
             </th>
-            <th className="px-4 py-3.5 whitespace-nowrap">{t("rec.col.priority", "Priority")}</th>
-            <th className="px-4 py-3.5 whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[42%] min-w-[280px]">
+              {t("rec.col.recommendation", "Recommendation / Consolidated Actions")}
+            </th>
+            <th className="px-5 py-3.5 w-[12%] min-w-[110px] whitespace-nowrap">
+              {t("rec.col.priority", "Priority")}
+            </th>
+            <th className="px-5 py-3.5 w-[11%] min-w-[105px] whitespace-nowrap">
               {t("rec.col.updated", "Latest Update")}
             </th>
-            <th className="px-4 py-3.5 whitespace-nowrap">{t("rec.col.status", "Status")}</th>
-            <th className="px-4 py-3.5 text-right whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[11%] min-w-[105px] whitespace-nowrap">
+              {t("rec.col.status", "Status")}
+            </th>
+            <th className="px-5 py-3.5 w-[18%] min-w-[170px] text-right whitespace-nowrap">
               {t("rec.col.actions", "Actions")}
             </th>
           </tr>
@@ -98,12 +114,21 @@ export default function RecommendationsTable({
         <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-sm text-slate-700 dark:text-[#A1A1AA]">
           {data.map((group) => {
             const rowKey = group.cow_id || "general";
-            // Filter out any raw "General" label just in case, ensuring only relevant categories are displayed
             const relevantCategories = group.categories.filter(
               (cat) => cat.toLowerCase() !== "general" && cat.toLowerCase() !== "general farm management"
             );
             const categoriesToDisplay =
               relevantCategories.length > 0 ? relevantCategories : ["Other"];
+
+            const pendingText =
+              group.pending_count > 0
+                ? group.pending_count === 1
+                  ? t("rec.actions_pending_single", "1 action pending")
+                  : t("rec.actions_pending_count", `${group.pending_count} actions pending`).replace(
+                      "{count}",
+                      String(group.pending_count)
+                    )
+                : t("rec.actions_completed_all", "All actions completed");
 
             return (
               <tr
@@ -112,92 +137,78 @@ export default function RecommendationsTable({
                 className="hover:bg-slate-50/70 dark:hover:bg-[#1B1D20]/50 transition-colors"
               >
                 {/* 1. Subject Cow */}
-                <td className="px-4 py-3.5 font-semibold text-slate-900 dark:text-[#F4F4F5] whitespace-nowrap">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🐄</span>
-                    <div>
-                      <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                        {group.cow_name}
-                      </div>
-                      {group.cow_id ? (
-                        <div className="text-[11px] font-mono text-slate-400 dark:text-[#A1A1AA]/70">
-                          {t("rec.cow_id_prefix", "ID:")} {group.cow_id.slice(0, 8)}
-                        </div>
-                      ) : null}
-                    </div>
+                <td className="px-5 py-4 whitespace-nowrap align-top">
+                  <div className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
+                    {group.cow_name}
                   </div>
+                  {group.cow_id ? (
+                    <div className="text-xs text-slate-400 dark:text-[#A1A1AA]/70 font-mono mt-0.5">
+                      {t("rec.cow_id_prefix", "ID:")} {group.cow_id.slice(0, 8)}
+                    </div>
+                  ) : null}
                 </td>
 
-                {/* 2. Consolidated Action & Relevant Categories */}
-                <td className="px-4 py-3.5 max-w-md">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-slate-900 dark:text-[#F4F4F5]">
-                        {translateRecommendationTitle(group.primary_action_title, t)}
-                      </span>
-                      {group.action_count > 1 ? (
-                        <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-[#27272A] px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-[#A1A1AA] border border-slate-200 dark:border-[#3F3F46]">
-                          {group.action_count - 1 === 1
-                            ? t("rec.more_actions", `+1 more action`).replace("{count}", "1")
-                            : t("rec.more_actions_plural", `+${group.action_count - 1} more actions`).replace(
-                                "{count}",
-                                String(group.action_count - 1)
-                              )}
-                        </span>
-                      ) : null}
+                {/* 2. Recommendation / Consolidated Actions */}
+                <td className="px-5 py-4 align-top">
+                  <div className="space-y-1">
+                    <div className="font-medium text-slate-900 dark:text-[#F4F4F5] leading-snug">
+                      {translateRecommendationTitle(group.primary_action_title, t)}
                     </div>
-
-                    {/* Relevant Category Badges (No unnecessary General badge) */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <div className="text-xs text-slate-500 dark:text-[#A1A1AA] flex flex-wrap items-center gap-1.5 leading-normal">
                       {categoriesToDisplay.map((cat) => (
-                        <span
-                          key={cat}
-                          className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/40"
-                        >
-                          <span>{getCategoryIcon(cat)}</span>
+                        <span key={cat} className="inline-flex items-center gap-1.5">
                           <span>{t(getCategoryTranslationKey(cat), cat)}</span>
+                          <span className="text-slate-300 dark:text-[#3F3F46] select-none">·</span>
                         </span>
                       ))}
+                      <span
+                        className={
+                          group.pending_count > 0
+                            ? "text-slate-500 dark:text-[#A1A1AA]"
+                            : "text-emerald-600 dark:text-emerald-400 font-medium"
+                        }
+                      >
+                        {pendingText}
+                      </span>
                     </div>
                   </div>
                 </td>
 
                 {/* 3. Priority */}
-                <td className="px-4 py-3.5 whitespace-nowrap">
+                <td className="px-5 py-4 whitespace-nowrap align-top">
                   {getPriorityBadge(group.highest_priority)}
                 </td>
 
                 {/* 4. Latest Update */}
-                <td className="px-4 py-3.5 text-xs text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap">
+                <td className="px-5 py-4 text-xs text-slate-600 dark:text-[#A1A1AA] whitespace-nowrap align-top">
                   {formatDate(group.latest_created_at)}
                 </td>
 
-                {/* 6. Status */}
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                      group.is_all_completed
-                        ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40"
-                        : "bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800/40"
-                    }`}
-                  >
-                    {group.is_all_completed
-                      ? t("rec.status.completed", "Completed")
-                      : t("rec.status.required", "Action Required")}
-                  </span>
+                {/* 5. Status */}
+                <td className="px-5 py-4 whitespace-nowrap align-top">
+                  {group.is_all_completed ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span>{t("rec.status.completed", "Completed")}</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-[#A1A1AA]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span>{t("rec.status.required", "Action Required")}</span>
+                    </span>
+                  )}
                 </td>
 
-                {/* 7. Action Controls: Compact, balanced, and aligned */}
-                <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                  <div className="inline-flex items-center justify-end gap-1.5">
+                {/* 6. Actions */}
+                <td className="px-5 py-4 text-right whitespace-nowrap align-top">
+                  <div className="inline-flex items-center justify-end gap-2">
                     <button
                       type="button"
                       data-testid={`view-details-${rowKey}`}
                       onClick={() => onOpenDetails(group)}
-                      className="view-details-btn inline-flex items-center gap-1 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/40 px-2.5 py-1 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 shadow-sm transition-all"
+                      className="view-details-btn inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-[#3F3F46] bg-white dark:bg-[#1B1D20] px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#27272A] hover:border-slate-400 dark:hover:border-[#52525B] transition-colors shadow-none"
                     >
-                      <span>👁️</span>
-                      <span>{t("rec.btn.view_details", "View Details")}</span>
+                      {t("rec.btn.view_details", "View Details")}
                     </button>
 
                     {!group.is_all_completed ? (
@@ -205,10 +216,9 @@ export default function RecommendationsTable({
                         type="button"
                         data-testid={`complete-cow-${rowKey}`}
                         onClick={() => onRequestCompleteCow(group)}
-                        className="inline-flex items-center gap-1 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 shadow-sm transition-all"
+                        className="inline-flex items-center justify-center rounded-md border border-emerald-300/80 dark:border-emerald-800/70 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 hover:border-emerald-400 dark:hover:border-emerald-700 transition-colors shadow-none"
                       >
-                        <span>✓</span>
-                        <span>{t("rec.btn.complete_all", "Complete All")}</span>
+                        {t("rec.btn.complete_all", "Complete All")}
                       </button>
                     ) : null}
 
@@ -217,10 +227,9 @@ export default function RecommendationsTable({
                         type="button"
                         data-testid={`delete-cow-${rowKey}`}
                         onClick={() => onRequestDeleteCow(group)}
-                        className="inline-flex items-center gap-1 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-[#151719] px-2.5 py-1 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 shadow-sm transition-all"
+                        className="inline-flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-600 dark:text-[#A1A1AA] dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                       >
-                        <span>🗑️</span>
-                        <span>{t("rec.btn.delete", "Delete")}</span>
+                        {t("rec.btn.delete", "Delete")}
                       </button>
                     ) : null}
                   </div>
