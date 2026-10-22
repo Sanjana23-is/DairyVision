@@ -483,4 +483,197 @@ def test_prediction_auto_fetches_historical_weather_for_observation(db_session: 
     assert abs(float(wl.thi) - expected_thi) < 0.01
 
 
+_captured_spy_inputs = []
+
+
+class _SpyModel:
+    def __init__(self):
+        from ml_engine.config import ALL_FEATURES
+        self.feature_names_in_ = ALL_FEATURES
+
+    def predict(self, X):
+        _captured_spy_inputs.append(X)
+        import numpy as np
+        return np.array([16.5])
+
+
+def test_inference_feature_vector_age_unit_conversion_12_and_48_months(db_session: Session, tmp_path):
+    """
+    Regression test:
+    Proves that cow ages of 12 months and 48 months (stored in Cow.age_months and
+    converted to 1.0 and 4.0 years on FeatureVector.age by FeatureEngineeringService)
+    reach model inference as exactly 12.0 and 48.0 months respectively, with
+    matching age-to-weight ratios (age_months / weight), NOT the years-based ratio.
+    """
+    import pandas as pd
+
+    _captured_spy_inputs.clear()
+
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f"u_{user_id[:8]}@example.com", full_name="Age Unit Test")
+    db_session.add(user)
+    db_session.flush()
+
+    farm = Farm(id=str(uuid4()), name="Age Farm", timezone="UTC", created_by=user.id, latitude=12.97, longitude=77.59)
+    db_session.add(farm)
+    db_session.flush()
+
+    # Cow A: 12 months, 400.0 kg
+    cow_12m = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id="COW-12M",
+        owner_id=user.id,
+        created_by=user.id,
+        age_months=12,
+        weight_kg=400.0,
+    )
+    # Cow B: 48 months, 500.0 kg
+    cow_48m = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id="COW-48M",
+        owner_id=user.id,
+        created_by=user.id,
+        age_months=48,
+        weight_kg=500.0,
+    )
+    db_session.add_all([cow_12m, cow_48m])
+    db_session.flush()
+
+    weather = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        owner_id=user.id,
+        temperature=24.0,
+        humidity=50.0,
+        thi=68.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(weather)
+    db_session.flush()
+
+    obs_12m = DailyObservation(
+        id=str(uuid4()),
+        cow_id=cow_12m.id,
+        observation_date=date.today(),
+        owner_id=user.id,
+        feed_quantity_kg=18.0,
+        weather_log_id=weather.id,
+    )
+    obs_48m = DailyObservation(
+        id=str(uuid4()),
+        cow_id=cow_48m.id,
+        observation_date=date.today(),
+        owner_id=user.id,
+        feed_quantity_kg=22.0,
+        weather_log_id=weather.id,
+    )
+    db_session.add_all([obs_12m, obs_48m])
+    db_session.commit()
+
+    model_path = tmp_path / "spy_model.pkl"
+    joblib.dump(_SpyModel(), model_path)
+
+    service = PredictionService(db_session, model_path=str(model_path))
+
+    # --- Run inference for Cow A (12 months) ---
+    pred_12m = service.predict_for_observation(user.id, obs_12m.id)
+    assert pred_12m is not None
+    assert len(_captured_spy_inputs) == 1
+
+    x_12 = _captured_spy_inputs[0]
+    assert isinstance(x_12, pd.DataFrame)
+    age_12 = float(x_12["age"].iloc[0])
+    ratio_12 = float(x_12["age_weight_ratio"].iloc[0])
+
+    assert age_12 == 12.0, f"Expected inference age to be 12.0 months, got {age_12}"
+    expected_ratio_12 = 12.0 / 400.0  # 0.03
+    assert abs(ratio_12 - expected_ratio_12) < 1e-6, (
+        f"Expected age_weight_ratio to be {expected_ratio_12}, got {ratio_12}"
+    )
+
+    # --- Run inference for Cow B (48 months) ---
+    pred_48m = service.predict_for_observation(user.id, obs_48m.id)
+    assert pred_48m is not None
+    assert len(_captured_spy_inputs) == 2
+
+    x_48 = _captured_spy_inputs[1]
+    assert isinstance(x_48, pd.DataFrame)
+    age_48 = float(x_48["age"].iloc[0])
+    ratio_48 = float(x_48["age_weight_ratio"].iloc[0])
+
+    assert age_48 == 48.0, f"Expected inference age to be 48.0 months, got {age_48}"
+    expected_ratio_48 = 48.0 / 500.0  # 0.096
+    assert abs(ratio_48 - expected_ratio_48) < 1e-6, (
+        f"Expected age_weight_ratio to be {expected_ratio_48}, got {ratio_48}"
+    )
+
+
+def test_inference_feature_vector_age_older_cow_no_heuristic(db_session: Session, tmp_path):
+    """
+    Regression test:
+    Proves that cow age of 180 months (15.0 years) reaches model inference
+    as exactly 180.0 months, confirming the legacy 'age < 15' heuristic was removed.
+    """
+    import pandas as pd
+
+    _captured_spy_inputs.clear()
+
+    user_id = str(uuid4())
+    user = User(id=user_id, email=f"u_{user_id[:8]}@example.com", full_name="Older Cow Test")
+    db_session.add(user)
+    db_session.flush()
+
+    farm = Farm(id=str(uuid4()), name="Old Cow Farm", timezone="UTC", created_by=user.id, latitude=12.97, longitude=77.59)
+    db_session.add(farm)
+    db_session.flush()
+
+    cow_old = Cow(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        tag_id="COW-180M",
+        owner_id=user.id,
+        created_by=user.id,
+        age_months=180,
+        weight_kg=600.0,
+    )
+    db_session.add(cow_old)
+    db_session.flush()
+
+    weather = WeatherLog(
+        id=str(uuid4()),
+        farm_id=farm.id,
+        owner_id=user.id,
+        temperature=24.0,
+        humidity=50.0,
+        thi=68.0,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db_session.add(weather)
+    db_session.flush()
+
+    obs_old = DailyObservation(
+        id=str(uuid4()),
+        cow_id=cow_old.id,
+        observation_date=date.today(),
+        owner_id=user.id,
+        feed_quantity_kg=25.0,
+        weather_log_id=weather.id,
+    )
+    db_session.add(obs_old)
+    db_session.commit()
+
+    model_path = tmp_path / "old_cow_model.pkl"
+    joblib.dump(_SpyModel(), model_path)
+
+    service = PredictionService(db_session, model_path=str(model_path))
+    service.predict_for_observation(user.id, obs_old.id)
+
+    assert len(_captured_spy_inputs) == 1
+    x_old = _captured_spy_inputs[0]
+    assert float(x_old["age"].iloc[0]) == 180.0
+    assert abs(float(x_old["age_weight_ratio"].iloc[0]) - (180.0 / 600.0)) < 1e-6
+
+
 

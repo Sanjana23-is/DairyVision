@@ -187,6 +187,22 @@ class MilkPredictionBase(BaseModel):
     model_version: Optional[str] = None
     feature_snapshot: Optional[dict[str, Any]] = None
 
+    # Enriched Milk Baseline and Anomaly Detection fields
+    expected_baseline: Optional[float] = None
+    actual_yield: Optional[float] = None
+    residual_liters: Optional[float] = None
+    drop_liters: Optional[float] = None
+    drop_percentage: Optional[float] = None
+    baseline_status: Optional[str] = "established_baseline"
+    baseline_method: Optional[str] = "rolling_median_7d"
+    observations_used: Optional[int] = 0
+    baseline_window_days: Optional[int] = 7
+    historical_variability: Optional[float] = None
+    anomaly_status: Optional[str] = "normal"
+    alert_explanation: Optional[str] = None
+    recommended_action: Optional[str] = None
+    data_quality_warnings: Optional[list[str]] = None
+
     model_config = ConfigDict(protected_namespaces=())
 
 

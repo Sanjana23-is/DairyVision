@@ -67,6 +67,11 @@ def test_complete_feature_generation(db_session: Session) -> None:
 
 def test_missing_weather_handling(db_session: Session) -> None:
     user, farm, cow = _create_user_farm_cow(db_session)
+    farm.latitude = None
+    farm.longitude = None
+    farm.location_city = None
+    farm.name = "farm"
+    db_session.commit()
     obs = DailyObservation(id=str(uuid4()), cow_id=cow.id, observation_date=date.today(), owner_id=user.id)
     db_session.add(obs)
     db_session.commit()

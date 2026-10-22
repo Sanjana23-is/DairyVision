@@ -273,6 +273,7 @@ def test_login_route_deactivated_account_returns_401(client, session):
 def test_token_validation_deactivated_user_in_me_returns_401(session):
     import jwt as pyjwt
     import time
+    from unittest.mock import patch
     from uuid import uuid4
     from app.models.user import User
     from app.services.auth_service import AuthService
@@ -285,8 +286,7 @@ def test_token_validation_deactivated_user_in_me_returns_401(session):
     session.add(user)
     session.commit()
 
-    cfg = get_settings()
-    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    secret = "dairyvision-hackathon-secure-jwt-secret-32b"
     payload = {
         "sub": test_uid,
         "email": test_email,
@@ -295,9 +295,14 @@ def test_token_validation_deactivated_user_in_me_returns_401(session):
     }
     token = pyjwt.encode(payload, secret, algorithm="HS256")
 
-    service = AuthService(db=session)
-    with pytest.raises(AuthUnauthorized, match="deactivated"):
-        service.me(token)
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            service = AuthService(db=session)
+            with pytest.raises(AuthUnauthorized, match="deactivated"):
+                service.me(token)
+        finally:
+            get_settings.cache_clear()
 
     session.query(User).filter(User.id == test_uid).delete()
     session.commit()
@@ -351,22 +356,26 @@ def test_reset_password_endpoint_updates_password_successfully(client, session):
     session.add(user)
     session.commit()
 
-    cfg = get_settings()
-    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    secret = "dairyvision-hackathon-secure-jwt-secret-32b"
     token = pyjwt.encode({"sub": test_uid, "email": test_email, "exp": int(time.time()) + 3600}, secret, algorithm="HS256")
 
-    with patch("app.services.auth_service.supabase") as mock_supabase:
-        response = client.post(
-            "/api/v1/auth/reset-password",
-            json={"password": "NewSecurePassword123!"},
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == 200
-        assert "successfully updated" in response.json()["message"].lower()
-        mock_supabase.auth.admin.update_user_by_id.assert_called_once_with(
-            test_uid,
-            {"password": "NewSecurePassword123!"},
-        )
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            with patch("app.services.auth_service.supabase") as mock_supabase:
+                response = client.post(
+                    "/api/v1/auth/reset-password",
+                    json={"password": "NewSecurePassword123!"},
+                    headers={"Authorization": f"Bearer {token}"},
+                )
+                assert response.status_code == 200
+                assert "successfully updated" in response.json()["message"].lower()
+                mock_supabase.auth.admin.update_user_by_id.assert_called_once_with(
+                    test_uid,
+                    {"password": "NewSecurePassword123!"},
+                )
+        finally:
+            get_settings.cache_clear()
 
     session.query(User).filter(User.id == test_uid).delete()
     session.commit()
@@ -375,27 +384,42 @@ def test_reset_password_endpoint_updates_password_successfully(client, session):
 def test_reset_password_endpoint_rejects_short_password(client):
     import jwt as pyjwt
     import time
+    from unittest.mock import patch
     from app.core.config import get_settings
 
-    cfg = get_settings()
-    secret = cfg.supabase_jwt_secret or "dairyvision-hackathon-secure-jwt-secret-32b"
+    secret = "dairyvision-hackathon-secure-jwt-secret-32b"
     token = pyjwt.encode({"sub": "any-id", "email": "a@b.com", "exp": int(time.time()) + 3600}, secret, algorithm="HS256")
 
-    response = client.post(
-        "/api/v1/auth/reset-password",
-        json={"password": "short"},
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    assert response.status_code == 422
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            response = client.post(
+                "/api/v1/auth/reset-password",
+                json={"password": "short"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            assert response.status_code == 422
+        finally:
+            get_settings.cache_clear()
 
 
 def test_reset_password_endpoint_rejects_expired_or_invalid_token(client):
-    response = client.post(
-        "/api/v1/auth/reset-password",
-        json={"password": "NewSecurePassword123!"},
-        headers={"Authorization": "Bearer invalid.expired.token"},
-    )
-    assert response.status_code == 401
+    from unittest.mock import patch
+    from app.core.config import get_settings
+    secret = "dairyvision-hackathon-secure-jwt-secret-32b"
+    with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": secret}):
+        get_settings.cache_clear()
+        try:
+            with patch("app.services.auth_service.supabase") as mock_supabase:
+                mock_supabase.auth.get_user.side_effect = Exception("Invalid token: token is expired or malformed")
+                response = client.post(
+                    "/api/v1/auth/reset-password",
+                    json={"password": "NewSecurePassword123!"},
+                    headers={"Authorization": "Bearer invalid.expired.token"},
+                )
+                assert response.status_code == 401
+        finally:
+            get_settings.cache_clear()
 
 
 def test_cors_preflight_reset_password(client):

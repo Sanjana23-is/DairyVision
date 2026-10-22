@@ -44,3 +44,23 @@ def create_prediction(
         # should be reported as a 404. Anything genuinely unexpected is not
         # caught here and falls through to FastAPI's default 500 handling.
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(ve))
+
+
+@router.get("/cows/{cow_id}/baseline")
+def get_cow_baseline(
+    cow_id: str,
+    target_date: str | None = None,
+    user_id: str = Depends(get_current_user_id),
+    service: PredictionService = Depends(get_prediction_service),
+) -> Any:
+    from datetime import date as dt_date
+    parsed_date = None
+    if target_date:
+        try:
+            parsed_date = dt_date.fromisoformat(target_date)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid date format, use YYYY-MM-DD")
+    try:
+        return service.get_cow_baseline_summary(cow_id, parsed_date)
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))

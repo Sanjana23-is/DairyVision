@@ -19,6 +19,10 @@ test.describe('Prediction Page Observation Selector Tests', () => {
 
     // 2. Navigate to Prediction Page
     await page.goto('http://localhost:3000/predictions');
+    if (page.url().includes('/select-farm')) {
+      await page.click('button:has-text("Enter Farm")');
+      await page.waitForURL('**/predictions', { timeout: 10000 });
+    }
     const trigger = page.locator('[data-testid="observation-selector-trigger"]');
     await expect(trigger).toBeVisible({ timeout: 10000 });
     await expect(trigger).toBeEnabled({ timeout: 10000 });

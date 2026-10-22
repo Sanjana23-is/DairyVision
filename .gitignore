@@ -20,12 +20,21 @@ datasets/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
-frontend/.env
-
 # Environment & Secret files
 .env
+.env.*
+*.env
+*.env.*
+*.env.save
+!*.env.example
+!**/.env.example
 backend/.env
+backend/.env.*
+backend/*.env
 backend/.env.save
+frontend/.env
+frontend/.env.*
+frontend/*.env
 
 # IDE & Editor
 .vscode/
