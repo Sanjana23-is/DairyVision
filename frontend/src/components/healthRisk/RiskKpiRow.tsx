@@ -1,6 +1,7 @@
 import React from "react";
 import { ShieldCheck, Eye, AlertTriangle, CalendarDays, Check } from "lucide-react";
 import { HerdRiskKPIs, SummaryFilterType } from "@/services/riskCorrelation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface RiskKpiRowProps {
   kpis: HerdRiskKPIs;
@@ -15,6 +16,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
   onSelectFilter,
   isLoading,
 }) => {
+  const { t } = useLanguage();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* 1. HEALTHY HERD */}
@@ -29,7 +31,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
         <div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
-              Healthy Herd
+              {t("health.healthy_herd", "Healthy Herd")}
             </span>
             <div className="flex items-center gap-1.5">
               {activeFilter === "healthy" ? (
@@ -47,12 +49,12 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.healthy}
             </span>
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-              {kpis.healthy === 1 ? "cow" : "cows"} stable
+              {kpis.healthy === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.healthy} ${t("health.cows", "cows")}`} {t("status.stable", "stable")}
             </span>
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-emerald-800/80 dark:text-emerald-400/70">
-          Click to view all {kpis.healthy} healthy cows
+          {t("health.kpi_healthy_desc", "Click to view healthy cows")}
         </p>
       </div>
 
@@ -68,7 +70,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
         <div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
-              Monitor
+              {t("health.monitor_check", "Monitor & Check")}
             </span>
             <div className="flex items-center gap-1.5">
               {activeFilter === "monitor" ? (
@@ -86,12 +88,12 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.monitor}
             </span>
             <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
-              {kpis.monitor === 1 ? "cow" : "cows"} under review
+              {kpis.monitor === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.monitor} ${t("health.cows", "cows")}`}
             </span>
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-amber-800/80 dark:text-amber-400/70">
-          Click to view moderate variance cows
+          {t("health.kpi_monitor_desc", "Click to view surveillance cows")}
         </p>
       </div>
 
@@ -107,7 +109,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
         <div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-400">
-              High Attention
+              {t("health.attention_needed", "Attention Needed")}
             </span>
             <div className="flex items-center gap-1.5">
               {activeFilter === "high_attention" ? (
@@ -125,12 +127,12 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.high_attention}
             </span>
             <span className="text-xs font-semibold text-rose-700 dark:text-rose-400">
-              {kpis.high_attention === 1 ? "cow" : "cows"} requiring action
+              {kpis.high_attention === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.high_attention} ${t("health.cows", "cows")}`}
             </span>
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-rose-800/80 dark:text-rose-400/70">
-          Click to view critical action cows
+          {t("health.kpi_attention_desc", "Click to view attention cases")}
         </p>
       </div>
 
@@ -146,7 +148,7 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
         <div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              Cows Flagged (7-Day)
+              {t("health.flagged_7d_title", "Cows Flagged (Past 7 Days)")}
             </span>
             <div className="flex items-center gap-1.5">
               {activeFilter === "flagged_7d" ? (
@@ -164,12 +166,12 @@ export const RiskKpiRow: React.FC<RiskKpiRowProps> = ({
               {isLoading ? "…" : kpis.cases_this_week}
             </span>
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              {kpis.cases_this_week === 1 ? "cow flagged" : "cows flagged"}
+              {kpis.cases_this_week === 1 ? `1 ${t("health.cow", "cow")}` : `${kpis.cases_this_week} ${t("health.cows", "cows")}`}
             </span>
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-slate-500 dark:text-[#A1A1AA]/70">
-          Click to view 7-day active cows
+          {t("health.kpi_flagged_7d_desc", "Click to view recent signals")}
         </p>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { MilkPrediction } from "@/services/prediction";
+import { useLanguage } from "@/context/LanguageContext";
 
 function formatDate(dateStr?: string | null): string {
   if (!dateStr) return "—";
@@ -32,13 +33,14 @@ export default function PredictionHistoryTable({
   deletingId?: string;
 }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const cowName = (id?: string) =>
     id ? (cowNameById?.get(id) ?? id) : "—";
 
   if (!data || data.length === 0) {
     return (
       <div className="rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 text-slate-600 dark:text-[#A1A1AA]">
-        No predictions yet.
+        {t("pred_history.not_found", "No predictions yet.")}
       </div>
     );
   }
@@ -48,12 +50,12 @@ export default function PredictionHistoryTable({
       <table className="w-full table-auto text-left">
         <thead className="bg-slate-50 dark:bg-[#1B1D20] text-sm text-slate-600 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
           <tr>
-            <th className="px-4 py-3">Observation Date</th>
-            <th className="px-4 py-3">Cow</th>
-            <th className="px-4 py-3">Yield</th>
-            <th className="px-4 py-3">Confidence</th>
-            <th className="px-4 py-3">Prediction Time</th>
-            <th className="px-4 py-3">Actions</th>
+            <th className="px-4 py-3">{t("pred_history.col_obs_date", "Observation Date")}</th>
+            <th className="px-4 py-3">{t("pred_history.col_cow", "Cow")}</th>
+            <th className="px-4 py-3">{t("pred_history.col_yield", "Yield")}</th>
+            <th className="px-4 py-3">{t("pred_history.col_confidence", "Confidence")}</th>
+            <th className="px-4 py-3">{t("pred_history.col_time", "Prediction Time")}</th>
+            <th className="px-4 py-3">{t("pred_history.col_actions", "Actions")}</th>
           </tr>
         </thead>
         <tbody className="text-sm text-slate-700 dark:text-[#F4F4F5] divide-y divide-slate-100 dark:divide-[#27272A]">
@@ -82,7 +84,7 @@ export default function PredictionHistoryTable({
                     onClick={() => onOpenDetails(p)}
                     className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#1B1D20] px-3 py-1 text-xs font-semibold text-slate-700 dark:text-[#F4F4F5] hover:bg-slate-50 dark:hover:bg-[#151719]"
                   >
-                    Details
+                    {t("anomaly.details", "Details")}
                   </button>
                   <button
                     type="button"
@@ -91,7 +93,7 @@ export default function PredictionHistoryTable({
                     }
                     className="rounded-xl border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/40 px-3 py-1 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40"
                   >
-                    Explainability
+                    {t("nav.explainability", "Explainability")}
                   </button>
                   <button
                     type="button"
@@ -100,7 +102,7 @@ export default function PredictionHistoryTable({
                     }
                     className="rounded-xl border border-sky-200 dark:border-sky-800/60 bg-sky-50 dark:bg-sky-950/40 px-3 py-1 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/40"
                   >
-                    Health Alert
+                    {t("nav.health_alerts", "Health Alerts")}
                   </button>
                   <button
                     type="button"
@@ -108,7 +110,7 @@ export default function PredictionHistoryTable({
                     className="rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-1 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 disabled:opacity-50"
                     disabled={deletingId === p.id}
                   >
-                    {deletingId === p.id ? "Deleting…" : "Delete"}
+                    {deletingId === p.id ? t("common.deleting", "Deleting…") : t("action.delete", "Delete")}
                   </button>
                 </div>
               </td>

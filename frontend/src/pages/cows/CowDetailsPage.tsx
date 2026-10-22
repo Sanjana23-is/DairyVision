@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import { useLanguage } from "@/context/LanguageContext";
 import { fetchCow } from "@/services/cow";
 import { fetchBreeds } from "@/services/breed";
 import { fetchObservations } from "@/services/observation";
@@ -24,6 +25,7 @@ import {
 export default function CowDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"overview" | "observations" | "predictions" | "health" | "recommendations">("overview");
 
   const {
@@ -89,7 +91,7 @@ export default function CowDetailsPage() {
       <DashboardLayout>
         <div className="mx-auto max-w-5xl">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
-            Loading animal profile & AI intelligence...
+            {t("cow_details.loading", "Loading animal profile & AI intelligence...")}
           </div>
         </div>
       </DashboardLayout>
@@ -105,10 +107,10 @@ export default function CowDetailsPage() {
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Cows
+            {t("cow_details.back", "Back to Cows")}
           </button>
           <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-rose-800 shadow-sm">
-            {(cowError as any)?.message || "Cow record not found."}
+            {(cowError as any)?.message || t("cow_details.not_found", "Cow record not found.")}
           </div>
         </div>
       </DashboardLayout>
@@ -129,7 +131,7 @@ export default function CowDetailsPage() {
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Cows
+            {t("cow_details.back", "Back to Cows")}
           </button>
 
           {/* Profile Banner */}
@@ -150,11 +152,11 @@ export default function CowDetailsPage() {
                   </span>
                 </div>
                 <div className="mt-1 text-xs text-slate-500 dark:text-[#A1A1AA] flex flex-wrap items-center gap-2">
-                  <span>Tag: <strong className="text-slate-700 dark:text-[#F4F4F5]">{cow.tag || cow.id.slice(0, 8)}</strong></span>
+                  <span>{t("cow_details.tag", "Tag")}: <strong className="text-slate-700 dark:text-[#F4F4F5]">{cow.tag || cow.id.slice(0, 8)}</strong></span>
                   <span>·</span>
-                  <span>Breed: <strong className="text-slate-700 dark:text-[#F4F4F5]">{displayBreed}</strong></span>
+                  <span>{t("cow_details.breed", "Breed")}: <strong className="text-slate-700 dark:text-[#F4F4F5]">{displayBreed}</strong></span>
                   <span>·</span>
-                  <span>Age: <strong className="text-slate-700 dark:text-[#F4F4F5]">{formatAge(cow.age_months)}</strong></span>
+                  <span>{t("cow_details.age", "Age")}: <strong className="text-slate-700 dark:text-[#F4F4F5]">{formatAge(cow.age_months)}</strong></span>
                 </div>
               </div>
             </div>
@@ -168,7 +170,7 @@ export default function CowDetailsPage() {
                   activeTab === "overview" ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                 }`}
               >
-                Overview
+                {t("cow_details.tab_overview", "Overview")}
               </button>
               <button
                 type="button"
@@ -177,7 +179,7 @@ export default function CowDetailsPage() {
                   activeTab === "observations" ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                 }`}
               >
-                Observations ({observations.length})
+                {t("cow_details.tab_observations", "Observations")} ({observations.length})
               </button>
               <button
                 type="button"
@@ -186,7 +188,7 @@ export default function CowDetailsPage() {
                   activeTab === "predictions" ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                 }`}
               >
-                Predictions ({predictions.length})
+                {t("cow_details.tab_predictions", "Predictions")} ({predictions.length})
               </button>
               <button
                 type="button"
@@ -195,7 +197,7 @@ export default function CowDetailsPage() {
                   activeTab === "health" ? "bg-white dark:bg-[#151719] text-slate-950 dark:text-[#F4F4F5] shadow-xs font-bold" : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
                 }`}
               >
-                Health ({activeAlerts.length})
+                {t("cow_details.tab_health", "Health & Alerts")} ({activeAlerts.length})
               </button>
             </div>
           </div>

@@ -85,26 +85,35 @@ export function DashboardPage() {
   // Metrics Calculations
   const activeCowCount = summary?.active_cow_count ?? summary?.total_cow_count ?? 0;
   
-  // Today's actual milk produced
+  // Today's actual milk produced (current day only)
   const actualMilkToday = useMemo(() => {
-    if (typeof summary?.total_milk_produced === "number" && summary.total_milk_produced > 0) {
+    if (typeof summary?.total_milk_produced === "number") {
       return summary.total_milk_produced;
     }
-    const lastObs = trends?.observation_trends?.slice(-1)[0];
-    return lastObs?.total_milk_produced ?? 0;
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayObs = trends?.observation_trends?.find((t) => String(t.date) === todayStr);
+    return todayObs?.total_milk_produced ?? 0;
   }, [summary, trends]);
 
-  // Expected milk yield today
+  // Expected milk yield today (current day only)
   const expectedMilkToday = useMemo(() => {
     if (summary?.todays_milk_predictions && summary.todays_milk_predictions.length > 0) {
-      return summary.todays_milk_predictions.reduce((acc, p) => acc + (p.predicted_milk_yield || 0), 0);
+      const cowPredMap = new Map<string, number>();
+      for (const p of summary.todays_milk_predictions) {
+        const cowKey = p.cow_id || p.id;
+        if (!cowPredMap.has(cowKey) && typeof p.predicted_milk_yield === "number") {
+          cowPredMap.set(cowKey, p.predicted_milk_yield);
+        }
+      }
+      return Array.from(cowPredMap.values()).reduce((acc, val) => acc + val, 0);
     }
-    if (typeof summary?.average_predicted_milk_yield === "number" && activeCowCount > 0) {
+    if (typeof summary?.average_predicted_milk_yield === "number" && summary.average_predicted_milk_yield > 0 && activeCowCount > 0) {
       return summary.average_predicted_milk_yield * activeCowCount;
     }
-    const lastPred = trends?.milk_yield_trends?.slice(-1)[0];
-    if (lastPred?.average_predicted_milk_yield && activeCowCount > 0) {
-      return lastPred.average_predicted_milk_yield * activeCowCount;
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayPred = trends?.milk_yield_trends?.find((t) => String(t.date) === todayStr);
+    if (todayPred?.average_predicted_milk_yield && activeCowCount > 0) {
+      return todayPred.average_predicted_milk_yield * activeCowCount;
     }
     return 0;
   }, [summary, trends, activeCowCount]);

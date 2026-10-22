@@ -71,7 +71,7 @@ class DashboardService:
             {"status": status, "count": count} for status, count in herd_counts
         ]
 
-        today_predictions = (
+        raw_today_predictions = (
             self.db.query(MilkPrediction)
             .join(Cow)
             .filter(
@@ -81,34 +81,17 @@ class DashboardService:
             .order_by(MilkPrediction.prediction_timestamp.desc())
             .all()
         )
+        seen_cows = set()
+        today_predictions = []
+        for p in raw_today_predictions:
+            if p.cow_id not in seen_cows:
+                seen_cows.add(p.cow_id)
+                today_predictions.append(p)
 
-        if not today_predictions:
-            today_predictions = (
-                self.db.query(MilkPrediction)
-                .join(Cow)
-                .filter(Cow.farm_id == farm_id)
-                .order_by(MilkPrediction.prediction_timestamp.desc())
-                .limit(active_cow_count or 10)
-                .all()
-            )
-
-        avg_yield = (
-            self.db.query(func.avg(MilkPrediction.predicted_milk_yield))
-            .join(Cow)
-            .filter(
-                Cow.farm_id == farm_id,
-                func.date(MilkPrediction.prediction_timestamp) == today,
-            )
-            .scalar()
-        )
-
-        if avg_yield is None:
-            avg_yield = (
-                self.db.query(func.avg(MilkPrediction.predicted_milk_yield))
-                .join(Cow)
-                .filter(Cow.farm_id == farm_id)
-                .scalar()
-            )
+        if today_predictions:
+            avg_yield = sum(float(p.predicted_milk_yield) for p in today_predictions) / len(today_predictions)
+        else:
+            avg_yield = 0.0
 
         todays_weather = (
             self.db.query(WeatherLog)
@@ -177,7 +160,10 @@ class DashboardService:
         total_milk = (
             self.db.query(func.coalesce(func.sum(DailyObservation.milk_produced_liters), 0.0))
             .join(Cow)
-            .filter(Cow.farm_id == farm_id)
+            .filter(
+                Cow.farm_id == farm_id,
+                DailyObservation.observation_date == today,
+            )
             .scalar()
             or 0.0
         )
