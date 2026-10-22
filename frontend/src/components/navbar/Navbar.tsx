@@ -76,9 +76,9 @@ export default function Navbar() {
   const activeLangOption = LANGUAGE_OPTIONS.find((l) => l.code === language) || LANGUAGE_OPTIONS[0];
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 select-none border-b border-slate-100 dark:border-[#27272A] bg-white/80 dark:bg-[#0D0E10]/90 backdrop-blur-md sticky top-0 z-[60] font-sans text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
+    <div className="flex items-center justify-between px-4 sm:px-6 py-3 select-none font-sans text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
       {/* Farm Selector Dropdown */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         <div className="relative">
           <button
             type="button"
@@ -90,7 +90,7 @@ export default function Navbar() {
             className="flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-[#F4F4F5] shadow-2xs hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-slate-50 dark:hover:bg-[#1B1D20] transition"
           >
             <span>🌾</span>
-            <span className="max-w-[180px] truncate">
+            <span className="max-w-[110px] sm:max-w-[180px] truncate">
               {currentFarmName ?? t("action.select_farm", "Select Farm")}
             </span>
             <ChevronDown className={`h-3.5 w-3.5 text-slate-400 dark:text-[#A1A1AA] transition-transform duration-200 ${isFarmOpen ? "rotate-180 text-emerald-600 dark:text-emerald-400" : ""}`} />
@@ -150,7 +150,7 @@ export default function Navbar() {
       </div>
 
       {/* Right Actions & User Profile Bar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Language Switcher Dropdown */}
         <div className="relative">
           <button

@@ -152,7 +152,7 @@ test.describe('DairyVision AI What-If Simulation Complete Internationalization (
       await expect(page.locator(`text=${finMonthly}`).first()).toBeVisible();
       await expect(page.locator(`text=${finBenefit}`).first()).toBeVisible();
       await expect(page.locator(`h4:has-text("${finWhy}")`).first()).toBeVisible();
-      await expect(page.locator(`text=${finTransp}`).first()).toBeVisible();
+      await expect(page.locator(`text=${finTransp}`)).not.toBeVisible();
     }
   });
 
@@ -231,7 +231,7 @@ test.describe('DairyVision AI What-If Simulation Complete Internationalization (
     await expect(page.locator(`text=${translations.pa['sim.fin.cow_title']}`).first()).toBeVisible();
     await expect(page.locator(`text=${translations.pa['sim.fin.daily_impact']}`).first()).toBeVisible();
     await expect(page.locator(`text=${translations.pa['sim.fin.why_impact']}`).first()).toBeVisible();
-    await expect(page.locator(`text=${translations.pa['sim.fin.transparency_note']}`).first()).toBeVisible();
+    await expect(page.locator(`text=${translations.pa['sim.fin.transparency_note']}`)).not.toBeVisible();
 
     // Switch to Marathi
     await selectLanguage(page, 'mr');
@@ -245,6 +245,6 @@ test.describe('DairyVision AI What-If Simulation Complete Internationalization (
     await expect(page.locator(`text=${translations.mr['sim.fin.cow_title']}`).first()).toBeVisible();
     await expect(page.locator(`text=${translations.mr['sim.fin.daily_impact']}`).first()).toBeVisible();
     await expect(page.locator(`text=${translations.mr['sim.fin.why_impact']}`).first()).toBeVisible();
-    await expect(page.locator(`text=${translations.mr['sim.fin.transparency_note']}`).first()).toBeVisible();
+    await expect(page.locator(`text=${translations.mr['sim.fin.transparency_note']}`)).not.toBeVisible();
   });
 });

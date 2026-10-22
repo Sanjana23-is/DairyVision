@@ -105,7 +105,7 @@ export default function PredictionHistoryPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">{t("pred_history.title", "Prediction History")}</h2>
 
         {toast ? (

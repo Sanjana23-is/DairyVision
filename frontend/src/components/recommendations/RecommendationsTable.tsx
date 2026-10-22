@@ -87,26 +87,26 @@ export default function RecommendationsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
-      <table className="w-full text-left border-collapse min-w-[860px]">
+    <div className="overflow-x-auto w-full max-w-full rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
+      <table className="w-full text-left border-collapse min-w-[840px]">
         <thead className="bg-slate-50/80 dark:bg-[#181A1D] text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
           <tr>
-            <th className="px-5 py-3.5 w-[16%] min-w-[130px] whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[18%] min-w-[130px] whitespace-nowrap">
               {t("rec.col.cow", "Subject Cow")}
             </th>
-            <th className="px-5 py-3.5 w-[42%] min-w-[280px]">
+            <th className="px-5 py-3.5 w-[40%] min-w-[260px]">
               {t("rec.col.recommendation", "Recommendation / Consolidated Actions")}
             </th>
-            <th className="px-5 py-3.5 w-[12%] min-w-[110px] whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[11%] min-w-[105px] whitespace-nowrap">
               {t("rec.col.priority", "Priority")}
             </th>
-            <th className="px-5 py-3.5 w-[11%] min-w-[105px] whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[11%] min-w-[100px] whitespace-nowrap">
               {t("rec.col.updated", "Latest Update")}
             </th>
-            <th className="px-5 py-3.5 w-[11%] min-w-[105px] whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[10%] min-w-[100px] whitespace-nowrap">
               {t("rec.col.status", "Status")}
             </th>
-            <th className="px-5 py-3.5 w-[18%] min-w-[170px] text-right whitespace-nowrap">
+            <th className="px-5 py-3.5 w-[10%] min-w-[160px] text-right whitespace-nowrap">
               {t("rec.col.actions", "Actions")}
             </th>
           </tr>

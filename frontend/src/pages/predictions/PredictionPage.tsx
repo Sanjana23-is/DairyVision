@@ -509,7 +509,7 @@ export default function PredictionPage() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-5xl space-y-5 select-none font-sans pb-10">
+      <div className="w-full max-w-7xl mx-auto space-y-5 select-none font-sans pb-10">
         {/* 1. PAGE HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
@@ -575,7 +575,7 @@ export default function PredictionPage() {
         <div className="rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 sm:p-5 shadow-xs transition-all">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
             {/* Primary Cow Selector */}
-            <div className="md:col-span-5 space-y-1.5">
+            <div className="md:col-span-4 space-y-1.5">
               <label
                 htmlFor="cow-selector"
                 className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-[#A1A1AA]"
@@ -611,7 +611,7 @@ export default function PredictionPage() {
             </div>
 
             {/* Scoped Observation Selector */}
-            <div className="md:col-span-4 space-y-1.5">
+            <div className="md:col-span-5 space-y-1.5">
               <label
                 id="observation-selector-label"
                 htmlFor="observation-selector-trigger"
@@ -1317,7 +1317,7 @@ export default function PredictionPage() {
                   </div>
 
                   {/* Historical Table */}
-                  <div className="overflow-x-auto rounded-xl border border-slate-200/90 dark:border-[#27272A]">
+                  <div className="overflow-x-auto w-full max-w-full min-w-0 rounded-xl border border-slate-200/90 dark:border-[#27272A]">
                     <table className="w-full text-left text-xs text-slate-700 dark:text-[#A1A1AA]">
                       <thead className="bg-slate-50 dark:bg-[#1B1D20] text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
                         <tr>
@@ -1430,22 +1430,6 @@ export default function PredictionPage() {
               </div>
             )}
 
-            {!activePrediction && !mutation.isPending && selectedObs && (
-              <div
-                data-testid="prediction-prompt-card"
-                className="rounded-2xl border border-dashed border-slate-200 dark:border-[#27272A] bg-slate-50/50 dark:bg-[#151719]/50 p-6 text-center space-y-2"
-              >
-                <div className="mx-auto w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1F2226] flex items-center justify-center text-slate-400 dark:text-[#A1A1AA]">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <div className="text-xs font-semibold text-slate-700 dark:text-[#F4F4F5]">
-                  Ready to Generate Prediction
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
-                  Click <strong>Generate Prediction</strong> above to calculate model yield inference, uncertainty bounds, and TreeSHAP explainability drivers for {formatDate(selectedObs.observation_date)}.
-                </p>
-              </div>
-            )}
 
             {activePrediction && !mutation.isPending && (
               <div className="space-y-4">

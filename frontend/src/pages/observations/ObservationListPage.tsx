@@ -52,18 +52,18 @@ function getHealthBadgeStyle(condition?: string | null) {
   if (normalized === "fever" || normalized === "mastitis" || normalized === "critical") {
     return {
       label: condition || "Critical",
-      className: "bg-rose-50 text-rose-800 border border-rose-200/80 font-bold",
+      className: "text-rose-600 dark:text-rose-400 font-semibold",
     };
   }
   if (normalized === "lameness" || normalized === "warning" || normalized === "mild") {
     return {
       label: condition || "Warning",
-      className: "bg-amber-50 text-amber-800 border border-amber-200/80 font-bold",
+      className: "text-amber-600 dark:text-amber-400 font-semibold",
     };
   }
   return {
-    label: condition || "Normal",
-    className: "bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-bold",
+    label: (!condition || normalized === "normal") ? "Normal" : condition,
+    className: "text-emerald-600 dark:text-emerald-400 font-semibold",
   };
 }
 
@@ -419,7 +419,7 @@ export default function ObservationListPage() {
               </div>
 
               {/* Table */}
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto w-full max-w-full">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50/90 dark:bg-[#1B1D20] border-b border-slate-200/80 dark:border-[#27272A] text-slate-500 dark:text-[#A1A1AA] font-bold text-[11px] uppercase tracking-wider">
                     <tr>
@@ -446,18 +446,13 @@ export default function ObservationListPage() {
                             {formatDate(obs.observation_date)}
                           </td>
 
-                          {/* Cow Avatar & Clickable Link */}
+                          {/* Cow */}
                           <td className="py-3.5 px-4">
                             <Link
                               to={`/cows/${obs.cow_id}`}
-                              className="inline-flex items-center gap-2 font-bold text-slate-900 dark:text-[#F4F4F5] hover:text-emerald-700 dark:hover:text-emerald-400 transition group-hover:text-emerald-900 dark:group-hover:text-emerald-300"
+                              className="font-bold text-slate-900 dark:text-[#F4F4F5] hover:text-emerald-700 dark:hover:text-emerald-400 transition group-hover:text-emerald-900 dark:group-hover:text-emerald-300"
                             >
-                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 text-xs">
-                                🌾
-                              </span>
-                              <span className="truncate max-w-[160px]">
-                                {cowName(obs.cow_id)}
-                              </span>
+                              {cowName(obs.cow_id)}
                             </Link>
                           </td>
 
@@ -475,11 +470,9 @@ export default function ObservationListPage() {
                               : "—"}
                           </td>
 
-                          {/* Health Condition Semantic Badge */}
+                          {/* Health Condition */}
                           <td className="py-3.5 px-4">
-                            <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] capitalize ${badge.className}`}
-                            >
+                            <span className={`capitalize ${badge.className}`}>
                               {badge.label}
                             </span>
                           </td>

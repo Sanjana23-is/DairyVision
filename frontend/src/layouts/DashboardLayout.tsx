@@ -11,7 +11,7 @@ export default function DashboardLayout({
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090B] text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#09090B] text-slate-900 dark:text-[#F4F4F5] transition-colors duration-200 flex flex-col">
       <ResponsiveTopbar onOpen={() => setIsMobileSidebarOpen(true)} />
 
       {isMobileSidebarOpen ? (
@@ -36,17 +36,17 @@ export default function DashboardLayout({
         </>
       ) : null}
 
-      <div className="flex min-h-screen">
+      <div className="flex-1 flex w-full min-w-0">
         <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:block md:w-64">
           <Sidebar />
         </aside>
 
-        <div className="flex-1 min-h-screen md:pl-64 flex flex-col">
-          <header className="sticky top-0 z-20 border-b border-slate-200 dark:border-[#27272A] bg-white/90 dark:bg-[#0D0E10]/90 backdrop-blur-md transition-colors duration-200">
+        <div className="flex-1 min-w-0 w-full min-h-screen md:pl-64 flex flex-col">
+          <header className="sticky top-0 z-30 border-b border-slate-200 dark:border-[#27272A] bg-white/90 dark:bg-[#0D0E10]/90 backdrop-blur-md transition-colors duration-200">
             <Navbar />
           </header>
 
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <main className="flex-1 min-w-0 w-full p-4 md:p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </div>

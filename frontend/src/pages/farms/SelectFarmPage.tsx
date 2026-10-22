@@ -82,6 +82,20 @@ export default function SelectFarmPage() {
     return map;
   }, [allAlerts]);
 
+  const farmCount = farms.length;
+
+  const containerMaxWidth = useMemo(() => {
+    if (farmCount === 1) return "max-w-[480px]";
+    if (farmCount === 2) return "max-w-[760px]";
+    return "max-w-[1040px]";
+  }, [farmCount]);
+
+  const gridColsClass = useMemo(() => {
+    if (farmCount === 1) return "grid-cols-1";
+    if (farmCount === 2) return "grid-cols-1 sm:grid-cols-2";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  }, [farmCount]);
+
   const createMut = useMutation({
     mutationFn: createFarm,
     onSuccess: (newFarm: Farm) => {
@@ -244,7 +258,9 @@ export default function SelectFarmPage() {
           </div>
         ) : (
           /* CASE 2: Returning User with 1+ Farms (Single Main Centered Container Card) */
-          <div className="w-full max-w-[760px] rounded-[24px] bg-white dark:bg-[#151719] p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-6">
+          <div
+            className={`w-full ${containerMaxWidth} max-h-[88vh] overflow-y-auto rounded-[24px] bg-white dark:bg-[#151719] p-7 sm:p-9 shadow-2xl ring-1 ring-slate-900/5 dark:ring-[#27272A] border border-transparent dark:border-[#27272A] space-y-6 transition-all duration-300`}
+          >
             {/* Header inside parent card */}
             <div className="space-y-1">
               <span className="text-[11.5px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -259,7 +275,7 @@ export default function SelectFarmPage() {
             </div>
 
             {/* Real Farm Cards Grid inside parent card */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid gap-4 ${gridColsClass}`}>
               {farms.map((farm: Farm) => {
                 const cowCount = cowsCountByFarm[farm.id] || 0;
                 const alertCount = alertsCountByFarm[farm.id] || 0;

@@ -56,6 +56,38 @@ function errorMessage(error: unknown): string {
   );
 }
 
+function getStatusLabel(
+  status: string | undefined | null,
+  t: (key: string, fallback?: string) => string,
+): string {
+  const s = (status || "active").toLowerCase();
+  switch (s) {
+    case "active":
+      return t("cows.status_active", "Active");
+    case "dry":
+      return t("cows.status_dry", "Dry");
+    case "sick":
+      return t("cows.status_sick", "Sick");
+    case "deceased":
+      return t("cows.status_deceased", "Deceased");
+    case "sold":
+      return t("cows.status_sold", "Sold");
+    default:
+      return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+}
+
+function getStatusColor(status: string | undefined | null): string {
+  const s = (status || "active").toLowerCase();
+  if (s === "active") {
+    return "text-emerald-600 dark:text-emerald-400";
+  }
+  if (s === "dry" || s === "sick") {
+    return "text-amber-600 dark:text-amber-400";
+  }
+  return "text-slate-500 dark:text-[#A1A1AA]";
+}
+
 export default function CowListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -286,7 +318,7 @@ export default function CowListPage() {
         </div>
 
         {/* Table Container */}
-        <div className="overflow-x-auto rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
+        <div className="overflow-x-auto w-full max-w-full rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
           {isLoading ? (
             <div className="p-8 text-center text-slate-500 dark:text-[#A1A1AA] text-xs font-semibold">Loading cattle herd...</div>
           ) : isError ? (
@@ -315,12 +347,13 @@ export default function CowListPage() {
             <table className="w-full table-auto">
               <thead className="bg-slate-50 dark:bg-[#1B1D20] text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] border-b border-slate-100 dark:border-[#27272A]">
                 <tr>
-                  <th className="px-5 py-3.5">{t("cows.cow_tag_id", "COW / TAG ID")}</th>
-                  <th className="px-4 py-3.5">{t("cows.breed", "BREED")}</th>
-                  <th className="px-4 py-3.5">{t("cows.weight", "WEIGHT")}</th>
-                  <th className="px-4 py-3.5">{t("cows.age", "AGE")}</th>
-                  <th className="px-4 py-3.5">{t("cows.status", "STATUS")}</th>
-                  <th className="px-4 py-3.5 text-right">{t("cows.action", "ACTION")}</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap">{t("cows.cow_name", "COW NAME")}</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">{t("cows.tag_id", "TAG ID")}</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">{t("cows.breed", "BREED")}</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">{t("cows.weight", "WEIGHT")}</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">{t("cows.age", "AGE")}</th>
+                  <th className="px-4 py-3.5 whitespace-nowrap">{t("cows.status", "STATUS")}</th>
+                  <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("cows.action", "ACTION")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#27272A] text-xs text-slate-700 dark:text-[#F4F4F5]">
@@ -330,39 +363,29 @@ export default function CowListPage() {
                     className="hover:bg-slate-50/80 dark:hover:bg-[#222428] transition cursor-pointer"
                     onClick={() => navigate(`/cows/${c.id}`)}
                   >
-                    <td className="px-5 py-4 font-bold text-slate-900 dark:text-[#F4F4F5]">
-                      <div className="flex items-center gap-2">
-                        <span>🐄</span>
-                        <div>
-                          <div className="text-sm font-bold text-slate-950 dark:text-[#F4F4F5]">{c.name || c.tag || "Unnamed Cow"}</div>
-                          <div className="text-[11px] font-mono text-slate-400 dark:text-[#A1A1AA]">Tag: {c.tag || c.id.slice(0, 8)}</div>
-                        </div>
-                      </div>
+                    <td className="px-5 py-4 font-bold text-slate-900 dark:text-[#F4F4F5] whitespace-nowrap">
+                      {c.name || "Unnamed Cow"}
                     </td>
 
-                    <td className="px-4 py-4 font-medium text-slate-800 dark:text-[#F4F4F5]">
+                    <td className="px-4 py-4 font-mono text-xs text-slate-500 dark:text-[#A1A1AA] whitespace-nowrap">
+                      {c.tag || c.tag_id || c.id?.slice(0, 8) || "—"}
+                    </td>
+
+                    <td className="px-4 py-4 font-medium text-slate-800 dark:text-[#F4F4F5] whitespace-nowrap">
                       {c.breed_name || breedName(c.breed) || "—"}
                     </td>
 
-                    <td className="px-4 py-4 font-semibold text-slate-800 dark:text-[#F4F4F5]">
+                    <td className="px-4 py-4 font-semibold text-slate-800 dark:text-[#F4F4F5] whitespace-nowrap">
                       {c.weight_kg ? `${c.weight_kg} kg` : "—"}
                     </td>
 
-                    <td className="px-4 py-4 font-medium text-slate-600 dark:text-[#A1A1AA]">
+                    <td className="px-4 py-4 font-medium text-slate-600 dark:text-[#A1A1AA] whitespace-nowrap">
                       {formatAge(c.age_months)}
                     </td>
 
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                          c.status === "active"
-                            ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
-                            : c.status === "dry" || c.status === "sick"
-                              ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
-                              : "bg-slate-100 dark:bg-[#1B1D20] text-slate-600 dark:text-[#A1A1AA]"
-                        }`}
-                      >
-                        ● {c.status ? c.status.toUpperCase() : "ACTIVE"}
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`font-medium ${getStatusColor(c.status)}`}>
+                        {getStatusLabel(c.status, t)}
                       </span>
                     </td>
 

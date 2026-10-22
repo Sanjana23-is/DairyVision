@@ -1,6 +1,6 @@
 import React from "react";
-import { ShieldCheck, MoreHorizontal, Eye, Sparkles, CheckCircle2 } from "lucide-react";
-import { UnifiedRiskCase, RiskSource, SummaryFilterType } from "@/services/riskCorrelation";
+import { ShieldCheck, MoreHorizontal, Eye, CheckCircle2 } from "lucide-react";
+import { UnifiedRiskCase, SummaryFilterType } from "@/services/riskCorrelation";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface PriorityCowsGridProps {
@@ -63,51 +63,10 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
 
   const { icon, title, subtitle, emptyText } = getSectionHeader();
 
-  function getSourceBadge(src: RiskSource) {
-    switch (src) {
-      case "AI Anomaly":
-        return (
-          <span
-            key={src}
-            className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-950/40 px-2 py-0.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300"
-          >
-            <span>🤖</span> {t("signals.ai_anomaly", "AI Anomaly")}
-          </span>
-        );
-      case "Health Alert":
-        return (
-          <span
-            key={src}
-            className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-950/40 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
-          >
-            <span>🩺</span> {t("signals.health_alert", "Health Alert")}
-          </span>
-        );
-      case "Environmental":
-        return (
-          <span
-            key={src}
-            className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/40 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
-          >
-            <span>🌤️</span> {t("signals.environmental", "Environmental")}
-          </span>
-        );
-      default:
-        return (
-          <span
-            key={src}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300"
-          >
-            <span>📋</span> {t("signals.observation", "Observation")}
-          </span>
-        );
-    }
-  }
-
   function getPriorityBadge(item: UnifiedRiskCase) {
     if (item.case_status === "resolved") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+        <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
           <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
           {t("status.resolved", "RESOLVED")}
         </span>
@@ -117,125 +76,123 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
     switch (item.priority) {
       case "urgent":
         return (
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-500/40 animate-pulse">
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-600 dark:bg-rose-400" />
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/40">
             {t("priority.urgent", "URGENT")}
           </span>
         );
       case "needs_attention":
         return (
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold bg-orange-100 text-orange-800 border border-orange-300 dark:bg-orange-950/80 dark:text-orange-300 dark:border-orange-500/40">
-            <span className="h-1.5 w-1.5 rounded-full bg-orange-600 dark:bg-orange-400" />
-            {t("priority.needs_attention", "NEEDS ATTENTION")}
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-900/40">
+            {t("priority.needs_attention", "ATTENTION")}
           </span>
         );
       case "monitor":
         return (
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-500/40">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/40">
             {t("priority.monitor", "MONITOR")}
           </span>
         );
       case "routine":
       default:
         return (
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/40">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+          <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40">
             {t("priority.routine", "ROUTINE")}
           </span>
         );
     }
   }
 
-  function getHealthChip(status: UnifiedRiskCase["recorded_health_status"]) {
+  function getHealthStatus(status: UnifiedRiskCase["recorded_health_status"]) {
     switch (status) {
       case "no_recorded_concern":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/20 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
-            🩺 {t("health_status.no_recorded_concern", "Health: Normal")}
-          </span>
-        );
+        return {
+          text: t("health_status.normal", "Normal"),
+          className: "text-emerald-600 dark:text-emerald-400 font-medium",
+        };
       case "concern_reported":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50/80 dark:border-amber-900/40 dark:bg-amber-950/20 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
-            🩺 {t("health_status.concern_reported", "Health: Concern")}
-          </span>
-        );
+        return {
+          text: t("health_status.concern", "Concern reported"),
+          className: "text-amber-600 dark:text-amber-400 font-medium",
+        };
       case "vet_recommended":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50/80 dark:border-rose-900/40 dark:bg-rose-950/20 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300">
-            🩺 {t("health_status.vet_recommended", "Health: Vet Check")}
-          </span>
-        );
+        return {
+          text: t("health_status.vet_check", "Vet check recommended"),
+          className: "text-rose-600 dark:text-rose-400 font-medium",
+        };
       case "assessment_unavailable":
       default:
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            🩺 {t("health_status.assessment_unavailable", "Health: Unrecorded")}
-          </span>
-        );
+        return {
+          text: t("health_status.unrecorded", "Unrecorded"),
+          className: "text-slate-500 dark:text-slate-400 font-medium",
+        };
     }
   }
 
-  function getMilkChip(item: UnifiedRiskCase) {
+  function getMilkYield(item: UnifiedRiskCase) {
     const { milk_production_status, milk_recorded_liters, milk_deviation_pct } = item;
+    if (milk_recorded_liters != null) {
+      const yieldStr = `${milk_recorded_liters.toFixed(1)} L`;
+      switch (milk_production_status) {
+        case "within_usual_range":
+          return `${yieldStr} (Normal)`;
+        case "below_usual_range":
+          return `${yieldStr} (${milk_deviation_pct != null ? `-${Math.abs(milk_deviation_pct)}% drop` : "Drop"})`;
+        case "above_usual_range":
+          return `${yieldStr} (${milk_deviation_pct != null ? `+${milk_deviation_pct}%` : "Above"})`;
+        default:
+          return yieldStr;
+      }
+    }
     switch (milk_production_status) {
       case "within_usual_range":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/20 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
-            🥛 {milk_recorded_liters != null ? t("milk_status.chip_normal", "Milk: {yield} L (Normal)", { yield: milk_recorded_liters.toFixed(1) }) : t("milk_status.chip_normal_empty", "Milk: Normal")}
-          </span>
-        );
-      case "below_usual_range":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50/80 dark:border-amber-900/40 dark:bg-amber-950/20 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
-            🥛 {milk_deviation_pct != null ? t("milk_status.chip_drop", "Milk: -{pct}% Drop", { pct: Math.abs(milk_deviation_pct) }) : t("milk_status.chip_drop_empty", "Milk: Drop")}
-          </span>
-        );
-      case "above_usual_range":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/20 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
-            🥛 {t("milk_status.chip_above", "Milk: +{pct}% Above", { pct: milk_deviation_pct ?? 0 })}
-          </span>
-        );
+        return "Normal";
       case "insufficient_history":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            🥛 {t("milk_status.insufficient_history", "Milk: Baseline Setup")}
-          </span>
-        );
+        return "Baseline setup";
       case "today_unrecorded":
       default:
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            🥛 {t("milk_status.today_unrecorded", "Milk: Unrecorded")}
-          </span>
-        );
+        return "Unrecorded";
     }
   }
 
-  function getAiChip(status: UnifiedRiskCase["ai_monitoring_status"]) {
+  function getAiSignal(status: UnifiedRiskCase["ai_monitoring_status"]) {
     switch (status) {
-      case "no_unusual_pattern":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/20 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
-            🤖 {t("ai_status.no_unusual_pattern", "AI: Normal Pattern")}
-          </span>
-        );
       case "unusual_pattern":
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 dark:border-purple-500/30 dark:bg-purple-950/40 px-2 py-0.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300">
-            🤖 {t("ai_status.unusual_pattern", "AI: Unusual Pattern")}
-          </span>
-        );
+        return {
+          text: t("ai_status.unusual_pattern_text", "Unusual pattern"),
+          className: "text-purple-600 dark:text-purple-400 font-medium",
+        };
+      case "no_unusual_pattern":
+        return {
+          text: t("ai_status.normal_pattern_text", "Normal pattern"),
+          className: "text-emerald-600 dark:text-emerald-400 font-medium",
+        };
       case "insufficient_data":
       default:
-        return (
-          <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-800 dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            🤖 {t("ai_status.insufficient_data", "AI: Learning")}
-          </span>
-        );
+        return {
+          text: t("ai_status.learning_text", "Learning"),
+          className: "text-slate-500 dark:text-slate-400 font-medium",
+        };
     }
+  }
+
+  function getInlineSignals(item: UnifiedRiskCase) {
+    if (!item.sources || item.sources.length === 0) {
+      return t("signals.normal_baseline", "Normal baseline");
+    }
+    return item.sources
+      .map((src) => {
+        switch (src) {
+          case "Health Alert":
+            return t("signals.health_alert", "Health alert");
+          case "AI Anomaly":
+            return t("signals.ai_anomaly", "AI anomaly");
+          case "Environmental":
+            return t("signals.environmental", "Environmental");
+          default:
+            return t("signals.observation", "Observation");
+        }
+      })
+      .join(" · ");
   }
 
   return (
@@ -284,121 +241,93 @@ export const PriorityCowsGrid: React.FC<PriorityCowsGridProps> = ({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cases.map((item) => {
-            const isUrgent = item.priority === "urgent" && item.case_status !== "resolved";
-            const isAttention = item.priority === "needs_attention" && item.case_status !== "resolved";
-            const isMonitor = item.priority === "monitor" && item.case_status !== "resolved";
+            const healthStatus = getHealthStatus(item.recorded_health_status);
+            const milkYieldText = getMilkYield(item);
+            const aiSignal = getAiSignal(item.ai_monitoring_status);
+            const inlineSignalsText = getInlineSignals(item);
 
             return (
               <div
                 key={item.cow_id}
                 data-testid={`cow-card-${item.tag_id}`}
-                className={`group relative flex flex-col justify-between rounded-2xl border p-5 transition-all duration-200 shadow-xs ${
-                  isUrgent
-                    ? "border-rose-200 bg-white dark:border-rose-900/50 dark:bg-[#161214] hover:border-rose-400 dark:hover:border-rose-600/70 hover:shadow-md dark:hover:shadow-rose-950/30"
-                    : isAttention
-                    ? "border-orange-200 bg-white dark:border-orange-900/50 dark:bg-[#171412] hover:border-orange-400 dark:hover:border-orange-600/70 hover:shadow-md dark:hover:shadow-orange-950/30"
-                    : isMonitor
-                    ? "border-amber-200 bg-white dark:border-amber-900/40 dark:bg-[#161512] hover:border-amber-400 dark:hover:border-amber-600/70 hover:shadow-md dark:hover:shadow-amber-950/30"
-                    : "border-emerald-200/80 bg-white dark:border-emerald-900/40 dark:bg-[#121614] hover:border-emerald-400 dark:hover:border-emerald-600/70 hover:shadow-md"
-                }`}
+                className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 transition-all duration-150 shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xs"
               >
                 <div>
-                  {/* Top row: Cow Identity & Priority Badge */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base">🐄</span>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {item.cow_name}
-                        </h4>
-                        <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
-                          · {item.tag_id}
-                        </span>
-                      </div>
-                      {item.breed ? (
-                        <div className="mt-0.5 text-[11px] font-medium text-slate-500 dark:text-[#A1A1AA]">
-                          {item.breed}
-                        </div>
-                      ) : null}
+                  {/* Top row: Cow Identity (Left) & Monitoring Status Badge (Right) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-[#F4F4F5] truncate">
+                      {item.cow_name}{" "}
+                      <span className="text-xs font-normal text-slate-400 dark:text-slate-500 font-mono">
+                        · {item.tag_id}
+                      </span>
+                    </h4>
+                    <div className="shrink-0">{getPriorityBadge(item)}</div>
+                  </div>
+
+                  {/* Compact 3-row key-value section */}
+                  <div className="mt-4 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 dark:text-slate-400 font-normal">
+                        {t("health.label_health_status", "Health status")}
+                      </span>
+                      <span className={healthStatus.className}>
+                        {healthStatus.text}
+                      </span>
                     </div>
 
-                    <div>{getPriorityBadge(item)}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 dark:text-slate-400 font-normal">
+                        {t("health.label_milk_yield", "Milk yield")}
+                      </span>
+                      <span className="text-slate-900 dark:text-[#F4F4F5] font-medium">
+                        {milkYieldText}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 dark:text-slate-400 font-normal">
+                        {t("health.label_ai_signal", "AI signal")}
+                      </span>
+                      <span className={aiSignal.className}>
+                        {aiSignal.text}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* 3 Core Dimensions Badges */}
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {getHealthChip(item.recorded_health_status)}
-                    {getMilkChip(item)}
-                    {getAiChip(item.ai_monitoring_status)}
-                  </div>
-
-                  {/* Evidence Narrative */}
-                  <div className="mt-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-3">
-                    <p className="text-xs font-medium text-slate-700 dark:text-[#D4D4D8] leading-relaxed">
+                  {/* Subtle horizontal divider & Alert description */}
+                  <div className="mt-4 border-t border-slate-100 dark:border-[#27272A] pt-3">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       {item.primary_evidence_summary || item.primary_concern}
                     </p>
-
-                    {item.reasons.length > 1 ? (
-                      <div className="mt-2 space-y-1">
-                        {item.reasons.slice(1, 3).map((reason, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start gap-1.5 text-[11px] font-medium text-slate-600 dark:text-slate-400 leading-snug"
-                          >
-                            <span
-                              className={`mt-1.5 h-1 w-1 rounded-full shrink-0 ${
-                                isUrgent
-                                  ? "bg-rose-500"
-                                  : isAttention
-                                  ? "bg-orange-500"
-                                  : isMonitor
-                                  ? "bg-amber-500"
-                                  : "bg-emerald-500"
-                              }`}
-                            />
-                            <span className="line-clamp-2">{reason}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
 
-                {/* Bottom row: Detected Signal Sources & Action Buttons */}
-                <div className="mt-4 border-t border-slate-100 dark:border-slate-800/80 pt-3">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                    {item.sources.length > 0 ? t("signals.sources_title", "Signals:") : t("signals.status_title", "Status:")}
+                {/* Footer: Quiet Signals (Left) & Actions (Right) */}
+                <div className="mt-4 border-t border-slate-100 dark:border-[#27272A] pt-3 flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 truncate block font-normal">
+                      {inlineSignalsText}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex flex-wrap gap-1">
-                      {item.sources.length > 0 ? (
-                        item.sources.map((s) => getSourceBadge(s))
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-950/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
-                          <Sparkles className="h-3 w-3" /> {t("signals.normal_baseline", "Normal Baseline")}
-                        </span>
-                      )}
-                    </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => onSelectCase(item)}
-                        className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700/60 dark:bg-[#1B1D20] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-600 dark:hover:bg-emerald-600 dark:hover:text-white transition-all cursor-pointer"
-                      >
-                        <Eye className="h-3 w-3" />
-                        <span>{t("common.view_cow", "View Cow")}</span>
-                      </button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onSelectCase(item)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50/80 dark:bg-[#1B1D20] px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100 dark:hover:bg-[#222529] transition cursor-pointer"
+                    >
+                      <Eye className="h-3 w-3 text-slate-500 dark:text-slate-400" />
+                      <span>{t("common.view_cow", "View Cow")}</span>
+                    </button>
 
-                      <button
-                        type="button"
-                        onClick={() => onOpenMore(item)}
-                        title={t("common.more_details", "More details & signals")}
-                        className="rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700/60 dark:bg-[#1B1D20] p-1 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onOpenMore(item)}
+                      title={t("common.more_details", "More details & signals")}
+                      className="rounded-lg border border-slate-200 dark:border-[#27272A] bg-slate-50/80 dark:bg-[#1B1D20] p-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 transition cursor-pointer"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>

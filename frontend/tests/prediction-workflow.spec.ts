@@ -232,7 +232,7 @@ test.describe('DairyVision AI Complete Predictions Workflow Tests', () => {
     await expect(page.locator('[data-testid="prediction-confidence-display"]')).not.toBeVisible();
     await expect(page.locator('text=Why This Prediction?')).not.toBeVisible();
     await expect(page.locator('text=Baseline Methodology')).not.toBeVisible();
-    await expect(page.locator('[data-testid="prediction-prompt-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="prediction-prompt-card"]')).not.toBeVisible();
 
     // SCENARIO 4: Changing the observation date causes ZERO prediction-generation POST requests
     const inspectButtons = page.locator('table tbody tr button:has-text("Inspect")');
@@ -242,7 +242,7 @@ test.describe('DairyVision AI Complete Predictions Workflow Tests', () => {
       expect(predictionPostCount).toBe(0);
       await expect(page.locator('[data-testid="ml-prediction-result-card"]')).not.toBeVisible();
       await expect(page.locator('text=Why This Prediction?')).not.toBeVisible();
-      await expect(page.locator('[data-testid="prediction-prompt-card"]')).toBeVisible();
+      await expect(page.locator('[data-testid="prediction-prompt-card"]')).not.toBeVisible();
     }
 
     // SCENARIO 12: Repeated clicks while the request is pending do not create duplicate POST requests
@@ -277,7 +277,7 @@ test.describe('DairyVision AI Complete Predictions Workflow Tests', () => {
     await expect(page.locator('[data-testid="ml-prediction-result-card"]')).not.toBeVisible();
     await expect(page.locator('[data-testid="prediction-confidence-display"]')).not.toBeVisible();
     await expect(page.locator('text=Why This Prediction?')).not.toBeVisible();
-    await expect(page.locator('[data-testid="prediction-prompt-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="prediction-prompt-card"]')).not.toBeVisible();
     expect(predictionPostCount).toBe(1); // Still exactly 1 call
 
     // SCENARIO 11: A failed prediction request displays an error and allows the user to retry

@@ -58,7 +58,7 @@ export default function HealthAlertsTable({
 
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
+    <div className="overflow-x-auto w-full max-w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
       <table className="w-full table-auto">
         <thead className="bg-slate-50 dark:bg-[#1B1D20] text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
           <tr>

@@ -152,30 +152,6 @@ function FinancialImpactCard({ impact, isHerd = false, cowsCount = 0 }: { impact
           </p>
         </div>
       )}
-
-      {/* Transparent Assumptions Badge */}
-      <div className="rounded-xl bg-slate-100/80 dark:bg-[#1B1D20] p-3 text-[11.5px] text-slate-600 dark:text-[#A1A1AA] flex items-center gap-2">
-        <span className="font-bold text-slate-700 dark:text-[#F4F4F5]">{t("sim.fin.transparency_note", "Transparency Note:")}</span>
-        {impact.using_default_assumptions ? (
-          <span>
-            {t(
-              "sim.fin.transparency_desc_default",
-              "Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on default regional estimates (Milk: ₹{milk}/L, Feed: ₹{feed}/kg) over a standard 30-day monthly horizon. Configure farm settings for customized rates."
-            )
-              .replace("{milk}", String(impact.milk_price_per_liter))
-              .replace("{feed}", String(impact.feed_cost_per_kg))}
-          </span>
-        ) : (
-          <span>
-            {t(
-              "sim.fin.transparency_desc_custom",
-              "Financial figures are model-predicted scenarios for decision support and not guaranteed commercial outcomes. Based on farm-configured rates (Milk: ₹{milk}/L, Feed: ₹{feed}/kg) over a standard 30-day monthly horizon."
-            )
-              .replace("{milk}", String(impact.milk_price_per_liter))
-              .replace("{feed}", String(impact.feed_cost_per_kg))}
-          </span>
-        )}
-      </div>
     </div>
   );
 }
@@ -322,116 +298,119 @@ export default function SimulationPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header & Mode Switcher */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">
-                {t("sim.title", "What-If & Scenario Simulation")}
-              </h1>
-              <span className="flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
-                <FlaskConical className="h-3.5 w-3.5" />
-                {t("sim.sandbox", "Read-Only Sandbox")}
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-slate-500 dark:text-[#A1A1AA]">
-              {t("sim.subtitle", "Simulate environmental stress, feed ration adjustments, and cooling interventions with transparent financial impact.")}
-            </p>
-          </div>
-
-          {/* Mode Switcher Tabs */}
-          <div className="flex items-center rounded-2xl bg-slate-100 dark:bg-[#1B1D20] p-1.5 border border-slate-200 dark:border-[#27272A]">
-            <button
-              onClick={() => setMode("cow")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
-                mode === "cow"
-                  ? "bg-white dark:bg-[#151719] text-emerald-800 dark:text-emerald-300 shadow-sm border border-slate-200/60 dark:border-[#27272A]"
-                  : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
-              }`}
-            >
-              <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              🐄 {t("sim.individual_cow", "Individual Cow")}
-            </button>
-            <button
-              onClick={() => setMode("herd")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
-                mode === "herd"
-                  ? "bg-white dark:bg-[#151719] text-emerald-800 dark:text-emerald-300 shadow-sm border border-slate-200/60 dark:border-[#27272A]"
-                  : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
-              }`}
-            >
-              <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              🐄🐄 {t("sim.herd", "Herd")}
-            </button>
-          </div>
-        </div>
-
-        {/* API Error Alert Banner */}
-        {(mode === "cow" ? cowMutation.error : herdMutation.error) && (
-          <div className="flex items-center gap-3 rounded-3xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 p-4 text-rose-950 dark:text-rose-200 shadow-sm">
-            <ShieldAlert className="h-6 w-6 shrink-0 text-rose-600 dark:text-rose-400" />
+      <div className="flex flex-col gap-6 lg:h-[calc(100dvh-130px)]">
+        {/* Top Fixed Section: Header, Mode Switcher, Banners, and Presets */}
+        <div className="shrink-0 space-y-4">
+          {/* Header & Mode Switcher */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h4 className="text-sm font-bold">{t("sim.notice", "Simulation Notice")}</h4>
-              <p className="text-xs text-rose-800 dark:text-rose-300">
-                {((mode === "cow" ? cowMutation.error : herdMutation.error) as any)?.response?.data?.detail ||
-                  (mode === "cow" ? cowMutation.error : herdMutation.error)?.message}
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-[#F4F4F5]">
+                  {t("sim.title", "What-If & Scenario Simulation")}
+                </h1>
+                <span className="flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
+                  <FlaskConical className="h-3.5 w-3.5" />
+                  {t("sim.sandbox", "Read-Only Sandbox")}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-slate-500 dark:text-[#A1A1AA]">
+                {t("sim.subtitle", "Simulate environmental stress, feed ration adjustments, and cooling interventions with transparent financial impact.")}
               </p>
             </div>
-          </div>
-        )}
 
-        {/* Extrapolation Safeguard Banner */}
-        {extrapWarning && (
-          <div className="flex items-center gap-3 rounded-3xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 text-amber-950 dark:text-amber-200 shadow-sm">
-            <ShieldAlert className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" />
-            <div>
-              <h4 className="text-sm font-bold">{t("sim.extrap_title", "Extrapolation Boundary Notice")}</h4>
-              <p className="text-xs text-amber-800 dark:text-amber-300">
-                {t("sim.extrap_desc", "Simulated parameters push beyond typical historical training bounds. Predictions and financial estimates reflect trends but carry higher uncertainty.")}
-              </p>
+            {/* Mode Switcher Tabs */}
+            <div className="flex items-center rounded-2xl bg-slate-100 dark:bg-[#1B1D20] p-1.5 border border-slate-200 dark:border-[#27272A]">
+              <button
+                onClick={() => setMode("cow")}
+                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+                  mode === "cow"
+                    ? "bg-white dark:bg-[#151719] text-emerald-800 dark:text-emerald-300 shadow-sm border border-slate-200/60 dark:border-[#27272A]"
+                    : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                }`}
+              >
+                <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                🐄 {t("sim.individual_cow", "Individual Cow")}
+              </button>
+              <button
+                onClick={() => setMode("herd")}
+                className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+                  mode === "herd"
+                    ? "bg-white dark:bg-[#151719] text-emerald-800 dark:text-emerald-300 shadow-sm border border-slate-200/60 dark:border-[#27272A]"
+                    : "text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-[#F4F4F5]"
+                }`}
+              >
+                <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                🐄🐄 {t("sim.herd", "Herd")}
+              </button>
             </div>
           </div>
-        )}
 
-        {/* Preset Scenario Quick Action Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-sm">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            {t("sim.quick_presets", "Quick Presets:")}
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={applyHeatwavePreset}
-              className="rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 px-3.5 py-1.5 text-xs font-bold text-rose-800 dark:text-rose-300 transition hover:bg-rose-100 dark:hover:bg-rose-900/40"
-            >
-              ☀️ {t("sim.severe_heatwave", "Severe Heatwave (+36°C)")}
-            </button>
-            <button
-              onClick={applyCoolingPreset}
-              className="rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 px-3.5 py-1.5 text-xs font-bold text-sky-800 dark:text-sky-300 transition hover:bg-sky-100 dark:hover:bg-sky-900/40"
-            >
-              ❄️ {t("sim.active_cooling", "Active Cooling (-6 THI)")}
-            </button>
-            <button
-              onClick={applyOptimizedFeedPreset}
-              className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 transition hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
-            >
-              🌾 {t("sim.high_energy_ration", "High-Energy Ration (+4kg)")}
-            </button>
-            <button
-              onClick={resetBaseline}
-              className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-100 dark:bg-[#1B1D20] px-3.5 py-1.5 text-xs font-bold text-slate-700 dark:text-[#F4F4F5] transition hover:bg-slate-200 dark:hover:bg-[#151719]"
-            >
-              🔄 {t("sim.reset_baseline", "Reset Baseline")}
-            </button>
+          {/* API Error Alert Banner */}
+          {(mode === "cow" ? cowMutation.error : herdMutation.error) && (
+            <div className="flex items-center gap-3 rounded-3xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 p-4 text-rose-950 dark:text-rose-200 shadow-sm">
+              <ShieldAlert className="h-6 w-6 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div>
+                <h4 className="text-sm font-bold">{t("sim.notice", "Simulation Notice")}</h4>
+                <p className="text-xs text-rose-800 dark:text-rose-300">
+                  {((mode === "cow" ? cowMutation.error : herdMutation.error) as any)?.response?.data?.detail ||
+                    (mode === "cow" ? cowMutation.error : herdMutation.error)?.message}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Extrapolation Safeguard Banner */}
+          {extrapWarning && (
+            <div className="flex items-center gap-3 rounded-3xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 text-amber-950 dark:text-amber-200 shadow-sm">
+              <ShieldAlert className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" />
+              <div>
+                <h4 className="text-sm font-bold">{t("sim.extrap_title", "Extrapolation Boundary Notice")}</h4>
+                <p className="text-xs text-amber-800 dark:text-amber-300">
+                  {t("sim.extrap_desc", "Simulated parameters push beyond typical historical training bounds. Predictions and financial estimates reflect trends but carry higher uncertainty.")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Preset Scenario Quick Action Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-4 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              {t("sim.quick_presets", "Quick Presets:")}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={applyHeatwavePreset}
+                className="rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 px-3.5 py-1.5 text-xs font-bold text-rose-800 dark:text-rose-300 transition hover:bg-rose-100 dark:hover:bg-rose-900/40"
+              >
+                ☀️ {t("sim.severe_heatwave", "Severe Heatwave (+36°C)")}
+              </button>
+              <button
+                onClick={applyCoolingPreset}
+                className="rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50 dark:bg-sky-950/30 px-3.5 py-1.5 text-xs font-bold text-sky-800 dark:text-sky-300 transition hover:bg-sky-100 dark:hover:bg-sky-900/40"
+              >
+                ❄️ {t("sim.active_cooling", "Active Cooling (-6 THI)")}
+              </button>
+              <button
+                onClick={applyOptimizedFeedPreset}
+                className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 transition hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+              >
+                🌾 {t("sim.high_energy_ration", "High-Energy Ration (+4kg)")}
+              </button>
+              <button
+                onClick={resetBaseline}
+                className="rounded-xl border border-slate-200 dark:border-[#27272A] bg-slate-100 dark:bg-[#1B1D20] px-3.5 py-1.5 text-xs font-bold text-slate-700 dark:text-[#F4F4F5] transition hover:bg-slate-200 dark:hover:bg-[#151719]"
+              >
+                🔄 {t("sim.reset_baseline", "Reset Baseline")}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Main Grid: Control Panel & Results */}
-        <div className="grid gap-6 lg:grid-cols-12 items-start">
-          {/* Controls Column */}
-          <div className="lg:col-span-5 space-y-6 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+        <div className="flex-1 min-h-0 grid gap-6 lg:grid-cols-12 items-start lg:items-stretch">
+          {/* Controls Column (Stationary) */}
+          <div className="lg:col-span-5 space-y-6 rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-6 shadow-sm lg:self-start">
             <div className="border-b border-slate-100 dark:border-[#27272A] pb-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-[#F4F4F5]">
                 {t("sim.scenario_panel", "Scenario Control Panel")}
@@ -619,8 +598,8 @@ export default function SimulationPage() {
             </button>
           </div>
 
-          {/* Results Column */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Results Column (Independently Scrollable on Desktop) */}
+          <div className="lg:col-span-7 space-y-6 lg:h-full lg:overflow-y-auto pr-1">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-12 text-center h-full min-h-[400px]">
                 <RefreshCw className="h-8 w-8 animate-spin text-emerald-600 mb-3" />
@@ -731,31 +710,6 @@ export default function SimulationPage() {
                 {/* Estimated Financial Impact Card */}
                 {activeFinImpact && (
                   <FinancialImpactCard impact={activeFinImpact} isHerd={false} />
-                )}
-
-                {/* Individual Cow Recommendations */}
-                {cowResult.recommendations.length > 0 && (
-                  <div className="rounded-3xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] p-5 shadow-sm space-y-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA] flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      {t("sim.cow_scenario_advice", "Cow Scenario AI Advice")}
-                    </h4>
-                    <div className="space-y-2">
-                      {cowResult.recommendations.map((rec, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-2xl border border-slate-100 dark:border-[#27272A] bg-slate-50 dark:bg-[#1B1D20] p-3.5 text-xs font-medium text-slate-800 dark:text-[#F4F4F5]"
-                        >
-                          <div className="font-bold text-slate-900 dark:text-[#F4F4F5]">
-                            {translateRecommendationTitle(rec.title, t)}
-                          </div>
-                          <div className="mt-1 text-slate-600 dark:text-[#A1A1AA]">
-                            {translateRecommendationDescription(rec.description, t)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 )}
               </>
             ) : mode === "herd" && herdResult ? (

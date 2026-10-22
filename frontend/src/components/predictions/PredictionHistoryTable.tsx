@@ -46,7 +46,7 @@ export default function PredictionHistoryTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
+    <div className="overflow-x-auto w-full max-w-full rounded-2xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#151719] shadow-sm">
       <table className="w-full table-auto text-left">
         <thead className="bg-slate-50 dark:bg-[#1B1D20] text-sm text-slate-600 dark:text-[#A1A1AA] border-b border-slate-200 dark:border-[#27272A]">
           <tr>
